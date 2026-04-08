@@ -5,6 +5,7 @@ struct HomeView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: HomeViewModel?
     @State private var selectedItem: JellyfinItem?
+    @State private var selectedFilter: FilterDestination?
 
     var body: some View {
         NavigationStack {
@@ -23,7 +24,6 @@ struct HomeView: View {
                             Button("home.retry") {
                                 Task { await vm.loadContent() }
                             }
-                            .buttonStyle(.plain)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
@@ -35,6 +35,9 @@ struct HomeView: View {
             }
             .navigationDestination(item: $selectedItem) { item in
                 DetailRouterView(item: item)
+            }
+            .navigationDestination(item: $selectedFilter) { filter in
+                FilteredGridView(title: filter.title, query: filter.query)
             }
         }
         .onAppear {
@@ -57,17 +60,81 @@ struct HomeView: View {
     private func contentView(vm: HomeViewModel) -> some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(alignment: .leading, spacing: 40) {
-                ForEach(vm.rows) { row in
-                    HorizontalMediaRow(
-                        title: row.type.localizedTitle,
-                        items: row.items,
-                        imageURLProvider: { vm.imageURL(for: $0, rowType: row.type) },
-                        onItemSelected: { selectedItem = $0 },
-                        cardStyle: row.type.cardStyle
-                    )
+                ForEach(vm.orderedSections()) { section in
+                    switch section {
+                    case .media(let row):
+                        HorizontalMediaRow(
+                            title: row.type.localizedTitle,
+                            items: row.items,
+                            imageURLProvider: { vm.imageURL(for: $0, rowType: row.type) },
+                            onItemSelected: { selectedItem = $0 },
+                            cardStyle: row.type.cardStyle
+                        )
+
+                    case .tags(let tagRow):
+                        TagRow(
+                            title: tagRow.type.localizedTitle,
+                            tags: tagRow.tags,
+                            onTagSelected: { tag in
+                                selectedFilter = makeFilter(for: tag, type: tagRow.type)
+                            }
+                        )
+                    }
                 }
             }
             .padding(.vertical, 40)
         }
+    }
+
+    private func makeFilter(for tag: NamedItem, type: HomeRowType) -> FilterDestination {
+        switch type {
+        case .genres:
+            FilterDestination(
+                title: tag.name,
+                query: ItemQuery(
+                    includeItemTypes: [.movie, .series],
+                    sortBy: "SortName",
+                    sortOrder: "Ascending",
+                    limit: 50,
+                    genres: [tag.name]
+                )
+            )
+        case .studios:
+            FilterDestination(
+                title: tag.name,
+                query: ItemQuery(
+                    includeItemTypes: [.movie, .series],
+                    sortBy: "SortName",
+                    sortOrder: "Ascending",
+                    limit: 50,
+                    studioIDs: [tag.id]
+                )
+            )
+        default:
+            FilterDestination(title: tag.name, query: ItemQuery())
+        }
+    }
+}
+
+struct FilterDestination: Identifiable, Hashable {
+    let id = UUID()
+    let title: String
+    let query: ItemQuery
+}
+
+extension ItemQuery: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(parentID)
+        hasher.combine(sortBy)
+        hasher.combine(genres)
+        hasher.combine(studioIDs)
+    }
+
+    static func == (lhs: ItemQuery, rhs: ItemQuery) -> Bool {
+        lhs.parentID == rhs.parentID &&
+        lhs.sortBy == rhs.sortBy &&
+        lhs.genres == rhs.genres &&
+        lhs.studioIDs == rhs.studioIDs &&
+        lhs.isFavorite == rhs.isFavorite
     }
 }

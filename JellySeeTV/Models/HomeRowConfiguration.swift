@@ -12,6 +12,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
     case topRatedShows
     case recentlyAdded
     case genres
+    case studios
 
     var id: String { rawValue }
 
@@ -42,6 +43,16 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         }
     }
 
+    /// Genres and Studios are special -- they show tag cards, not media items
+    var isTagRow: Bool {
+        switch self {
+        case .genres, .studios:
+            true
+        default:
+            false
+        }
+    }
+
     var localizedTitle: LocalizedStringKey {
         switch self {
         case .continueWatching: "home.continueWatching"
@@ -55,6 +66,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         case .topRatedShows: "home.topRatedShows"
         case .recentlyAdded: "home.recentlyAdded"
         case .genres: "home.genres"
+        case .studios: "home.studios"
         }
     }
 
@@ -71,6 +83,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         case .topRatedShows: "star.fill"
         case .recentlyAdded: "clock"
         case .genres: "tag"
+        case .studios: "building.2"
         }
     }
 }

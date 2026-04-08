@@ -3,6 +3,7 @@ import SwiftUI
 @Observable
 final class HomeViewModel {
     var rows: [HomeRowData] = []
+    var tagRows: [HomeTagRowData] = []
     var isLoading = true
     var errorMessage: String?
     var rowConfigs: [HomeRowConfig] = []
@@ -35,16 +36,26 @@ final class HomeViewModel {
                 .sorted { $0.sortOrder < $1.sortOrder }
 
             var loadedRows: [HomeRowData] = []
+            var loadedTagRows: [HomeTagRowData] = []
 
             for config in enabledRows {
-                if let rowData = await loadRow(type: config.type) {
-                    if !rowData.items.isEmpty {
-                        loadedRows.append(rowData)
+                if config.type.isTagRow {
+                    if let tagRow = await loadTagRow(type: config.type) {
+                        if !tagRow.tags.isEmpty {
+                            loadedTagRows.append(tagRow)
+                        }
+                    }
+                } else {
+                    if let rowData = await loadRow(type: config.type) {
+                        if !rowData.items.isEmpty {
+                            loadedRows.append(rowData)
+                        }
                     }
                 }
             }
 
             rows = loadedRows
+            tagRows = loadedTagRows
             isLoading = false
         } catch {
             errorMessage = error.localizedDescription
@@ -134,12 +145,28 @@ final class HomeViewModel {
                 let response = try await libraryService.getItems(userID: userID, query: query)
                 items = response.items
 
-            case .genres:
-                // Genres row is special - handled differently in the UI
+            case .genres, .studios:
                 return nil
             }
 
             return HomeRowData(type: type, items: items)
+        } catch {
+            return nil
+        }
+    }
+
+    private func loadTagRow(type: HomeRowType) async -> HomeTagRowData? {
+        do {
+            let tags: [NamedItem]
+            switch type {
+            case .genres:
+                tags = try await libraryService.getGenres(userID: userID)
+            case .studios:
+                tags = try await libraryService.getStudios(userID: userID)
+            default:
+                return nil
+            }
+            return HomeTagRowData(type: type, tags: tags)
         } catch {
             return nil
         }
@@ -155,11 +182,50 @@ final class HomeViewModel {
     func reloadConfig() {
         rowConfigs = HomeRowConfig.loadFromStorage()
     }
+
+    /// Returns the ordered list of all sections (media rows + tag rows) in config order
+    func orderedSections() -> [HomeSection] {
+        let enabledConfigs = rowConfigs
+            .filter(\.isEnabled)
+            .sorted { $0.sortOrder < $1.sortOrder }
+
+        return enabledConfigs.compactMap { config in
+            if config.type.isTagRow {
+                if let tagRow = tagRows.first(where: { $0.type == config.type }) {
+                    return .tags(tagRow)
+                }
+            } else {
+                if let row = rows.first(where: { $0.type == config.type }) {
+                    return .media(row)
+                }
+            }
+            return nil
+        }
+    }
+}
+
+enum HomeSection: Identifiable {
+    case media(HomeRowData)
+    case tags(HomeTagRowData)
+
+    var id: String {
+        switch self {
+        case .media(let data): data.id
+        case .tags(let data): data.id
+        }
+    }
 }
 
 struct HomeRowData: Identifiable, Sendable {
     let type: HomeRowType
     let items: [JellyfinItem]
+
+    var id: String { type.rawValue }
+}
+
+struct HomeTagRowData: Identifiable, Sendable {
+    let type: HomeRowType
+    let tags: [NamedItem]
 
     var id: String { type.rawValue }
 }

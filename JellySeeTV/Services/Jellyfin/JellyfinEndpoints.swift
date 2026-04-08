@@ -25,6 +25,10 @@ enum JellyfinEndpoint: APIEndpoint {
     case episodes(seriesID: String, seasonID: String, userID: String)
     case similarItems(itemID: String, userID: String, limit: Int)
 
+    // Genres & Studios
+    case genres(userID: String)
+    case studios(userID: String)
+
     // Search
     case searchHints(userID: String, query: String, limit: Int)
 
@@ -58,6 +62,10 @@ enum JellyfinEndpoint: APIEndpoint {
             "/Shows/\(seriesID)/Episodes"
         case .similarItems(let itemID, _, _):
             "/Items/\(itemID)/Similar"
+        case .genres:
+            "/Genres"
+        case .studios:
+            "/Studios"
         case .searchHints:
             "/Search/Hints"
         }
@@ -127,6 +135,20 @@ enum JellyfinEndpoint: APIEndpoint {
                 URLQueryItem(name: "Limit", value: String(limit)),
             ]
 
+        case .genres(let userID):
+            return [
+                URLQueryItem(name: "UserId", value: userID),
+                URLQueryItem(name: "SortBy", value: "SortName"),
+                URLQueryItem(name: "SortOrder", value: "Ascending"),
+            ]
+
+        case .studios(let userID):
+            return [
+                URLQueryItem(name: "UserId", value: userID),
+                URLQueryItem(name: "SortBy", value: "SortName"),
+                URLQueryItem(name: "SortOrder", value: "Ascending"),
+            ]
+
         case .searchHints(let userID, let query, let limit):
             return [
                 URLQueryItem(name: "UserId", value: userID),
@@ -171,6 +193,7 @@ struct ItemQuery: Sendable {
     var startIndex: Int?
     var searchTerm: String?
     var genres: [String]?
+    var studioIDs: [String]?
     var isFavorite: Bool?
     var fields: String?
 
@@ -188,6 +211,9 @@ struct ItemQuery: Sendable {
         if let searchTerm { items.append(URLQueryItem(name: "SearchTerm", value: searchTerm)) }
         if let genres {
             items.append(URLQueryItem(name: "Genres", value: genres.joined(separator: "|")))
+        }
+        if let studioIDs {
+            items.append(URLQueryItem(name: "StudioIds", value: studioIDs.joined(separator: ",")))
         }
         if let isFavorite { items.append(URLQueryItem(name: "IsFavorite", value: String(isFavorite))) }
 

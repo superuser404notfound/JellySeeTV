@@ -6,6 +6,8 @@ protocol JellyfinLibraryServiceProtocol: Sendable {
     func getResumeItems(userID: String, mediaType: String, limit: Int) async throws -> JellyfinItemsResponse
     func getNextUp(userID: String, seriesID: String?, limit: Int) async throws -> JellyfinItemsResponse
     func getLatestMedia(userID: String, parentID: String?, limit: Int) async throws -> [JellyfinItem]
+    func getGenres(userID: String) async throws -> [NamedItem]
+    func getStudios(userID: String) async throws -> [NamedItem]
 }
 
 final class JellyfinLibraryService: JellyfinLibraryServiceProtocol {
@@ -57,5 +59,21 @@ final class JellyfinLibraryService: JellyfinLibraryServiceProtocol {
             endpoint: JellyfinEndpoint.latestMedia(userID: userID, parentID: parentID, limit: limit),
             responseType: [JellyfinItem].self
         )
+    }
+
+    func getGenres(userID: String) async throws -> [NamedItem] {
+        let response: NamedItemsResponse = try await client.request(
+            endpoint: JellyfinEndpoint.genres(userID: userID),
+            responseType: NamedItemsResponse.self
+        )
+        return response.items
+    }
+
+    func getStudios(userID: String) async throws -> [NamedItem] {
+        let response: NamedItemsResponse = try await client.request(
+            endpoint: JellyfinEndpoint.studios(userID: userID),
+            responseType: NamedItemsResponse.self
+        )
+        return response.items
     }
 }

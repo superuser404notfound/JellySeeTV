@@ -2854,6 +2854,26 @@
         }
       }
     },
+    "home.studios" : {
+      "comment" : "Section title for studios/providers", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Studios & Providers" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Studios & Anbieter" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Studios et fournisseurs" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estudios y proveedores" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Studi e fornitori" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Estúdios e provedores" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スタジオ・配信元" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "制片厂和提供商" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "스튜디오 및 제공업체" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Studio's en aanbieders" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Studia i dostawcy" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Студии и провайдеры" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Studior och leverantörer" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Studioer og tilbydere" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Studier og udbydere" } }
+      }
+    },
     "home.genres" : {
       "comment" : "Section title for genres",
       "extractionState" : "manual",
