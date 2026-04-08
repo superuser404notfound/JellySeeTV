@@ -1,17 +1,18 @@
 import Foundation
 
-/// Known streaming provider names to filter Jellyfin studios against.
-/// Names are matched case-insensitively and with contains-check for variations.
+/// Known streaming provider / network names to filter Jellyfin studios.
+/// Matched case-insensitively with exact match only.
 enum StreamingProviders {
     static let known: Set<String> = [
-        // Major
+        // Global Streaming
         "Netflix",
-        "Amazon Studios",
-        "Amazon Prime Video",
         "Prime Video",
+        "Amazon Prime Video",
+        "Amazon Studios",
         "Disney+",
         "Disney Plus",
         "Walt Disney Pictures",
+        "Walt Disney Studios",
         "Apple TV+",
         "Apple TV Plus",
         "Apple Studios",
@@ -22,14 +23,44 @@ enum StreamingProviders {
         "Paramount+",
         "Paramount Plus",
         "Peacock",
+        "YouTube",
+        "YouTube Premium",
+        "YouTube Originals",
+
+        // Anime
         "Crunchyroll",
         "Funimation",
+
+        // US Networks / Streaming
+        "ABC",
+        "ABC (US)",
+        "NBC",
+        "CBS",
+        "The CW",
+        "The WB",
+        "Showtime",
+        "Starz",
+        "AMC",
+        "AMC+",
+        "Nickelodeon",
+        "Lionsgate",
+        "Lionsgate+",
+        "MGM+",
+        "Discovery+",
+        "Discovery Plus",
+        "BritBox",
+        "Tubi",
+        "Pluto TV",
+        "Freevee",
+        "MUBI",
+        "Shudder",
 
         // European
         "Sky",
         "Sky Studios",
         "Canal+",
         "ARD",
+        "Das Erste",
         "ZDF",
         "RTL",
         "RTL+",
@@ -43,54 +74,19 @@ enum StreamingProviders {
         "BBC Studios",
         "ITV",
         "Channel 4",
-        "France Télévisions",
-        "TF1",
-        "RAI",
-        "Movistar+",
         "Viaplay",
         "NRK",
         "SVT",
         "DR",
 
-        // Other
-        "Showtime",
-        "Starz",
-        "MGM+",
-        "Lionsgate+",
-        "Discovery+",
-        "Discovery Plus",
-        "BritBox",
-        "Curiosity Stream",
-        "CuriosityStream",
-        "Tubi",
-        "Pluto TV",
-        "Roku Channel",
-        "Freevee",
-        "MUBI",
-        "Criterion Channel",
-        "Shudder",
-        "AMC+",
-        "AMC",
-        "YouTube Premium",
-        "YouTube Originals",
-        "Anime on Demand",
-        "Wakanim",
-        "ADN",
-        "Rakuten TV",
-        "Videoland",
-        "DAZN",
-        "ESPN+",
+        // Japanese
+        "Fuji TV",
+        "TBS (JP)",
+        "NHK",
     ]
 
-    /// Check if a studio name matches a known streaming provider.
-    /// Uses contains-matching so "Netflix, Inc." matches "Netflix".
     static func isProvider(_ studioName: String) -> Bool {
         let lowered = studioName.lowercased()
-        return known.contains { provider in
-            let providerLower = provider.lowercased()
-            return lowered == providerLower
-                || lowered.contains(providerLower)
-                || providerLower.contains(lowered)
-        }
+        return known.contains { $0.lowercased() == lowered }
     }
 }
