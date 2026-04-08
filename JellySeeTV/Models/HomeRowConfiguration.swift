@@ -18,7 +18,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
 
     var defaultEnabled: Bool {
         switch self {
-        case .continueWatching, .nextUp, .latestMovies, .latestShows, .favorites:
+        case .continueWatching, .nextUp, .latestMovies, .latestShows, .favorites, .genres:
             true
         default:
             false

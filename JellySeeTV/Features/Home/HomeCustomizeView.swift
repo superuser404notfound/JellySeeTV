@@ -68,6 +68,16 @@ struct HomeCustomizeView: View {
                         .padding(.horizontal, 50)
                     }
                 }
+
+                // Reset button
+                Button {
+                    resetToDefaults()
+                } label: {
+                    Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
+                        .font(.subheadline)
+                }
+                .padding(.top, 12)
+                .padding(.horizontal, 50)
             }
             .padding(.vertical, 40)
         }
@@ -125,6 +135,13 @@ struct HomeCustomizeView: View {
             if let configIndex = configs.firstIndex(where: { $0.type == row.type }) {
                 configs[configIndex].sortOrder = newIndex
             }
+        }
+        save()
+    }
+
+    private func resetToDefaults() {
+        withAnimation(.easeInOut(duration: 0.25)) {
+            configs = HomeRowConfig.defaultConfig()
         }
         save()
     }

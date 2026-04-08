@@ -2470,6 +2470,26 @@
         }
       }
     },
+    "home.customize.resetDefaults" : {
+      "comment" : "Button to restore default home layout", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore Defaults" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Standard wiederherstellen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rétablir les réglages par défaut" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Restaurar valores predeterminados" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ripristina impostazioni predefinite" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Restaurar padrões" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "デフォルトに戻す" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "恢复默认设置" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "기본값 복원" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Standaard herstellen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Przywróć domyślne" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сбросить по умолчанию" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Återställ standard" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Gjenopprett standard" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Gendan standardindstillinger" } }
+      }
+    },
     "home.customize.moveUp" : {
       "comment" : "Context menu: move row up",
       "extractionState" : "manual",
