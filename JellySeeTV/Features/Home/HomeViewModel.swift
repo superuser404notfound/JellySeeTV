@@ -164,7 +164,8 @@ final class HomeViewModel {
             case .genres:
                 tags = try await libraryService.getGenres(userID: userID)
             case .studios:
-                tags = try await libraryService.getStudios(userID: userID)
+                let allStudios = try await libraryService.getStudios(userID: userID)
+                tags = allStudios.filter { StreamingProviders.isProvider($0.name) }
             default:
                 return nil
             }
