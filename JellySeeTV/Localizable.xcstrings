@@ -1930,6 +1930,7 @@
         }
       }
     },
+    "detail.episode.showDetails" : { "comment" : "Context menu: show episode details", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Details" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Details anzeigen" } }, "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher les détails" } }, "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar detalles" } }, "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra dettagli" } }, "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar detalhes" } }, "ja" : { "stringUnit" : { "state" : "translated", "value" : "詳細を表示" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示详情" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "세부 정보 보기" } }, "nl" : { "stringUnit" : { "state" : "translated", "value" : "Details tonen" } }, "pl" : { "stringUnit" : { "state" : "translated", "value" : "Pokaż szczegóły" } }, "ru" : { "stringUnit" : { "state" : "translated", "value" : "Показать детали" } }, "sv" : { "stringUnit" : { "state" : "translated", "value" : "Visa detaljer" } }, "nb" : { "stringUnit" : { "state" : "translated", "value" : "Vis detaljer" } }, "da" : { "stringUnit" : { "state" : "translated", "value" : "Vis detaljer" } } } },
     "detail.showSeries" : {
       "comment" : "Deselect episode",
       "extractionState" : "manual",

@@ -307,16 +307,41 @@ struct SeriesDetailView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 24) {
                         ForEach(vm.episodes) { episode in
-                            FocusableCard {
+                            Button {
+                                // TODO Phase 3: start playback
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     selectedEpisode = episode
                                 }
-                            } content: { _ in
+                            } label: {
                                 EpisodeLandscapeCard(
                                     episode: episode,
                                     imageURL: dependencies.jellyfinImageService.episodeThumbnailURL(for: episode),
                                     isSelected: selectedEpisode?.id == episode.id
                                 )
+                            }
+                            .buttonStyle(EpisodeCardButtonStyle())
+                            .contextMenu {
+                                Button {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        selectedEpisode = episode
+                                    }
+                                } label: {
+                                    Label("detail.episode.showDetails", systemImage: "info.circle")
+                                }
+
+                                Button {
+                                    // TODO Phase 3: play from start
+                                } label: {
+                                    Label("detail.play", systemImage: "play.fill")
+                                }
+
+                                if let ticks = episode.userData?.playbackPositionTicks, ticks > 0 {
+                                    Button {
+                                        // TODO Phase 3: resume
+                                    } label: {
+                                        Label("detail.resume", systemImage: "play.circle")
+                                    }
+                                }
                             }
                         }
                     }
@@ -371,6 +396,17 @@ struct SeasonTab: View {
         if isFocused { return .white.opacity(0.12) }
         if isSelected { return .white.opacity(0.08) }
         return .clear
+    }
+}
+
+struct EpisodeCardButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(isFocused ? 1.05 : 1.0)
+            .shadow(color: .black.opacity(isFocused ? 0.4 : 0), radius: 20, y: 10)
+            .animation(.easeInOut(duration: 0.2), value: isFocused)
     }
 }
 
