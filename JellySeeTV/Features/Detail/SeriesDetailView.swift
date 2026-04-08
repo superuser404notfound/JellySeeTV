@@ -199,11 +199,13 @@ struct SeriesDetailView: View {
                     action: { /* Phase 3 */ }
                 )
 
-                GlassActionButton(
-                    title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",
-                    systemImage: vm.isFavorite ? "heart.fill" : "heart",
-                    action: { Task { await vm.toggleFavorite() } }
-                )
+                if !isShowingEpisode {
+                    GlassActionButton(
+                        title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",
+                        systemImage: vm.isFavorite ? "heart.fill" : "heart",
+                        action: { Task { await vm.toggleFavorite() } }
+                    )
+                }
 
                 if isShowingEpisode {
                     GlassActionButton(
