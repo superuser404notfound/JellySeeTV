@@ -9,7 +9,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 48) {
                     profileHeader
-                    settingsGrid
+                    settingsList
                     serverInfo
                     logoutButton
                 }
@@ -52,13 +52,10 @@ struct SettingsView: View {
         return String(name.prefix(2)).uppercased()
     }
 
-    // MARK: - Settings Grid
+    // MARK: - Settings List
 
-    private var settingsGrid: some View {
-        LazyVGrid(columns: [
-            GridItem(.flexible(), spacing: 24),
-            GridItem(.flexible(), spacing: 24),
-        ], spacing: 24) {
+    private var settingsList: some View {
+        VStack(spacing: 4) {
             SettingsTile(
                 icon: "square.grid.2x2",
                 title: "settings.home.customize",
@@ -128,46 +125,38 @@ struct SettingsTile<Destination: View>: View {
     let subtitle: LocalizedStringKey
     @ViewBuilder let destination: () -> Destination
 
+    @Environment(\.isFocused) private var isFocused
+
     var body: some View {
         NavigationLink {
             destination()
                 .toolbar(.hidden, for: .tabBar)
         } label: {
-            SettingsTileLabel(icon: icon, title: title, subtitle: subtitle)
+            HStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .frame(width: 36)
+                    .foregroundStyle(.tint)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.body)
+                        .fontWeight(.medium)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(20)
         }
         .buttonStyle(SettingsTileButtonStyle())
-    }
-}
-
-struct SettingsTileLabel: View {
-    let icon: String
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
-
-    var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .frame(width: 36)
-                .foregroundStyle(.tint)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.body)
-                    .fontWeight(.medium)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-
-            Spacer()
-
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-        }
-        .padding(20)
     }
 }
 
@@ -180,7 +169,7 @@ struct SettingsTileButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
             )
-            .scaleEffect(isFocused ? 1.04 : 1.0)
+            .scaleEffect(isFocused ? 1.03 : 1.0)
             .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 15, y: 8)
             .animation(.easeInOut(duration: 0.2), value: isFocused)
     }

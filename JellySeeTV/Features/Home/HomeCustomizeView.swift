@@ -28,15 +28,14 @@ struct HomeCustomizeView: View {
 
                     VStack(spacing: 4) {
                         ForEach(Array(enabledRows.enumerated()), id: \.element.id) { index, config in
-                            CustomizeRowItem(
+                            ActiveRowItem(
                                 config: config,
                                 index: index,
-                                isActive: true,
                                 isFirst: index == 0,
                                 isLast: index == enabledRows.count - 1,
-                                onToggle: { toggle(config.type) },
                                 onMoveUp: { moveUp(config.type) },
-                                onMoveDown: { moveDown(config.type) }
+                                onMoveDown: { moveDown(config.type) },
+                                onRemove: { toggle(config.type) }
                             )
                         }
                     }
@@ -53,16 +52,9 @@ struct HomeCustomizeView: View {
 
                         VStack(spacing: 4) {
                             ForEach(disabledRows) { config in
-                                CustomizeRowItem(
-                                    config: config,
-                                    index: nil,
-                                    isActive: false,
-                                    isFirst: false,
-                                    isLast: false,
-                                    onToggle: { toggle(config.type) },
-                                    onMoveUp: {},
-                                    onMoveDown: {}
-                                )
+                                InactiveRowItem(config: config) {
+                                    toggle(config.type)
+                                }
                             }
                         }
                         .padding(.horizontal, 50)
@@ -155,101 +147,114 @@ struct HomeCustomizeView: View {
     }
 }
 
-// MARK: - Row Item
+// MARK: - Active Row (with move/remove buttons)
 
-struct CustomizeRowItem: View {
+struct ActiveRowItem: View {
     let config: HomeRowConfig
-    let index: Int?
-    let isActive: Bool
+    let index: Int
     let isFirst: Bool
     let isLast: Bool
-    let onToggle: () -> Void
     let onMoveUp: () -> Void
     let onMoveDown: () -> Void
+    let onRemove: () -> Void
 
     var body: some View {
-        Button {
-            // No-op: all actions via context menu
-        } label: {
-            HStack(spacing: 24) {
-                Image(systemName: config.type.systemImage)
-                    .font(.title3)
-                    .frame(width: 40, alignment: .center)
-                    .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
+        HStack(spacing: 16) {
+            // Row info
+            Image(systemName: config.type.systemImage)
+                .font(.title3)
+                .frame(width: 40, alignment: .center)
+                .foregroundStyle(.tint)
 
-                Text(config.type.localizedTitle)
-                    .font(.body)
+            Text(config.type.localizedTitle)
+                .font(.body)
 
-                Spacer()
+            Spacer()
 
-                if isActive, let index {
-                    Text("\(index + 1)")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                        .monospacedDigit()
-                }
-
-                Image(systemName: isActive ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isActive ? AnyShapeStyle(.green) : AnyShapeStyle(.tertiary))
-            }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 20)
-        }
-        .buttonStyle(CustomizeRowButtonStyle())
-        .contextMenu {
-            contextMenuItems
-        }
-    }
-
-    @ViewBuilder
-    private var contextMenuItems: some View {
-        if isActive {
-            if !isFirst {
-                Button {
+            // Action buttons
+            HStack(spacing: 8) {
+                ActionButton(systemImage: "chevron.up", enabled: !isFirst) {
                     onMoveUp()
-                } label: {
-                    Label("home.customize.moveUp", systemImage: "arrow.up")
                 }
-            }
 
-            if !isLast {
-                Button {
+                ActionButton(systemImage: "chevron.down", enabled: !isLast) {
                     onMoveDown()
-                } label: {
-                    Label("home.customize.moveDown", systemImage: "arrow.down")
                 }
-            }
 
-            Divider()
-
-            Button(role: .destructive) {
-                onToggle()
-            } label: {
-                Label("home.customize.remove", systemImage: "minus.circle")
-            }
-        } else {
-            Button {
-                onToggle()
-            } label: {
-                Label("home.customize.add", systemImage: "plus.circle")
+                ActionButton(systemImage: "minus.circle.fill", enabled: true, tint: .red) {
+                    onRemove()
+                }
             }
         }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.white.opacity(0.05))
+        )
     }
 }
 
-// MARK: - Button Style
+// MARK: - Inactive Row (with add button)
 
-struct CustomizeRowButtonStyle: ButtonStyle {
-    @Environment(\.isFocused) private var isFocused
+struct InactiveRowItem: View {
+    let config: HomeRowConfig
+    let onAdd: () -> Void
 
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
-            )
-            .scaleEffect(isFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
+    var body: some View {
+        HStack(spacing: 16) {
+            Image(systemName: config.type.systemImage)
+                .font(.title3)
+                .frame(width: 40, alignment: .center)
+                .foregroundStyle(.tertiary)
+
+            Text(config.type.localizedTitle)
+                .font(.body)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            ActionButton(systemImage: "plus.circle.fill", enabled: true, tint: .green) {
+                onAdd()
+            }
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.white.opacity(0.03))
+        )
+    }
+}
+
+// MARK: - Small Action Button
+
+struct ActionButton: View {
+    let systemImage: String
+    let enabled: Bool
+    var tint: Color = .white
+    let action: () -> Void
+
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            Image(systemName: systemImage)
+                .font(.body)
+                .frame(width: 44, height: 44)
+                .foregroundStyle(enabled ? (isFocused ? tint : tint.opacity(0.6)) : .white.opacity(0.15))
+                .background(
+                    Circle()
+                        .fill(isFocused ? .white.opacity(0.2) : .clear)
+                )
+                .scaleEffect(isFocused ? 1.15 : 1.0)
+                .animation(.easeInOut(duration: 0.15), value: isFocused)
+        }
+        .buttonStyle(.plain)
+        .focused($isFocused)
+        .disabled(!enabled)
     }
 }
 
