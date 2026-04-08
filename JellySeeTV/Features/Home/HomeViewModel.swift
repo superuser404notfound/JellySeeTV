@@ -162,7 +162,8 @@ final class HomeViewModel {
 
             switch type {
             case .genres:
-                tags = try await libraryService.getGenres(userID: userID)
+                let allGenres = try await libraryService.getGenres(userID: userID)
+                tags = allGenres.filter { GenreFilter.isPrimary($0.name) }
             case .studios:
                 let allStudios = try await libraryService.getStudios(userID: userID)
                 #if DEBUG
