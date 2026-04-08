@@ -8,6 +8,7 @@ final class HomeViewModel {
     var errorMessage: String?
     var rowConfigs: [HomeRowConfig] = []
     var needsReload = false
+    var reloadID = UUID()
 
     private let libraryService: JellyfinLibraryServiceProtocol
     private let imageService: JellyfinImageService
@@ -61,6 +62,7 @@ final class HomeViewModel {
             // Atomic swap -- old images stay visible until new data is ready
             rows = newRows
             tagRows = newTagRows
+            reloadID = UUID()
             isLoading = false
         } catch {
             errorMessage = error.localizedDescription
