@@ -1,132 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "home.continueWatching" : {
-      "comment" : "Section title for continue watching row",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue Watching" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Weiterschauen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Continuer à regarder" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Seguir viendo" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Continua a guardare" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Continuar assistindo" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "視聴を続ける" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "继续观看" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "계속 시청" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Verder kijken" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Kontynuuj oglądanie" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Продолжить просмотр" } },
-        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Fortsätt titta" } },
-        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Fortsett å se" } },
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Fortsæt med at se" } }
-      }
-    },
-    "home.nextUp" : {
-      "comment" : "Section title for next up episodes",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next Up" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Als Nächstes" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "À suivre" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Siguiente" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Prossimo" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Próximo" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "次の再生" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "接下来" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다음" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Volgende" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Następne" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Далее" } },
-        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Nästa" } },
-        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Neste" } },
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Næste" } }
-      }
-    },
-    "home.latestMovies" : {
-      "comment" : "Section title for latest movies",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Latest Movies" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Neueste Filme" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Derniers films" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Últimas películas" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ultimi film" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Filmes recentes" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "最新の映画" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最新电影" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최신 영화" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Nieuwste films" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Najnowsze filmy" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Последние фильмы" } },
-        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Senaste filmer" } },
-        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Nyeste filmer" } },
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Nyeste film" } }
-      }
-    },
-    "home.latestShows" : {
-      "comment" : "Section title for latest TV shows",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Latest Shows" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Neueste Serien" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Dernières séries" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Últimas series" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ultime serie" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Séries recentes" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "最新のドラマ" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最新剧集" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최신 시리즈" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Nieuwste series" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Najnowsze seriale" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Последние сериалы" } },
-        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Senaste serier" } },
-        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Nyeste serier" } },
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Nyeste serier" } }
-      }
-    },
-    "home.retry" : {
-      "comment" : "Retry button on error state",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try Again" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erneut versuchen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réessayer" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reintentar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Riprova" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tentar novamente" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "再試行" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重试" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "다시 시도" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Opnieuw proberen" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Spróbuj ponownie" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Повторить" } },
-        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Försök igen" } },
-        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Prøv igjen" } },
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Prøv igen" } }
-      }
-    },
-    "detail.similar" : {
-      "comment" : "Section title for similar items",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "More Like This" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ähnliche Titel" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Titres similaires" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Títulos similares" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Titoli simili" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Títulos semelhantes" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "似ている作品" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "类似推荐" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "비슷한 콘텐츠" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Vergelijkbare titels" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Podobne tytuły" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Похожие" } },
-        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Liknande titlar" } },
-        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Lignende titler" } },
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Lignende titler" } }
-      }
-    },
     "auth.login.password" : {
       "comment" : "Placeholder for the password field",
       "extractionState" : "manual",
@@ -603,6 +477,102 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "用户名"
+          }
+        }
+      }
+    },
+    "auth.login.welcome %@" : {
+      "comment" : "Welcome message shown after successful login with username",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velkommen, %@!"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen, %@!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome, %@!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Bienvenido, %@!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bienvenue, %@ !"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benvenuto, %@!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ようこそ、%@さん！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "환영합니다, %@!"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velkommen, %@!"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welkom, %@!"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Witaj, %@!"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bem-vindo, %@!"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добро пожаловать, %@!"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Välkommen, %@!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "欢迎，%@！"
           }
         }
       }
@@ -1471,6 +1441,106 @@
         }
       }
     },
+    "detail.similar" : {
+      "comment" : "Section title for similar items",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lignende titler"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ähnliche Titel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More Like This"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Títulos similares"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titres similaires"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titoli simili"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "似ている作品"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비슷한 콘텐츠"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lignende titler"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergelijkbare titels"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podobne tytuły"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Títulos semelhantes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Похожие"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liknande titlar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "类似推荐"
+          }
+        }
+      }
+    },
+    "E%lld" : {
+      "comment" : "A number indicating the episode number.",
+      "isCommentAutoGenerated" : true
+    },
     "error.decodingError" : {
       "comment" : "Error when response cannot be decoded",
       "extractionState" : "manual",
@@ -1592,48 +1662,6 @@
         }
       }
     },
-    "auth.login.welcome %@" : {
-      "comment" : "Welcome message shown after successful login with username",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome, %@!" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Willkommen, %@!" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Bienvenue, %@ !" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Bienvenido, %@!" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Benvenuto, %@!" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Bem-vindo, %@!" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ようこそ、%@さん！" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "欢迎，%@！" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "환영합니다, %@!" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Welkom, %@!" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Witaj, %@!" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Добро пожаловать, %@!" } },
-        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Välkommen, %@!" } },
-        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Velkommen, %@!" } },
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Velkommen, %@!" } }
-      }
-    },
-    "settings.logout" : {
-      "comment" : "Logout button in settings",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign Out" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abmelden" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se déconnecter" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar sesión" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Disconnetti" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "サインアウト" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出登录" } },
-        "ko" : { "stringUnit" : { "state" : "translated", "value" : "로그아웃" } },
-        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Uitloggen" } },
-        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wyloguj się" } },
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выйти" } },
-        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Logga ut" } },
-        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Logg ut" } },
-        "da" : { "stringUnit" : { "state" : "translated", "value" : "Log ud" } }
-      }
-    },
     "error.timeout" : {
       "comment" : "Error when request times out",
       "extractionState" : "manual",
@@ -1666,6 +1694,582 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Authentication required"
+          }
+        }
+      }
+    },
+    "home.continueWatching" : {
+      "comment" : "Section title for continue watching row",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsæt med at se"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiterschauen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue Watching"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguir viendo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuer à regarder"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continua a guardare"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "視聴を続ける"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계속 시청"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsett å se"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verder kijken"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontynuuj oglądanie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar assistindo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продолжить просмотр"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsätt titta"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续观看"
+          }
+        }
+      }
+    },
+    "home.latestMovies" : {
+      "comment" : "Section title for latest movies",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyeste film"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neueste Filme"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latest Movies"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimas películas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Derniers films"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi film"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新の映画"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최신 영화"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyeste filmer"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwste films"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najnowsze filmy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filmes recentes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последние фильмы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste filmer"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新电影"
+          }
+        }
+      }
+    },
+    "home.latestShows" : {
+      "comment" : "Section title for latest TV shows",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyeste serier"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neueste Serien"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latest Shows"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimas series"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernières séries"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultime serie"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新のドラマ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최신 시리즈"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyeste serier"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwste series"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najnowsze seriale"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Séries recentes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последние сериалы"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste serier"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最新剧集"
+          }
+        }
+      }
+    },
+    "home.nextUp" : {
+      "comment" : "Section title for next up episodes",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Næste"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als Nächstes"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next Up"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siguiente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À suivre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossimo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次の再生"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neste"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volgende"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Następne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Próximo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Далее"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nästa"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接下来"
+          }
+        }
+      }
+    },
+    "home.retry" : {
+      "comment" : "Retry button on error state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prøv igen"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneut versuchen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reintentar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprova"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再試行"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prøv igjen"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opnieuw proberen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spróbuj ponownie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tentar novamente"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторить"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Försök igen"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
+          }
+        }
+      }
+    },
+    "settings.logout" : {
+      "comment" : "Logout button in settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log ud"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abmelden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar sesión"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se déconnecter"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnetti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サインアウト"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그아웃"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logg ut"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uitloggen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyloguj się"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sair"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выйти"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logga ut"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出登录"
           }
         }
       }

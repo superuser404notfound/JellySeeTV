@@ -55,8 +55,9 @@ struct HomeView: View {
                     HorizontalMediaRow(
                         title: "home.continueWatching",
                         items: vm.continueWatching,
-                        imageURLProvider: { vm.posterURL(for: $0) },
-                        onItemSelected: { selectedItem = $0 }
+                        imageURLProvider: { vm.thumbURL(for: $0) },
+                        onItemSelected: { selectedItem = $0 },
+                        cardStyle: .landscape
                     )
                 }
 
@@ -64,8 +65,9 @@ struct HomeView: View {
                     HorizontalMediaRow(
                         title: "home.nextUp",
                         items: vm.nextUp,
-                        imageURLProvider: { vm.posterURL(for: $0) },
-                        onItemSelected: { selectedItem = $0 }
+                        imageURLProvider: { vm.thumbURL(for: $0) },
+                        onItemSelected: { selectedItem = $0 },
+                        cardStyle: .landscape
                     )
                 }
 

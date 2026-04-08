@@ -1,16 +1,33 @@
 import SwiftUI
 
+enum MediaCardStyle: Sendable {
+    case poster    // Vertical 2:3 (movies, series)
+    case landscape // Horizontal 16:9 (episodes, continue watching)
+}
+
 struct MediaCard: View {
     let item: JellyfinItem
     let imageURL: URL?
-    let width: CGFloat
-    let height: CGFloat
+    let style: MediaCardStyle
 
-    init(item: JellyfinItem, imageURL: URL?, width: CGFloat = 220, height: CGFloat = 330) {
+    private var cardWidth: CGFloat {
+        switch style {
+        case .poster: 220
+        case .landscape: 360
+        }
+    }
+
+    private var cardHeight: CGFloat {
+        switch style {
+        case .poster: 330
+        case .landscape: 202
+        }
+    }
+
+    init(item: JellyfinItem, imageURL: URL?, style: MediaCardStyle = .poster) {
         self.item = item
         self.imageURL = imageURL
-        self.width = width
-        self.height = height
+        self.style = style
     }
 
     var body: some View {
@@ -18,7 +35,7 @@ struct MediaCard: View {
             posterImage
             itemInfo
         }
-        .frame(width: width)
+        .frame(width: cardWidth)
     }
 
     private var posterImage: some View {
@@ -35,7 +52,7 @@ struct MediaCard: View {
                     .foregroundStyle(.tertiary)
             }
         }
-        .frame(width: width, height: height)
+        .frame(width: cardWidth, height: cardHeight)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(alignment: .bottom) {
             progressOverlay
@@ -44,21 +61,39 @@ struct MediaCard: View {
 
     private var itemInfo: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(item.name)
+            Text(displayTitle)
                 .font(.caption)
                 .lineLimit(1)
 
-            if let year = item.productionYear {
-                Text(String(year))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            } else if item.type == .episode, let seriesName = item.seriesName {
-                Text(seriesName)
+            if let subtitle = displaySubtitle {
+                Text(subtitle)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
         }
+    }
+
+    private var displayTitle: String {
+        if style == .landscape, item.type == .episode {
+            if let ep = item.indexNumber {
+                return "E\(ep) · \(item.name)"
+            }
+        }
+        return item.name
+    }
+
+    private var displaySubtitle: String? {
+        if item.type == .episode, let seriesName = item.seriesName {
+            if let season = item.parentIndexNumber {
+                return "\(seriesName) · S\(season)"
+            }
+            return seriesName
+        }
+        if let year = item.productionYear {
+            return String(year)
+        }
+        return nil
     }
 
     @ViewBuilder

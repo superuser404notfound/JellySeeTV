@@ -5,8 +5,7 @@ struct HorizontalMediaRow: View {
     let items: [JellyfinItem]
     let imageURLProvider: (JellyfinItem) -> URL?
     var onItemSelected: ((JellyfinItem) -> Void)?
-    var cardWidth: CGFloat = 220
-    var cardHeight: CGFloat = 330
+    var cardStyle: MediaCardStyle = .poster
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -16,7 +15,7 @@ struct HorizontalMediaRow: View {
                 .padding(.horizontal, 50)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 24) {
+                LazyHStack(spacing: 30) {
                     ForEach(items) { item in
                         Button {
                             onItemSelected?(item)
@@ -24,14 +23,14 @@ struct HorizontalMediaRow: View {
                             MediaCard(
                                 item: item,
                                 imageURL: imageURLProvider(item),
-                                width: cardWidth,
-                                height: cardHeight
+                                style: cardStyle
                             )
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.mediaCard)
                     }
                 }
                 .padding(.horizontal, 50)
+                .padding(.vertical, 20)
             }
         }
     }

@@ -55,4 +55,9 @@ final class HomeViewModel {
     func posterURL(for item: JellyfinItem) -> URL? {
         imageService.posterURL(for: item)
     }
+
+    func thumbURL(for item: JellyfinItem) -> URL? {
+        // Prefer backdrop/thumb for landscape cards
+        imageService.backdropURL(for: item) ?? imageService.posterURL(for: item)
+    }
 }
