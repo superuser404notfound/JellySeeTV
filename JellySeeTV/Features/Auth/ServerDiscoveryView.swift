@@ -51,13 +51,9 @@ struct ServerDiscoveryView: View {
                         .disabled(vm.isLoading || vm.serverAddress.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                     .frame(maxWidth: 500)
-
-                    if let server = vm.discoveredServer {
-                        NavigationLink(
-                            destination: LoginView(server: server),
-                            isActive: Bindable(vm).showLogin
-                        ) {
-                            EmptyView()
+                    .navigationDestination(isPresented: Bindable(vm).showLogin) {
+                        if let server = vm.discoveredServer {
+                            LoginView(server: server)
                         }
                     }
                 }
