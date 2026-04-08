@@ -2265,91 +2265,91 @@
         "da" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hold en række nede for at tilføje, fjerne eller ændre rækkefølgen."
+            "value" : "Vælg hvilke rækker der vises på din startskærm."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Halte eine Reihe gedrückt, um sie hinzuzufügen, zu entfernen oder die Reihenfolge zu ändern."
+            "value" : "Wähle aus, welche Reihen auf deiner Startseite angezeigt werden."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Long press a row to add, remove, or change the order."
+            "value" : "Choose which rows appear on your home screen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mantén pulsada una fila para añadir, eliminar o cambiar el orden."
+            "value" : "Elige qué filas aparecen en tu pantalla de inicio."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Maintenez une ligne enfoncée pour ajouter, supprimer ou réorganiser."
+            "value" : "Choisissez les lignes à afficher sur votre écran d'accueil."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tieni premuta una riga per aggiungere, rimuovere o riordinare."
+            "value" : "Scegli quali righe mostrare nella schermata iniziale."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "行を長押しして追加、削除、並べ替えができます。"
+            "value" : "ホーム画面に表示する行を選択します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "행을 길게 눌러 추가, 제거 또는 순서를 변경하세요."
+            "value" : "홈 화면에 표시할 행을 선택하세요."
           }
         },
         "nb" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hold en rad inne for å legge til, fjerne eller endre rekkefølgen."
+            "value" : "Velg hvilke rader som vises på hjemskjermen."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Houd een rij ingedrukt om toe te voegen, te verwijderen of de volgorde te wijzigen."
+            "value" : "Kies welke rijen op je startscherm verschijnen."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Przytrzymaj wiersz, aby dodać, usunąć lub zmienić kolejność."
+            "value" : "Wybierz, które wiersze mają się pojawiać na ekranie głównym."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mantenha pressionada uma linha para adicionar, remover ou alterar a ordem."
+            "value" : "Escolha quais linhas aparecem na tela inicial."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удерживайте строку, чтобы добавить, удалить или изменить порядок."
+            "value" : "Выберите строки для главного экрана."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tryck och håll en rad för att lägga till, ta bort eller ändra ordningen."
+            "value" : "Välj vilka rader som visas på hemskärmen."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "长按一行以添加、移除或更改顺序。"
+            "value" : "选择主屏幕显示的行。"
           }
         }
       }
