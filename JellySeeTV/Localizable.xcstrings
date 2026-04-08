@@ -1986,6 +1986,46 @@
         }
       }
     },
+    "home.customize.moving" : {
+      "comment" : "Label shown on row being moved", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Moving..." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verschieben..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Déplacement..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Moviendo..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Spostamento..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Movendo..." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "移動中..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "移动中..." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "이동 중..." } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Verplaatsen..." } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Przenoszenie..." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Перемещение..." } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Flyttar..." } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Flytter..." } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Flytter..." } }
+      }
+    },
+    "home.customize.moveTip" : {
+      "comment" : "Tip when a row is selected for moving", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select the position where you want to place it." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wähle die Position, an die es verschoben werden soll." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sélectionnez la position souhaitée." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Selecciona la posición deseada." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Seleziona la posizione desiderata." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Selecione a posição desejada." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "配置する位置を選択してください。" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择要放置的位置。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "놓을 위치를 선택하세요." } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Selecteer de gewenste positie." } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wybierz docelową pozycję." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выберите нужную позицию." } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Välj önskad position." } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Velg ønsket posisjon." } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Vælg den ønskede position." } }
+      }
+    },
     "home.customize.active" : {
       "comment" : "Section header for active rows",
       "extractionState" : "manual",
