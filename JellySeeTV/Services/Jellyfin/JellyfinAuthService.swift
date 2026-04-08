@@ -33,7 +33,7 @@ final class JellyfinAuthService: JellyfinAuthServiceProtocol {
             endpoint: JellyfinEndpoint.quickConnectCheck(secret: secret),
             responseType: QuickConnectCheckResponse.self
         )
-        return response.isAuthorized
+        return response.authenticated
     }
 
     func authenticateWithQuickConnect(secret: String) async throws -> JellyfinAuthResponse {
