@@ -4,100 +4,15 @@ struct HomeCustomizeView: View {
     @State private var configs: [HomeRowConfig] = HomeRowConfig.loadFromStorage()
     @State private var isEditing = false
     @State private var grabbedType: HomeRowType?
+    @State private var dropTargetIndex: Int?
 
     var body: some View {
         ScrollView {
             VStack(spacing: 32) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("home.customize.title")
-                            .font(.title3)
-                            .fontWeight(.semibold)
-
-                        Text(isEditing
-                             ? (grabbedType != nil ? "home.customize.placeTip" : "home.customize.editTip")
-                             : "home.customize.description")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            if isEditing {
-                                grabbedType = nil
-                                isEditing = false
-                            } else {
-                                isEditing = true
-                            }
-                        }
-                    } label: {
-                        Text(isEditing ? "home.customize.done" : "home.customize.edit")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                    }
-                }
-                .padding(.horizontal, 50)
-
-                // Active rows
-                VStack(alignment: .leading, spacing: 12) {
-                    Label("home.customize.active", systemImage: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 50)
-
-                    VStack(spacing: 4) {
-                        ForEach(Array(enabledRows.enumerated()), id: \.element.id) { index, config in
-                            CategoryRow(
-                                config: config,
-                                isEditing: isEditing,
-                                isGrabbed: grabbedType == config.type,
-                                isActive: true,
-                                onTap: { handleTap(config: config, index: index) },
-                                onToggle: { toggle(config.type) }
-                            )
-                        }
-                    }
-                    .padding(.horizontal, 50)
-                }
-
-                // Available rows
-                if !disabledRows.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Label("home.customize.inactive", systemImage: "circle")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 50)
-
-                        VStack(spacing: 4) {
-                            ForEach(disabledRows) { config in
-                                CategoryRow(
-                                    config: config,
-                                    isEditing: isEditing,
-                                    isGrabbed: false,
-                                    isActive: false,
-                                    onTap: {},
-                                    onToggle: { toggle(config.type) }
-                                )
-                            }
-                        }
-                        .padding(.horizontal, 50)
-                    }
-                }
-
-                // Reset button
-                if !isEditing {
-                    Button {
-                        resetToDefaults()
-                    } label: {
-                        Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
-                            .font(.subheadline)
-                    }
-                    .padding(.top, 12)
-                    .padding(.horizontal, 50)
-                }
+                header
+                activeSection
+                if !disabledRows.isEmpty { inactiveSection }
+                if !isEditing { resetButton }
             }
             .padding(.vertical, 40)
         }
@@ -107,6 +22,155 @@ struct HomeCustomizeView: View {
             configs = HomeRowConfig.loadFromStorage()
         }
     }
+
+    // MARK: - Header
+
+    private var header: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("home.customize.title")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+
+                Text(headerSubtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    if isEditing {
+                        grabbedType = nil
+                        dropTargetIndex = nil
+                        isEditing = false
+                    } else {
+                        isEditing = true
+                    }
+                }
+            } label: {
+                Text(isEditing ? "home.customize.done" : "home.customize.edit")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+            }
+        }
+        .padding(.horizontal, 50)
+    }
+
+    private var headerSubtitle: LocalizedStringKey {
+        if !isEditing { return "home.customize.description" }
+        if grabbedType != nil { return "home.customize.placeTip" }
+        return "home.customize.editTip"
+    }
+
+    // MARK: - Active Section
+
+    private var activeSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("home.customize.active", systemImage: "checkmark.circle.fill")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 50)
+
+            VStack(spacing: 0) {
+                ForEach(Array(enabledRows.enumerated()), id: \.element.id) { index, config in
+                    VStack(spacing: 0) {
+                        // Drop indicator line ABOVE this row
+                        if grabbedType != nil && dropTargetIndex == index {
+                            dropIndicator
+                        }
+
+                        HStack(spacing: 0) {
+                            // Main row button (for grab/place)
+                            rowLabel(config: config, isActive: true)
+                                .onTapGesture {
+                                    handleTap(config: config, index: index)
+                                }
+
+                            // Toggle button (edit mode only)
+                            if isEditing {
+                                ToggleButton(isActive: true) {
+                                    toggle(config.type)
+                                }
+                            }
+                        }
+
+                        // Drop indicator AFTER last row
+                        if grabbedType != nil && index == enabledRows.count - 1 && dropTargetIndex == enabledRows.count {
+                            dropIndicator
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 50)
+        }
+    }
+
+    // MARK: - Inactive Section
+
+    private var inactiveSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("home.customize.inactive", systemImage: "circle")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 50)
+
+            VStack(spacing: 0) {
+                ForEach(disabledRows) { config in
+                    HStack(spacing: 0) {
+                        rowLabel(config: config, isActive: false)
+
+                        if isEditing {
+                            ToggleButton(isActive: false) {
+                                toggle(config.type)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 50)
+        }
+    }
+
+    // MARK: - Row Label
+
+    private func rowLabel(config: HomeRowConfig, isActive: Bool) -> some View {
+        CategoryRowLabel(
+            config: config,
+            isActive: isActive,
+            isGrabbed: grabbedType == config.type,
+            isEditing: isEditing
+        )
+    }
+
+    // MARK: - Drop Indicator
+
+    private var dropIndicator: some View {
+        HStack(spacing: 8) {
+            Circle().fill(Color.accentColor).frame(width: 8, height: 8)
+            Rectangle().fill(Color.accentColor).frame(height: 2)
+            Circle().fill(Color.accentColor).frame(width: 8, height: 8)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 4)
+        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+    }
+
+    // MARK: - Reset
+
+    private var resetButton: some View {
+        Button {
+            resetToDefaults()
+        } label: {
+            Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
+                .font(.subheadline)
+        }
+        .padding(.top, 12)
+        .padding(.horizontal, 50)
+    }
+
+    // MARK: - Data
 
     private var enabledRows: [HomeRowConfig] {
         configs.filter(\.isEnabled).sorted { $0.sortOrder < $1.sortOrder }
@@ -122,21 +186,24 @@ struct HomeCustomizeView: View {
         guard isEditing else { return }
 
         if let grabbed = grabbedType {
-            // Place the grabbed item at this position
             guard grabbed != config.type else {
-                // Tapped same item -- deselect
-                withAnimation(.easeInOut(duration: 0.2)) { grabbedType = nil }
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    grabbedType = nil
+                    dropTargetIndex = nil
+                }
                 return
             }
 
             withAnimation(.easeInOut(duration: 0.25)) {
                 placeGrabbed(grabbed, at: index)
                 grabbedType = nil
+                dropTargetIndex = nil
             }
         } else {
-            // Grab this item
             withAnimation(.easeInOut(duration: 0.2)) {
                 grabbedType = config.type
+                // Show drop indicator at the grabbed item's position
+                dropTargetIndex = index
             }
         }
     }
@@ -164,11 +231,12 @@ struct HomeCustomizeView: View {
 
         withAnimation(.easeInOut(duration: 0.25)) {
             configs[index].isEnabled.toggle()
-
             if configs[index].isEnabled {
                 let maxOrder = configs.filter(\.isEnabled).map(\.sortOrder).max() ?? 0
                 configs[index].sortOrder = maxOrder + 1
             }
+            grabbedType = nil
+            dropTargetIndex = nil
         }
         save()
     }
@@ -186,87 +254,79 @@ struct HomeCustomizeView: View {
     }
 }
 
-// MARK: - Category Row
+// MARK: - Category Row Label (focusable, shows grab state)
 
-struct CategoryRow: View {
+struct CategoryRowLabel: View {
     let config: HomeRowConfig
-    let isEditing: Bool
-    let isGrabbed: Bool
     let isActive: Bool
-    let onTap: () -> Void
-    let onToggle: () -> Void
+    let isGrabbed: Bool
+    let isEditing: Bool
+
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        HStack(spacing: 20) {
+            Image(systemName: config.type.systemImage)
+                .font(.title3)
+                .frame(width: 40, alignment: .center)
+                .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
+
+            Text(config.type.localizedTitle)
+                .font(.body)
+                .foregroundStyle(isActive ? .primary : .secondary)
+
+            Spacer()
+        }
+        .padding(.vertical, 14)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(rowBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isGrabbed ? Color.accentColor.opacity(0.8) : Color.clear, lineWidth: 2)
+        )
+        .opacity(isGrabbed ? 0.6 : 1.0)
+        .focusable(isEditing && isActive)
+        .focused($isFocused)
+        .scaleEffect(isFocused ? 1.02 : 1.0)
+        .animation(.easeInOut(duration: 0.15), value: isFocused)
+        .animation(.easeInOut(duration: 0.15), value: isGrabbed)
+    }
+
+    private var rowBackground: Color {
+        if isGrabbed { return Color.accentColor.opacity(0.15) }
+        if isFocused { return .white.opacity(0.12) }
+        return isActive ? .white.opacity(0.05) : .white.opacity(0.02)
+    }
+}
+
+// MARK: - Toggle Button (plus/minus, separately focusable)
+
+struct ToggleButton: View {
+    let isActive: Bool
+    let action: () -> Void
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
         Button {
-            if isEditing && isActive {
-                onTap()
-            }
-        } label: {
-            HStack(spacing: 20) {
-                Image(systemName: config.type.systemImage)
-                    .font(.title3)
-                    .frame(width: 40, alignment: .center)
-                    .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
-
-                Text(config.type.localizedTitle)
-                    .font(.body)
-                    .foregroundStyle(isActive ? .primary : .secondary)
-
-                Spacer()
-
-                if isEditing {
-                    toggleButton
-                }
-            }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 20)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(rowBackground)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isGrabbed ? Color.accentColor.opacity(0.8) : Color.clear, lineWidth: 2)
-            )
-            .scaleEffect(isGrabbed ? 1.03 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isGrabbed)
-        }
-        .buttonStyle(CategoryRowButtonStyle(isFocused: _isFocused))
-        .focused($isFocused)
-    }
-
-    private var rowBackground: Color {
-        if isGrabbed {
-            return Color.accentColor.opacity(0.15)
-        }
-        if isFocused {
-            return .white.opacity(0.12)
-        }
-        return isActive ? .white.opacity(0.05) : .white.opacity(0.02)
-    }
-
-    @ViewBuilder
-    private var toggleButton: some View {
-        Button {
-            onToggle()
+            action()
         } label: {
             Image(systemName: isActive ? "minus.circle.fill" : "plus.circle.fill")
                 .font(.title3)
                 .foregroundStyle(isActive ? .red : .green)
+                .frame(width: 50, height: 50)
+                .background(
+                    Circle()
+                        .fill(isFocused ? .white.opacity(0.2) : .clear)
+                )
+                .scaleEffect(isFocused ? 1.2 : 1.0)
+                .animation(.easeInOut(duration: 0.15), value: isFocused)
         }
         .buttonStyle(.plain)
-    }
-}
-
-struct CategoryRowButtonStyle: ButtonStyle {
-    @FocusState var isFocused: Bool
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(isFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
+        .focused($isFocused)
     }
 }
 
