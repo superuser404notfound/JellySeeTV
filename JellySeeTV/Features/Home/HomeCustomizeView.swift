@@ -2,36 +2,49 @@ import SwiftUI
 
 struct HomeCustomizeView: View {
     @State private var configs: [HomeRowConfig] = HomeRowConfig.loadFromStorage()
-    @State private var hasChanges = false
 
     var body: some View {
-        List {
-            Section {
+        ScrollView {
+            VStack(spacing: 32) {
                 Text("home.customize.description")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
-            }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 50)
 
-            Section {
-                ForEach(enabledRows) { config in
-                    rowToggle(for: config.type)
-                }
-                .onMove { source, destination in
-                    moveEnabledRow(from: source, to: destination)
-                }
-            } header: {
-                Label("home.customize.active", systemImage: "checkmark.circle.fill")
-            }
+                // Active rows
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("home.customize.active", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 50)
 
-            if !disabledRows.isEmpty {
-                Section {
-                    ForEach(disabledRows) { config in
-                        rowToggle(for: config.type)
+                    VStack(spacing: 2) {
+                        ForEach(Array(enabledRows.enumerated()), id: \.element.id) { index, config in
+                            rowItem(config: config, index: index, isActive: true)
+                        }
                     }
-                } header: {
-                    Label("home.customize.inactive", systemImage: "circle")
+                    .padding(.horizontal, 50)
+                }
+
+                // Available rows
+                if !disabledRows.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("home.customize.inactive", systemImage: "circle")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 50)
+
+                        VStack(spacing: 2) {
+                            ForEach(disabledRows) { config in
+                                rowItem(config: config, index: nil, isActive: false)
+                            }
+                        }
+                        .padding(.horizontal, 50)
+                    }
                 }
             }
+            .padding(.vertical, 40)
         }
         .navigationTitle("home.customize.title")
     }
@@ -44,30 +57,72 @@ struct HomeCustomizeView: View {
         configs.filter { !$0.isEnabled }
     }
 
-    private func rowToggle(for type: HomeRowType) -> some View {
-        let isEnabled = configs.first(where: { $0.type == type })?.isEnabled ?? false
-
-        return Button {
-            toggle(type)
+    private func rowItem(config: HomeRowConfig, index: Int?, isActive: Bool) -> some View {
+        Button {
+            toggle(config.type)
         } label: {
-            HStack(spacing: 14) {
-                Image(systemName: type.systemImage)
-                    .font(.body)
-                    .frame(width: 28)
-                    .foregroundStyle(isEnabled ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
+            HStack(spacing: 16) {
+                Image(systemName: config.type.systemImage)
+                    .font(.title3)
+                    .frame(width: 32)
+                    .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
 
-                Text(type.localizedTitle)
-                    .foregroundStyle(isEnabled ? .primary : .secondary)
+                Text(config.type.localizedTitle)
+                    .font(.body)
 
                 Spacer()
 
-                if isEnabled {
-                    Image(systemName: "line.3.horizontal")
+                if isActive, let index {
+                    Text("\(index + 1)")
+                        .font(.caption)
                         .foregroundStyle(.tertiary)
+                        .monospacedDigit()
+                }
+
+                Image(systemName: isActive ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isActive ? AnyShapeStyle(.green) : AnyShapeStyle(.tertiary))
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            if isActive {
+                if let index, index > 0 {
+                    Button {
+                        moveUp(config.type)
+                    } label: {
+                        Label("home.customize.moveUp", systemImage: "arrow.up")
+                    }
+                }
+
+                if let index, index < enabledRows.count - 1 {
+                    Button {
+                        moveDown(config.type)
+                    } label: {
+                        Label("home.customize.moveDown", systemImage: "arrow.down")
+                    }
+                }
+
+                Divider()
+
+                Button(role: .destructive) {
+                    toggle(config.type)
+                } label: {
+                    Label("home.customize.remove", systemImage: "minus.circle")
+                }
+            } else {
+                Button {
+                    toggle(config.type)
+                } label: {
+                    Label("home.customize.add", systemImage: "plus.circle")
                 }
             }
         }
     }
+
+    // MARK: - Actions
 
     private func toggle(_ type: HomeRowType) {
         guard let index = configs.firstIndex(where: { $0.type == type }) else { return }
@@ -81,22 +136,33 @@ struct HomeCustomizeView: View {
         save()
     }
 
-    private func moveEnabledRow(from source: IndexSet, to destination: Int) {
+    private func moveUp(_ type: HomeRowType) {
         var enabled = enabledRows
-        enabled.move(fromOffsets: source, toOffset: destination)
+        guard let currentIndex = enabled.firstIndex(where: { $0.type == type }), currentIndex > 0 else { return }
 
-        for (newIndex, row) in enabled.enumerated() {
+        enabled.swapAt(currentIndex, currentIndex - 1)
+        applyOrder(enabled)
+    }
+
+    private func moveDown(_ type: HomeRowType) {
+        var enabled = enabledRows
+        guard let currentIndex = enabled.firstIndex(where: { $0.type == type }), currentIndex < enabled.count - 1 else { return }
+
+        enabled.swapAt(currentIndex, currentIndex + 1)
+        applyOrder(enabled)
+    }
+
+    private func applyOrder(_ ordered: [HomeRowConfig]) {
+        for (newIndex, row) in ordered.enumerated() {
             if let configIndex = configs.firstIndex(where: { $0.type == row.type }) {
                 configs[configIndex].sortOrder = newIndex
             }
         }
-
         save()
     }
 
     private func save() {
         HomeRowConfig.saveToStorage(configs)
-        hasChanges = true
     }
 }
 

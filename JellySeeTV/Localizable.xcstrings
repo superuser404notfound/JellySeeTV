@@ -2579,6 +2579,146 @@
         "da" : { "stringUnit" : { "state" : "translated", "value" : "Tilgængelig" } }
       }
     },
+    "home.customize.moveUp" : {
+      "comment" : "Context menu: move row up", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Move Up" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nach oben" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Monter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Subir" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sposta su" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mover para cima" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "上に移動" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "上移" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "위로 이동" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Omhoog" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Przesuń w górę" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Вверх" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Flytta upp" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Flytt opp" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Flyt op" } }
+      }
+    },
+    "home.customize.moveDown" : {
+      "comment" : "Context menu: move row down", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Move Down" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nach unten" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Descendre" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Bajar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sposta giù" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mover para baixo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "下に移動" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下移" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아래로 이동" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Omlaag" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Przesuń w dół" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Вниз" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Flytta ner" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Flytt ned" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Flyt ned" } }
+      }
+    },
+    "home.customize.remove" : {
+      "comment" : "Context menu: remove/disable row", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Entfernen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rimuovi" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Remover" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "削除" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "移除" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "제거" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Verwijderen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Usuń" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Удалить" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Ta bort" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Fjern" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Fjern" } }
+      }
+    },
+    "home.customize.add" : {
+      "comment" : "Context menu: add/enable row", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add to Home" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zur Startseite hinzufügen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter à l'accueil" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir al inicio" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aggiungi alla home" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Adicionar ao início" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホームに追加" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加到首页" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "홈에 추가" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Toevoegen aan home" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Dodaj do strony głównej" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Добавить на главную" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Lägg till på hem" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Legg til på hjem" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Tilføj til hjem" } }
+      }
+    },
+    "settings.home.customizeSubtitle" : {
+      "comment" : "Subtitle for home customize tile", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose and order your home rows" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Reihen der Startseite wählen und sortieren" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Choisir et ordonner les lignes" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Elige y ordena las filas" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Scegli e ordina le righe" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Escolha e ordene as linhas" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホーム行の選択と並べ替え" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "选择并排列首页行" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "홈 행 선택 및 정렬" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kies en orden je rijen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wybierz i uporządkuj wiersze" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбор и порядок строк" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Välj och ordna rader" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Velg og sorter rader" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Vælg og sorter rækker" } }
+      }
+    },
+    "settings.playback.subtitle" : {
+      "comment" : "Subtitle for playback settings tile", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quality, audio and subtitles" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Qualität, Audio und Untertitel" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Qualité, audio et sous-titres" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Calidad, audio y subtítulos" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Qualità, audio e sottotitoli" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Qualidade, áudio e legendas" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "品質、音声、字幕" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "画质、音频和字幕" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "화질, 오디오, 자막" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Kwaliteit, audio en ondertiteling" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Jakość, dźwięk i napisy" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Качество, аудио и субтитры" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Kvalitet, ljud och undertexter" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Kvalitet, lyd og undertekster" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Kvalitet, lyd og undertekster" } }
+      }
+    },
+    "settings.about.serverAddress" : {
+      "comment" : "Server address label", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Server" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Server" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Serveur" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Servidor" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Server" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Servidor" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "サーバー" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "服务器" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "서버" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Server" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Serwer" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сервер" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Server" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Server" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Server" } }
+      }
+    },
     "settings.logout" : {
       "comment" : "Logout button in settings",
       "extractionState" : "manual",
