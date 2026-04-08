@@ -2,20 +2,42 @@ import SwiftUI
 
 struct HomeCustomizeView: View {
     @State private var configs: [HomeRowConfig] = HomeRowConfig.loadFromStorage()
+    @State private var isEditing = false
+    @State private var grabbedType: HomeRowType?
 
     var body: some View {
         ScrollView {
             VStack(spacing: 32) {
-                VStack(spacing: 8) {
-                    Text("home.customize.title")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("home.customize.title")
+                            .font(.title3)
+                            .fontWeight(.semibold)
 
-                    Text("home.customize.description")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(isEditing
+                             ? (grabbedType != nil ? "home.customize.placeTip" : "home.customize.editTip")
+                             : "home.customize.description")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            if isEditing {
+                                grabbedType = nil
+                                isEditing = false
+                            } else {
+                                isEditing = true
+                            }
+                        }
+                    } label: {
+                        Text(isEditing ? "home.customize.done" : "home.customize.edit")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                    }
                 }
                 .padding(.horizontal, 50)
 
@@ -28,14 +50,13 @@ struct HomeCustomizeView: View {
 
                     VStack(spacing: 4) {
                         ForEach(Array(enabledRows.enumerated()), id: \.element.id) { index, config in
-                            ActiveRowItem(
+                            CategoryRow(
                                 config: config,
-                                index: index,
-                                isFirst: index == 0,
-                                isLast: index == enabledRows.count - 1,
-                                onMoveUp: { moveUp(config.type) },
-                                onMoveDown: { moveDown(config.type) },
-                                onRemove: { toggle(config.type) }
+                                isEditing: isEditing,
+                                isGrabbed: grabbedType == config.type,
+                                isActive: true,
+                                onTap: { handleTap(config: config, index: index) },
+                                onToggle: { toggle(config.type) }
                             )
                         }
                     }
@@ -52,9 +73,14 @@ struct HomeCustomizeView: View {
 
                         VStack(spacing: 4) {
                             ForEach(disabledRows) { config in
-                                InactiveRowItem(config: config) {
-                                    toggle(config.type)
-                                }
+                                CategoryRow(
+                                    config: config,
+                                    isEditing: isEditing,
+                                    isGrabbed: false,
+                                    isActive: false,
+                                    onTap: {},
+                                    onToggle: { toggle(config.type) }
+                                )
                             }
                         }
                         .padding(.horizontal, 50)
@@ -62,14 +88,16 @@ struct HomeCustomizeView: View {
                 }
 
                 // Reset button
-                Button {
-                    resetToDefaults()
-                } label: {
-                    Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
-                        .font(.subheadline)
+                if !isEditing {
+                    Button {
+                        resetToDefaults()
+                    } label: {
+                        Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
+                            .font(.subheadline)
+                    }
+                    .padding(.top, 12)
+                    .padding(.horizontal, 50)
                 }
-                .padding(.top, 12)
-                .padding(.horizontal, 50)
             }
             .padding(.vertical, 40)
         }
@@ -88,6 +116,47 @@ struct HomeCustomizeView: View {
         configs.filter { !$0.isEnabled }
     }
 
+    // MARK: - Tap Logic
+
+    private func handleTap(config: HomeRowConfig, index: Int) {
+        guard isEditing else { return }
+
+        if let grabbed = grabbedType {
+            // Place the grabbed item at this position
+            guard grabbed != config.type else {
+                // Tapped same item -- deselect
+                withAnimation(.easeInOut(duration: 0.2)) { grabbedType = nil }
+                return
+            }
+
+            withAnimation(.easeInOut(duration: 0.25)) {
+                placeGrabbed(grabbed, at: index)
+                grabbedType = nil
+            }
+        } else {
+            // Grab this item
+            withAnimation(.easeInOut(duration: 0.2)) {
+                grabbedType = config.type
+            }
+        }
+    }
+
+    private func placeGrabbed(_ type: HomeRowType, at targetIndex: Int) {
+        var enabled = enabledRows
+        guard let sourceIndex = enabled.firstIndex(where: { $0.type == type }) else { return }
+
+        let item = enabled.remove(at: sourceIndex)
+        let insertAt = min(targetIndex, enabled.count)
+        enabled.insert(item, at: insertAt)
+
+        for (newIndex, row) in enabled.enumerated() {
+            if let configIndex = configs.firstIndex(where: { $0.type == row.type }) {
+                configs[configIndex].sortOrder = newIndex
+            }
+        }
+        save()
+    }
+
     // MARK: - Actions
 
     private func toggle(_ type: HomeRowType) {
@@ -99,36 +168,6 @@ struct HomeCustomizeView: View {
             if configs[index].isEnabled {
                 let maxOrder = configs.filter(\.isEnabled).map(\.sortOrder).max() ?? 0
                 configs[index].sortOrder = maxOrder + 1
-            }
-        }
-
-        save()
-    }
-
-    private func moveUp(_ type: HomeRowType) {
-        var enabled = enabledRows
-        guard let currentIndex = enabled.firstIndex(where: { $0.type == type }), currentIndex > 0 else { return }
-
-        withAnimation(.easeInOut(duration: 0.25)) {
-            enabled.swapAt(currentIndex, currentIndex - 1)
-            applyOrder(enabled)
-        }
-    }
-
-    private func moveDown(_ type: HomeRowType) {
-        var enabled = enabledRows
-        guard let currentIndex = enabled.firstIndex(where: { $0.type == type }), currentIndex < enabled.count - 1 else { return }
-
-        withAnimation(.easeInOut(duration: 0.25)) {
-            enabled.swapAt(currentIndex, currentIndex + 1)
-            applyOrder(enabled)
-        }
-    }
-
-    private func applyOrder(_ ordered: [HomeRowConfig]) {
-        for (newIndex, row) in ordered.enumerated() {
-            if let configIndex = configs.firstIndex(where: { $0.type == row.type }) {
-                configs[configIndex].sortOrder = newIndex
             }
         }
         save()
@@ -147,114 +186,87 @@ struct HomeCustomizeView: View {
     }
 }
 
-// MARK: - Active Row (with move/remove buttons)
+// MARK: - Category Row
 
-struct ActiveRowItem: View {
+struct CategoryRow: View {
     let config: HomeRowConfig
-    let index: Int
-    let isFirst: Bool
-    let isLast: Bool
-    let onMoveUp: () -> Void
-    let onMoveDown: () -> Void
-    let onRemove: () -> Void
-
-    var body: some View {
-        HStack(spacing: 16) {
-            // Row info
-            Image(systemName: config.type.systemImage)
-                .font(.title3)
-                .frame(width: 40, alignment: .center)
-                .foregroundStyle(.tint)
-
-            Text(config.type.localizedTitle)
-                .font(.body)
-
-            Spacer()
-
-            // Action buttons
-            HStack(spacing: 8) {
-                ActionButton(systemImage: "chevron.up", enabled: !isFirst) {
-                    onMoveUp()
-                }
-
-                ActionButton(systemImage: "chevron.down", enabled: !isLast) {
-                    onMoveDown()
-                }
-
-                ActionButton(systemImage: "minus.circle.fill", enabled: true, tint: .red) {
-                    onRemove()
-                }
-            }
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.white.opacity(0.05))
-        )
-    }
-}
-
-// MARK: - Inactive Row (with add button)
-
-struct InactiveRowItem: View {
-    let config: HomeRowConfig
-    let onAdd: () -> Void
-
-    var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: config.type.systemImage)
-                .font(.title3)
-                .frame(width: 40, alignment: .center)
-                .foregroundStyle(.tertiary)
-
-            Text(config.type.localizedTitle)
-                .font(.body)
-                .foregroundStyle(.secondary)
-
-            Spacer()
-
-            ActionButton(systemImage: "plus.circle.fill", enabled: true, tint: .green) {
-                onAdd()
-            }
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.white.opacity(0.03))
-        )
-    }
-}
-
-// MARK: - Small Action Button
-
-struct ActionButton: View {
-    let systemImage: String
-    let enabled: Bool
-    var tint: Color = .white
-    let action: () -> Void
+    let isEditing: Bool
+    let isGrabbed: Bool
+    let isActive: Bool
+    let onTap: () -> Void
+    let onToggle: () -> Void
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
         Button {
-            action()
+            if isEditing && isActive {
+                onTap()
+            }
         } label: {
-            Image(systemName: systemImage)
-                .font(.body)
-                .frame(width: 44, height: 44)
-                .foregroundStyle(enabled ? (isFocused ? tint : tint.opacity(0.6)) : .white.opacity(0.15))
-                .background(
-                    Circle()
-                        .fill(isFocused ? .white.opacity(0.2) : .clear)
-                )
-                .scaleEffect(isFocused ? 1.15 : 1.0)
-                .animation(.easeInOut(duration: 0.15), value: isFocused)
+            HStack(spacing: 20) {
+                Image(systemName: config.type.systemImage)
+                    .font(.title3)
+                    .frame(width: 40, alignment: .center)
+                    .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
+
+                Text(config.type.localizedTitle)
+                    .font(.body)
+                    .foregroundStyle(isActive ? .primary : .secondary)
+
+                Spacer()
+
+                if isEditing {
+                    toggleButton
+                }
+            }
+            .padding(.vertical, 14)
+            .padding(.horizontal, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(rowBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isGrabbed ? Color.accentColor.opacity(0.8) : Color.clear, lineWidth: 2)
+            )
+            .scaleEffect(isGrabbed ? 1.03 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isGrabbed)
+        }
+        .buttonStyle(CategoryRowButtonStyle(isFocused: _isFocused))
+        .focused($isFocused)
+    }
+
+    private var rowBackground: Color {
+        if isGrabbed {
+            return Color.accentColor.opacity(0.15)
+        }
+        if isFocused {
+            return .white.opacity(0.12)
+        }
+        return isActive ? .white.opacity(0.05) : .white.opacity(0.02)
+    }
+
+    @ViewBuilder
+    private var toggleButton: some View {
+        Button {
+            onToggle()
+        } label: {
+            Image(systemName: isActive ? "minus.circle.fill" : "plus.circle.fill")
+                .font(.title3)
+                .foregroundStyle(isActive ? .red : .green)
         }
         .buttonStyle(.plain)
-        .focused($isFocused)
-        .disabled(!enabled)
+    }
+}
+
+struct CategoryRowButtonStyle: ButtonStyle {
+    @FocusState var isFocused: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(isFocused ? 1.02 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
     }
 }
 
