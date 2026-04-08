@@ -85,6 +85,11 @@ final class JellyfinImageService {
         return nil
     }
 
+    func personImageURL(personID: String, tag: String?, maxWidth: Int = 200) -> URL? {
+        guard let base = baseURL(), let tag else { return nil }
+        return URL(string: "\(base)/Items/\(personID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90")
+    }
+
     func studioLogoURL(studioName: String, maxWidth: Int = 400) -> URL? {
         guard let base = baseURL() else { return nil }
         let encoded = studioName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? studioName
