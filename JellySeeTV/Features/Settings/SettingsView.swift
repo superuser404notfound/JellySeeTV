@@ -128,26 +128,23 @@ struct SettingsTile<Destination: View>: View {
     let subtitle: LocalizedStringKey
     @ViewBuilder let destination: () -> Destination
 
-    @FocusState private var isFocused: Bool
-    @State private var navigate = false
+    var body: some View {
+        NavigationLink {
+            destination()
+                .toolbar(.hidden, for: .tabBar)
+        } label: {
+            SettingsTileLabel(icon: icon, title: title, subtitle: subtitle)
+        }
+        .buttonStyle(SettingsTileButtonStyle())
+    }
+}
+
+struct SettingsTileLabel: View {
+    let icon: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
 
     var body: some View {
-        tileContent
-            .focusable()
-            .focused($isFocused)
-            .onLongPressGesture(minimumDuration: 0) {
-                navigate = true
-            }
-            .scaleEffect(isFocused ? 1.04 : 1.0)
-            .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 15, y: 8)
-            .animation(.easeInOut(duration: 0.2), value: isFocused)
-            .navigationDestination(isPresented: $navigate) {
-                destination()
-                    .toolbar(.hidden, for: .tabBar)
-            }
-    }
-
-    private var tileContent: some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.title2)
@@ -171,10 +168,21 @@ struct SettingsTile<Destination: View>: View {
                 .foregroundStyle(.tertiary)
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
-        )
+    }
+}
+
+struct SettingsTileButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
+            )
+            .scaleEffect(isFocused ? 1.04 : 1.0)
+            .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 15, y: 8)
+            .animation(.easeInOut(duration: 0.2), value: isFocused)
     }
 }
 
