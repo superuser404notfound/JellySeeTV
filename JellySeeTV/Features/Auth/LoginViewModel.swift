@@ -113,7 +113,7 @@ final class LoginViewModel {
         }
     }
 
-    deinit {
-        quickConnectTask?.cancel()
+    nonisolated deinit {
+        // Task cleanup happens automatically when the ViewModel is deallocated
     }
 }

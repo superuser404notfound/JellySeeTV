@@ -1,7 +1,7 @@
 import Foundation
 
 extension JSONDecoder.KeyDecodingStrategy {
-    static var convertFromPascalCase: JSONDecoder.KeyDecodingStrategy {
+    nonisolated static var convertFromPascalCase: JSONDecoder.KeyDecodingStrategy {
         .custom { codingKeys in
             let key = codingKeys.last!.stringValue
             guard !key.isEmpty else { return codingKeys.last! }

@@ -5,14 +5,20 @@ protocol ServerDiscoveryServiceProtocol: Sendable {
 }
 
 enum ServerDiscoveryResult: Sendable {
-    case success(url: URL, serverInfo: JellyfinPublicServerInfo)
+    case success(url: URL, serverInfo: ServerDiscoveryInfo)
     case failure(APIError)
+}
+
+struct ServerDiscoveryInfo: Sendable {
+    let id: String
+    let serverName: String
+    let version: String
 }
 
 final class ServerDiscoveryService: ServerDiscoveryServiceProtocol {
     private let httpClient: HTTPClientProtocol
 
-    init(httpClient: HTTPClientProtocol = HTTPClient()) {
+    nonisolated init(httpClient: HTTPClientProtocol = HTTPClient()) {
         self.httpClient = httpClient
     }
 
@@ -27,7 +33,12 @@ final class ServerDiscoveryService: ServerDiscoveryServiceProtocol {
                     headers: ["Accept": "application/json"],
                     responseType: JellyfinPublicServerInfo.self
                 )
-                return .success(url: url, serverInfo: serverInfo)
+                let info = ServerDiscoveryInfo(
+                    id: serverInfo.id,
+                    serverName: serverInfo.serverName,
+                    version: serverInfo.version
+                )
+                return .success(url: url, serverInfo: info)
             } catch {
                 continue
             }

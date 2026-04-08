@@ -1,13 +1,12 @@
 import Foundation
 
 protocol JellyfinAuthServiceProtocol: Sendable {
-    @MainActor func login(username: String, password: String) async throws -> JellyfinAuthResponse
-    @MainActor func initiateQuickConnect() async throws -> QuickConnectInitResponse
-    @MainActor func checkQuickConnect(secret: String) async throws -> Bool
-    @MainActor func authenticateWithQuickConnect(secret: String) async throws -> JellyfinAuthResponse
+    func login(username: String, password: String) async throws -> JellyfinAuthResponse
+    func initiateQuickConnect() async throws -> QuickConnectInitResponse
+    func checkQuickConnect(secret: String) async throws -> Bool
+    func authenticateWithQuickConnect(secret: String) async throws -> JellyfinAuthResponse
 }
 
-@MainActor
 final class JellyfinAuthService: JellyfinAuthServiceProtocol {
     private let client: JellyfinClient
 

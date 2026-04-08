@@ -24,12 +24,12 @@ final class ServerDiscoveryViewModel {
         let result = await discoveryService.discoverServer(input: serverAddress)
 
         switch result {
-        case .success(let url, let serverInfo):
+        case .success(let url, let info):
             discoveredServer = JellyfinServer(
-                id: serverInfo.id,
-                name: serverInfo.serverName,
+                id: info.id,
+                name: info.serverName,
                 url: url,
-                version: serverInfo.version
+                version: info.version
             )
             showLogin = true
         case .failure(let error):

@@ -15,7 +15,7 @@ final class JellyfinClient {
         self.appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
     }
 
-    func request<T: Decodable & Sendable>(
+    func request<T: Decodable>(
         endpoint: APIEndpoint,
         responseType: T.Type
     ) async throws -> T {

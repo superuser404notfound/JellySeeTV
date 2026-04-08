@@ -17,7 +17,7 @@ enum APIError: LocalizedError, Sendable {
         case .invalidResponse:
             String(localized: "error.invalidResponse", defaultValue: "Invalid server response")
         case .httpError(let statusCode, _):
-            String(localized: "error.httpError \(statusCode)", defaultValue: "Server error (\(statusCode))")
+            String(localized: "error.httpError", defaultValue: "Server error (\(statusCode))")
         case .decodingError:
             String(localized: "error.decodingError", defaultValue: "Failed to process server response")
         case .networkError:

@@ -1,7 +1,7 @@
 import Foundation
 
 protocol HTTPClientProtocol: Sendable {
-    func request<T: Decodable & Sendable>(
+    func request<T: Decodable>(
         baseURL: URL,
         endpoint: APIEndpoint,
         headers: [String: String],
@@ -21,12 +21,12 @@ protocol HTTPClientProtocol: Sendable {
     ) async throws -> (Data, HTTPURLResponse)
 }
 
-final class HTTPClient: HTTPClientProtocol {
+final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
     private let session: URLSession
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
-    init(session: URLSession = .shared) {
+    nonisolated init(session: URLSession = .shared) {
         self.session = session
 
         self.encoder = JSONEncoder()
@@ -37,7 +37,7 @@ final class HTTPClient: HTTPClientProtocol {
         decoder.keyDecodingStrategy = .convertFromPascalCase
     }
 
-    func request<T: Decodable & Sendable>(
+    func request<T: Decodable>(
         baseURL: URL,
         endpoint: APIEndpoint,
         headers: [String: String],
