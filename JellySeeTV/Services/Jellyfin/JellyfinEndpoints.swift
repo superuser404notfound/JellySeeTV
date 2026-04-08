@@ -181,7 +181,7 @@ enum JellyfinEndpoint: APIEndpoint {
         }
     }
 
-    static let defaultFields = "Overview,Genres,People,Studios,MediaStreams,MediaSources,CommunityRating,OfficialRating"
+    static let defaultFields = "Overview,Genres,People,Studios,MediaStreams,MediaSources,CommunityRating,OfficialRating,ImageTags,BackdropImageTags,ParentBackdropImageTags,SeriesPrimaryImageTag"
 }
 
 struct ItemQuery: Sendable {
