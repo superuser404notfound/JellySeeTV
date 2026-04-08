@@ -1449,23 +1449,6 @@
         }
       }
     },
-    "detail.techInfo" : { "comment" : "Tech info section", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Technical Details" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Technische Details" } }, "fr" : { "stringUnit" : { "state" : "translated", "value" : "Détails techniques" } }, "es" : { "stringUnit" : { "state" : "translated", "value" : "Detalles técnicos" } }, "it" : { "stringUnit" : { "state" : "translated", "value" : "Dettagli tecnici" } }, "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Detalhes técnicos" } }, "ja" : { "stringUnit" : { "state" : "translated", "value" : "技術情報" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "技术详情" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "기술 정보" } }, "nl" : { "stringUnit" : { "state" : "translated", "value" : "Technische details" } }, "pl" : { "stringUnit" : { "state" : "translated", "value" : "Szczegóły techniczne" } }, "ru" : { "stringUnit" : { "state" : "translated", "value" : "Технические данные" } }, "sv" : { "stringUnit" : { "state" : "translated", "value" : "Tekniska detaljer" } }, "nb" : { "stringUnit" : { "state" : "translated", "value" : "Tekniske detaljer" } }, "da" : { "stringUnit" : { "state" : "translated", "value" : "Tekniske detaljer" } } } },
-    "detail.tech.video" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Video" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Video" } } } },
-    "detail.tech.audio" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Audio" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Audio" } } } },
-    "detail.tech.file" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "File" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Datei" } } } },
-    "detail.tech.subtitles" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Subtitles" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Untertitel" } } } },
-    "detail.tech.resolution" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Resolution" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Auflösung" } } } },
-    "detail.tech.codec" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Codec" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Codec" } } } },
-    "detail.tech.framerate" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Framerate" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Bildrate" } } } },
-    "detail.tech.hdr" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "HDR" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "HDR" } } } },
-    "detail.tech.channels" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Channels" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Kanäle" } } } },
-    "detail.tech.language" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Sprache" } } } },
-    "detail.tech.tracks" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Tracks" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Spuren" } } } },
-    "detail.tech.format" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Format" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Format" } } } },
-    "detail.tech.bitrate" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Bitrate" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Bitrate" } } } },
-    "detail.tech.size" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Size" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Größe" } } } },
-    "detail.tech.filename" : { "comment" : "", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "File" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Datei" } } } },
-    "detail.showSeries" : { "comment" : "Deselect episode", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Show Series" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Serie anzeigen" } }, "fr" : { "stringUnit" : { "state" : "translated", "value" : "Voir la série" } }, "es" : { "stringUnit" : { "state" : "translated", "value" : "Ver serie" } }, "it" : { "stringUnit" : { "state" : "translated", "value" : "Mostra serie" } }, "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ver série" } }, "ja" : { "stringUnit" : { "state" : "translated", "value" : "シリーズ表示" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示剧集" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "시리즈 보기" } }, "nl" : { "stringUnit" : { "state" : "translated", "value" : "Serie tonen" } }, "pl" : { "stringUnit" : { "state" : "translated", "value" : "Pokaż serial" } }, "ru" : { "stringUnit" : { "state" : "translated", "value" : "Показать сериал" } }, "sv" : { "stringUnit" : { "state" : "translated", "value" : "Visa serie" } }, "nb" : { "stringUnit" : { "state" : "translated", "value" : "Vis serie" } }, "da" : { "stringUnit" : { "state" : "translated", "value" : "Vis serie" } } } },
     "detail.cast" : {
       "comment" : "Cast section",
       "extractionState" : "manual",
@@ -1754,6 +1737,7 @@
         }
       }
     },
+    "detail.replay" : { "comment" : "Replay from start button", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Replay" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Neu starten" } }, "fr" : { "stringUnit" : { "state" : "translated", "value" : "Relire" } }, "es" : { "stringUnit" : { "state" : "translated", "value" : "Repetir" } }, "it" : { "stringUnit" : { "state" : "translated", "value" : "Rivedi" } }, "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Rever" } }, "ja" : { "stringUnit" : { "state" : "translated", "value" : "最初から" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新播放" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "처음부터" } }, "nl" : { "stringUnit" : { "state" : "translated", "value" : "Opnieuw" } }, "pl" : { "stringUnit" : { "state" : "translated", "value" : "Od początku" } }, "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сначала" } }, "sv" : { "stringUnit" : { "state" : "translated", "value" : "Spela om" } }, "nb" : { "stringUnit" : { "state" : "translated", "value" : "Spill på nytt" } }, "da" : { "stringUnit" : { "state" : "translated", "value" : "Afspil igen" } } } },
     "detail.resume" : {
       "comment" : "Resume button",
       "extractionState" : "manual",
@@ -1946,6 +1930,102 @@
         }
       }
     },
+    "detail.showSeries" : {
+      "comment" : "Deselect episode",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vis serie"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serie anzeigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Series"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver serie"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voir la série"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra serie"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "シリーズ表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시리즈 보기"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vis serie"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serie tonen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaż serial"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver série"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать сериал"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa serie"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示剧集"
+          }
+        }
+      }
+    },
     "detail.similar" : {
       "comment" : "Section title for similar items",
       "extractionState" : "manual",
@@ -2038,6 +2118,372 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "类似推荐"
+          }
+        }
+      }
+    },
+    "detail.tech.audio" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio"
+          }
+        }
+      }
+    },
+    "detail.tech.bitrate" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitrate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitrate"
+          }
+        }
+      }
+    },
+    "detail.tech.channels" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kanäle"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Channels"
+          }
+        }
+      }
+    },
+    "detail.tech.codec" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codec"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codec"
+          }
+        }
+      }
+    },
+    "detail.tech.file" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File"
+          }
+        }
+      }
+    },
+    "detail.tech.filename" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datei"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File"
+          }
+        }
+      }
+    },
+    "detail.tech.format" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Format"
+          }
+        }
+      }
+    },
+    "detail.tech.framerate" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildrate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Framerate"
+          }
+        }
+      }
+    },
+    "detail.tech.hdr" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HDR"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HDR"
+          }
+        }
+      }
+    },
+    "detail.tech.language" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprache"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        }
+      }
+    },
+    "detail.tech.resolution" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auflösung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resolution"
+          }
+        }
+      }
+    },
+    "detail.tech.size" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Größe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size"
+          }
+        }
+      }
+    },
+    "detail.tech.subtitles" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Untertitel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subtitles"
+          }
+        }
+      }
+    },
+    "detail.tech.tracks" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spuren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tracks"
+          }
+        }
+      }
+    },
+    "detail.tech.video" : {
+      "comment" : "",
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        }
+      }
+    },
+    "detail.techInfo" : {
+      "comment" : "Tech info section",
+      "extractionState" : "manual",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekniske detaljer"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Technische Details"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Technical Details"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles técnicos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détails techniques"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dettagli tecnici"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "技術情報"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기술 정보"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekniske detaljer"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Technische details"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły techniczne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalhes técnicos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Технические данные"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekniska detaljer"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "技术详情"
           }
         }
       }
@@ -2298,6 +2744,10 @@
           }
         }
       }
+    },
+    "F" : {
+      "comment" : "A flag indicating that a subtitle is forced.",
+      "isCommentAutoGenerated" : true
     },
     "home.allMovies" : {
       "comment" : "Section title for all movies",
@@ -4986,6 +5436,10 @@
           }
         }
       }
+    },
+    "S%lld" : {
+      "comment" : "A series number, e.g. \"S2\".",
+      "isCommentAutoGenerated" : true
     },
     "settings.about.serverAddress" : {
       "comment" : "Server address label",

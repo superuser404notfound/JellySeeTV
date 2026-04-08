@@ -57,10 +57,7 @@ struct MovieDetailView: View {
 
                         // Overview
                         if let overview = vm.item.overview, !overview.isEmpty {
-                            Text(overview)
-                                .font(.body)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(6)
+                            ExpandableTextBox(text: overview)
                                 .padding(.horizontal, 50)
                         }
 
@@ -150,6 +147,14 @@ struct MovieDetailView: View {
                     action: { /* Phase 3: Playback */ }
                 )
 
+                if hasProgress(vm: vm) {
+                    GlassActionButton(
+                        title: "detail.replay",
+                        systemImage: "arrow.counterclockwise",
+                        action: { /* Phase 3: Replay from start */ }
+                    )
+                }
+
                 GlassActionButton(
                     title: vm.item.userData?.isFavorite == true ? "detail.unfavorite" : "detail.favorite",
                     systemImage: vm.item.userData?.isFavorite == true ? "heart.fill" : "heart",
@@ -201,10 +206,13 @@ struct MovieDetailView: View {
         .foregroundStyle(.secondary)
     }
 
+    private func hasProgress(vm: DetailViewModel) -> Bool {
+        if let ticks = vm.item.userData?.playbackPositionTicks, ticks > 0 { return true }
+        return false
+    }
+
     private func playButtonTitle(vm: DetailViewModel) -> LocalizedStringKey {
-        if let ticks = vm.item.userData?.playbackPositionTicks, ticks > 0 {
-            return "detail.resume"
-        }
+        if hasProgress(vm: vm) { return "detail.resume" }
         return "detail.play"
     }
 
