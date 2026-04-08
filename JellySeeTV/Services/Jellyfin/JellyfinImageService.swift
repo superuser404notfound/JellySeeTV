@@ -59,4 +59,10 @@ final class JellyfinImageService {
         }
         return nil
     }
+
+    func studioLogoURL(studioName: String, maxWidth: Int = 400) -> URL? {
+        guard let base = baseURL() else { return nil }
+        let encoded = studioName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? studioName
+        return URL(string: "\(base)/Studios/\(encoded)/Images/Primary?maxWidth=\(maxWidth)&quality=90")
+    }
 }

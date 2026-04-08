@@ -2,8 +2,8 @@ import SwiftUI
 
 struct TagRow: View {
     let title: LocalizedStringKey
-    let tags: [NamedItem]
-    var onTagSelected: ((NamedItem) -> Void)?
+    let tags: [TagCardData]
+    var onTagSelected: ((TagCardData) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -13,43 +13,95 @@ struct TagRow: View {
                 .padding(.horizontal, 50)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 16) {
+                LazyHStack(spacing: 20) {
                     ForEach(tags) { tag in
-                        TagCard(name: tag.name) {
+                        GenreCard(data: tag) {
                             onTagSelected?(tag)
                         }
                     }
                 }
                 .padding(.horizontal, 50)
-                .padding(.vertical, 12)
+                .padding(.vertical, 20)
             }
         }
     }
 }
 
-struct TagCard: View {
+struct TagCardData: Identifiable, Sendable {
+    let id: String
     let name: String
+    let backdropURL: URL?
+    let logoURL: URL?
+    let isStudio: Bool
+}
+
+struct GenreCard: View {
+    let data: TagCardData
     let action: () -> Void
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        Button {
+        FocusableCard {
             action()
-        } label: {
-            Text(name)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(
-                    Capsule()
-                        .fill(isFocused ? .white.opacity(0.2) : .white.opacity(0.08))
-                )
-                .scaleEffect(isFocused ? 1.05 : 1.0)
-                .animation(.easeInOut(duration: 0.15), value: isFocused)
+        } content: { _ in
+            ZStack(alignment: .bottomLeading) {
+                // Background image
+                AsyncCachedImage(url: data.backdropURL) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.Theme.surface, Color.Theme.surfaceElevated],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+                .frame(width: 300, height: 170)
+                .clipped()
+
+                // Dark overlay
+                Rectangle()
+                    .fill(.black.opacity(0.55))
+
+                // Studio logo or genre name
+                if data.isStudio, let logoURL = data.logoURL {
+                    AsyncCachedImage(url: logoURL) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: 180, maxHeight: 60)
+                            .padding(20)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } placeholder: {
+                        studioFallbackLabel
+                    }
+                } else {
+                    Text(data.name)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                        .shadow(radius: 4)
+                        .padding(20)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                }
+            }
+            .frame(width: 300, height: 170)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .buttonStyle(.plain)
-        .focused($isFocused)
+    }
+
+    private var studioFallbackLabel: some View {
+        Text(data.name)
+            .font(.headline)
+            .fontWeight(.bold)
+            .foregroundStyle(.white)
+            .shadow(radius: 4)
+            .padding(20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

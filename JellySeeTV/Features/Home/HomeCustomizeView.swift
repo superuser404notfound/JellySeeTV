@@ -151,10 +151,10 @@ struct CustomizeRowItem: View {
         Button {
             // No-op: all actions via context menu
         } label: {
-            HStack(spacing: 16) {
+            HStack(spacing: 24) {
                 Image(systemName: config.type.systemImage)
                     .font(.title3)
-                    .frame(width: 32)
+                    .frame(width: 40, alignment: .center)
                     .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
 
                 Text(config.type.localizedTitle)

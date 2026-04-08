@@ -158,6 +158,8 @@ final class HomeViewModel {
     private func loadTagRow(type: HomeRowType) async -> HomeTagRowData? {
         do {
             let tags: [NamedItem]
+            let isStudio = type == .studios
+
             switch type {
             case .genres:
                 tags = try await libraryService.getGenres(userID: userID)
@@ -166,7 +168,49 @@ final class HomeViewModel {
             default:
                 return nil
             }
-            return HomeTagRowData(type: type, tags: tags)
+
+            // Build TagCardData with backdrop images
+            var cardData: [TagCardData] = []
+            for tag in tags {
+                var backdropURL: URL?
+                var logoURL: URL?
+
+                if isStudio {
+                    // Studio logo from Jellyfin
+                    logoURL = imageService.studioLogoURL(studioName: tag.name)
+                    // Get one item from this studio for backdrop
+                    let query = ItemQuery(
+                        includeItemTypes: [.movie, .series],
+                        sortBy: "Random",
+                        limit: 1,
+                        studioIDs: [tag.id]
+                    )
+                    if let item = try? await libraryService.getItems(userID: userID, query: query).items.first {
+                        backdropURL = imageService.backdropURL(for: item)
+                    }
+                } else {
+                    // Get one item from this genre for backdrop
+                    let query = ItemQuery(
+                        includeItemTypes: [.movie, .series],
+                        sortBy: "Random",
+                        limit: 1,
+                        genres: [tag.name]
+                    )
+                    if let item = try? await libraryService.getItems(userID: userID, query: query).items.first {
+                        backdropURL = imageService.backdropURL(for: item) ?? imageService.posterURL(for: item)
+                    }
+                }
+
+                cardData.append(TagCardData(
+                    id: tag.id,
+                    name: tag.name,
+                    backdropURL: backdropURL,
+                    logoURL: logoURL,
+                    isStudio: isStudio
+                ))
+            }
+
+            return HomeTagRowData(type: type, tags: cardData)
         } catch {
             return nil
         }
@@ -225,7 +269,7 @@ struct HomeRowData: Identifiable, Sendable {
 
 struct HomeTagRowData: Identifiable, Sendable {
     let type: HomeRowType
-    let tags: [NamedItem]
+    let tags: [TagCardData]
 
     var id: String { type.rawValue }
 }

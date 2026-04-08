@@ -75,8 +75,8 @@ struct HomeView: View {
                         TagRow(
                             title: tagRow.type.localizedTitle,
                             tags: tagRow.tags,
-                            onTagSelected: { tag in
-                                selectedFilter = makeFilter(for: tag, type: tagRow.type)
+                            onTagSelected: { tagData in
+                                selectedFilter = makeFilter(for: tagData, type: tagRow.type)
                             }
                         )
                     }
@@ -86,7 +86,7 @@ struct HomeView: View {
         }
     }
 
-    private func makeFilter(for tag: NamedItem, type: HomeRowType) -> FilterDestination {
+    private func makeFilter(for tag: TagCardData, type: HomeRowType) -> FilterDestination {
         switch type {
         case .genres:
             FilterDestination(
