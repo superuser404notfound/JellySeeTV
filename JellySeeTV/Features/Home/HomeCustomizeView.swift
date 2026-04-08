@@ -7,92 +7,10 @@ struct HomeCustomizeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 28) {
-                // Header
-                VStack(spacing: 8) {
-                    Text("home.customize.title")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    Text(movingType != nil ? "home.customize.moveTip" : "home.customize.description")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .padding(.horizontal, 50)
-
-                // Active rows
-                VStack(alignment: .leading, spacing: 10) {
-                    Label("home.customize.active", systemImage: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, 50)
-
-                    VStack(spacing: 2) {
-                        ForEach(Array(enabledRows.enumerated()), id: \.element.id) { index, config in
-                            ActiveCategoryRow(
-                                type: config.type,
-                                position: index + 1,
-                                isMoving: movingType == config.type,
-                                onSelect: {
-                                    if let moving = movingType {
-                                        // Place the moving row here
-                                        if moving != config.type {
-                                            withAnimation(.easeInOut(duration: 0.25)) {
-                                                placeRow(moving, at: index)
-                                            }
-                                        }
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            movingType = nil
-                                        }
-                                    } else {
-                                        // Start moving this row
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            movingType = config.type
-                                        }
-                                    }
-                                },
-                                onRemove: {
-                                    movingType = nil
-                                    toggle(config.type)
-                                }
-                            )
-                        }
-                    }
-                    .padding(.horizontal, 50)
-                }
-
-                // Available rows
-                if !disabledRows.isEmpty {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Label("home.customize.inactive", systemImage: "circle")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 50)
-
-                        VStack(spacing: 2) {
-                            ForEach(disabledRows) { config in
-                                InactiveCategoryRow(type: config.type) {
-                                    toggle(config.type)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 50)
-                    }
-                }
-
-                // Reset
-                Button {
-                    movingType = nil
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        configs = HomeRowConfig.defaultConfig()
-                    }
-                    save()
-                } label: {
-                    Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
-                        .font(.subheadline)
-                }
-                .padding(.top, 8)
+                header
+                activeSection
+                if !disabledRows.isEmpty { inactiveSection }
+                resetButton
             }
             .padding(.vertical, 40)
         }
@@ -103,7 +21,159 @@ struct HomeCustomizeView: View {
         }
     }
 
-    // MARK: - Data
+    // MARK: - Header
+
+    private var header: some View {
+        VStack(spacing: 8) {
+            Text("home.customize.title")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Text(movingType != nil ? "home.customize.moveTip" : "home.customize.description")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, 50)
+    }
+
+    // MARK: - Active
+
+    private var activeSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("home.customize.active", systemImage: "checkmark.circle.fill")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 50)
+
+            VStack(spacing: 6) {
+                ForEach(Array(enabledRows.enumerated()), id: \.element.id) { index, config in
+                    HStack(spacing: 16) {
+                        FocusableTile(
+                            isHighlighted: movingType == config.type,
+                            action: { handleRowTap(config.type, at: index) }
+                        ) { isFocused in
+                            HStack(spacing: 16) {
+                                Text("\(index + 1)")
+                                    .font(.caption)
+                                    .monospacedDigit()
+                                    .foregroundStyle(.tertiary)
+                                    .frame(width: 24)
+
+                                Image(systemName: config.type.systemImage)
+                                    .font(.title3)
+                                    .frame(width: 36)
+                                    .foregroundStyle(.tint)
+
+                                Text(config.type.localizedTitle)
+                                    .font(.body)
+
+                                Spacer()
+
+                                if movingType == config.type {
+                                    Text("home.customize.moving")
+                                        .font(.caption)
+                                        .foregroundStyle(.tint)
+                                }
+                            }
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 20)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(tileBackground(isFocused: isFocused, isMoving: movingType == config.type))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(movingType == config.type ? Color.accentColor.opacity(0.6) : .clear, lineWidth: 2)
+                            )
+                        }
+
+                        FocusableIcon(
+                            systemName: "minus.circle.fill",
+                            color: .red,
+                            action: {
+                                movingType = nil
+                                toggle(config.type)
+                            }
+                        )
+                    }
+                    .padding(.horizontal, 50)
+                }
+            }
+        }
+    }
+
+    // MARK: - Inactive
+
+    private var inactiveSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("home.customize.inactive", systemImage: "circle")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 50)
+
+            VStack(spacing: 6) {
+                ForEach(disabledRows) { config in
+                    HStack(spacing: 16) {
+                        HStack(spacing: 16) {
+                            Spacer().frame(width: 24) // align with position number
+
+                            Image(systemName: config.type.systemImage)
+                                .font(.title3)
+                                .frame(width: 36)
+                                .foregroundStyle(.tertiary)
+
+                            Text(config.type.localizedTitle)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+
+                            Spacer()
+                        }
+                        .padding(.vertical, 14)
+                        .padding(.horizontal, 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.white.opacity(0.02))
+                        )
+
+                        FocusableIcon(
+                            systemName: "plus.circle.fill",
+                            color: .green,
+                            action: { toggle(config.type) }
+                        )
+                    }
+                    .padding(.horizontal, 50)
+                }
+            }
+        }
+    }
+
+    // MARK: - Reset
+
+    private var resetButton: some View {
+        FocusableTile(action: {
+            movingType = nil
+            withAnimation(.easeInOut(duration: 0.25)) {
+                configs = HomeRowConfig.defaultConfig()
+            }
+            save()
+        }) { isFocused in
+            Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
+                .font(.subheadline)
+                .foregroundStyle(isFocused ? .primary : .secondary)
+        }
+        .padding(.top, 8)
+        .padding(.horizontal, 50)
+    }
+
+    // MARK: - Helpers
+
+    private func tileBackground(isFocused: Bool, isMoving: Bool) -> Color {
+        if isMoving { return Color.accentColor.opacity(0.12) }
+        if isFocused { return .white.opacity(0.12) }
+        return .white.opacity(0.05)
+    }
 
     private var enabledRows: [HomeRowConfig] {
         configs.filter(\.isEnabled).sorted { $0.sortOrder < $1.sortOrder }
@@ -115,12 +185,28 @@ struct HomeCustomizeView: View {
 
     // MARK: - Actions
 
+    private func handleRowTap(_ type: HomeRowType, at index: Int) {
+        if let moving = movingType {
+            if moving != type {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    placeRow(moving, at: index)
+                }
+            }
+            withAnimation(.easeInOut(duration: 0.2)) {
+                movingType = nil
+            }
+        } else {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                movingType = type
+            }
+        }
+    }
+
     private func placeRow(_ type: HomeRowType, at targetIndex: Int) {
         var enabled = enabledRows
         guard let sourceIndex = enabled.firstIndex(where: { $0.type == type }) else { return }
         let item = enabled.remove(at: sourceIndex)
         enabled.insert(item, at: min(targetIndex, enabled.count))
-
         for (i, row) in enabled.enumerated() {
             if let ci = configs.firstIndex(where: { $0.type == row.type }) {
                 configs[ci].sortOrder = i
@@ -147,125 +233,51 @@ struct HomeCustomizeView: View {
     }
 }
 
-// MARK: - Active Row (position + move + remove)
+// MARK: - Focusable Tile (no default tvOS button chrome)
 
-struct ActiveCategoryRow: View {
-    let type: HomeRowType
-    let position: Int
-    let isMoving: Bool
-    let onSelect: () -> Void
-    let onRemove: () -> Void
-
-    @FocusState private var rowFocused: Bool
-    @FocusState private var removeFocused: Bool
-
-    var body: some View {
-        HStack(spacing: 0) {
-            // Main row (tap to grab/place)
-            Button { onSelect() } label: {
-                HStack(spacing: 16) {
-                    Text("\(position)")
-                        .font(.caption)
-                        .monospacedDigit()
-                        .foregroundStyle(.tertiary)
-                        .frame(width: 24)
-
-                    Image(systemName: type.systemImage)
-                        .font(.title3)
-                        .frame(width: 36)
-                        .foregroundStyle(.tint)
-
-                    Text(type.localizedTitle)
-                        .font(.body)
-
-                    Spacer()
-
-                    if isMoving {
-                        Text("home.customize.moving")
-                            .font(.caption)
-                            .foregroundStyle(.tint)
-                    }
-                }
-                .padding(.vertical, 14)
-                .padding(.horizontal, 20)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(isMoving ? Color.accentColor.opacity(0.12) : (rowFocused ? .white.opacity(0.12) : .white.opacity(0.05)))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(isMoving ? Color.accentColor.opacity(0.6) : .clear, lineWidth: 2)
-                )
-            }
-            .buttonStyle(.plain)
-            .focused($rowFocused)
-            .scaleEffect(rowFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: rowFocused)
-
-            // Remove button
-            Button { onRemove() } label: {
-                Image(systemName: "minus.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(.red)
-                    .frame(width: 50, height: 50)
-                    .scaleEffect(removeFocused ? 1.2 : 1.0)
-                    .background(
-                        Circle().fill(removeFocused ? .white.opacity(0.15) : .clear)
-                    )
-            }
-            .buttonStyle(.plain)
-            .focused($removeFocused)
-            .animation(.easeInOut(duration: 0.15), value: removeFocused)
-        }
-    }
-}
-
-// MARK: - Inactive Row (tap to add)
-
-struct InactiveCategoryRow: View {
-    let type: HomeRowType
-    let onAdd: () -> Void
+struct FocusableTile<Content: View>: View {
+    var isHighlighted: Bool = false
+    let action: () -> Void
+    @ViewBuilder let content: (_ isFocused: Bool) -> Content
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        HStack(spacing: 0) {
-            // Info
-            HStack(spacing: 16) {
-                Image(systemName: type.systemImage)
-                    .font(.title3)
-                    .frame(width: 36)
-                    .foregroundStyle(.tertiary)
-                    .padding(.leading, 44) // align with active rows (24 + 20 padding)
-
-                Text(type.localizedTitle)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-
-                Spacer()
-            }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 20)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.white.opacity(0.02))
-            )
-
-            // Add button
-            Button { onAdd() } label: {
-                Image(systemName: "plus.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(.green)
-                    .frame(width: 50, height: 50)
-                    .scaleEffect(isFocused ? 1.2 : 1.0)
-                    .background(
-                        Circle().fill(isFocused ? .white.opacity(0.15) : .clear)
-                    )
-            }
-            .buttonStyle(.plain)
+        content(isFocused)
+            .focusable()
             .focused($isFocused)
+            .scaleEffect(isFocused ? 1.02 : 1.0)
             .animation(.easeInOut(duration: 0.15), value: isFocused)
-        }
+            .onLongPressGesture(minimumDuration: 0) {
+                action()
+            }
+    }
+}
+
+// MARK: - Focusable Icon Button (plus/minus)
+
+struct FocusableIcon: View {
+    let systemName: String
+    let color: Color
+    let action: () -> Void
+
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        Image(systemName: systemName)
+            .font(.title2)
+            .foregroundStyle(color)
+            .frame(width: 60, height: 60)
+            .background(
+                Circle().fill(isFocused ? .white.opacity(0.15) : .clear)
+            )
+            .scaleEffect(isFocused ? 1.25 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .focusable()
+            .focused($isFocused)
+            .onLongPressGesture(minimumDuration: 0) {
+                action()
+            }
     }
 }
 
