@@ -7,10 +7,15 @@ final class LoginViewModel {
     var password = ""
     var isLoading = false
     var errorMessage: String?
+    var loginSucceeded = false
 
     // Quick Connect
     var quickConnectCode: String?
     var isPollingQuickConnect = false
+    var quickConnectAuthorized = false
+
+    // Auth result stored for finalization after animation
+    var authResult: (server: JellyfinServer, user: JellyfinUser, token: String)?
 
     let server: JellyfinServer
 
@@ -31,24 +36,20 @@ final class LoginViewModel {
         dependencies.jellyfinClient.baseURL = server.url
     }
 
-    func login() async -> (JellyfinServer, JellyfinUser, String)? {
-        guard !username.trimmingCharacters(in: .whitespaces).isEmpty else { return nil }
+    func login() async {
+        guard !username.trimmingCharacters(in: .whitespaces).isEmpty else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
             let response = try await authService.login(username: username, password: password)
+            authResult = (server, response.user, response.accessToken)
             isLoading = false
-            return (server, response.user, response.accessToken)
-        } catch let error as APIError {
-            errorMessage = error.localizedDescription
-            isLoading = false
-            return nil
+            loginSucceeded = true
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
-            return nil
         }
     }
 
@@ -72,6 +73,7 @@ final class LoginViewModel {
         isPollingQuickConnect = false
         quickConnectCode = nil
         quickConnectSecret = nil
+        quickConnectAuthorized = false
     }
 
     private func startPolling() {
@@ -87,6 +89,8 @@ final class LoginViewModel {
                     let isAuthorized = try await self.authService.checkQuickConnect(secret: secret)
                     if isAuthorized {
                         self.isPollingQuickConnect = false
+                        self.quickConnectAuthorized = true
+                        await self.authenticateQuickConnect()
                         return
                     }
                 } catch {
@@ -96,22 +100,26 @@ final class LoginViewModel {
         }
     }
 
-    func authenticateQuickConnect() async -> (JellyfinServer, JellyfinUser, String)? {
-        guard let secret = quickConnectSecret else { return nil }
+    private func authenticateQuickConnect() async {
+        guard let secret = quickConnectSecret else { return }
 
         isLoading = true
         errorMessage = nil
 
         do {
             let response = try await authService.authenticateWithQuickConnect(secret: secret)
+            authResult = (server, response.user, response.accessToken)
             isLoading = false
-            stopQuickConnect()
-            return (server, response.user, response.accessToken)
+            loginSucceeded = true
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
-            return nil
         }
+    }
+
+    func finalizeAuth() throws {
+        guard let result = authResult else { return }
+        try dependencies.saveSession(server: result.server, token: result.token)
     }
 
     nonisolated deinit {

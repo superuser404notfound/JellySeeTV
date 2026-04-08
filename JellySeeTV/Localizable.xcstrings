@@ -1466,6 +1466,27 @@
         }
       }
     },
+    "auth.login.welcome %@" : {
+      "comment" : "Welcome message shown after successful login with username",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome, %@!" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Willkommen, %@!" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Bienvenue, %@ !" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Bienvenido, %@!" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Benvenuto, %@!" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Bem-vindo, %@!" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ようこそ、%@さん！" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "欢迎，%@！" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "환영합니다, %@!" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Welkom, %@!" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Witaj, %@!" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Добро пожаловать, %@!" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Välkommen, %@!" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Velkommen, %@!" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Velkommen, %@!" } }
+      }
+    },
     "settings.logout" : {
       "comment" : "Logout button in settings",
       "extractionState" : "manual",

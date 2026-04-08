@@ -5,10 +5,32 @@ struct LoginView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: LoginViewModel?
     @State private var showQuickConnect = false
+    @State private var showSuccess = false
 
     let server: JellyfinServer
 
     var body: some View {
+        ZStack {
+            if showSuccess {
+                successOverlay
+                    .transition(.opacity)
+            } else {
+                loginContent
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: showSuccess)
+        .onAppear {
+            if viewModel == nil {
+                viewModel = LoginViewModel(server: server, dependencies: dependencies)
+            }
+        }
+        .onDisappear {
+            viewModel?.stopQuickConnect()
+        }
+    }
+
+    private var loginContent: some View {
         VStack(spacing: 40) {
             Spacer()
 
@@ -32,13 +54,23 @@ struct LoginView: View {
             Spacer()
         }
         .padding()
-        .onAppear {
-            if viewModel == nil {
-                viewModel = LoginViewModel(server: server, dependencies: dependencies)
+        .onChange(of: viewModel?.loginSucceeded) { _, succeeded in
+            if succeeded == true {
+                showSuccessAndFinalize()
             }
         }
-        .onDisappear {
-            viewModel?.stopQuickConnect()
+    }
+
+    private var successOverlay: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            CheckmarkAnimation()
+            if let user = viewModel?.authResult?.user {
+                Text("auth.login.welcome \(user.name)")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
         }
     }
 
@@ -60,7 +92,7 @@ struct LoginView: View {
             }
 
             Button {
-                Task { await performLogin(vm: vm) }
+                Task { await vm.login() }
             } label: {
                 if vm.isLoading {
                     ProgressView()
@@ -102,12 +134,8 @@ struct LoginView: View {
                         Text("auth.quickConnect.waiting")
                             .foregroundStyle(.secondary)
                     }
-                } else {
-                    Button {
-                        Task { await performQuickConnectAuth(vm: vm) }
-                    } label: {
-                        Text("auth.quickConnect.authenticate")
-                    }
+                } else if vm.isLoading {
+                    ProgressView()
                 }
             } else {
                 ProgressView()
@@ -129,22 +157,23 @@ struct LoginView: View {
         .frame(maxWidth: 500)
     }
 
-    private func performLogin(vm: LoginViewModel) async {
-        guard let (server, user, token) = await vm.login() else { return }
-        finalizeAuth(server: server, user: user, token: token)
-    }
+    private func showSuccessAndFinalize() {
+        guard let vm = viewModel else { return }
 
-    private func performQuickConnectAuth(vm: LoginViewModel) async {
-        guard let (server, user, token) = await vm.authenticateQuickConnect() else { return }
-        finalizeAuth(server: server, user: user, token: token)
-    }
-
-    private func finalizeAuth(server: JellyfinServer, user: JellyfinUser, token: String) {
         do {
-            try dependencies.saveSession(server: server, token: token)
-            appState.setAuthenticated(server: server, user: user)
+            try vm.finalizeAuth()
         } catch {
-            viewModel?.errorMessage = error.localizedDescription
+            vm.errorMessage = error.localizedDescription
+            vm.loginSucceeded = false
+            return
+        }
+
+        showSuccess = true
+
+        Task {
+            try? await Task.sleep(for: .seconds(1.5))
+            guard let result = vm.authResult else { return }
+            appState.setAuthenticated(server: result.server, user: result.user)
         }
     }
 }
