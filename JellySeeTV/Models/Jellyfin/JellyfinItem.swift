@@ -67,6 +67,41 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
         case seriesPrimaryImageTag = "SeriesPrimaryImageTag"
     }
 
+    /// Create a copy with updated userData
+    init(item: JellyfinItem, userData: UserItemData?) {
+        self.id = item.id
+        self.name = item.name
+        self.sortName = item.sortName
+        self.originalTitle = item.originalTitle
+        self.overview = item.overview
+        self.type = item.type
+        self.seriesName = item.seriesName
+        self.seriesId = item.seriesId
+        self.seasonId = item.seasonId
+        self.parentIndexNumber = item.parentIndexNumber
+        self.indexNumber = item.indexNumber
+        self.productionYear = item.productionYear
+        self.communityRating = item.communityRating
+        self.officialRating = item.officialRating
+        self.runTimeTicks = item.runTimeTicks
+        self.premiereDate = item.premiereDate
+        self.endDate = item.endDate
+        self.status = item.status
+        self.genres = item.genres
+        self.taglines = item.taglines
+        self.imageTags = item.imageTags
+        self.backdropImageTags = item.backdropImageTags
+        self.parentBackdropImageTags = item.parentBackdropImageTags
+        self.userData = userData
+        self.mediaStreams = item.mediaStreams
+        self.mediaSources = item.mediaSources
+        self.people = item.people
+        self.studios = item.studios
+        self.collectionType = item.collectionType
+        self.childCount = item.childCount
+        self.seriesPrimaryImageTag = item.seriesPrimaryImageTag
+    }
+
     static func == (lhs: JellyfinItem, rhs: JellyfinItem) -> Bool {
         lhs.id == rhs.id
     }

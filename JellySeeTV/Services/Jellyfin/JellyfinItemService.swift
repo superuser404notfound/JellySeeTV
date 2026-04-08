@@ -5,6 +5,7 @@ protocol JellyfinItemServiceProtocol: Sendable {
     func getSeasons(seriesID: String, userID: String) async throws -> JellyfinItemsResponse
     func getEpisodes(seriesID: String, seasonID: String, userID: String) async throws -> JellyfinItemsResponse
     func getSimilarItems(itemID: String, userID: String, limit: Int) async throws -> JellyfinItemsResponse
+    func setFavorite(userID: String, itemID: String, isFavorite: Bool) async throws
 }
 
 final class JellyfinItemService: JellyfinItemServiceProtocol {
@@ -40,5 +41,12 @@ final class JellyfinItemService: JellyfinItemServiceProtocol {
             endpoint: JellyfinEndpoint.similarItems(itemID: itemID, userID: userID, limit: limit),
             responseType: JellyfinItemsResponse.self
         )
+    }
+
+    func setFavorite(userID: String, itemID: String, isFavorite: Bool) async throws {
+        let endpoint: JellyfinEndpoint = isFavorite
+            ? .markFavorite(userID: userID, itemID: itemID)
+            : .unmarkFavorite(userID: userID, itemID: itemID)
+        try await client.request(endpoint: endpoint)
     }
 }

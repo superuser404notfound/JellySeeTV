@@ -73,6 +73,41 @@ final class DetailViewModel {
         }
     }
 
+    func toggleFavorite() async {
+        let currentlyFavorite = item.userData?.isFavorite ?? false
+        let newValue = !currentlyFavorite
+
+        // Optimistic update
+        var updatedUserData = item.userData ?? UserItemData(
+            playbackPositionTicks: nil, playCount: nil,
+            isFavorite: nil, played: nil,
+            unplayedItemCount: nil, playedPercentage: nil
+        )
+        updatedUserData = UserItemData(
+            playbackPositionTicks: updatedUserData.playbackPositionTicks,
+            playCount: updatedUserData.playCount,
+            isFavorite: newValue,
+            played: updatedUserData.played,
+            unplayedItemCount: updatedUserData.unplayedItemCount,
+            playedPercentage: updatedUserData.playedPercentage
+        )
+        item = JellyfinItem(item: item, userData: updatedUserData)
+
+        do {
+            try await itemService.setFavorite(userID: userID, itemID: item.id, isFavorite: newValue)
+        } catch {
+            // Revert on failure
+            item = JellyfinItem(item: item, userData: UserItemData(
+                playbackPositionTicks: updatedUserData.playbackPositionTicks,
+                playCount: updatedUserData.playCount,
+                isFavorite: currentlyFavorite,
+                played: updatedUserData.played,
+                unplayedItemCount: updatedUserData.unplayedItemCount,
+                playedPercentage: updatedUserData.playedPercentage
+            ))
+        }
+    }
+
     func posterURL(for item: JellyfinItem) -> URL? {
         imageService.posterURL(for: item)
     }

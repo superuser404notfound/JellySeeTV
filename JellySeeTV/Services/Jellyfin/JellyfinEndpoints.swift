@@ -29,6 +29,10 @@ enum JellyfinEndpoint: APIEndpoint {
     case genres(userID: String)
     case studios(userID: String)
 
+    // Favorites
+    case markFavorite(userID: String, itemID: String)
+    case unmarkFavorite(userID: String, itemID: String)
+
     // Search
     case searchHints(userID: String, query: String, limit: Int)
 
@@ -66,6 +70,10 @@ enum JellyfinEndpoint: APIEndpoint {
             "/Genres"
         case .studios:
             "/Studios"
+        case .markFavorite(let userID, let itemID):
+            "/Users/\(userID)/FavoriteItems/\(itemID)"
+        case .unmarkFavorite(let userID, let itemID):
+            "/Users/\(userID)/FavoriteItems/\(itemID)"
         case .searchHints:
             "/Search/Hints"
         }
@@ -73,8 +81,10 @@ enum JellyfinEndpoint: APIEndpoint {
 
     var method: HTTPMethod {
         switch self {
-        case .authenticateByName, .quickConnectInitiate, .quickConnectAuthenticate:
+        case .authenticateByName, .quickConnectInitiate, .quickConnectAuthenticate, .markFavorite:
             .post
+        case .unmarkFavorite:
+            .delete
         default:
             .get
         }

@@ -202,7 +202,7 @@ struct SeriesDetailView: View {
                 GlassActionButton(
                     title: vm.item.userData?.isFavorite == true ? "detail.unfavorite" : "detail.favorite",
                     systemImage: vm.item.userData?.isFavorite == true ? "heart.fill" : "heart",
-                    action: { /* TODO */ }
+                    action: { Task { await vm.toggleFavorite() } }
                 )
 
                 if isShowingEpisode {
