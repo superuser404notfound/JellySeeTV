@@ -102,6 +102,41 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
         self.seriesPrimaryImageTag = item.seriesPrimaryImageTag
     }
 
+    /// Create a minimal series stub for navigation
+    init(seriesStub id: String, name: String) {
+        self.id = id
+        self.name = name
+        self.sortName = nil
+        self.originalTitle = nil
+        self.overview = nil
+        self.type = .series
+        self.seriesName = nil
+        self.seriesId = nil
+        self.seasonId = nil
+        self.parentIndexNumber = nil
+        self.indexNumber = nil
+        self.productionYear = nil
+        self.communityRating = nil
+        self.officialRating = nil
+        self.runTimeTicks = nil
+        self.premiereDate = nil
+        self.endDate = nil
+        self.status = nil
+        self.genres = nil
+        self.taglines = nil
+        self.imageTags = nil
+        self.backdropImageTags = nil
+        self.parentBackdropImageTags = nil
+        self.userData = nil
+        self.mediaStreams = nil
+        self.mediaSources = nil
+        self.people = nil
+        self.studios = nil
+        self.collectionType = nil
+        self.childCount = nil
+        self.seriesPrimaryImageTag = nil
+    }
+
     static func == (lhs: JellyfinItem, rhs: JellyfinItem) -> Bool {
         lhs.id == rhs.id
     }

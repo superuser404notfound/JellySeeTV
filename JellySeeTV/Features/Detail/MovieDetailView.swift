@@ -4,6 +4,7 @@ struct MovieDetailView: View {
     @Environment(\.appState) private var appState
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: DetailViewModel?
+    @State private var navigateToSeries: JellyfinItem?
 
     let item: JellyfinItem
 
@@ -17,6 +18,10 @@ struct MovieDetailView: View {
             }
         }
         .ignoresSafeArea()
+        .navigationDestination(item: $navigateToSeries) { series in
+            SeriesDetailView(item: series)
+                .toolbar(.hidden, for: .tabBar)
+        }
         .onAppear {
             if viewModel == nil, let userID = appState.activeUser?.id {
                 viewModel = DetailViewModel(
@@ -160,6 +165,19 @@ struct MovieDetailView: View {
                         title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",
                         systemImage: vm.isFavorite ? "heart.fill" : "heart",
                         action: { Task { await vm.toggleFavorite() } }
+                    )
+                }
+
+                if vm.item.type == .episode, let seriesId = vm.item.seriesId {
+                    GlassActionButton(
+                        title: "detail.showSeries",
+                        systemImage: "tv",
+                        action: {
+                            navigateToSeries = JellyfinItem(
+                                seriesStub: seriesId,
+                                name: vm.item.seriesName ?? ""
+                            )
+                        }
                     )
                 }
             }
