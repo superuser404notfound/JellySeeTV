@@ -7,6 +7,7 @@ final class HomeViewModel {
     var isLoading = true
     var errorMessage: String?
     var rowConfigs: [HomeRowConfig] = []
+    var needsReload = false
 
     private let libraryService: JellyfinLibraryServiceProtocol
     private let imageService: JellyfinImageService
@@ -25,35 +26,42 @@ final class HomeViewModel {
     }
 
     func loadContent() async {
-        isLoading = true
+        let isFirstLoad = rows.isEmpty && tagRows.isEmpty
+        if isFirstLoad {
+            isLoading = true
+        }
         errorMessage = nil
-        rows = []
-        tagRows = []
 
         do {
             libraries = try await libraryService.getLibraries(userID: userID)
-            isLoading = false
 
             let enabledRows = rowConfigs
                 .filter(\.isEnabled)
                 .sorted { $0.sortOrder < $1.sortOrder }
 
-            // Load each row and display immediately as it arrives
+            var newRows: [HomeRowData] = []
+            var newTagRows: [HomeTagRowData] = []
+
             for config in enabledRows {
                 if config.type.isTagRow {
                     if let tagRow = await loadTagRow(type: config.type) {
                         if !tagRow.tags.isEmpty {
-                            tagRows.append(tagRow)
+                            newTagRows.append(tagRow)
                         }
                     }
                 } else {
                     if let rowData = await loadRow(type: config.type) {
                         if !rowData.items.isEmpty {
-                            rows.append(rowData)
+                            newRows.append(rowData)
                         }
                     }
                 }
             }
+
+            // Atomic swap -- old images stay visible until new data is ready
+            rows = newRows
+            tagRows = newTagRows
+            isLoading = false
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false

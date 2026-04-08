@@ -49,11 +49,14 @@ struct HomeView: View {
                     userID: userID
                 )
                 Task { await viewModel?.loadContent() }
+            } else if viewModel?.needsReload == true {
+                viewModel?.needsReload = false
+                Task { await viewModel?.loadContent() }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .homeConfigDidChange)) { _ in
             viewModel?.reloadConfig()
-            Task { await viewModel?.loadContent() }
+            viewModel?.needsReload = true
         }
     }
 
