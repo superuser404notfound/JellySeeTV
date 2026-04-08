@@ -1466,6 +1466,27 @@
         }
       }
     },
+    "settings.logout" : {
+      "comment" : "Logout button in settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign Out" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abmelden" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se déconnecter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar sesión" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Disconnetti" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "サインアウト" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出登录" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "로그아웃" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Uitloggen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wyloguj się" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выйти" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Logga ut" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Logg ut" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Log ud" } }
+      }
+    },
     "error.timeout" : {
       "comment" : "Error when request times out",
       "extractionState" : "manual",

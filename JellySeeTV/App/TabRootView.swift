@@ -50,7 +50,7 @@ struct TabRootView: View {
         case .search:
             PlaceholderTabView(title: "tab.search", systemImage: "magnifyingglass")
         case .settings:
-            PlaceholderTabView(title: "tab.settings", systemImage: "gearshape")
+            SettingsView()
         }
     }
 }
