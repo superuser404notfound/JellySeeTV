@@ -2082,6 +2082,167 @@
         }
       }
     },
+    "home.allMovies" : {
+      "comment" : "Section title for all movies",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Movies" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Alle Filme" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tous les films" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Todas las películas" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Tutti i film" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Todos os filmes" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "すべての映画" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "所有电影" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "모든 영화" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Alle films" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wszystkie filmy" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Все фильмы" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Alla filmer" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Alle filmer" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Alle film" } }
+      }
+    },
+    "home.allSeries" : {
+      "comment" : "Section title for all series", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Series" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Alle Serien" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Toutes les séries" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Todas las series" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Tutte le serie" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Todas as séries" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "すべてのドラマ" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "所有剧集" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "모든 시리즈" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Alle series" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wszystkie seriale" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Все сериалы" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Alla serier" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Alle serier" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Alle serier" } }
+      }
+    },
+    "home.favorites" : {
+      "comment" : "Section title for favorites", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Favorites" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Favoriten" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Favoris" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Favoritos" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Preferiti" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Favoritos" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "お気に入り" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "收藏" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "즐겨찾기" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Favorieten" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Ulubione" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Избранное" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Favoriter" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Favoritter" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Favoritter" } }
+      }
+    },
+    "home.topRatedMovies" : {
+      "comment" : "Section title for top rated movies", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Top Rated Movies" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bestbewertete Filme" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Films les mieux notés" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Películas mejor valoradas" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Film più votati" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Filmes mais bem avaliados" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "高評価の映画" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最高评分电影" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최고 평점 영화" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Best beoordeelde films" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Najlepiej oceniane filmy" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Лучшие фильмы" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Bäst betygsatta filmer" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Høyest rangerte filmer" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Højest bedømte film" } }
+      }
+    },
+    "home.topRatedShows" : {
+      "comment" : "Section title for top rated shows", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Top Rated Shows" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bestbewertete Serien" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Séries les mieux notées" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Series mejor valoradas" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Serie più votate" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Séries mais bem avaliadas" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "高評価のドラマ" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最高评分剧集" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최고 평점 시리즈" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Best beoordeelde series" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Najlepiej oceniane seriale" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Лучшие сериалы" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Bäst betygsatta serier" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Høyest rangerte serier" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Højest bedømte serier" } }
+      }
+    },
+    "home.recentlyAdded" : {
+      "comment" : "Section title for recently added", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recently Added" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kürzlich hinzugefügt" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajoutés récemment" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadidos recientemente" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aggiunti di recente" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Adicionados recentemente" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "最近追加" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "最近添加" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "최근 추가" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Recent toegevoegd" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Ostatnio dodane" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Недавно добавленные" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Nyligen tillagda" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Nylig lagt til" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Tilføjet for nylig" } }
+      }
+    },
+    "home.genres" : {
+      "comment" : "Section title for genres", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Genres" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Genres" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Genres" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Géneros" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Generi" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Gêneros" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ジャンル" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "类型" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "장르" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Genres" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Gatunki" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Жанры" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Genrer" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Sjangre" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Genrer" } }
+      }
+    },
+    "home.customize.title" : {
+      "comment" : "Title for home customization", "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Customize Home" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Startseite anpassen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Personnaliser l'accueil" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar inicio" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Personalizza home" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Personalizar início" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホームをカスタマイズ" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自定义首页" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "홈 사용자 지정" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Home aanpassen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Dostosuj stronę główną" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Настроить главную" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Anpassa hem" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Tilpass hjem" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Tilpas hjem" } }
+      }
+    },
     "home.retry" : {
       "comment" : "Retry button on error state",
       "extractionState" : "manual",

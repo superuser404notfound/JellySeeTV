@@ -5,6 +5,7 @@ struct HomeView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: HomeViewModel?
     @State private var selectedItem: JellyfinItem?
+    @State private var showCustomize = false
 
     var body: some View {
         NavigationStack {
@@ -51,41 +52,13 @@ struct HomeView: View {
     private func contentView(vm: HomeViewModel) -> some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(alignment: .leading, spacing: 40) {
-                if !vm.continueWatching.isEmpty {
+                ForEach(vm.rows) { row in
                     HorizontalMediaRow(
-                        title: "home.continueWatching",
-                        items: vm.continueWatching,
-                        imageURLProvider: { vm.thumbURL(for: $0) },
+                        title: row.type.localizedTitle,
+                        items: row.items,
+                        imageURLProvider: { vm.imageURL(for: $0, rowType: row.type) },
                         onItemSelected: { selectedItem = $0 },
-                        cardStyle: .landscape
-                    )
-                }
-
-                if !vm.nextUp.isEmpty {
-                    HorizontalMediaRow(
-                        title: "home.nextUp",
-                        items: vm.nextUp,
-                        imageURLProvider: { vm.thumbURL(for: $0) },
-                        onItemSelected: { selectedItem = $0 },
-                        cardStyle: .landscape
-                    )
-                }
-
-                if !vm.latestMovies.isEmpty {
-                    HorizontalMediaRow(
-                        title: "home.latestMovies",
-                        items: vm.latestMovies,
-                        imageURLProvider: { vm.posterURL(for: $0) },
-                        onItemSelected: { selectedItem = $0 }
-                    )
-                }
-
-                if !vm.latestShows.isEmpty {
-                    HorizontalMediaRow(
-                        title: "home.latestShows",
-                        items: vm.latestShows,
-                        imageURLProvider: { vm.posterURL(for: $0) },
-                        onItemSelected: { selectedItem = $0 }
+                        cardStyle: row.type.cardStyle
                     )
                 }
             }
