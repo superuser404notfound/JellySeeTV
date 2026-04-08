@@ -38,13 +38,21 @@ struct HomeView: View {
             }
         }
         .onAppear {
-            if viewModel == nil, let userID = appState.activeUser?.id {
+            guard let userID = appState.activeUser?.id else { return }
+            if viewModel == nil {
                 viewModel = HomeViewModel(
                     libraryService: dependencies.jellyfinLibraryService,
                     imageService: dependencies.jellyfinImageService,
                     userID: userID
                 )
                 Task { await viewModel?.loadContent() }
+            } else {
+                // Reload config in case it changed in settings
+                let oldConfigs = viewModel?.rowConfigs
+                viewModel?.reloadConfig()
+                if viewModel?.rowConfigs != oldConfigs {
+                    Task { await viewModel?.loadContent() }
+                }
             }
         }
     }

@@ -20,7 +20,7 @@ final class HomeViewModel {
         self.libraryService = libraryService
         self.imageService = imageService
         self.userID = userID
-        self.rowConfigs = Self.loadRowConfigs()
+        self.rowConfigs = HomeRowConfig.loadFromStorage()
     }
 
     func loadContent() async {
@@ -152,49 +152,8 @@ final class HomeViewModel {
         return imageService.posterURL(for: item)
     }
 
-    // MARK: - Config Persistence
-
-    func updateRowConfig(_ configs: [HomeRowConfig]) {
-        rowConfigs = configs
-        Self.saveRowConfigs(configs)
-    }
-
-    func moveRow(from source: IndexSet, to destination: Int) {
-        var enabled = rowConfigs.filter(\.isEnabled).sorted { $0.sortOrder < $1.sortOrder }
-        enabled.move(fromOffsets: source, toOffset: destination)
-        for (index, _) in enabled.enumerated() {
-            if let configIndex = rowConfigs.firstIndex(where: { $0.type == enabled[index].type }) {
-                rowConfigs[configIndex].sortOrder = index
-            }
-        }
-        Self.saveRowConfigs(rowConfigs)
-    }
-
-    func toggleRow(_ type: HomeRowType) {
-        if let index = rowConfigs.firstIndex(where: { $0.type == type }) {
-            rowConfigs[index].isEnabled.toggle()
-            Self.saveRowConfigs(rowConfigs)
-        }
-    }
-
-    private static func loadRowConfigs() -> [HomeRowConfig] {
-        guard let data = UserDefaults.standard.data(forKey: "homeRowConfigs"),
-              let configs = try? JSONDecoder().decode([HomeRowConfig].self, from: data)
-        else {
-            return HomeRowConfig.defaultConfig()
-        }
-        // Add any new row types that didn't exist when the config was saved
-        var result = configs
-        for type in HomeRowType.allCases where !result.contains(where: { $0.type == type }) {
-            result.append(HomeRowConfig(type: type, isEnabled: type.defaultEnabled, sortOrder: result.count))
-        }
-        return result
-    }
-
-    private static func saveRowConfigs(_ configs: [HomeRowConfig]) {
-        if let data = try? JSONEncoder().encode(configs) {
-            UserDefaults.standard.set(data, forKey: "homeRowConfigs")
-        }
+    func reloadConfig() {
+        rowConfigs = HomeRowConfig.loadFromStorage()
     }
 }
 
