@@ -51,21 +51,50 @@ final class ServerDiscoveryService: ServerDiscoveryServiceProtocol {
         var cleaned = input.trimmingCharacters(in: .whitespacesAndNewlines)
         cleaned = cleaned.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
 
-        // If already a full URL, try it directly
+        // If already a full URL with scheme, try it directly + with default ports
         if cleaned.hasPrefix("https://") || cleaned.hasPrefix("http://") {
             if let url = URL(string: cleaned) {
-                return [url]
+                // If no port specified, also try with default Jellyfin ports
+                var candidates = [url]
+                if url.port == nil {
+                    if cleaned.hasPrefix("https://"), let withPort = URL(string: "\(cleaned):8920") {
+                        candidates.append(withPort)
+                    }
+                    if cleaned.hasPrefix("http://"), let withPort = URL(string: "\(cleaned):8096") {
+                        candidates.append(withPort)
+                    }
+                }
+                return candidates
             }
             return []
         }
 
-        // Try https first, then http
+        let isIPAddress = cleaned.range(of: #"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"#, options: .regularExpression) != nil
+        let hasPort = cleaned.contains(":")
+
         var candidates: [URL] = []
-        if let https = URL(string: "https://\(cleaned)") {
-            candidates.append(https)
-        }
-        if let http = URL(string: "http://\(cleaned)") {
-            candidates.append(http)
+
+        if isIPAddress {
+            if hasPort {
+                // IP with explicit port: try both schemes
+                if let https = URL(string: "https://\(cleaned)") { candidates.append(https) }
+                if let http = URL(string: "http://\(cleaned)") { candidates.append(http) }
+            } else {
+                // IP without port: try default Jellyfin ports
+                // HTTPS with Jellyfin HTTPS port
+                if let url = URL(string: "https://\(cleaned):8920") { candidates.append(url) }
+                // HTTP with Jellyfin HTTP port
+                if let url = URL(string: "http://\(cleaned):8096") { candidates.append(url) }
+                // Also try standard ports (reverse proxy setup)
+                if let url = URL(string: "https://\(cleaned)") { candidates.append(url) }
+                if let url = URL(string: "http://\(cleaned)") { candidates.append(url) }
+            }
+        } else {
+            // Domain name: try standard ports first (likely reverse proxy), then Jellyfin ports
+            if let url = URL(string: "https://\(cleaned)") { candidates.append(url) }
+            if let url = URL(string: "http://\(cleaned)") { candidates.append(url) }
+            if let url = URL(string: "https://\(cleaned):8920") { candidates.append(url) }
+            if let url = URL(string: "http://\(cleaned):8096") { candidates.append(url) }
         }
 
         return candidates
