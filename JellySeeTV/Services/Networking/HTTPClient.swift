@@ -34,7 +34,6 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
 
         self.decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        decoder.keyDecodingStrategy = .convertFromPascalCase
     }
 
     func request<T: Decodable>(
