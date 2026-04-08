@@ -193,7 +193,7 @@ struct ItemQuery: Sendable {
     var startIndex: Int?
     var searchTerm: String?
     var genres: [String]?
-    var studioIDs: [String]?
+    var studioNames: [String]?
     var isFavorite: Bool?
     var fields: String?
 
@@ -212,8 +212,8 @@ struct ItemQuery: Sendable {
         if let genres {
             items.append(URLQueryItem(name: "Genres", value: genres.joined(separator: "|")))
         }
-        if let studioIDs {
-            items.append(URLQueryItem(name: "StudioIds", value: studioIDs.joined(separator: ",")))
+        if let studioNames {
+            items.append(URLQueryItem(name: "Studios", value: studioNames.joined(separator: "|")))
         }
         if let isFavorite { items.append(URLQueryItem(name: "IsFavorite", value: String(isFavorite))) }
 

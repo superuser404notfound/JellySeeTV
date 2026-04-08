@@ -107,7 +107,7 @@ struct HomeView: View {
                     sortBy: "SortName",
                     sortOrder: "Ascending",
                     limit: 50,
-                    studioIDs: [tag.id]
+                    studioNames: [tag.name]
                 )
             )
         default:
@@ -127,14 +127,14 @@ extension ItemQuery: Hashable {
         hasher.combine(parentID)
         hasher.combine(sortBy)
         hasher.combine(genres)
-        hasher.combine(studioIDs)
+        hasher.combine(studioNames)
     }
 
     static func == (lhs: ItemQuery, rhs: ItemQuery) -> Bool {
         lhs.parentID == rhs.parentID &&
         lhs.sortBy == rhs.sortBy &&
         lhs.genres == rhs.genres &&
-        lhs.studioIDs == rhs.studioIDs &&
+        lhs.studioNames == rhs.studioNames &&
         lhs.isFavorite == rhs.isFavorite
     }
 }

@@ -184,7 +184,7 @@ final class HomeViewModel {
                         includeItemTypes: [.movie, .series],
                         sortBy: "Random",
                         limit: 1,
-                        studioIDs: [tag.id]
+                        studioNames: [tag.name]
                     )
                     if let item = try? await libraryService.getItems(userID: userID, query: query).items.first {
                         backdropURL = imageService.backdropURL(for: item)
