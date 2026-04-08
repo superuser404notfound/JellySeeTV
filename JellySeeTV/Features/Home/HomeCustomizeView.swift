@@ -140,50 +140,38 @@ struct CustomizeRowItem: View {
     let onMoveUp: () -> Void
     let onMoveDown: () -> Void
 
-    @FocusState private var isFocused: Bool
-
     var body: some View {
-        rowContent
-            .focusable()
-            .focused($isFocused)
-            .onLongPressGesture(minimumDuration: 0) {
-                onToggle()
+        Button {
+            // No-op: all actions via context menu
+        } label: {
+            HStack(spacing: 16) {
+                Image(systemName: config.type.systemImage)
+                    .font(.title3)
+                    .frame(width: 32)
+                    .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
+
+                Text(config.type.localizedTitle)
+                    .font(.body)
+
+                Spacer()
+
+                if isActive, let index {
+                    Text("\(index + 1)")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .monospacedDigit()
+                }
+
+                Image(systemName: isActive ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isActive ? AnyShapeStyle(.green) : AnyShapeStyle(.tertiary))
             }
-            .scaleEffect(isFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
-            .contextMenu {
-                contextMenuItems
-            }
-    }
-
-    private var rowContent: some View {
-        HStack(spacing: 16) {
-            Image(systemName: config.type.systemImage)
-                .font(.title3)
-                .frame(width: 32)
-                .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
-
-            Text(config.type.localizedTitle)
-                .font(.body)
-
-            Spacer()
-
-            if isActive, let index {
-                Text("\(index + 1)")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .monospacedDigit()
-            }
-
-            Image(systemName: isActive ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(isActive ? AnyShapeStyle(.green) : AnyShapeStyle(.tertiary))
+            .padding(.vertical, 14)
+            .padding(.horizontal, 20)
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
-        )
+        .buttonStyle(CustomizeRowButtonStyle())
+        .contextMenu {
+            contextMenuItems
+        }
     }
 
     @ViewBuilder
@@ -219,6 +207,22 @@ struct CustomizeRowItem: View {
                 Label("home.customize.add", systemImage: "plus.circle")
             }
         }
+    }
+}
+
+// MARK: - Button Style
+
+struct CustomizeRowButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
+            )
+            .scaleEffect(isFocused ? 1.02 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
     }
 }
 
