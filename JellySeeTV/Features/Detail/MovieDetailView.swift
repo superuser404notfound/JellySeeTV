@@ -155,11 +155,13 @@ struct MovieDetailView: View {
                     )
                 }
 
-                GlassActionButton(
-                    title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",
-                    systemImage: vm.isFavorite ? "heart.fill" : "heart",
-                    action: { Task { await vm.toggleFavorite() } }
-                )
+                if vm.item.type != .episode {
+                    GlassActionButton(
+                        title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",
+                        systemImage: vm.isFavorite ? "heart.fill" : "heart",
+                        action: { Task { await vm.toggleFavorite() } }
+                    )
+                }
             }
             .padding(.top, 4)
         }
