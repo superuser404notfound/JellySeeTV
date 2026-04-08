@@ -4,9 +4,19 @@ struct SeriesDetailView: View {
     @Environment(\.appState) private var appState
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: DetailViewModel?
-    @State private var selectedItem: JellyfinItem?
+    @State private var selectedEpisode: JellyfinItem?
+    @State private var navigateToEpisode: JellyfinItem?
 
     let item: JellyfinItem
+
+    /// The item to show in the info panel -- selected episode or series itself
+    private var displayItem: JellyfinItem {
+        selectedEpisode ?? viewModel?.item ?? item
+    }
+
+    private var isShowingEpisode: Bool {
+        selectedEpisode != nil
+    }
 
     var body: some View {
         Group {
@@ -17,8 +27,9 @@ struct SeriesDetailView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .navigationDestination(item: $selectedItem) { item in
-            DetailRouterView(item: item)
+        .ignoresSafeArea()
+        .navigationDestination(item: $navigateToEpisode) { ep in
+            DetailRouterView(item: ep)
         }
         .onAppear {
             if viewModel == nil, let userID = appState.activeUser?.id {
@@ -37,129 +48,142 @@ struct SeriesDetailView: View {
     }
 
     private func contentView(vm: DetailViewModel) -> some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 0) {
-                backdropWithPanel(vm: vm)
+        ZStack {
+            // Fullscreen backdrop (changes with selected episode)
+            backdrop(vm: vm)
 
-                VStack(alignment: .leading, spacing: 40) {
-                    // Overview
-                    if let overview = vm.item.overview, !overview.isEmpty {
-                        Text(overview)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(6)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Color.clear.frame(height: 500)
+
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.85), .black],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 200)
+
+                    VStack(alignment: .leading, spacing: 40) {
+                        // Dynamic info panel
+                        glassPanel(vm: vm)
                             .padding(.horizontal, 50)
-                    }
+                            .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
 
-                    // Season picker + episodes
-                    if !vm.seasons.isEmpty {
-                        seasonSection(vm: vm)
-                    }
+                        // Overview
+                        if let overview = displayItem.overview, !overview.isEmpty {
+                            Text(overview)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(6)
+                                .padding(.horizontal, 50)
+                                .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
+                        }
 
-                    // Cast
-                    if let people = vm.item.people, !people.isEmpty {
-                        CastRow(
-                            people: Array(people.prefix(15)),
-                            imageURLProvider: { person in
-                                dependencies.jellyfinImageService.personImageURL(
-                                    personID: person.id,
-                                    tag: person.primaryImageTag
-                                )
-                            }
-                        )
-                    }
+                        // Tech info (from selected episode or series)
+                        if displayItem.mediaStreams != nil || displayItem.mediaSources != nil {
+                            TechInfoBox(item: displayItem)
+                                .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
+                        }
 
-                    // Similar
-                    if !vm.similarItems.isEmpty {
-                        HorizontalMediaRow(
-                            title: "detail.similar",
-                            items: vm.similarItems,
-                            imageURLProvider: { vm.posterURL(for: $0) },
-                            onItemSelected: { selectedItem = $0 },
-                            cardStyle: .poster
-                        )
+                        // Season picker + episodes
+                        if !vm.seasons.isEmpty {
+                            seasonSection(vm: vm)
+                        }
+
+                        // Cast
+                        if let people = vm.item.people, !people.isEmpty {
+                            CastRow(
+                                people: Array(people.prefix(15)),
+                                imageURLProvider: { person in
+                                    dependencies.jellyfinImageService.personImageURL(
+                                        personID: person.id,
+                                        tag: person.primaryImageTag
+                                    )
+                                }
+                            )
+                        }
+
+                        // Similar
+                        if !vm.similarItems.isEmpty {
+                            HorizontalMediaRow(
+                                title: "detail.similar",
+                                items: vm.similarItems,
+                                imageURLProvider: { vm.posterURL(for: $0) },
+                                cardStyle: .poster
+                            )
+                        }
                     }
+                    .padding(.bottom, 80)
+                    .background(.black)
                 }
-                .padding(.top, 32)
-                .padding(.bottom, 60)
             }
         }
     }
 
-    // MARK: - Backdrop + Glass Panel
+    // MARK: - Backdrop
 
-    private func backdropWithPanel(vm: DetailViewModel) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            AsyncCachedImage(url: vm.backdropURL(for: vm.item)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle().fill(Color.Theme.surface)
-            }
-            .frame(height: 650)
-            .clipped()
-
-            VStack(spacing: 0) {
-                Spacer()
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.7), .black],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 350)
-            }
-
-            glassPanel(vm: vm)
-                .padding(.horizontal, 50)
-                .padding(.bottom, 40)
+    private func backdrop(vm: DetailViewModel) -> some View {
+        let backdropURL: URL? = if let ep = selectedEpisode {
+            dependencies.jellyfinImageService.episodeThumbnailURL(for: ep)
+                ?? vm.backdropURL(for: vm.item)
+        } else {
+            vm.backdropURL(for: vm.item)
         }
-        .frame(height: 650)
+
+        return AsyncCachedImage(url: backdropURL) { image in
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        } placeholder: {
+            Rectangle().fill(Color.Theme.surface)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
+        .overlay(Color.black.opacity(0.3))
+        .animation(.easeInOut(duration: 0.5), value: selectedEpisode?.id)
     }
+
+    // MARK: - Glass Panel (dynamic)
 
     private func glassPanel(vm: DetailViewModel) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(vm.item.name)
-                .font(.title)
+            // Series title always shown
+            if isShowingEpisode {
+                Text(vm.item.name)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            // Main title
+            Text(isShowingEpisode ? (selectedEpisode?.name ?? "") : vm.item.name)
+                .font(.largeTitle)
                 .fontWeight(.bold)
 
-            // Metadata
-            HStack(spacing: 12) {
-                if let year = vm.item.productionYear {
-                    Text(String(year))
-                }
-
-                if let rating = vm.item.officialRating {
-                    Text("·").foregroundStyle(.tertiary)
-                    Text(rating)
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(.secondary.opacity(0.5), lineWidth: 1)
-                        )
-                }
-
-                if let score = vm.item.communityRating {
-                    Text("·").foregroundStyle(.tertiary)
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .foregroundStyle(.yellow)
-                            .font(.caption)
-                        Text(String(format: "%.1f", score))
+            // Episode info
+            if isShowingEpisode, let ep = selectedEpisode {
+                HStack(spacing: 8) {
+                    if let s = ep.parentIndexNumber {
+                        Text("S\(s)")
+                            .fontWeight(.semibold)
+                    }
+                    if let e = ep.indexNumber {
+                        Text("E\(e)")
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.tint)
+                    }
+                    if let runtime = ep.runTimeTicks {
+                        Text("·").foregroundStyle(.tertiary)
+                        Text(runtime.ticksToDisplay)
                     }
                 }
-
-                if let count = vm.item.childCount, count > 0 {
-                    Text("·").foregroundStyle(.tertiary)
-                    Text("detail.seasonCount \(count)")
-                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            } else {
+                // Series metadata
+                seriesMetadata(vm: vm)
             }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
 
-            // Genres
+            // Genres (series always)
             if let genres = vm.item.genres, !genres.isEmpty {
                 Text(genres.joined(separator: " · "))
                     .font(.subheadline)
@@ -169,17 +193,27 @@ struct SeriesDetailView: View {
             // Action buttons
             HStack(spacing: 16) {
                 GlassActionButton(
-                    title: "detail.play",
+                    title: playTitle,
                     systemImage: "play.fill",
                     isProminent: true,
-                    action: { /* Phase 3: Playback */ }
+                    action: { /* Phase 3 */ }
                 )
 
                 GlassActionButton(
                     title: vm.item.userData?.isFavorite == true ? "detail.unfavorite" : "detail.favorite",
                     systemImage: vm.item.userData?.isFavorite == true ? "heart.fill" : "heart",
-                    action: { /* TODO: toggle favorite */ }
+                    action: { /* TODO */ }
                 )
+
+                if isShowingEpisode {
+                    GlassActionButton(
+                        title: "detail.showSeries",
+                        systemImage: "xmark",
+                        action: {
+                            withAnimation { selectedEpisode = nil }
+                        }
+                    )
+                }
             }
             .padding(.top, 4)
         }
@@ -190,11 +224,53 @@ struct SeriesDetailView: View {
         )
     }
 
+    private var playTitle: LocalizedStringKey {
+        if let ep = selectedEpisode,
+           let ticks = ep.userData?.playbackPositionTicks, ticks > 0 {
+            return "detail.resume"
+        }
+        return "detail.play"
+    }
+
+    private func seriesMetadata(vm: DetailViewModel) -> some View {
+        HStack(spacing: 12) {
+            if let year = vm.item.productionYear {
+                Text(String(year))
+            }
+            if let rating = vm.item.officialRating {
+                Text("·").foregroundStyle(.tertiary)
+                Text(rating)
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(.secondary.opacity(0.5), lineWidth: 1)
+                    )
+            }
+            if let score = vm.item.communityRating {
+                Text("·").foregroundStyle(.tertiary)
+                HStack(spacing: 4) {
+                    Image(systemName: "star.fill")
+                        .foregroundStyle(.yellow)
+                        .font(.caption)
+                    Text(String(format: "%.1f", score))
+                }
+            }
+            if let count = vm.item.childCount, count > 0 {
+                Text("·").foregroundStyle(.tertiary)
+                Text("detail.seasonCount \(count)")
+            }
+        }
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+    }
+
     // MARK: - Season Section
 
     private func seasonSection(vm: DetailViewModel) -> some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Season picker tabs
+            // Season tabs
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(vm.seasons) { season in
@@ -202,6 +278,7 @@ struct SeriesDetailView: View {
                             name: season.name,
                             isSelected: vm.selectedSeasonID == season.id,
                             action: {
+                                selectedEpisode = nil
                                 Task { await vm.loadEpisodes(seasonID: season.id) }
                             }
                         )
@@ -210,17 +287,20 @@ struct SeriesDetailView: View {
                 .padding(.horizontal, 50)
             }
 
-            // Episodes as horizontal landscape cards
+            // Episode cards
             if !vm.episodes.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: 24) {
                         ForEach(vm.episodes) { episode in
                             FocusableCard {
-                                selectedItem = episode
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    selectedEpisode = episode
+                                }
                             } content: { _ in
                                 EpisodeLandscapeCard(
                                     episode: episode,
-                                    imageURL: dependencies.jellyfinImageService.episodeThumbnailURL(for: episode)
+                                    imageURL: dependencies.jellyfinImageService.episodeThumbnailURL(for: episode),
+                                    isSelected: selectedEpisode?.id == episode.id
                                 )
                             }
                         }
@@ -256,18 +336,12 @@ struct SeasonTab: View {
             .animation(.easeInOut(duration: 0.15), value: isFocused)
             .focusable()
             .focused($isFocused)
-            .onLongPressGesture(minimumDuration: 0) {
-                action()
-            }
+            .onLongPressGesture(minimumDuration: 0) { action() }
     }
 
-    private var tabBackground: some ShapeStyle {
-        if isSelected {
-            return AnyShapeStyle(.ultraThinMaterial)
-        }
-        if isFocused {
-            return AnyShapeStyle(.white.opacity(0.12))
-        }
+    private var tabBackground: AnyShapeStyle {
+        if isSelected { return AnyShapeStyle(.ultraThinMaterial) }
+        if isFocused { return AnyShapeStyle(.white.opacity(0.12)) }
         return AnyShapeStyle(.white.opacity(0.05))
     }
 }
@@ -277,10 +351,10 @@ struct SeasonTab: View {
 struct EpisodeLandscapeCard: View {
     let episode: JellyfinItem
     let imageURL: URL?
+    var isSelected: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Episode thumbnail
             ZStack(alignment: .bottomLeading) {
                 AsyncCachedImage(url: imageURL) { image in
                     image
@@ -297,6 +371,10 @@ struct EpisodeLandscapeCard: View {
                 }
                 .frame(width: 360, height: 202)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isSelected ? Color.accentColor.opacity(0.8) : .clear, lineWidth: 2)
+                )
 
                 // Progress bar
                 if let pct = episode.userData?.playedPercentage, pct > 0 {
@@ -313,7 +391,7 @@ struct EpisodeLandscapeCard: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
-                // Played checkmark
+                // Played badge
                 if episode.userData?.played == true {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
@@ -324,7 +402,6 @@ struct EpisodeLandscapeCard: View {
             }
             .frame(width: 360, height: 202)
 
-            // Info
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     if let ep = episode.indexNumber {
@@ -338,18 +415,10 @@ struct EpisodeLandscapeCard: View {
                         .lineLimit(1)
                 }
 
-                HStack(spacing: 8) {
-                    if let runtime = episode.runTimeTicks {
-                        Text(runtime.ticksToDisplay)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    }
-                    if let overview = episode.overview {
-                        Text(overview)
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                            .lineLimit(1)
-                    }
+                if let runtime = episode.runTimeTicks {
+                    Text(runtime.ticksToDisplay)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
             }
             .frame(width: 360, alignment: .leading)

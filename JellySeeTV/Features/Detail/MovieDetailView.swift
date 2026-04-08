@@ -16,6 +16,7 @@ struct MovieDetailView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .ignoresSafeArea()
         .onAppear {
             if viewModel == nil, let userID = appState.activeUser?.id {
                 viewModel = DetailViewModel(
@@ -30,102 +31,107 @@ struct MovieDetailView: View {
     }
 
     private func contentView(vm: DetailViewModel) -> some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 0) {
-                // Backdrop + Glass Panel overlay
-                backdropWithPanel(vm: vm)
+        ZStack {
+            // Fullscreen backdrop
+            backdrop(vm: vm)
 
-                // Content below the hero
-                VStack(alignment: .leading, spacing: 40) {
-                    // Overview
-                    if let overview = vm.item.overview, !overview.isEmpty {
-                        Text(overview)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(6)
+            // Scrollable content overlay
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Spacer to push content below the visible backdrop area
+                    Color.clear.frame(height: 500)
+
+                    // Gradient transition
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.85), .black],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 200)
+
+                    // Content on solid black
+                    VStack(alignment: .leading, spacing: 40) {
+                        // Glass info panel
+                        glassPanel(vm: vm)
                             .padding(.horizontal, 50)
-                    }
 
-                    // Cast
-                    if let people = vm.item.people, !people.isEmpty {
-                        CastRow(
-                            people: Array(people.prefix(15)),
-                            imageURLProvider: { person in
-                                dependencies.jellyfinImageService.personImageURL(
-                                    personID: person.id,
-                                    tag: person.primaryImageTag
-                                )
-                            }
-                        )
-                    }
+                        // Overview
+                        if let overview = vm.item.overview, !overview.isEmpty {
+                            Text(overview)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(6)
+                                .padding(.horizontal, 50)
+                        }
 
-                    // Similar items
-                    if !vm.similarItems.isEmpty {
-                        HorizontalMediaRow(
-                            title: "detail.similar",
-                            items: vm.similarItems,
-                            imageURLProvider: { vm.posterURL(for: $0) },
-                            cardStyle: .poster
-                        )
+                        // Tech info
+                        if vm.item.mediaStreams != nil || vm.item.mediaSources != nil {
+                            TechInfoBox(item: vm.item)
+                        }
+
+                        // Cast
+                        if let people = vm.item.people, !people.isEmpty {
+                            CastRow(
+                                people: Array(people.prefix(15)),
+                                imageURLProvider: { person in
+                                    dependencies.jellyfinImageService.personImageURL(
+                                        personID: person.id,
+                                        tag: person.primaryImageTag
+                                    )
+                                }
+                            )
+                        }
+
+                        // Similar items
+                        if !vm.similarItems.isEmpty {
+                            HorizontalMediaRow(
+                                title: "detail.similar",
+                                items: vm.similarItems,
+                                imageURLProvider: { vm.posterURL(for: $0) },
+                                cardStyle: .poster
+                            )
+                        }
                     }
+                    .padding(.bottom, 80)
+                    .background(.black)
                 }
-                .padding(.top, 32)
-                .padding(.bottom, 60)
             }
         }
     }
 
-    // MARK: - Backdrop + Glass Panel
+    // MARK: - Fullscreen Backdrop
 
-    private func backdropWithPanel(vm: DetailViewModel) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            // Full-bleed backdrop
-            AsyncCachedImage(url: vm.backdropURL(for: vm.item)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle().fill(Color.Theme.surface)
-            }
-            .frame(height: 650)
-            .clipped()
-
-            // Gradient overlays
-            VStack(spacing: 0) {
-                Spacer()
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.7), .black],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 350)
-            }
-
-            // Glass info panel
-            glassPanel(vm: vm)
-                .padding(.horizontal, 50)
-                .padding(.bottom, 40)
+    private func backdrop(vm: DetailViewModel) -> some View {
+        AsyncCachedImage(url: vm.backdropURL(for: vm.item)) { image in
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        } placeholder: {
+            Rectangle().fill(Color.Theme.surface)
         }
-        .frame(height: 650)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
+        .overlay(
+            Color.black.opacity(0.3)
+        )
     }
+
+    // MARK: - Glass Panel
 
     private func glassPanel(vm: DetailViewModel) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Title
             Text(vm.item.name)
-                .font(.title)
+                .font(.largeTitle)
                 .fontWeight(.bold)
 
             // Episode subtitle
-            if vm.item.type == .episode {
-                if let series = vm.item.seriesName {
-                    Text(episodeSubtitle(vm: vm, seriesName: series))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+            if vm.item.type == .episode, let series = vm.item.seriesName {
+                Text(episodeSubtitle(vm: vm, seriesName: series))
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
             }
 
-            // Metadata row
+            // Metadata
             metadataRow(vm: vm)
 
             // Genres
@@ -166,12 +172,10 @@ struct MovieDetailView: View {
             if let year = vm.item.productionYear {
                 Text(String(year))
             }
-
             if let runtime = vm.item.runTimeTicks {
                 Text("·").foregroundStyle(.tertiary)
                 Text(runtime.ticksToDisplay)
             }
-
             if let rating = vm.item.officialRating {
                 Text("·").foregroundStyle(.tertiary)
                 Text(rating)
@@ -183,7 +187,6 @@ struct MovieDetailView: View {
                             .stroke(.secondary.opacity(0.5), lineWidth: 1)
                     )
             }
-
             if let score = vm.item.communityRating {
                 Text("·").foregroundStyle(.tertiary)
                 HStack(spacing: 4) {
@@ -207,12 +210,8 @@ struct MovieDetailView: View {
 
     private func episodeSubtitle(vm: DetailViewModel, seriesName: String) -> String {
         var parts = [seriesName]
-        if let s = vm.item.parentIndexNumber {
-            parts.append("S\(s)")
-        }
-        if let e = vm.item.indexNumber {
-            parts.append("E\(e)")
-        }
+        if let s = vm.item.parentIndexNumber { parts.append("S\(s)") }
+        if let e = vm.item.indexNumber { parts.append("E\(e)") }
         return parts.joined(separator: " · ")
     }
 }
