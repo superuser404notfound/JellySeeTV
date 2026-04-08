@@ -113,7 +113,10 @@ struct SettingsView: View {
         } label: {
             Text("settings.logout")
                 .font(.subheadline)
+                .padding(.horizontal, 40)
+                .padding(.vertical, 12)
         }
+        .buttonStyle(.plain)
         .padding(.top, 12)
     }
 }
@@ -125,6 +128,8 @@ struct SettingsTile<Destination: View>: View {
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
     let destination: Destination
+
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         NavigationLink {
@@ -154,8 +159,12 @@ struct SettingsTile<Destination: View>: View {
             }
             .padding(20)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+            .scaleEffect(isFocused ? 1.03 : 1.0)
+            .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 15, y: 8)
+            .animation(.easeInOut(duration: 0.2), value: isFocused)
         }
         .buttonStyle(.plain)
+        .focused($isFocused)
     }
 }
 

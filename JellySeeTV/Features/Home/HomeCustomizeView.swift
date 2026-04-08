@@ -19,9 +19,18 @@ struct HomeCustomizeView: View {
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 50)
 
-                    VStack(spacing: 2) {
+                    VStack(spacing: 4) {
                         ForEach(Array(enabledRows.enumerated()), id: \.element.id) { index, config in
-                            rowItem(config: config, index: index, isActive: true)
+                            CustomizeRowItem(
+                                config: config,
+                                index: index,
+                                isActive: true,
+                                isFirst: index == 0,
+                                isLast: index == enabledRows.count - 1,
+                                onToggle: { toggle(config.type) },
+                                onMoveUp: { moveUp(config.type) },
+                                onMoveDown: { moveDown(config.type) }
+                            )
                         }
                     }
                     .padding(.horizontal, 50)
@@ -35,9 +44,18 @@ struct HomeCustomizeView: View {
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 50)
 
-                        VStack(spacing: 2) {
+                        VStack(spacing: 4) {
                             ForEach(disabledRows) { config in
-                                rowItem(config: config, index: nil, isActive: false)
+                                CustomizeRowItem(
+                                    config: config,
+                                    index: nil,
+                                    isActive: false,
+                                    isFirst: false,
+                                    isLast: false,
+                                    onToggle: { toggle(config.type) },
+                                    onMoveUp: {},
+                                    onMoveDown: {}
+                                )
                             }
                         }
                         .padding(.horizontal, 50)
@@ -57,9 +75,76 @@ struct HomeCustomizeView: View {
         configs.filter { !$0.isEnabled }
     }
 
-    private func rowItem(config: HomeRowConfig, index: Int?, isActive: Bool) -> some View {
+    // MARK: - Actions
+
+    private func toggle(_ type: HomeRowType) {
+        guard let index = configs.firstIndex(where: { $0.type == type }) else { return }
+
+        withAnimation(.easeInOut(duration: 0.25)) {
+            configs[index].isEnabled.toggle()
+
+            if configs[index].isEnabled {
+                let maxOrder = configs.filter(\.isEnabled).map(\.sortOrder).max() ?? 0
+                configs[index].sortOrder = maxOrder + 1
+            }
+        }
+
+        save()
+    }
+
+    private func moveUp(_ type: HomeRowType) {
+        var enabled = enabledRows
+        guard let currentIndex = enabled.firstIndex(where: { $0.type == type }), currentIndex > 0 else { return }
+
+        withAnimation(.easeInOut(duration: 0.25)) {
+            enabled.swapAt(currentIndex, currentIndex - 1)
+            applyOrder(enabled)
+        }
+    }
+
+    private func moveDown(_ type: HomeRowType) {
+        var enabled = enabledRows
+        guard let currentIndex = enabled.firstIndex(where: { $0.type == type }), currentIndex < enabled.count - 1 else { return }
+
+        withAnimation(.easeInOut(duration: 0.25)) {
+            enabled.swapAt(currentIndex, currentIndex + 1)
+            applyOrder(enabled)
+        }
+    }
+
+    private func applyOrder(_ ordered: [HomeRowConfig]) {
+        for (newIndex, row) in ordered.enumerated() {
+            if let configIndex = configs.firstIndex(where: { $0.type == row.type }) {
+                configs[configIndex].sortOrder = newIndex
+            }
+        }
+        save()
+    }
+
+    private func save() {
+        HomeRowConfig.saveToStorage(configs)
+        // Post notification so HomeView reloads
+        NotificationCenter.default.post(name: .homeConfigDidChange, object: nil)
+    }
+}
+
+// MARK: - Row Item
+
+struct CustomizeRowItem: View {
+    let config: HomeRowConfig
+    let index: Int?
+    let isActive: Bool
+    let isFirst: Bool
+    let isLast: Bool
+    let onToggle: () -> Void
+    let onMoveUp: () -> Void
+    let onMoveDown: () -> Void
+
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
         Button {
-            toggle(config.type)
+            onToggle()
         } label: {
             HStack(spacing: 16) {
                 Image(systemName: config.type.systemImage)
@@ -82,24 +167,30 @@ struct HomeCustomizeView: View {
                 Image(systemName: isActive ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(isActive ? AnyShapeStyle(.green) : AnyShapeStyle(.tertiary))
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 14)
             .padding(.horizontal, 20)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
+            )
+            .scaleEffect(isFocused ? 1.02 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
         }
         .buttonStyle(.plain)
+        .focused($isFocused)
         .contextMenu {
             if isActive {
-                if let index, index > 0 {
+                if !isFirst {
                     Button {
-                        moveUp(config.type)
+                        onMoveUp()
                     } label: {
                         Label("home.customize.moveUp", systemImage: "arrow.up")
                     }
                 }
 
-                if let index, index < enabledRows.count - 1 {
+                if !isLast {
                     Button {
-                        moveDown(config.type)
+                        onMoveDown()
                     } label: {
                         Label("home.customize.moveDown", systemImage: "arrow.down")
                     }
@@ -108,63 +199,28 @@ struct HomeCustomizeView: View {
                 Divider()
 
                 Button(role: .destructive) {
-                    toggle(config.type)
+                    onToggle()
                 } label: {
                     Label("home.customize.remove", systemImage: "minus.circle")
                 }
             } else {
                 Button {
-                    toggle(config.type)
+                    onToggle()
                 } label: {
                     Label("home.customize.add", systemImage: "plus.circle")
                 }
             }
         }
     }
-
-    // MARK: - Actions
-
-    private func toggle(_ type: HomeRowType) {
-        guard let index = configs.firstIndex(where: { $0.type == type }) else { return }
-        configs[index].isEnabled.toggle()
-
-        if configs[index].isEnabled {
-            let maxOrder = configs.filter(\.isEnabled).map(\.sortOrder).max() ?? 0
-            configs[index].sortOrder = maxOrder + 1
-        }
-
-        save()
-    }
-
-    private func moveUp(_ type: HomeRowType) {
-        var enabled = enabledRows
-        guard let currentIndex = enabled.firstIndex(where: { $0.type == type }), currentIndex > 0 else { return }
-
-        enabled.swapAt(currentIndex, currentIndex - 1)
-        applyOrder(enabled)
-    }
-
-    private func moveDown(_ type: HomeRowType) {
-        var enabled = enabledRows
-        guard let currentIndex = enabled.firstIndex(where: { $0.type == type }), currentIndex < enabled.count - 1 else { return }
-
-        enabled.swapAt(currentIndex, currentIndex + 1)
-        applyOrder(enabled)
-    }
-
-    private func applyOrder(_ ordered: [HomeRowConfig]) {
-        for (newIndex, row) in ordered.enumerated() {
-            if let configIndex = configs.firstIndex(where: { $0.type == row.type }) {
-                configs[configIndex].sortOrder = newIndex
-            }
-        }
-        save()
-    }
-
-    private func save() {
-        HomeRowConfig.saveToStorage(configs)
-    }
 }
+
+// MARK: - Notification
+
+extension Notification.Name {
+    static let homeConfigDidChange = Notification.Name("homeConfigDidChange")
+}
+
+// MARK: - Storage
 
 extension HomeRowConfig {
     static func loadFromStorage() -> [HomeRowConfig] {

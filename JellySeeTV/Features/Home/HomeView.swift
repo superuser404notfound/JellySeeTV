@@ -5,7 +5,6 @@ struct HomeView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: HomeViewModel?
     @State private var selectedItem: JellyfinItem?
-    @State private var showCustomize = false
 
     var body: some View {
         NavigationStack {
@@ -24,6 +23,7 @@ struct HomeView: View {
                             Button("home.retry") {
                                 Task { await vm.loadContent() }
                             }
+                            .buttonStyle(.plain)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
@@ -46,14 +46,11 @@ struct HomeView: View {
                     userID: userID
                 )
                 Task { await viewModel?.loadContent() }
-            } else {
-                // Reload config in case it changed in settings
-                let oldConfigs = viewModel?.rowConfigs
-                viewModel?.reloadConfig()
-                if viewModel?.rowConfigs != oldConfigs {
-                    Task { await viewModel?.loadContent() }
-                }
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .homeConfigDidChange)) { _ in
+            viewModel?.reloadConfig()
+            Task { await viewModel?.loadContent() }
         }
     }
 
