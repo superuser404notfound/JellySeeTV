@@ -28,6 +28,7 @@ final class LoginViewModel {
         self.authService = dependencies.jellyfinAuthService
         self.keychainService = dependencies.keychainService
         self.dependencies = dependencies
+        dependencies.jellyfinClient.baseURL = server.url
     }
 
     func login() async -> (JellyfinServer, JellyfinUser, String)? {
