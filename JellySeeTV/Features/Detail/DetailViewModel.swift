@@ -7,6 +7,7 @@ final class DetailViewModel {
     var isFavorite: Bool
     var seasons: [JellyfinItem] = []
     var episodes: [JellyfinItem] = []
+    var collectionItems: [JellyfinItem] = []
     var similarItems: [JellyfinItem] = []
     var selectedSeasonID: String?
     var isLoading = false
@@ -71,6 +72,23 @@ final class DetailViewModel {
         do {
             let response = try await itemService.getEpisodes(seriesID: item.id, seasonID: seasonID, userID: userID)
             episodes = response.items
+        } catch {
+            // Handle error
+        }
+    }
+
+    func loadCollectionItems() async {
+        guard item.type == .boxSet else { return }
+
+        do {
+            let query = ItemQuery(
+                parentID: item.id,
+                sortBy: "SortName",
+                sortOrder: "Ascending",
+                limit: 50
+            )
+            let response = try await itemService.getCollectionItems(userID: userID, query: query)
+            collectionItems = response.items
         } catch {
             // Handle error
         }

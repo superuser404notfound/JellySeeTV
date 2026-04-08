@@ -12,6 +12,8 @@ struct DetailRouterView: View {
                 SeriesDetailView(item: item)
             case .episode:
                 MovieDetailView(item: item)
+            case .boxSet:
+                CollectionDetailView(item: item)
             default:
                 MovieDetailView(item: item)
             }
