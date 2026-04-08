@@ -17,16 +17,15 @@ struct HorizontalMediaRow: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 30) {
                     ForEach(items) { item in
-                        Button {
+                        FocusableCard {
                             onItemSelected?(item)
-                        } label: {
+                        } content: { _ in
                             MediaCard(
                                 item: item,
                                 imageURL: imageURLProvider(item),
                                 style: cardStyle
                             )
                         }
-                        .buttonStyle(.mediaCard)
                     }
                 }
                 .padding(.horizontal, 50)

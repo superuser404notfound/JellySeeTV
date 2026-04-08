@@ -65,6 +65,7 @@ struct HomeCustomizeView: View {
             .padding(.vertical, 40)
         }
         .navigationTitle("home.customize.title")
+        .toolbar(.hidden, for: .tabBar)
     }
 
     private var enabledRows: [HomeRowConfig] {
@@ -123,7 +124,6 @@ struct HomeCustomizeView: View {
 
     private func save() {
         HomeRowConfig.saveToStorage(configs)
-        // Post notification so HomeView reloads
         NotificationCenter.default.post(name: .homeConfigDidChange, object: nil)
     }
 }
@@ -143,72 +143,80 @@ struct CustomizeRowItem: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        Button {
-            onToggle()
-        } label: {
-            HStack(spacing: 16) {
-                Image(systemName: config.type.systemImage)
-                    .font(.title3)
-                    .frame(width: 32)
-                    .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
-
-                Text(config.type.localizedTitle)
-                    .font(.body)
-
-                Spacer()
-
-                if isActive, let index {
-                    Text("\(index + 1)")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                        .monospacedDigit()
-                }
-
-                Image(systemName: isActive ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isActive ? AnyShapeStyle(.green) : AnyShapeStyle(.tertiary))
+        rowContent
+            .focusable()
+            .focused($isFocused)
+            .onLongPressGesture(minimumDuration: 0) {
+                onToggle()
             }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 20)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
-            )
             .scaleEffect(isFocused ? 1.02 : 1.0)
             .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .contextMenu {
+                contextMenuItems
+            }
+    }
+
+    private var rowContent: some View {
+        HStack(spacing: 16) {
+            Image(systemName: config.type.systemImage)
+                .font(.title3)
+                .frame(width: 32)
+                .foregroundStyle(isActive ? AnyShapeStyle(.tint) : AnyShapeStyle(.tertiary))
+
+            Text(config.type.localizedTitle)
+                .font(.body)
+
+            Spacer()
+
+            if isActive, let index {
+                Text("\(index + 1)")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .monospacedDigit()
+            }
+
+            Image(systemName: isActive ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(isActive ? AnyShapeStyle(.green) : AnyShapeStyle(.tertiary))
         }
-        .buttonStyle(.plain)
-        .focused($isFocused)
-        .contextMenu {
-            if isActive {
-                if !isFirst {
-                    Button {
-                        onMoveUp()
-                    } label: {
-                        Label("home.customize.moveUp", systemImage: "arrow.up")
-                    }
-                }
+        .padding(.vertical, 14)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
+        )
+    }
 
-                if !isLast {
-                    Button {
-                        onMoveDown()
-                    } label: {
-                        Label("home.customize.moveDown", systemImage: "arrow.down")
-                    }
-                }
-
-                Divider()
-
-                Button(role: .destructive) {
-                    onToggle()
-                } label: {
-                    Label("home.customize.remove", systemImage: "minus.circle")
-                }
-            } else {
+    @ViewBuilder
+    private var contextMenuItems: some View {
+        if isActive {
+            if !isFirst {
                 Button {
-                    onToggle()
+                    onMoveUp()
                 } label: {
-                    Label("home.customize.add", systemImage: "plus.circle")
+                    Label("home.customize.moveUp", systemImage: "arrow.up")
                 }
+            }
+
+            if !isLast {
+                Button {
+                    onMoveDown()
+                } label: {
+                    Label("home.customize.moveDown", systemImage: "arrow.down")
+                }
+            }
+
+            Divider()
+
+            Button(role: .destructive) {
+                onToggle()
+            } label: {
+                Label("home.customize.remove", systemImage: "minus.circle")
+            }
+        } else {
+            Button {
+                onToggle()
+            } label: {
+                Label("home.customize.add", systemImage: "plus.circle")
             }
         }
     }
@@ -237,8 +245,8 @@ extension HomeRowConfig {
     }
 
     static func saveToStorage(_ configs: [HomeRowConfig]) {
-        if let data = try? JSONEncoder().encode(configs) {
-            UserDefaults.standard.set(data, forKey: "homeRowConfigs")
-        }
+        guard let data = try? JSONEncoder().encode(configs) else { return }
+        UserDefaults.standard.set(data, forKey: "homeRowConfigs")
+        UserDefaults.standard.synchronize()
     }
 }
