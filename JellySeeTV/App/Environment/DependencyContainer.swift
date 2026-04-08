@@ -8,6 +8,10 @@ final class DependencyContainer {
     let jellyfinClient: JellyfinClient
     let serverDiscoveryService: ServerDiscoveryServiceProtocol
     let jellyfinAuthService: JellyfinAuthServiceProtocol
+    let jellyfinLibraryService: JellyfinLibraryServiceProtocol
+    let jellyfinItemService: JellyfinItemServiceProtocol
+    let jellyfinSearchService: JellyfinSearchServiceProtocol
+    let jellyfinImageService: JellyfinImageService
     let cloudSyncService: CloudSyncServiceProtocol
 
     init(
@@ -19,6 +23,12 @@ final class DependencyContainer {
         self.jellyfinClient = JellyfinClient(httpClient: httpClient)
         self.serverDiscoveryService = ServerDiscoveryService(httpClient: httpClient)
         self.jellyfinAuthService = JellyfinAuthService(client: jellyfinClient)
+        self.jellyfinLibraryService = JellyfinLibraryService(client: jellyfinClient)
+        self.jellyfinItemService = JellyfinItemService(client: jellyfinClient)
+        self.jellyfinSearchService = JellyfinSearchService(client: jellyfinClient)
+        self.jellyfinImageService = JellyfinImageService(baseURLProvider: { [weak jellyfinClient] in
+            jellyfinClient?.baseURL
+        })
         self.cloudSyncService = CloudSyncService()
     }
 
@@ -35,10 +45,12 @@ final class DependencyContainer {
         return true
     }
 
-    func saveSession(server: JellyfinServer, token: String) throws {
+    func saveSession(server: JellyfinServer, user: JellyfinUser, token: String) throws {
         let serverData = try JSONEncoder().encode(server)
         try keychainService.save(serverData, for: "activeServer")
         try keychainService.save(token, for: KeychainKeys.accessToken(serverID: server.id))
+        try keychainService.save(user.id, for: KeychainKeys.userID(serverID: server.id))
+        try keychainService.save(user.name, for: "activeUserName")
 
         jellyfinClient.baseURL = server.url
         jellyfinClient.accessToken = token

@@ -25,31 +25,22 @@ struct AppRouter: View {
 
         guard dependencies.restoreSession() else { return }
 
-        // Validate that the token is still valid
-        do {
-            let serverInfo = try await dependencies.jellyfinClient.request(
-                endpoint: JellyfinEndpoint.publicInfo,
-                responseType: JellyfinPublicServerInfo.self
-            )
-
-            if let serverData = try? dependencies.keychainService.loadData(for: "activeServer"),
-               let server = try? JSONDecoder().decode(JellyfinServer.self, from: serverData) {
-                let updatedServer = JellyfinServer(
-                    id: server.id,
-                    name: serverInfo.serverName,
-                    url: server.url,
-                    version: serverInfo.version
-                )
-                appState.setAuthenticated(server: updatedServer, user: JellyfinUser(
-                    id: "",
-                    name: "",
-                    serverID: server.id,
-                    hasPassword: nil,
-                    primaryImageTag: nil
-                ))
-            }
-        } catch {
+        guard let serverData = try? dependencies.keychainService.loadData(for: "activeServer"),
+              let server = try? JSONDecoder().decode(JellyfinServer.self, from: serverData),
+              let userID = try? dependencies.keychainService.loadString(for: KeychainKeys.userID(serverID: server.id)),
+              let userName = try? dependencies.keychainService.loadString(for: "activeUserName")
+        else {
             try? dependencies.clearSession()
+            return
         }
+
+        let user = JellyfinUser(
+            id: userID,
+            name: userName,
+            serverID: server.id,
+            hasPassword: nil,
+            primaryImageTag: nil
+        )
+        appState.setAuthenticated(server: server, user: user)
     }
 }

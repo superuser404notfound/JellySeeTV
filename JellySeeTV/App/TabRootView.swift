@@ -44,7 +44,7 @@ struct TabRootView: View {
     private func tabContent(for tab: AppTab) -> some View {
         switch tab {
         case .home:
-            PlaceholderTabView(title: "tab.home", systemImage: "house")
+            HomeView()
         case .catalog:
             PlaceholderTabView(title: "tab.catalog", systemImage: "film.stack")
         case .search:

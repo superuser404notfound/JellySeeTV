@@ -119,7 +119,7 @@ final class LoginViewModel {
 
     func finalizeAuth() throws {
         guard let result = authResult else { return }
-        try dependencies.saveSession(server: result.server, token: result.token)
+        try dependencies.saveSession(server: result.server, user: result.user, token: result.token)
     }
 
     nonisolated deinit {
