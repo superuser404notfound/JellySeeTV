@@ -4,6 +4,7 @@ import Observation
 @Observable
 final class DetailViewModel {
     var item: JellyfinItem
+    var isFavorite: Bool
     var seasons: [JellyfinItem] = []
     var episodes: [JellyfinItem] = []
     var similarItems: [JellyfinItem] = []
@@ -21,6 +22,7 @@ final class DetailViewModel {
         userID: String
     ) {
         self.item = item
+        self.isFavorite = item.userData?.isFavorite ?? false
         self.itemService = itemService
         self.imageService = imageService
         self.userID = userID
@@ -32,6 +34,7 @@ final class DetailViewModel {
         do {
             let detail = try await itemService.getItemDetail(userID: userID, itemID: item.id)
             item = detail
+            isFavorite = detail.userData?.isFavorite ?? false
         } catch {
             // Keep existing item data
         }
@@ -74,37 +77,15 @@ final class DetailViewModel {
     }
 
     func toggleFavorite() async {
-        let currentlyFavorite = item.userData?.isFavorite ?? false
-        let newValue = !currentlyFavorite
-
-        // Optimistic update
-        var updatedUserData = item.userData ?? UserItemData(
-            playbackPositionTicks: nil, playCount: nil,
-            isFavorite: nil, played: nil,
-            unplayedItemCount: nil, playedPercentage: nil
-        )
-        updatedUserData = UserItemData(
-            playbackPositionTicks: updatedUserData.playbackPositionTicks,
-            playCount: updatedUserData.playCount,
-            isFavorite: newValue,
-            played: updatedUserData.played,
-            unplayedItemCount: updatedUserData.unplayedItemCount,
-            playedPercentage: updatedUserData.playedPercentage
-        )
-        item = JellyfinItem(item: item, userData: updatedUserData)
+        let oldValue = isFavorite
+        isFavorite.toggle()
 
         do {
-            try await itemService.setFavorite(userID: userID, itemID: item.id, isFavorite: newValue)
+            try await itemService.setFavorite(userID: userID, itemID: item.id, isFavorite: isFavorite)
+            // Notify home screen to refresh favorites
+            NotificationCenter.default.post(name: .homeConfigDidChange, object: nil)
         } catch {
-            // Revert on failure
-            item = JellyfinItem(item: item, userData: UserItemData(
-                playbackPositionTicks: updatedUserData.playbackPositionTicks,
-                playCount: updatedUserData.playCount,
-                isFavorite: currentlyFavorite,
-                played: updatedUserData.played,
-                unplayedItemCount: updatedUserData.unplayedItemCount,
-                playedPercentage: updatedUserData.playedPercentage
-            ))
+            isFavorite = oldValue
         }
     }
 

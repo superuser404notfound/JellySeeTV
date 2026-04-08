@@ -156,8 +156,8 @@ struct MovieDetailView: View {
                 }
 
                 GlassActionButton(
-                    title: vm.item.userData?.isFavorite == true ? "detail.unfavorite" : "detail.favorite",
-                    systemImage: vm.item.userData?.isFavorite == true ? "heart.fill" : "heart",
+                    title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",
+                    systemImage: vm.isFavorite ? "heart.fill" : "heart",
                     action: { Task { await vm.toggleFavorite() } }
                 )
             }
