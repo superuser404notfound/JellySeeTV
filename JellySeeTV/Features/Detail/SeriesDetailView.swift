@@ -271,20 +271,33 @@ struct SeriesDetailView: View {
     private func seasonSection(vm: DetailViewModel) -> some View {
         VStack(alignment: .leading, spacing: 20) {
             // Season tabs
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(vm.seasons) { season in
-                        SeasonTab(
-                            name: season.name,
-                            isSelected: vm.selectedSeasonID == season.id,
-                            action: {
-                                selectedEpisode = nil
-                                Task { await vm.loadEpisodes(seasonID: season.id) }
-                            }
-                        )
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(vm.seasons) { season in
+                            SeasonTab(
+                                id: season.id,
+                                name: season.name,
+                                isSelected: vm.selectedSeasonID == season.id,
+                                action: {
+                                    selectedEpisode = nil
+                                    Task { await vm.loadEpisodes(seasonID: season.id) }
+                                },
+                                onFocused: {
+                                    // When any season tab gets focus, scroll to the selected one
+                                    withAnimation {
+                                        proxy.scrollTo(vm.selectedSeasonID, anchor: .center)
+                                    }
+                                }
+                            )
+                            .id(season.id)
+                        }
                     }
+                    .padding(.horizontal, 50)
                 }
-                .padding(.horizontal, 50)
+                .onChange(of: vm.selectedSeasonID) { _, newID in
+                    withAnimation { proxy.scrollTo(newID, anchor: .center) }
+                }
             }
 
             // Episode cards
@@ -316,33 +329,56 @@ struct SeriesDetailView: View {
 // MARK: - Season Tab
 
 struct SeasonTab: View {
+    let id: String
     let name: String
     let isSelected: Bool
     let action: () -> Void
+    var onFocused: (() -> Void)?
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        Text(name)
-            .font(.subheadline)
-            .fontWeight(isSelected ? .bold : .regular)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
+        Button { action() } label: {
+            VStack(spacing: 6) {
+                Text(name)
+                    .font(.subheadline)
+                    .fontWeight(isSelected ? .bold : .regular)
+                    .foregroundStyle(isSelected ? .primary : .secondary)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+
+                // Selection indicator
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isSelected ? Color.accentColor : .clear)
+                    .frame(height: 3)
+                    .padding(.horizontal, 12)
+            }
             .background(
-                Capsule()
+                RoundedRectangle(cornerRadius: 12)
                     .fill(tabBackground)
             )
-            .scaleEffect(isFocused ? 1.05 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
-            .focusable()
-            .focused($isFocused)
-            .onLongPressGesture(minimumDuration: 0) { action() }
+        }
+        .buttonStyle(SeasonTabButtonStyle())
+        .focused($isFocused)
+        .onChange(of: isFocused) { _, focused in
+            if focused { onFocused?() }
+        }
     }
 
-    private var tabBackground: AnyShapeStyle {
-        if isSelected { return AnyShapeStyle(.ultraThinMaterial) }
-        if isFocused { return AnyShapeStyle(.white.opacity(0.12)) }
-        return AnyShapeStyle(.white.opacity(0.05))
+    private var tabBackground: Color {
+        if isFocused { return .white.opacity(0.12) }
+        if isSelected { return .white.opacity(0.08) }
+        return .clear
+    }
+}
+
+struct SeasonTabButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(isFocused ? 1.05 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
     }
 }
 
