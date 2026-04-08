@@ -83,6 +83,9 @@ struct HomeCustomizeView: View {
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
+        .onAppear {
+            configs = HomeRowConfig.loadFromStorage()
+        }
     }
 
     private var enabledRows: [HomeRowConfig] {

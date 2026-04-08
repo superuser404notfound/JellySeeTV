@@ -7,7 +7,7 @@ struct AsyncCachedImage<Content: View, Placeholder: View>: View {
 
     var body: some View {
         if let url {
-            AsyncImage(url: url) { phase in
+            AsyncImage(url: url, transaction: Transaction(animation: .easeIn(duration: 0.2))) { phase in
                 switch phase {
                 case .success(let image):
                     content(image)
@@ -19,6 +19,7 @@ struct AsyncCachedImage<Content: View, Placeholder: View>: View {
                     placeholder()
                 }
             }
+            .id(url)
         } else {
             placeholder()
         }
