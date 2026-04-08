@@ -10,7 +10,6 @@ struct HomeCustomizeView: View {
                 header
                 activeSection
                 if !disabledRows.isEmpty { inactiveSection }
-                resetButton
             }
             .padding(.vertical, 40)
         }
@@ -24,16 +23,35 @@ struct HomeCustomizeView: View {
     // MARK: - Header
 
     private var header: some View {
-        VStack(spacing: 8) {
-            Text("home.customize.title")
-                .font(.title3)
-                .fontWeight(.semibold)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("home.customize.title")
+                    .font(.title3)
+                    .fontWeight(.semibold)
 
-            Text(movingType != nil ? "home.customize.moveTip" : "home.customize.description")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text(movingType != nil ? "home.customize.moveTip" : "home.customize.description")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            FocusableTile(action: {
+                movingType = nil
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    configs = HomeRowConfig.defaultConfig()
+                }
+                save()
+            }) { isFocused in
+                Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
+                    .font(.subheadline)
+                    .foregroundStyle(isFocused ? .primary : .secondary)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule().fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
+                    )
+            }
         }
         .padding(.horizontal, 50)
     }
@@ -54,7 +72,7 @@ struct HomeCustomizeView: View {
                             isHighlighted: movingType == config.type,
                             action: { handleRowTap(config.type, at: index) }
                         ) { isFocused in
-                            HStack(spacing: 16) {
+                            HStack(spacing: 20) {
                                 Text("\(index + 1)")
                                     .font(.caption)
                                     .monospacedDigit()
@@ -63,7 +81,7 @@ struct HomeCustomizeView: View {
 
                                 Image(systemName: config.type.systemImage)
                                     .font(.title3)
-                                    .frame(width: 36)
+                                    .frame(width: 44)
                                     .foregroundStyle(.tint)
 
                                 Text(config.type.localizedTitle)
@@ -116,12 +134,12 @@ struct HomeCustomizeView: View {
             VStack(spacing: 6) {
                 ForEach(disabledRows) { config in
                     HStack(spacing: 16) {
-                        HStack(spacing: 16) {
+                        HStack(spacing: 20) {
                             Spacer().frame(width: 24) // align with position number
 
                             Image(systemName: config.type.systemImage)
                                 .font(.title3)
-                                .frame(width: 36)
+                                .frame(width: 44)
                                 .foregroundStyle(.tertiary)
 
                             Text(config.type.localizedTitle)
@@ -149,23 +167,6 @@ struct HomeCustomizeView: View {
         }
     }
 
-    // MARK: - Reset
-
-    private var resetButton: some View {
-        FocusableTile(action: {
-            movingType = nil
-            withAnimation(.easeInOut(duration: 0.25)) {
-                configs = HomeRowConfig.defaultConfig()
-            }
-            save()
-        }) { isFocused in
-            Label("home.customize.resetDefaults", systemImage: "arrow.counterclockwise")
-                .font(.subheadline)
-                .foregroundStyle(isFocused ? .primary : .secondary)
-        }
-        .padding(.top, 8)
-        .padding(.horizontal, 50)
-    }
 
     // MARK: - Helpers
 
