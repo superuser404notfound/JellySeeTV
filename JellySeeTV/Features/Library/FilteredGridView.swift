@@ -26,8 +26,8 @@ struct FilteredGridView: View {
                 .frame(maxWidth: .infinity, minHeight: 400)
             } else {
                 LazyVGrid(columns: [
-                    GridItem(.adaptive(minimum: 180), spacing: 24)
-                ], spacing: 30) {
+                    GridItem(.adaptive(minimum: 220), spacing: 40)
+                ], spacing: 50) {
                     ForEach(items) { item in
                         FocusableCard {
                             selectedItem = item
@@ -39,8 +39,8 @@ struct FilteredGridView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 50)
-                .padding(.vertical, 20)
+                .padding(.horizontal, 60)
+                .padding(.vertical, 40)
             }
         }
         .navigationTitle(title)

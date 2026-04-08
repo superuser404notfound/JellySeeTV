@@ -13,7 +13,7 @@ struct TagRow: View {
                 .padding(.horizontal, 50)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 20) {
+                LazyHStack(spacing: 30) {
                     ForEach(tags) { tag in
                         GenreCard(data: tag) {
                             onTagSelected?(tag)

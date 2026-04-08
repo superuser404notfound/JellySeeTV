@@ -82,9 +82,15 @@ enum StreamingProviders {
         "ESPN+",
     ]
 
-    /// Check if a studio name matches a known streaming provider
+    /// Check if a studio name matches a known streaming provider.
+    /// Uses contains-matching so "Netflix, Inc." matches "Netflix".
     static func isProvider(_ studioName: String) -> Bool {
         let lowered = studioName.lowercased()
-        return known.contains { $0.lowercased() == lowered }
+        return known.contains { provider in
+            let providerLower = provider.lowercased()
+            return lowered == providerLower
+                || lowered.contains(providerLower)
+                || providerLower.contains(lowered)
+        }
     }
 }
