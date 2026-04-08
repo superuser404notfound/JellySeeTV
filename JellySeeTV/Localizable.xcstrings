@@ -4574,6 +4574,7 @@
         }
       }
     },
+    "home.collections" : { "comment" : "Section title for collections", "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Collections" } }, "de" : { "stringUnit" : { "state" : "translated", "value" : "Sammlungen" } }, "fr" : { "stringUnit" : { "state" : "translated", "value" : "Collections" } }, "es" : { "stringUnit" : { "state" : "translated", "value" : "Colecciones" } }, "it" : { "stringUnit" : { "state" : "translated", "value" : "Collezioni" } }, "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Coleções" } }, "ja" : { "stringUnit" : { "state" : "translated", "value" : "コレクション" } }, "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "合集" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "컬렉션" } }, "nl" : { "stringUnit" : { "state" : "translated", "value" : "Collecties" } }, "pl" : { "stringUnit" : { "state" : "translated", "value" : "Kolekcje" } }, "ru" : { "stringUnit" : { "state" : "translated", "value" : "Коллекции" } }, "sv" : { "stringUnit" : { "state" : "translated", "value" : "Samlingar" } }, "nb" : { "stringUnit" : { "state" : "translated", "value" : "Samlinger" } }, "da" : { "stringUnit" : { "state" : "translated", "value" : "Samlinger" } } } },
     "home.genres" : {
       "comment" : "Section title for genres",
       "extractionState" : "manual",

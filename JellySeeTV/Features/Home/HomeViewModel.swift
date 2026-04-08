@@ -152,6 +152,16 @@ final class HomeViewModel {
                 let response = try await libraryService.getItems(userID: userID, query: query)
                 items = response.items
 
+            case .collections:
+                let query = ItemQuery(
+                    includeItemTypes: [.boxSet],
+                    sortBy: "SortName",
+                    sortOrder: "Ascending",
+                    limit: 30
+                )
+                let response = try await libraryService.getItems(userID: userID, query: query)
+                items = response.items
+
             case .genres, .studios:
                 return nil
             }

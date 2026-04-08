@@ -13,6 +13,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
     case recentlyAdded
     case genres
     case studios
+    case collections
 
     var id: String { rawValue }
 
@@ -67,6 +68,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         case .recentlyAdded: "home.recentlyAdded"
         case .genres: "home.genres"
         case .studios: "home.studios"
+        case .collections: "home.collections"
         }
     }
 
@@ -84,6 +86,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         case .recentlyAdded: "clock"
         case .genres: "tag"
         case .studios: "building.2"
+        case .collections: "rectangle.stack.fill"
         }
     }
 }
