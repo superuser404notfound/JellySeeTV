@@ -189,6 +189,8 @@ struct SettingsTileButtonStyle: ButtonStyle {
 // MARK: - Playback Placeholder
 
 struct PlaybackSettingsPlaceholder: View {
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "play.circle")
@@ -196,8 +198,12 @@ struct PlaybackSettingsPlaceholder: View {
                 .foregroundStyle(.tertiary)
             Text("settings.playback.comingSoon")
                 .foregroundStyle(.secondary)
+            Button("home.retry") {
+                dismiss()
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationTitle("settings.playback.title")
+        .toolbar(.hidden, for: .tabBar)
     }
 }
