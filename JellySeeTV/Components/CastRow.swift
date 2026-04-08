@@ -28,6 +28,8 @@ struct CastCard: View {
     let person: PersonInfo
     let imageURL: URL?
 
+    @FocusState private var isFocused: Bool
+
     var body: some View {
         VStack(spacing: 8) {
             AsyncCachedImage(url: imageURL) { image in
@@ -61,6 +63,11 @@ struct CastCard: View {
             }
             .frame(width: 100)
         }
+        .scaleEffect(isFocused ? 1.1 : 1.0)
+        .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 10, y: 5)
+        .animation(.easeInOut(duration: 0.15), value: isFocused)
+        .focusable()
+        .focused($isFocused)
     }
 
     private var initials: String {

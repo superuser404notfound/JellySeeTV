@@ -166,7 +166,7 @@ struct TechCard<Content: View>: View {
             content()
         }
         .padding(24)
-        .frame(width: 280, alignment: .leading)
+        .frame(width: 380, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(isFocused ? .white.opacity(0.1) : .white.opacity(0.05))
