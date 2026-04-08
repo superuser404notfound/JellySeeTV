@@ -1,17 +1,16 @@
-//
-//  JellySeeTVApp.swift
-//  JellySeeTV
-//
-//  Created by Vincent Herbst on 08.04.26.
-//
-
 import SwiftUI
 
 @main
 struct JellySeeTVApp: App {
+    @State private var appState = AppState()
+    @State private var dependencies = DependencyContainer()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppRouter()
+                .environment(\.appState, appState)
+                .environment(\.dependencies, dependencies)
+                .preferredColorScheme(.dark)
         }
     }
 }

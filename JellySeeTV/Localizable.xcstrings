@@ -1,0 +1,448 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "tab.home" : {
+      "comment" : "Tab label for the home screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Startseite" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accueil" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicio" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Início" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ホーム" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "首页" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "홈" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Główna" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Главная" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Hem" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Hjem" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Hjem" } }
+      }
+    },
+    "tab.catalog" : {
+      "comment" : "Tab label for the Seerr catalog/discovery screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Catalog" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Katalog" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Catalogue" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Catálogo" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Catalogo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Catálogo" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "カタログ" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "目录" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "카탈로그" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Catalogus" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Katalog" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Каталог" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Katalog" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Katalog" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Katalog" } }
+      }
+    },
+    "tab.search" : {
+      "comment" : "Tab label for the search screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Suche" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recherche" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "検索" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "搜索" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "검색" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Zoeken" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Szukaj" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Поиск" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Sök" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Søk" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Søg" } }
+      }
+    },
+    "tab.settings" : {
+      "comment" : "Tab label for the settings screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Einstellungen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réglages" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ajustes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Impostazioni" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Configurações" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "設定" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "설정" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Instellingen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Ustawienia" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Настройки" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Inställningar" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Innstillinger" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Indstillinger" } }
+      }
+    },
+    "auth.server.title" : {
+      "comment" : "Title on the server discovery screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connect to Server" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mit Server verbinden" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se connecter au serveur" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Conectar al servidor" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Connetti al server" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Conectar ao servidor" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "サーバーに接続" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连接服务器" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "서버에 연결" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Verbind met server" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Połącz z serwerem" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Подключиться к серверу" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Anslut till server" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Koble til server" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Opret forbindelse til server" } }
+      }
+    },
+    "auth.server.subtitle" : {
+      "comment" : "Subtitle on the server discovery screen explaining what to enter",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter the address of your Jellyfin server" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Gib die Adresse deines Jellyfin-Servers ein" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Entrez l'adresse de votre serveur Jellyfin" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Introduce la dirección de tu servidor Jellyfin" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inserisci l'indirizzo del tuo server Jellyfin" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Insira o endereço do seu servidor Jellyfin" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Jellyfinサーバーのアドレスを入力してください" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "输入您的 Jellyfin 服务器地址" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Jellyfin 서버 주소를 입력하세요" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Voer het adres van je Jellyfin-server in" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wprowadź adres serwera Jellyfin" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Введите адрес вашего сервера Jellyfin" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Ange adressen till din Jellyfin-server" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Skriv inn adressen til Jellyfin-serveren din" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Indtast adressen på din Jellyfin-server" } }
+      }
+    },
+    "auth.server.placeholder" : {
+      "comment" : "Placeholder text in the server address text field",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Server address or IP" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Serveradresse oder IP" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Adresse du serveur ou IP" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Dirección del servidor o IP" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Indirizzo server o IP" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Endereço do servidor ou IP" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "サーバーアドレスまたはIP" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "服务器地址或IP" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "서버 주소 또는 IP" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Serveradres of IP" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Adres serwera lub IP" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Адрес сервера или IP" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Serveradress eller IP" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Serveradresse eller IP" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Serveradresse eller IP" } }
+      }
+    },
+    "auth.server.connect" : {
+      "comment" : "Button to connect to the entered server",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connect" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Verbinden" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connecter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Conectar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Connetti" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Conectar" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "接続" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连接" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "연결" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Verbinden" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Połącz" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Подключиться" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Anslut" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Koble til" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Opret forbindelse" } }
+      }
+    },
+    "auth.login.subtitle" : {
+      "comment" : "Subtitle on the login screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign in to your account" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Melde dich bei deinem Konto an" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connectez-vous à votre compte" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicia sesión en tu cuenta" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accedi al tuo account" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entre na sua conta" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アカウントにサインイン" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录您的账户" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "계정에 로그인" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Log in op je account" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Zaloguj się na swoje konto" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Войдите в свой аккаунт" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Logga in på ditt konto" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Logg inn på kontoen din" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Log ind på din konto" } }
+      }
+    },
+    "auth.login.username" : {
+      "comment" : "Placeholder for the username field",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Username" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Benutzername" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nom d'utilisateur" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre de usuario" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nome utente" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nome de usuário" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ユーザー名" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "用户名" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "사용자 이름" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Gebruikersnaam" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Nazwa użytkownika" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Имя пользователя" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Användarnamn" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Brukernavn" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Brugernavn" } }
+      }
+    },
+    "auth.login.password" : {
+      "comment" : "Placeholder for the password field",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Password" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Passwort" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mot de passe" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Contraseña" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Password" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Senha" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "パスワード" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "密码" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "비밀번호" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Wachtwoord" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Hasło" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Пароль" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Lösenord" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Passord" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Adgangskode" } }
+      }
+    },
+    "auth.login.signIn" : {
+      "comment" : "Sign in button label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sign In" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Anmelden" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se connecter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar sesión" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accedi" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrar" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "サインイン" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "登录" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "로그인" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Inloggen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Zaloguj się" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Войти" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Logga in" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Logg inn" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Log ind" } }
+      }
+    },
+    "auth.login.quickConnect" : {
+      "comment" : "Button to switch to Quick Connect authentication",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use Quick Connect" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect verwenden" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Utiliser Quick Connect" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Usar Quick Connect" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Usa Quick Connect" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Usar Quick Connect" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クイック接続を使用" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用快速连接" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "빠른 연결 사용" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect gebruiken" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Użyj Quick Connect" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Быстрое подключение" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Använd Quick Connect" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Bruk Quick Connect" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Brug Quick Connect" } }
+      }
+    },
+    "auth.quickConnect.title" : {
+      "comment" : "Title for the Quick Connect section",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "クイック接続" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "快速连接" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "빠른 연결" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Быстрое подключение" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Quick Connect" } }
+      }
+    },
+    "auth.quickConnect.instruction" : {
+      "comment" : "Instruction text for Quick Connect code",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter this code in your Jellyfin dashboard to authorize" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Gib diesen Code in deinem Jellyfin-Dashboard ein" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Entrez ce code dans votre tableau de bord Jellyfin" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Introduce este código en tu panel de Jellyfin" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inserisci questo codice nella dashboard Jellyfin" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Insira este código no painel do Jellyfin" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Jellyfinダッシュボードでこのコードを入力してください" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在 Jellyfin 控制面板中输入此代码" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "Jellyfin 대시보드에서 이 코드를 입력하세요" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Voer deze code in op je Jellyfin-dashboard" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wprowadź ten kod w panelu Jellyfin" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Введите этот код в панели управления Jellyfin" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Ange denna kod i din Jellyfin-panel" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Skriv inn denne koden i Jellyfin-dashbordet" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Indtast denne kode i dit Jellyfin-dashboard" } }
+      }
+    },
+    "auth.quickConnect.waiting" : {
+      "comment" : "Text shown while waiting for Quick Connect authorization",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Waiting for authorization..." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Warte auf Autorisierung..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En attente d'autorisation..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Esperando autorización..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "In attesa di autorizzazione..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aguardando autorização..." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "認証を待っています..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "等待授权..." } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "인증 대기 중..." } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Wachten op autorisatie..." } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Oczekiwanie na autoryzację..." } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Ожидание авторизации..." } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Väntar på auktorisering..." } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Venter på autorisering..." } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Venter på godkendelse..." } }
+      }
+    },
+    "auth.quickConnect.authenticate" : {
+      "comment" : "Button to complete Quick Connect authentication after code is authorized",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Complete Sign In" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Anmeldung abschließen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminer la connexion" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Completar inicio de sesión" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Completa l'accesso" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Concluir login" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "サインインを完了" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成登录" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "로그인 완료" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Inloggen voltooien" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Zakończ logowanie" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Завершить вход" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Slutför inloggning" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Fullfør innlogging" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Fuldfør login" } }
+      }
+    },
+    "auth.quickConnect.cancel" : {
+      "comment" : "Button to cancel Quick Connect and return to login form",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back to Login" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zurück zur Anmeldung" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Retour à la connexion" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Volver al inicio de sesión" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Torna al login" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Voltar ao login" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ログインに戻る" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "返回登录" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "로그인으로 돌아가기" } },
+        "nl" : { "stringUnit" : { "state" : "translated", "value" : "Terug naar inloggen" } },
+        "pl" : { "stringUnit" : { "state" : "translated", "value" : "Wróć do logowania" } },
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Вернуться к входу" } },
+        "sv" : { "stringUnit" : { "state" : "translated", "value" : "Tillbaka till inloggning" } },
+        "nb" : { "stringUnit" : { "state" : "translated", "value" : "Tilbake til innlogging" } },
+        "da" : { "stringUnit" : { "state" : "translated", "value" : "Tilbage til login" } }
+      }
+    },
+    "error.invalidURL" : {
+      "comment" : "Error when URL is invalid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid URL" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ungültige URL" } }
+      }
+    },
+    "error.invalidResponse" : {
+      "comment" : "Error when server response is invalid",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid server response" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ungültige Serverantwort" } }
+      }
+    },
+    "error.httpError %lld" : {
+      "comment" : "Error with HTTP status code",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Server error (%lld)" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Serverfehler (%lld)" } }
+      }
+    },
+    "error.decodingError" : {
+      "comment" : "Error when response cannot be decoded",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to process server response" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Serverantwort konnte nicht verarbeitet werden" } }
+      }
+    },
+    "error.networkError" : {
+      "comment" : "Error when network connection fails",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Network connection failed" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Netzwerkverbindung fehlgeschlagen" } }
+      }
+    },
+    "error.unauthorized" : {
+      "comment" : "Error when authentication is required",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Authentication required" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Authentifizierung erforderlich" } }
+      }
+    },
+    "error.serverUnreachable" : {
+      "comment" : "Error when server cannot be reached",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Server unreachable" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Server nicht erreichbar" } }
+      }
+    },
+    "error.timeout" : {
+      "comment" : "Error when request times out",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Request timed out" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zeitüberschreitung bei der Anfrage" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -1,0 +1,77 @@
+import SwiftUI
+
+struct ServerDiscoveryView: View {
+    @Environment(\.dependencies) private var dependencies
+    @State private var viewModel: ServerDiscoveryViewModel?
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 40) {
+                Spacer()
+
+                VStack(spacing: 16) {
+                    Image(systemName: "server.rack")
+                        .font(.system(size: 80))
+                        .foregroundStyle(.tint)
+
+                    Text("auth.server.title")
+                        .font(.title2)
+
+                    Text("auth.server.subtitle")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+
+                if let vm = viewModel {
+                    VStack(spacing: 20) {
+                        TextField(String(localized: "auth.server.placeholder"), text: Bindable(vm).serverAddress)
+                            .textFieldStyle(.automatic)
+                            .autocorrectionDisabled()
+                            #if os(iOS)
+                            .textInputAutocapitalization(.never)
+                            .keyboardType(.URL)
+                            #endif
+
+                        if let error = vm.errorMessage {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                        }
+
+                        Button {
+                            Task { await vm.connectToServer() }
+                        } label: {
+                            if vm.isLoading {
+                                ProgressView()
+                            } else {
+                                Text("auth.server.connect")
+                            }
+                        }
+                        .disabled(vm.isLoading || vm.serverAddress.trimmingCharacters(in: .whitespaces).isEmpty)
+                    }
+                    .frame(maxWidth: 500)
+
+                    if let server = vm.discoveredServer {
+                        NavigationLink(
+                            destination: LoginView(server: server),
+                            isActive: Bindable(vm).showLogin
+                        ) {
+                            EmptyView()
+                        }
+                    }
+                }
+
+                Spacer()
+            }
+            .padding()
+            .onAppear {
+                if viewModel == nil {
+                    viewModel = ServerDiscoveryViewModel(
+                        discoveryService: dependencies.serverDiscoveryService
+                    )
+                }
+            }
+        }
+    }
+}
