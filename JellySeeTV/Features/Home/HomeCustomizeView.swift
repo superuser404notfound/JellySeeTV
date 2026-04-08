@@ -6,11 +6,18 @@ struct HomeCustomizeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 32) {
-                Text("home.customize.description")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 50)
+                VStack(spacing: 8) {
+                    Text("home.customize.title")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text("home.customize.description")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.horizontal, 50)
 
                 // Active rows
                 VStack(alignment: .leading, spacing: 12) {
@@ -64,7 +71,7 @@ struct HomeCustomizeView: View {
             }
             .padding(.vertical, 40)
         }
-        .navigationTitle("home.customize.title")
+        .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
     }
 
