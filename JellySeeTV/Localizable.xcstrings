@@ -1166,13 +1166,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gib die IP-Adresse oder URL deines Jellyfin-Servers ein. Standard-Ports werden automatisch ergänzt."
+            "value" : "Gib die Adresse deines Jellyfin-Servers ein"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enter the IP address or URL of your Jellyfin server. Default ports are added automatically."
+            "value" : "Enter the address of your Jellyfin server"
           }
         },
         "es" : {
