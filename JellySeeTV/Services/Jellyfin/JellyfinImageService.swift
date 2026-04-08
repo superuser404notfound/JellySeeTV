@@ -49,6 +49,31 @@ final class JellyfinImageService {
         return nil
     }
 
+    /// Episode thumbnail: episode's own image first, then series backdrop as fallback
+    func episodeThumbnailURL(for item: JellyfinItem, maxWidth: Int = 640) -> URL? {
+        // 1. Episode's own primary image (the episode still/screenshot)
+        if let tag = item.imageTags?.primary {
+            return imageURL(itemID: item.id, imageType: .primary, tag: tag, maxWidth: maxWidth)
+        }
+        // 2. Episode's own thumb
+        if let tag = item.imageTags?.thumb {
+            return imageURL(itemID: item.id, imageType: .thumb, tag: tag, maxWidth: maxWidth)
+        }
+        // 3. Episode's own backdrop
+        if let tags = item.backdropImageTags, let tag = tags.first {
+            return imageURL(itemID: item.id, imageType: .backdrop, tag: tag, maxWidth: maxWidth)
+        }
+        // 4. Fallback: series backdrop
+        if let tags = item.parentBackdropImageTags, let tag = tags.first, let seriesId = item.seriesId {
+            return imageURL(itemID: seriesId, imageType: .backdrop, tag: tag, maxWidth: maxWidth)
+        }
+        // 5. Last fallback: series poster
+        if item.type == .episode, let seriesId = item.seriesId, let tag = item.seriesPrimaryImageTag {
+            return imageURL(itemID: seriesId, imageType: .primary, tag: tag, maxWidth: maxWidth)
+        }
+        return nil
+    }
+
     func posterURL(for item: JellyfinItem, maxWidth: Int = 400) -> URL? {
         if let tag = item.imageTags?.primary {
             return imageURL(itemID: item.id, imageType: .primary, tag: tag, maxWidth: maxWidth)

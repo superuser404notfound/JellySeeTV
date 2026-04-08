@@ -27,36 +27,33 @@ final class HomeViewModel {
     func loadContent() async {
         isLoading = true
         errorMessage = nil
+        rows = []
+        tagRows = []
 
         do {
             libraries = try await libraryService.getLibraries(userID: userID)
+            isLoading = false
 
             let enabledRows = rowConfigs
                 .filter(\.isEnabled)
                 .sorted { $0.sortOrder < $1.sortOrder }
 
-            var loadedRows: [HomeRowData] = []
-            var loadedTagRows: [HomeTagRowData] = []
-
+            // Load each row and display immediately as it arrives
             for config in enabledRows {
                 if config.type.isTagRow {
                     if let tagRow = await loadTagRow(type: config.type) {
                         if !tagRow.tags.isEmpty {
-                            loadedTagRows.append(tagRow)
+                            tagRows.append(tagRow)
                         }
                     }
                 } else {
                     if let rowData = await loadRow(type: config.type) {
                         if !rowData.items.isEmpty {
-                            loadedRows.append(rowData)
+                            rows.append(rowData)
                         }
                     }
                 }
             }
-
-            rows = loadedRows
-            tagRows = loadedTagRows
-            isLoading = false
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
@@ -228,6 +225,10 @@ final class HomeViewModel {
 
     func imageURL(for item: JellyfinItem, rowType: HomeRowType) -> URL? {
         if rowType.usesBackdrop {
+            // For continue watching / next up: use episode thumbnail first
+            if item.type == .episode {
+                return imageService.episodeThumbnailURL(for: item)
+            }
             return imageService.backdropURL(for: item) ?? imageService.posterURL(for: item)
         }
         return imageService.posterURL(for: item)
