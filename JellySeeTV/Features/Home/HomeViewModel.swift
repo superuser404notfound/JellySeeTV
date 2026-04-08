@@ -113,7 +113,7 @@ final class HomeViewModel {
 
             case .favorites:
                 let query = ItemQuery(
-                    includeItemTypes: [.movie, .series],
+                    includeItemTypes: [.movie, .series, .boxSet],
                     sortBy: "SortName",
                     sortOrder: "Ascending",
                     limit: 30,
