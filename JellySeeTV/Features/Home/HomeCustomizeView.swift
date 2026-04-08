@@ -286,6 +286,7 @@ struct FocusableIcon: View {
 
 extension Notification.Name {
     static let homeConfigDidChange = Notification.Name("homeConfigDidChange")
+    static let homeFavoritesDidChange = Notification.Name("homeFavoritesDidChange")
 }
 
 // MARK: - Storage

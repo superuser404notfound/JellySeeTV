@@ -82,8 +82,7 @@ final class DetailViewModel {
 
         do {
             try await itemService.setFavorite(userID: userID, itemID: item.id, isFavorite: isFavorite)
-            // Notify home screen to refresh favorites
-            NotificationCenter.default.post(name: .homeConfigDidChange, object: nil)
+            NotificationCenter.default.post(name: .homeFavoritesDidChange, object: nil)
         } catch {
             isFavorite = oldValue
         }
