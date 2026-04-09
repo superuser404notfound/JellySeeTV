@@ -46,15 +46,9 @@ nonisolated final class DemuxedPacket {
     /// The caller must NOT free this packet -- the data is owned by DemuxedPacket.
     func withAVPacket<T>(_ body: (UnsafeMutablePointer<AVPacket>) -> T) -> T {
         let pkt = av_packet_alloc()!
-        defer {
-            // Don't free the data buffer -- we own it
-            pkt.pointee.data = nil
-            pkt.pointee.size = 0
-            var p: UnsafeMutablePointer<AVPacket>? = pkt
-            av_packet_free(&p)
-        }
 
-        data.withUnsafeBytes { rawBuf in
+        // body MUST be called INSIDE withUnsafeBytes so the pointer stays valid
+        let result = data.withUnsafeBytes { rawBuf -> T in
             pkt.pointee.data = UnsafeMutablePointer(mutating: rawBuf.baseAddress?.assumingMemoryBound(to: UInt8.self))
             pkt.pointee.size = size
             pkt.pointee.pts = pts
@@ -62,9 +56,16 @@ nonisolated final class DemuxedPacket {
             pkt.pointee.duration = duration
             pkt.pointee.stream_index = streamIndex
             pkt.pointee.flags = flags
+            return body(pkt)
         }
 
-        return body(pkt)
+        // Clean up packet without freeing our data
+        pkt.pointee.data = nil
+        pkt.pointee.size = 0
+        var p: UnsafeMutablePointer<AVPacket>? = pkt
+        av_packet_free(&p)
+
+        return result
     }
     #else
     init(streamType: PacketStreamType, streamIndex: Int32, pts: Double, duration: Double) {
