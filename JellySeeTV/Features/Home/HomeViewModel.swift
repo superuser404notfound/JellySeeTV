@@ -216,7 +216,7 @@ final class HomeViewModel {
             // Build cards on MainActor (image URL construction needs it)
             let itemMap = Dictionary(uniqueKeysWithValues: tagItems)
             let cardData: [TagCardData] = tags.map { tag in
-                let item = itemMap[tag.id] ?? nil
+                let item = itemMap[tag.id].flatMap { $0 }
                 let backdropURL = item.flatMap { imageService.backdropURL(for: $0) ?? imageService.posterURL(for: $0) }
                 let logoURL = isStudio ? imageService.studioLogoURL(studioName: tag.name) : nil
                 return TagCardData(
