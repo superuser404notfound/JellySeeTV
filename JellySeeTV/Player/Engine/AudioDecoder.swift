@@ -10,6 +10,8 @@ struct DecodedAudioFrame {
 }
 
 /// Decodes audio packets via FFmpeg and converts to float32 PCM for AVAudioEngine.
+/// All codecs (AC3, EAC3/Atmos, DTS, TrueHD, FLAC, etc.) are decoded to
+/// multi-channel PCM. Dolby Atmos spatial metadata is decoded as 5.1/7.1 surround.
 final class AudioDecoder: @unchecked Sendable {
     private var codecCtx: UnsafeMutablePointer<AVCodecContext>?
     private var swrCtx: OpaquePointer? // SwrContext

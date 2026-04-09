@@ -1,14 +1,18 @@
 import AVFoundation
 
-/// Audio output via AVAudioEngine. Also serves as the master clock for A/V sync.
+/// Audio output via AVAudioEngine. Decodes all audio to PCM for playback.
+/// Serves as the master clock for A/V sync.
+///
+/// Note: Dolby Atmos spatial metadata is lost during PCM decode.
+/// The audio still plays correctly as 5.1/7.1 surround.
+/// Atmos passthrough requires Apple's private HDMI bitstream API
+/// and will be added as a future enhancement.
 final class AudioOutput {
     private let engine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
     private var format: AVAudioFormat?
     private var startPTS: Double = 0
     private var isStarted = false
-
-    /// Samples scheduled but not yet played (for clock calculation)
     private var scheduledSamples: Int64 = 0
 
     init() {
@@ -53,7 +57,6 @@ final class AudioOutput {
 
     // MARK: - Schedule Audio
 
-    /// Schedule a PCM buffer for playback
     func scheduleBuffer(_ buffer: AVAudioPCMBuffer) {
         playerNode.scheduleBuffer(buffer)
         scheduledSamples += Int64(buffer.frameLength)
@@ -61,15 +64,13 @@ final class AudioOutput {
 
     // MARK: - Master Clock
 
-    /// Current playback time in seconds. This is THE master clock for A/V sync.
+    /// Current playback time in seconds. THE master clock for A/V sync.
     var currentPlaybackTime: Double {
         guard isStarted, let nodeTime = playerNode.lastRenderTime,
               let playerTime = playerNode.playerTime(forNodeTime: nodeTime) else {
             return startPTS
         }
-
-        let sampleTime = Double(playerTime.sampleTime) / playerTime.sampleRate
-        return startPTS + sampleTime
+        return startPTS + Double(playerTime.sampleTime) / playerTime.sampleRate
     }
 
     // MARK: - Flush (for seeking)
