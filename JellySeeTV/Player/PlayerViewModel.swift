@@ -1,4 +1,4 @@
-import Foundation
+import AVFoundation
 import Observation
 
 @Observable
@@ -34,11 +34,26 @@ final class PlayerViewModel {
         do {
             try await coordinator.preparePlayback(item: item, startFromBeginning: startFromBeginning)
             isLoading = false
+            startPlayerStatusObserver()
             await reportStart()
             startProgressReporting()
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
+        }
+    }
+
+    private func startPlayerStatusObserver() {
+        // Watch for player to actually start rendering frames
+        Task {
+            while !Task.isCancelled {
+                if coordinator.player.timeControlStatus == .playing ||
+                   coordinator.player.currentItem?.status == .readyToPlay {
+                    isLoading = false
+                    return
+                }
+                try? await Task.sleep(for: .milliseconds(200))
+            }
         }
     }
 

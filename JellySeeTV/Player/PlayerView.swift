@@ -19,24 +19,24 @@ struct PlayerView: View {
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
-                AVPlayerViewControllerRepresentable(
-                    player: viewModel.coordinator.player,
-                    onDismiss: {
+                VideoPlayer(player: viewModel.coordinator.player)
+                    .ignoresSafeArea()
+                    .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)) { _ in
                         Task {
                             await viewModel.stopPlayback()
                             dismiss()
                         }
                     }
-                )
-                .ignoresSafeArea()
 
                 if viewModel.isLoading {
                     Color.black
                         .ignoresSafeArea()
                         .overlay(ProgressView())
+                        .transition(.opacity)
                 }
             }
         }
+        .animation(.easeOut(duration: 0.3), value: viewModel.isLoading)
         .task {
             await viewModel.startPlayback()
         }
@@ -52,49 +52,13 @@ struct PlayerView: View {
                 .foregroundStyle(.secondary)
             Text(message)
                 .foregroundStyle(.secondary)
-            Button { dismiss() } label: {
-                Text("detail.showSeries")
+            Button {
+                dismiss()
+            } label: {
+                Text("home.retry")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
-    }
-}
-
-// MARK: - AVPlayerViewController Wrapper
-
-struct AVPlayerViewControllerRepresentable: UIViewControllerRepresentable {
-    let player: AVPlayer
-    var onDismiss: (() -> Void)?
-
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
-        controller.player = player
-        controller.delegate = context.coordinator
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-        // Player is managed by PlaybackCoordinator
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onDismiss: onDismiss)
-    }
-
-    class Coordinator: NSObject, AVPlayerViewControllerDelegate {
-        let onDismiss: (() -> Void)?
-
-        init(onDismiss: (() -> Void)?) {
-            self.onDismiss = onDismiss
-        }
-
-        func playerViewControllerShouldDismiss(_ playerViewController: AVPlayerViewController) -> Bool {
-            true
-        }
-
-        func playerViewControllerDidEndDismissalTransition(_ playerViewController: AVPlayerViewController) {
-            onDismiss?()
-        }
     }
 }
