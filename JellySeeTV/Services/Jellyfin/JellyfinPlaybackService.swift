@@ -5,7 +5,7 @@ protocol JellyfinPlaybackServiceProtocol: Sendable {
     func reportPlaybackStart(_ report: PlaybackStartReport) async throws
     func reportPlaybackProgress(_ report: PlaybackProgressReport) async throws
     func reportPlaybackStopped(_ report: PlaybackStopReport) async throws
-    func buildStreamURL(itemID: String, mediaSourceID: String, isDirectStream: Bool) -> URL?
+    func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL?
     func buildTranscodeURL(relativePath: String) -> URL?
 }
 
@@ -80,14 +80,15 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
         )
     }
 
-    func buildStreamURL(itemID: String, mediaSourceID: String, isDirectStream: Bool) -> URL? {
+    func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL? {
         guard let baseURL = client.baseURL else { return nil }
-        var components = URLComponents(url: baseURL.appendingPathComponent("/Videos/\(itemID)/stream"), resolvingAgainstBaseURL: true)
+        let ext = container ?? "mp4"
+        var components = URLComponents(url: baseURL.appendingPathComponent("/Videos/\(itemID)/stream.\(ext)"), resolvingAgainstBaseURL: true)
         var queryItems = [
             URLQueryItem(name: "MediaSourceId", value: mediaSourceID),
             URLQueryItem(name: "api_key", value: client.accessToken),
         ]
-        if isDirectStream {
+        if isStatic {
             queryItems.append(URLQueryItem(name: "Static", value: "true"))
         }
         components?.queryItems = queryItems

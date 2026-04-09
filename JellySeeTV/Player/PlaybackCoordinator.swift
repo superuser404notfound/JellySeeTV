@@ -37,12 +37,12 @@ final class PlaybackCoordinator {
         if source.supportsDirectPlay == true {
             playMethod = .directPlay
             streamURL = playbackService.buildStreamURL(
-                itemID: item.id, mediaSourceID: source.id, isDirectStream: true
+                itemID: item.id, mediaSourceID: source.id, container: source.container, isStatic: true
             )
         } else if source.supportsDirectStream == true {
             playMethod = .directStream
             streamURL = playbackService.buildStreamURL(
-                itemID: item.id, mediaSourceID: source.id, isDirectStream: true
+                itemID: item.id, mediaSourceID: source.id, container: source.container, isStatic: true
             )
         } else if source.supportsTranscoding == true, let transURL = source.transcodingUrl {
             playMethod = .transcode
