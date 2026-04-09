@@ -35,59 +35,70 @@ struct PlayerView: View {
                         .transition(.opacity)
                 }
 
-                // Transport UI (native tvOS style)
-                if viewModel.showControls && !viewModel.isLoading {
-                    transportUI
-                        .transition(.opacity)
+                // When controls hidden: invisible focusable to catch remote input
+                if !viewModel.showControls && !viewModel.isLoading {
+                    Color.clear
+                        .focusable()
+                        .onMoveCommand { direction in
+                            switch direction {
+                            case .left: viewModel.seekBackward()
+                            case .right: viewModel.seekForward()
+                            default: viewModel.showControlsTemporarily()
+                            }
+                        }
+                        .onPlayPauseCommand {
+                            viewModel.togglePlayPause()
+                        }
+                        .onExitCommand {
+                            dismissPlayer()
+                        }
                 }
 
-                // Bottom gradient (always visible when controls shown, helps readability)
+                // Transport UI (native tvOS style)
                 if viewModel.showControls && !viewModel.isLoading {
+                    // Gradients for readability
+                    gradientOverlays
+                        .transition(.opacity)
+
+                    // Title at top
                     VStack {
+                        PlayerTitleOverlay(item: viewModel.item)
                         Spacer()
-                        LinearGradient(
-                            colors: [.clear, .black.opacity(0.7)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        .frame(height: 300)
-                        .allowsHitTesting(false)
                     }
-                    .ignoresSafeArea()
                     .transition(.opacity)
 
-                    // Top gradient for title
+                    // Transport bar at bottom
                     VStack {
-                        LinearGradient(
-                            colors: [.black.opacity(0.7), .clear],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        .frame(height: 200)
-                        .allowsHitTesting(false)
                         Spacer()
+                        TransportBar(
+                            progress: viewModel.progress,
+                            currentTime: viewModel.currentTime,
+                            remainingTime: viewModel.remainingTime,
+                            isPlaying: viewModel.isPlaying,
+                            onSeekBackward: { viewModel.seekBackward() },
+                            onTogglePlayPause: { viewModel.togglePlayPause() },
+                            onSeekForward: { viewModel.seekForward() }
+                        )
                     }
-                    .ignoresSafeArea()
                     .transition(.opacity)
+                    .onExitCommand {
+                        dismissPlayer()
+                    }
+                    .onMoveCommand { direction in
+                        switch direction {
+                        case .left: viewModel.seekBackward()
+                        case .right: viewModel.seekForward()
+                        default: viewModel.showControlsTemporarily()
+                        }
+                    }
+                    .onPlayPauseCommand {
+                        viewModel.togglePlayPause()
+                    }
                 }
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
-        .focusable()
-        .onPlayPauseCommand {
-            viewModel.togglePlayPause()
-        }
-        .onExitCommand {
-            dismissPlayer()
-        }
-        .onMoveCommand { direction in
-            switch direction {
-            case .left: viewModel.seekBackward()
-            case .right: viewModel.seekForward()
-            default: viewModel.showControlsTemporarily()
-            }
-        }
         .task {
             await viewModel.startPlayback()
         }
@@ -97,30 +108,35 @@ struct PlayerView: View {
         }
     }
 
-    // MARK: - Native Transport UI
+    // MARK: - Gradient Overlays
 
-    private var transportUI: some View {
+    private var gradientOverlays: some View {
         ZStack {
-            // Title at top
-            VStack {
-                PlayerTitleOverlay(item: viewModel.item)
-                Spacer()
-            }
-
-            // Transport bar at bottom
+            // Bottom gradient
             VStack {
                 Spacer()
-                TransportBar(
-                    progress: viewModel.progress,
-                    currentTime: viewModel.currentTime,
-                    remainingTime: viewModel.remainingTime,
-                    isPlaying: viewModel.isPlaying,
-                    onSeekBackward: { viewModel.seekBackward() },
-                    onTogglePlayPause: { viewModel.togglePlayPause() },
-                    onSeekForward: { viewModel.seekForward() }
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.7)],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
+                .frame(height: 300)
             }
+            .ignoresSafeArea()
+
+            // Top gradient
+            VStack {
+                LinearGradient(
+                    colors: [.black.opacity(0.7), .clear],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 200)
+                Spacer()
+            }
+            .ignoresSafeArea()
         }
+        .allowsHitTesting(false)
     }
 
     // MARK: - Dismiss

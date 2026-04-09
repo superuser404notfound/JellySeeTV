@@ -1,7 +1,6 @@
 import SwiftUI
 
 /// Native tvOS-style transport bar for the video player.
-/// Matches the system player's layout: progress bar, elapsed/remaining time.
 struct TransportBar: View {
     let progress: Float
     let currentTime: String
@@ -12,49 +11,48 @@ struct TransportBar: View {
     let onSeekForward: () -> Void
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             // Progress bar
             progressBar
 
-            // Time labels + controls
-            HStack(alignment: .center) {
+            // Time labels
+            HStack {
                 Text(currentTime)
-                    .font(.caption)
+                    .font(.callout)
                     .fontWeight(.medium)
                     .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.7))
-
-                Spacer()
-
-                // Skip buttons
-                HStack(spacing: 40) {
-                    Button(action: onSeekBackward) {
-                        Image(systemName: "gobackward.10")
-                            .font(.system(size: 28, weight: .medium))
-                    }
-                    .buttonStyle(.plain)
-
-                    Button(action: onTogglePlayPause) {
-                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                            .font(.system(size: 34, weight: .medium))
-                    }
-                    .buttonStyle(.plain)
-
-                    Button(action: onSeekForward) {
-                        Image(systemName: "goforward.10")
-                            .font(.system(size: 28, weight: .medium))
-                    }
-                    .buttonStyle(.plain)
-                }
 
                 Spacer()
 
                 Text(remainingTime)
-                    .font(.caption)
+                    .font(.callout)
                     .fontWeight(.medium)
                     .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.7))
             }
+
+            // Transport buttons
+            HStack(spacing: 50) {
+                PlayerControlButton(
+                    systemName: "gobackward.10",
+                    size: 36,
+                    action: onSeekBackward
+                )
+
+                PlayerControlButton(
+                    systemName: isPlaying ? "pause.fill" : "play.fill",
+                    size: 44,
+                    action: onTogglePlayPause
+                )
+
+                PlayerControlButton(
+                    systemName: "goforward.10",
+                    size: 36,
+                    action: onSeekForward
+                )
+            }
+            .padding(.top, 4)
         }
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
@@ -71,24 +69,62 @@ struct TransportBar: View {
                 // Background track
                 Capsule()
                     .fill(.white.opacity(0.2))
-                    .frame(height: 4)
+                    .frame(height: 6)
 
                 // Filled track
                 Capsule()
                     .fill(.white)
-                    .frame(width: knobX, height: 4)
+                    .frame(width: knobX, height: 6)
 
                 // Playhead knob
                 Circle()
                     .fill(.white)
-                    .frame(width: 12, height: 12)
-                    .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
-                    .offset(x: knobX - 6)
+                    .frame(width: 14, height: 14)
+                    .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
+                    .offset(x: knobX - 7)
             }
         }
-        .frame(height: 12)
+        .frame(height: 14)
     }
 }
+
+// MARK: - Focusable Player Button
+
+/// A tvOS-focusable button for player controls with scale + glow on focus.
+struct PlayerControlButton: View {
+    let systemName: String
+    let size: CGFloat
+    let action: () -> Void
+
+    @Environment(\.isFocused) private var isFocused
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: size, weight: .medium))
+                .foregroundStyle(.white)
+                .frame(width: size + 30, height: size + 30)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(PlayerButtonStyle())
+    }
+}
+
+/// Custom tvOS button style: scales up and glows when focused.
+struct PlayerButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(isFocused ? 1.2 : 1.0)
+            .opacity(configuration.isPressed ? 0.6 : 1.0)
+            .shadow(color: isFocused ? .white.opacity(0.5) : .clear, radius: 10)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Title Overlay
 
 /// Title overlay that appears at the top of the player when transport is visible.
 struct PlayerTitleOverlay: View {
@@ -96,7 +132,6 @@ struct PlayerTitleOverlay: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            // Series name or movie title
             if let seriesName = item.seriesName {
                 Text(seriesName)
                     .font(.title3)
@@ -104,7 +139,6 @@ struct PlayerTitleOverlay: View {
                     .foregroundStyle(.white)
                     .lineLimit(1)
 
-                // Episode info
                 let episodeLabel = episodeDescription
                 if !episodeLabel.isEmpty {
                     Text(episodeLabel)
