@@ -6,13 +6,22 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E414F04F5282BEF5289CA9FA /* Pods_JellySeeTV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAF849E208C426E2CA1B0AF7 /* Pods_JellySeeTV.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		78250365F5175798231FB5D2 /* Pods-JellySeeTV.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JellySeeTV.debug.xcconfig"; path = "Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV.debug.xcconfig"; sourceTree = "<group>"; };
 		9DD9136D2F8645860078D0BE /* JellySeeTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JellySeeTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAF849E208C426E2CA1B0AF7 /* Pods_JellySeeTV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JellySeeTV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E15CF2820F11C70614FFC6AE /* Pods-JellySeeTV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JellySeeTV.release.xcconfig"; path = "Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9DD9136F2F8645860078D0BE /* JellySeeTV */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = JellySeeTV;
 			sourceTree = "<group>";
 		};
@@ -23,6 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E414F04F5282BEF5289CA9FA /* Pods_JellySeeTV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -34,6 +44,8 @@
 			children = (
 				9DD9136F2F8645860078D0BE /* JellySeeTV */,
 				9DD9136E2F8645860078D0BE /* Products */,
+				EBC52448A75F47141AFB1BD5 /* Pods */,
+				F2FA2CF0B38B315088DC439E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -45,6 +57,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		EBC52448A75F47141AFB1BD5 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				78250365F5175798231FB5D2 /* Pods-JellySeeTV.debug.xcconfig */,
+				E15CF2820F11C70614FFC6AE /* Pods-JellySeeTV.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		F2FA2CF0B38B315088DC439E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BAF849E208C426E2CA1B0AF7 /* Pods_JellySeeTV.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -52,9 +82,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9DD913782F8645880078D0BE /* Build configuration list for PBXNativeTarget "JellySeeTV" */;
 			buildPhases = (
+				C8C77817E5620FA701B09ABD /* [CP] Check Pods Manifest.lock */,
 				9DD913692F8645860078D0BE /* Sources */,
 				9DD9136A2F8645860078D0BE /* Frameworks */,
 				9DD9136B2F8645860078D0BE /* Resources */,
+				42A7293088F91C5A2EC8A4F8 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -64,8 +96,6 @@
 				9DD9136F2F8645860078D0BE /* JellySeeTV */,
 			);
 			name = JellySeeTV;
-			packageProductDependencies = (
-			);
 			productName = JellySeeTV;
 			productReference = 9DD9136D2F8645860078D0BE /* JellySeeTV.app */;
 			productType = "com.apple.product-type.application";
@@ -128,6 +158,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		42A7293088F91C5A2EC8A4F8 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C8C77817E5620FA701B09ABD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-JellySeeTV-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		9DD913692F8645860078D0BE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -177,7 +249,7 @@
 				DEVELOPMENT_TEAM = 4NY63S72W9;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -241,7 +313,7 @@
 				DEVELOPMENT_TEAM = 4NY63S72W9;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -262,6 +334,7 @@
 		};
 		9DD913792F8645880078D0BE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 78250365F5175798231FB5D2 /* Pods-JellySeeTV.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -293,6 +366,7 @@
 		};
 		9DD9137A2F8645880078D0BE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E15CF2820F11C70614FFC6AE /* Pods-JellySeeTV.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
