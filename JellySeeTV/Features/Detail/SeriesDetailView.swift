@@ -11,7 +11,6 @@ struct SeriesDetailView: View {
 
     let item: JellyfinItem
 
-    /// The item to show in the info panel -- selected episode or series itself
     private var displayItem: JellyfinItem {
         selectedEpisode ?? viewModel?.item ?? item
     }
@@ -21,12 +20,59 @@ struct SeriesDetailView: View {
     }
 
     var body: some View {
-        Group {
+        ZStack {
+            // Backdrop -- read vm.item directly to track changes
+            DetailBackdrop(imageURL: resolveBackdropURL())
+                .animation(.easeInOut(duration: 0.5), value: selectedEpisode?.id)
+                .animation(.easeInOut(duration: 0.3), value: viewModel?.item.backdropImageTags?.first)
+
             if let vm = viewModel {
-                contentView(vm: vm)
+                DetailContentOverlay {
+                    glassPanel(vm: vm)
+                        .padding(.horizontal, 50)
+                        .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
+
+                    if let overview = displayItem.overview, !overview.isEmpty {
+                        Text(overview)
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(6)
+                            .padding(.horizontal, 50)
+                            .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
+                    }
+
+                    if displayItem.mediaStreams != nil || displayItem.mediaSources != nil {
+                        TechInfoBox(item: displayItem)
+                            .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
+                    }
+
+                    if !vm.seasons.isEmpty {
+                        seasonSection(vm: vm)
+                    }
+
+                    if let people = vm.item.people, !people.isEmpty {
+                        CastRow(
+                            people: Array(people.prefix(15)),
+                            imageURLProvider: { person in
+                                dependencies.jellyfinImageService.personImageURL(
+                                    personID: person.id,
+                                    tag: person.primaryImageTag
+                                )
+                            }
+                        )
+                    }
+
+                    if !vm.similarItems.isEmpty {
+                        HorizontalMediaRow(
+                            title: "detail.similar",
+                            items: vm.similarItems,
+                            imageURLProvider: { vm.posterURL(for: $0) },
+                            cardStyle: .poster
+                        )
+                    }
+                }
             } else {
                 ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .ignoresSafeArea()
@@ -47,83 +93,30 @@ struct SeriesDetailView: View {
         }
     }
 
-    private func backdropURL(vm: DetailViewModel) -> URL? {
+    // MARK: - Backdrop URL
+
+    private func resolveBackdropURL() -> URL? {
         if let ep = selectedEpisode {
             return dependencies.jellyfinImageService.episodeThumbnailURL(for: ep)
-                ?? vm.backdropURL(for: vm.item)
+                ?? viewModel.flatMap { $0.backdropURL(for: $0.item) }
         }
-        return vm.backdropURL(for: vm.item)
+        return viewModel.flatMap { $0.backdropURL(for: $0.item) }
     }
 
-    private func contentView(vm: DetailViewModel) -> some View {
-        ZStack {
-            DetailBackdrop(imageURL: backdropURL(vm: vm))
-                .animation(.easeInOut(duration: 0.5), value: selectedEpisode?.id)
-
-            DetailContentOverlay {
-                glassPanel(vm: vm)
-                    .padding(.horizontal, 50)
-                    .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
-
-                if let overview = displayItem.overview, !overview.isEmpty {
-                    Text(overview)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(6)
-                        .padding(.horizontal, 50)
-                        .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
-                }
-
-                if displayItem.mediaStreams != nil || displayItem.mediaSources != nil {
-                    TechInfoBox(item: displayItem)
-                        .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
-                }
-
-                if !vm.seasons.isEmpty {
-                    seasonSection(vm: vm)
-                }
-
-                if let people = vm.item.people, !people.isEmpty {
-                    CastRow(
-                        people: Array(people.prefix(15)),
-                        imageURLProvider: { person in
-                            dependencies.jellyfinImageService.personImageURL(
-                                personID: person.id,
-                                tag: person.primaryImageTag
-                            )
-                        }
-                    )
-                }
-
-                if !vm.similarItems.isEmpty {
-                    HorizontalMediaRow(
-                        title: "detail.similar",
-                        items: vm.similarItems,
-                        imageURLProvider: { vm.posterURL(for: $0) },
-                        cardStyle: .poster
-                    )
-                }
-            }
-        }
-    }
-
-    // MARK: - Glass Panel (dynamic)
+    // MARK: - Glass Panel
 
     private func glassPanel(vm: DetailViewModel) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            // Series title always shown
             if isShowingEpisode {
                 Text(vm.item.name)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
-            // Main title
             Text(isShowingEpisode ? (selectedEpisode?.name ?? "") : vm.item.name)
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
-            // Episode info
             if isShowingEpisode, let ep = selectedEpisode {
                 HStack(spacing: 8) {
                     if let s = ep.parentIndexNumber {
@@ -143,7 +136,6 @@ struct SeriesDetailView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             } else {
-                // Series metadata
                 ItemMetadataRow(item: vm.item, showRuntime: false) {
                     if let count = vm.item.childCount, count > 0 {
                         AnyView(Text("detail.seasonCount \(count)"))
@@ -153,14 +145,12 @@ struct SeriesDetailView: View {
                 }
             }
 
-            // Genres (series always)
             if let genres = vm.item.genres, !genres.isEmpty {
                 Text(genres.joined(separator: " · "))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
 
-            // Action buttons
             HStack(spacing: 16) {
                 GlassActionButton(
                     title: playTitle,
@@ -208,7 +198,6 @@ struct SeriesDetailView: View {
 
     private func seasonSection(vm: DetailViewModel) -> some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Season tabs
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
@@ -235,8 +224,6 @@ struct SeriesDetailView: View {
                     if let focusedID = focusedSeasonID {
                         withAnimation { proxy.scrollTo(focusedID, anchor: .center) }
                     }
-                    // Reset episode redirect so next time focus enters episodes
-                    // it will redirect to current episode again
                     if newID != nil {
                         episodeRedirectDone = false
                     }
@@ -247,14 +234,13 @@ struct SeriesDetailView: View {
                 }
             }
 
-            // Episode cards
             if !vm.episodes.isEmpty {
                 ScrollViewReader { episodeProxy in
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(spacing: 24) {
                             ForEach(vm.episodes) { episode in
                                 Button {
-                                    // TODO Phase 3: start playback of this episode
+                                    // TODO Phase 3: start playback
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         selectedEpisode = episode
                                     }
@@ -290,15 +276,14 @@ struct SeriesDetailView: View {
                                         } label: {
                                             Label("detail.resume", systemImage: "play.circle")
                                         }
+                                    }
                                 }
                             }
                         }
-                    }
-                    .padding(.horizontal, 50)
-                    .padding(.vertical, 16)
+                        .padding(.horizontal, 50)
+                        .padding(.vertical, 16)
                     }
                     .onChange(of: vm.selectedSeasonID) { _, _ in
-                        // Scroll to start on season change, then to current if applicable
                         if let first = vm.episodes.first {
                             episodeProxy.scrollTo(first.id, anchor: .leading)
                         }
@@ -309,7 +294,6 @@ struct SeriesDetailView: View {
                     .onChange(of: focusedEpisodeID) { _, newID in
                         if newID != nil && !episodeRedirectDone {
                             episodeRedirectDone = true
-                            // Only redirect if current episode is in this season's episodes
                             if let currentID = vm.currentEpisodeID,
                                newID != currentID,
                                vm.episodes.contains(where: { $0.id == currentID }) {
@@ -328,7 +312,6 @@ struct SeriesDetailView: View {
     private func scrollToCurrentEpisode(proxy: ScrollViewProxy, vm: DetailViewModel) {
         guard let currentID = vm.currentEpisodeID,
               vm.episodes.contains(where: { $0.id == currentID }) else { return }
-        // Small delay to ensure LazyHStack has rendered the target view
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation(.easeInOut(duration: 0.3)) {
                 proxy.scrollTo(currentID, anchor: .center)
@@ -378,6 +361,8 @@ struct SeasonTab: View {
         return .clear
     }
 }
+
+// MARK: - Button Styles
 
 struct EpisodeCardButtonStyle: ButtonStyle {
     @Environment(\.isFocused) private var isFocused
@@ -431,7 +416,6 @@ struct EpisodeLandscapeCard: View {
                         .stroke(borderColor, lineWidth: isCurrent ? 3 : 2)
                 )
 
-                // Progress bar
                 if let pct = episode.userData?.playedPercentage, pct > 0 {
                     GeometryReader { geo in
                         VStack {
@@ -446,7 +430,6 @@ struct EpisodeLandscapeCard: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
-                // Played badge
                 if episode.userData?.played == true {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
