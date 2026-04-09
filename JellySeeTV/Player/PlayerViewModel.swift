@@ -57,13 +57,13 @@ final class PlayerViewModel {
             engine = coordinator.engine
 
             if engine == .avPlayer {
-                // preparePlayback already waited for readyToPlay + seek + play()
-                // So by this point video and audio are synced
-                isLoading = false
-                isPlaying = true
                 setupAVPlayerObservers()
+                // Wait until AVPlayer is ACTUALLY rendering frames, not just "play() called"
+                await waitForActualPlayback()
             }
 
+            isLoading = false
+            isPlaying = true
             await reportStart()
             startProgressReporting()
         } catch {
@@ -119,6 +119,21 @@ final class PlayerViewModel {
     }
 
     // MARK: - AVPlayer Observers
+
+    /// Waits until AVPlayer is actually rendering (timeControlStatus == .playing AND time advancing)
+    private func waitForActualPlayback() async {
+        // First: wait for timeControlStatus to be .playing
+        for _ in 0..<150 { // 15 seconds max
+            if coordinator.avPlayer.timeControlStatus == .playing {
+                // Double-check: wait a tiny bit and confirm time is advancing
+                let t1 = coordinator.avPlayer.currentTime().seconds
+                try? await Task.sleep(for: .milliseconds(100))
+                let t2 = coordinator.avPlayer.currentTime().seconds
+                if t2 > t1 { return } // Time is advancing = video is rendering
+            }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+    }
 
     private func setupAVPlayerObservers() {
         avPlayerObserver = coordinator.avPlayer.addPeriodicTimeObserver(

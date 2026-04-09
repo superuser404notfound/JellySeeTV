@@ -114,8 +114,8 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
             await seekAVPlayer(to: ticks.ticksToSeconds)
         }
 
-        // Start playback only after item is ready and seek is complete
-        avPlayer.play()
+        // Start playback -- playImmediately ensures audio+video sync
+        avPlayer.playImmediately(atRate: 1.0)
     }
 
     private func waitForPlayerReady(_ item: AVPlayerItem) async throws {
