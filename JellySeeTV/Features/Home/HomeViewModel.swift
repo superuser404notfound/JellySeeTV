@@ -188,20 +188,37 @@ final class HomeViewModel {
                 return nil
             }
 
-            // Fetch a batch of random items for backdrops (single API call)
-            let backdropQuery = ItemQuery(
-                includeItemTypes: [.movie, .series],
-                sortBy: "Random",
-                limit: min(tags.count, 20)
-            )
-            let backdropItems = (try? await libraryService.getItems(userID: userID, query: backdropQuery).items) ?? []
+            // Fetch one item per tag in parallel for matching backdrops
+            let tagItems: [(String, JellyfinItem?)] = await withTaskGroup(
+                of: (String, JellyfinItem?).self,
+                returning: [(String, JellyfinItem?)].self
+            ) { group in
+                for tag in tags {
+                    group.addTask {
+                        let query = ItemQuery(
+                            includeItemTypes: [.movie, .series],
+                            sortBy: "Random",
+                            limit: 1,
+                            genres: isStudio ? nil : [tag.name],
+                            studioNames: isStudio ? [tag.name] : nil
+                        )
+                        let item = try? await self.libraryService.getItems(userID: self.userID, query: query).items.first
+                        return (tag.id, item)
+                    }
+                }
+                var results: [(String, JellyfinItem?)] = []
+                for await result in group {
+                    results.append(result)
+                }
+                return results
+            }
 
-            // Build TagCardData, distributing backdrop images round-robin
-            let cardData: [TagCardData] = tags.enumerated().map { index, tag in
-                let backdropItem = backdropItems.isEmpty ? nil : backdropItems[index % backdropItems.count]
-                let backdropURL = backdropItem.flatMap { imageService.backdropURL(for: $0) ?? imageService.posterURL(for: $0) }
+            // Build cards on MainActor (image URL construction needs it)
+            let itemMap = Dictionary(uniqueKeysWithValues: tagItems)
+            let cardData: [TagCardData] = tags.map { tag in
+                let item = itemMap[tag.id] ?? nil
+                let backdropURL = item.flatMap { imageService.backdropURL(for: $0) ?? imageService.posterURL(for: $0) }
                 let logoURL = isStudio ? imageService.studioLogoURL(studioName: tag.name) : nil
-
                 return TagCardData(
                     id: tag.id,
                     name: tag.name,
