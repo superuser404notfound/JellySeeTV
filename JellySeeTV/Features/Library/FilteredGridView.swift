@@ -12,6 +12,13 @@ struct FilteredGridView: View {
 
     var body: some View {
         ScrollView {
+            Text(title)
+                .font(.title3)
+                .fontWeight(.semibold)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 60)
+                .padding(.top, 20)
+
             if isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 400)
@@ -43,7 +50,7 @@ struct FilteredGridView: View {
                 .padding(.vertical, 40)
             }
         }
-        .navigationTitle(title)
+        .navigationBarHidden(true)
         .toolbar(.hidden, for: .tabBar)
         .navigationDestination(item: $selectedItem) { item in
             DetailRouterView(item: item)
