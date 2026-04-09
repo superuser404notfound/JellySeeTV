@@ -98,7 +98,13 @@ nonisolated final class Demuxer: @unchecked Sendable {
             let nbStreams = Int(ctx.pointee.nb_streams)
             for i in 0..<nbStreams {
                 guard let stream = ctx.pointee.streams[i] else { continue }
-                let codecpar = stream.pointee.codecpar!.pointee
+                guard let codecparPtr = stream.pointee.codecpar else {
+                    #if DEBUG
+                    print("[Demuxer] Stream[\(i)]: codecpar is nil, skipping")
+                    #endif
+                    continue
+                }
+                let codecpar = codecparPtr.pointee
 
                 #if DEBUG
                 print("[Demuxer] Stream[\(i)]: codec_type=\(codecpar.codec_type.rawValue), codec_id=\(codecpar.codec_id.rawValue)")
@@ -258,7 +264,7 @@ nonisolated final class Demuxer: @unchecked Sendable {
     // MARK: - Helpers
 
     private func extractStreamInfo(stream: UnsafeMutablePointer<AVStream>, index: Int32) -> StreamInfo {
-        let codecpar = stream.pointee.codecpar.pointee
+        let codecpar = stream.pointee.codecpar!.pointee
         let metadata = stream.pointee.metadata
 
         // Get codec name
