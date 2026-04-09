@@ -47,17 +47,17 @@ struct SeriesDetailView: View {
         }
     }
 
-    private var currentBackdropURL: URL? {
+    private func backdropURL(vm: DetailViewModel) -> URL? {
         if let ep = selectedEpisode {
             return dependencies.jellyfinImageService.episodeThumbnailURL(for: ep)
-                ?? viewModel?.backdropURL(for: viewModel!.item)
+                ?? vm.backdropURL(for: vm.item)
         }
-        return viewModel?.backdropURL(for: viewModel!.item)
+        return vm.backdropURL(for: vm.item)
     }
 
     private func contentView(vm: DetailViewModel) -> some View {
         ZStack {
-            DetailBackdrop(imageURL: currentBackdropURL)
+            DetailBackdrop(imageURL: backdropURL(vm: vm))
                 .animation(.easeInOut(duration: 0.5), value: selectedEpisode?.id)
 
             DetailContentOverlay {
