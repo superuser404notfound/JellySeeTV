@@ -1,0 +1,22 @@
+module CFFmpeg [system] {
+    header "../include/libavformat/avformat.h"
+    header "../include/libavcodec/avcodec.h"
+    header "../include/libavutil/avutil.h"
+    header "../include/libavutil/pixdesc.h"
+    header "../include/libavutil/hwcontext.h"
+    header "../include/libavutil/hwcontext_videotoolbox.h"
+    header "../include/libavutil/channel_layout.h"
+    header "../include/libavutil/opt.h"
+    header "../include/libavutil/imgutils.h"
+    header "../include/libavutil/mathematics.h"
+    header "../include/libavutil/time.h"
+    header "../include/libswresample/swresample.h"
+    link "avformat"
+    link "avcodec"
+    link "avutil"
+    link "swresample"
+    link "z"
+    link "bz2"
+    link "iconv"
+    export *
+}
