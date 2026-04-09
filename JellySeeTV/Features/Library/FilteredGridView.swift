@@ -36,14 +36,15 @@ struct FilteredGridView: View {
                     GridItem(.adaptive(minimum: 220), spacing: 40)
                 ], spacing: 50) {
                     ForEach(items) { item in
-                        FocusableCard {
+                        Button {
                             selectedItem = item
-                        } content: { _ in
+                        } label: {
                             MediaCard(
                                 item: item,
                                 imageURL: dependencies.jellyfinImageService.posterURL(for: item)
                             )
                         }
+                        .buttonStyle(GridCardButtonStyle())
                     }
                 }
                 .padding(.horizontal, 60)
@@ -73,5 +74,16 @@ struct FilteredGridView: View {
             // Show empty state
         }
         isLoading = false
+    }
+}
+
+struct GridCardButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(isFocused ? 1.05 : 1.0)
+            .shadow(color: .black.opacity(isFocused ? 0.4 : 0), radius: 20, y: 10)
+            .animation(.easeInOut(duration: 0.2), value: isFocused)
     }
 }
