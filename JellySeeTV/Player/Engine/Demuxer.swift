@@ -64,9 +64,16 @@ nonisolated final class Demuxer: @unchecked Sendable {
 
             // Open input
             let urlString = url.absoluteString
+            #if DEBUG
+            print("[Demuxer] Opening URL: \(urlString)")
+            #endif
             var ret = avformat_open_input(&ctx, urlString, nil, nil)
             guard ret >= 0, let ctx else {
-                throw DemuxerError.openFailed(errorString(ret))
+                let err = errorString(ret)
+                #if DEBUG
+                print("[Demuxer] FAILED to open: \(err) (code: \(ret))")
+                #endif
+                throw DemuxerError.openFailed(err)
             }
             formatCtx = ctx
 
@@ -85,6 +92,7 @@ nonisolated final class Demuxer: @unchecked Sendable {
             let nbStreams = Int(ctx.pointee.nb_streams)
             for i in 0..<nbStreams {
                 guard let stream = ctx.pointee.streams[i] else { continue }
+                guard stream.pointee.codecpar != nil else { continue }
                 let codecpar = stream.pointee.codecpar.pointee
 
                 let info = extractStreamInfo(stream: stream, index: Int32(i))
