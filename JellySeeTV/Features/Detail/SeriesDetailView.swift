@@ -5,6 +5,7 @@ struct SeriesDetailView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: DetailViewModel?
     @State private var selectedEpisode: JellyfinItem?
+    @State private var backdropURL: URL?
     @FocusState private var focusedSeasonID: String?
     @FocusState private var focusedEpisodeID: String?
     @State private var episodeRedirectDone = false
@@ -20,42 +21,20 @@ struct SeriesDetailView: View {
     }
 
     var body: some View {
-        // Read Observable properties directly in body for proper tracking
-        let backdropTags = viewModel?.item.backdropImageTags
-        let parentBackdropTags = viewModel?.item.parentBackdropImageTags
-        let itemID = viewModel?.item.id ?? item.id
-        let backdropURL: URL? = {
-            if let ep = selectedEpisode {
-                return dependencies.jellyfinImageService.episodeThumbnailURL(for: ep)
-            }
-            if let tag = backdropTags?.first {
-                return dependencies.jellyfinImageService.imageURL(itemID: itemID, imageType: .backdrop, tag: tag, maxWidth: 1920)
-            }
-            if let tag = parentBackdropTags?.first, let seriesId = viewModel?.item.seriesId {
-                return dependencies.jellyfinImageService.imageURL(itemID: seriesId, imageType: .backdrop, tag: tag, maxWidth: 1920)
-            }
-            return nil
-        }()
-
         ZStack {
             DetailBackdrop(imageURL: backdropURL)
-                .id(backdropTags?.first ?? selectedEpisode?.id ?? "empty")
-                .animation(.easeInOut(duration: 0.5), value: selectedEpisode?.id)
+                .id(backdropURL?.absoluteString ?? "empty")
 
             if let vm = viewModel {
                 DetailContentOverlay {
                     glassPanel(vm: vm)
                         .padding(.horizontal, 50)
-                        .id(vm.item.genres?.first ?? vm.item.name)
                         .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
 
                     if let overview = displayItem.overview, !overview.isEmpty {
-                        Text(overview)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(6)
+                        ExpandableTextBox(text: overview)
                             .padding(.horizontal, 50)
-                            .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
+                            .id(displayItem.id)
                     }
 
                     if displayItem.mediaStreams != nil || displayItem.mediaSources != nil {
@@ -104,9 +83,22 @@ struct SeriesDetailView: View {
                 )
                 Task {
                     await viewModel?.loadFullDetail()
+                    updateBackdropURL()
                     await viewModel?.loadSeasons()
                 }
             }
+        }
+        .onChange(of: viewModel?.item.id) { _, _ in updateBackdropURL() }
+        .onChange(of: viewModel?.isLoading) { _, _ in updateBackdropURL() }
+        .onChange(of: selectedEpisode?.id) { _, _ in updateBackdropURL() }
+    }
+
+    private func updateBackdropURL() {
+        if let ep = selectedEpisode {
+            backdropURL = dependencies.jellyfinImageService.episodeThumbnailURL(for: ep)
+                ?? viewModel.flatMap { $0.backdropURL(for: $0.item) }
+        } else {
+            backdropURL = viewModel.flatMap { $0.backdropURL(for: $0.item) }
         }
     }
 
