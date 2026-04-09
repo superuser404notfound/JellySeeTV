@@ -37,7 +37,8 @@ struct SeriesDetailView: View {
                     item: item,
                     itemService: dependencies.jellyfinItemService,
                     imageService: dependencies.jellyfinImageService,
-                    userID: userID
+                    userID: userID,
+                    libraryService: dependencies.jellyfinLibraryService
                 )
                 Task {
                     await viewModel?.loadFullDetail()
@@ -304,49 +305,65 @@ struct SeriesDetailView: View {
 
             // Episode cards
             if !vm.episodes.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 24) {
-                        ForEach(vm.episodes) { episode in
-                            Button {
-                                // TODO Phase 3: start playback
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    selectedEpisode = episode
-                                }
-                            } label: {
-                                EpisodeLandscapeCard(
-                                    episode: episode,
-                                    imageURL: dependencies.jellyfinImageService.episodeThumbnailURL(for: episode),
-                                    isSelected: selectedEpisode?.id == episode.id
-                                )
-                            }
-                            .buttonStyle(EpisodeCardButtonStyle())
-                            .contextMenu {
+                ScrollViewReader { episodeProxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(spacing: 24) {
+                            ForEach(vm.episodes) { episode in
                                 Button {
+                                    // TODO Phase 3: start playback of this episode
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         selectedEpisode = episode
                                     }
                                 } label: {
-                                    Label("detail.episode.showDetails", systemImage: "info.circle")
+                                    EpisodeLandscapeCard(
+                                        episode: episode,
+                                        imageURL: dependencies.jellyfinImageService.episodeThumbnailURL(for: episode),
+                                        isSelected: selectedEpisode?.id == episode.id,
+                                        isCurrent: vm.currentEpisodeID == episode.id
+                                    )
                                 }
-
-                                Button {
-                                    // TODO Phase 3: play from start
-                                } label: {
-                                    Label("detail.play", systemImage: "play.fill")
-                                }
-
-                                if let ticks = episode.userData?.playbackPositionTicks, ticks > 0 {
+                                .buttonStyle(EpisodeCardButtonStyle())
+                                .id(episode.id)
+                                .contextMenu {
                                     Button {
-                                        // TODO Phase 3: resume
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            selectedEpisode = episode
+                                        }
                                     } label: {
-                                        Label("detail.resume", systemImage: "play.circle")
+                                        Label("detail.episode.showDetails", systemImage: "info.circle")
                                     }
+
+                                    Button {
+                                        // TODO Phase 3: play from start
+                                    } label: {
+                                        Label("detail.play", systemImage: "play.fill")
+                                    }
+
+                                    if let ticks = episode.userData?.playbackPositionTicks, ticks > 0 {
+                                        Button {
+                                            // TODO Phase 3: resume
+                                        } label: {
+                                            Label("detail.resume", systemImage: "play.circle")
+                                        }
                                 }
                             }
                         }
                     }
                     .padding(.horizontal, 50)
                     .padding(.vertical, 16)
+                    }
+                    .onAppear {
+                        if let currentID = vm.currentEpisodeID {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                withAnimation { episodeProxy.scrollTo(currentID, anchor: .center) }
+                            }
+                        }
+                    }
+                    .onChange(of: vm.currentEpisodeID) { _, newID in
+                        if let newID {
+                            withAnimation { episodeProxy.scrollTo(newID, anchor: .center) }
+                        }
+                    }
                 }
             }
         }
@@ -426,6 +443,7 @@ struct EpisodeLandscapeCard: View {
     let episode: JellyfinItem
     let imageURL: URL?
     var isSelected: Bool = false
+    var isCurrent: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -447,7 +465,7 @@ struct EpisodeLandscapeCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(isSelected ? Color.accentColor.opacity(0.8) : .clear, lineWidth: 2)
+                        .stroke(borderColor, lineWidth: 2)
                 )
 
                 // Progress bar
@@ -497,5 +515,11 @@ struct EpisodeLandscapeCard: View {
             }
             .frame(width: 360, alignment: .leading)
         }
+    }
+
+    private var borderColor: Color {
+        if isSelected { return .accentColor.opacity(0.8) }
+        if isCurrent { return .green.opacity(0.6) }
+        return .clear
     }
 }
