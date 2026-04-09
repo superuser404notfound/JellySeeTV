@@ -39,6 +39,19 @@ final class JellyfinClient {
         )
     }
 
+    func buildAuthHeader() -> String {
+        var authParts = [
+            "Client=\"JellySeeTV\"",
+            "Device=\"Apple TV\"",
+            "DeviceId=\"\(deviceID)\"",
+            "Version=\"\(appVersion)\"",
+        ]
+        if let token = accessToken {
+            authParts.append("Token=\"\(token)\"")
+        }
+        return "MediaBrowser \(authParts.joined(separator: ", "))"
+    }
+
     private func buildHeaders(requiresAuth: Bool) -> [String: String] {
         var headers: [String: String] = [:]
 

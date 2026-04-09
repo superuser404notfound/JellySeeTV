@@ -17,10 +17,39 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
     }
 
     func getPlaybackInfo(itemID: String, userID: String) async throws -> PlaybackInfoResponse {
-        try await client.request(
-            endpoint: JellyfinEndpoint.playbackInfo(itemID: itemID, userID: userID),
-            responseType: PlaybackInfoResponse.self
-        )
+        guard let baseURL = client.baseURL else { throw APIError.invalidURL }
+
+        // Build URL manually to include UserId query param
+        var components = URLComponents(url: baseURL.appendingPathComponent("/Items/\(itemID)/PlaybackInfo"), resolvingAgainstBaseURL: true)
+        components?.queryItems = [URLQueryItem(name: "UserId", value: userID)]
+
+        guard let url = components?.url else { throw APIError.invalidURL }
+
+        // Build body with DeviceProfile as raw JSON
+        let body: [String: Any] = ["DeviceProfile": DirectPlayProfile.build()]
+        let bodyData = try JSONSerialization.data(withJSONObject: body)
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.httpBody = bodyData
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+
+        // Add Jellyfin auth header
+        let authHeader = client.buildAuthHeader()
+        request.setValue(authHeader, forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.httpError(statusCode: httpResponse.statusCode, data: data)
+        }
+
+        let decoder = JSONDecoder()
+        return try decoder.decode(PlaybackInfoResponse.self, from: data)
     }
 
     func reportPlaybackStart(_ report: PlaybackStartReport) async throws {
