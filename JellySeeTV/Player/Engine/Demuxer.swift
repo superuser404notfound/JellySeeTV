@@ -27,7 +27,7 @@ struct StreamInfo: Sendable {
 
 /// FFmpeg-based container demuxer. Opens any container format via HTTP
 /// and provides packet-level access to audio, video, and subtitle streams.
-final class Demuxer: @unchecked Sendable {
+nonisolated final class Demuxer: @unchecked Sendable {
     /// Stored as Int for Swift 6 deinit compatibility
     private var formatCtxAddress: Int = 0
     private var formatCtx: UnsafeMutablePointer<AVFormatContext>? {

@@ -12,7 +12,7 @@ struct DecodedVideoFrame {
 
 /// Decodes video packets using VideoToolbox hardware acceleration
 /// with FFmpeg software fallback for unsupported codecs.
-final class VideoDecoder: @unchecked Sendable {
+nonisolated final class VideoDecoder: @unchecked Sendable {
     private var codecCtx: UnsafeMutablePointer<AVCodecContext>?
     private(set) var width: Int32 = 0
     private(set) var height: Int32 = 0
