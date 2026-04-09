@@ -13,6 +13,12 @@ final class DetailViewModel {
     var selectedSeasonID: String?
     var isLoading = false
     var cachedPlaybackInfo: PlaybackInfoResponse?
+    /// Pre-opened stream URL for instant playback start
+    private(set) var cachedStreamURL: URL?
+    #if !targetEnvironment(simulator)
+    /// Pre-opened demuxer — FFmpeg HTTP connection already established
+    private(set) var cachedDemuxer: Demuxer?
+    #endif
 
     private let itemService: JellyfinItemServiceProtocol
     private let libraryService: JellyfinLibraryServiceProtocol?
@@ -171,28 +177,38 @@ final class DetailViewModel {
             }
             #endif
 
-            // Pre-warm HTTP connection so FFmpeg open is instant
+            // Pre-open the demuxer (FFmpeg HTTP connection) in background
             if let source = cachedPlaybackInfo?.mediaSources.first,
                let url = playbackService.buildStreamURL(
                 itemID: itemID, mediaSourceID: source.id,
                 container: source.container, isStatic: false
                ) {
-                warmUpConnection(to: url)
+                cachedStreamURL = url
+                preOpenDemuxer(url: url)
             }
         }
     }
 
-    /// Send a HEAD request to establish DNS + TCP connection in advance.
-    /// The OS connection cache keeps it alive for FFmpeg's subsequent open.
-    private func warmUpConnection(to url: URL) {
-        var request = URLRequest(url: url)
-        request.httpMethod = "HEAD"
-        request.timeoutInterval = 5
-        URLSession.shared.dataTask(with: request) { _, _, _ in
-            #if DEBUG
-            print("[Prefetch] Connection warmed for \(url.lastPathComponent)")
-            #endif
-        }.resume()
+    /// Open FFmpeg demuxer in background so the HTTP connection is ready when user presses play.
+    private func preOpenDemuxer(url: URL) {
+        #if !targetEnvironment(simulator)
+        Task.detached { [weak self] in
+            let dmx = Demuxer()
+            do {
+                try dmx.open(url: url, skipProbe: true)
+                await MainActor.run {
+                    self?.cachedDemuxer = dmx
+                }
+                #if DEBUG
+                print("[Prefetch] Demuxer pre-opened for \(url.lastPathComponent)")
+                #endif
+            } catch {
+                #if DEBUG
+                print("[Prefetch] Demuxer pre-open failed: \(error)")
+                #endif
+            }
+        }
+        #endif
     }
 
     func posterURL(for item: JellyfinItem) -> URL? {

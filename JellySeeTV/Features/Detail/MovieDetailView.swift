@@ -29,6 +29,7 @@ struct MovieDetailView: View {
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
+                    cachedDemuxer: viewModel?.cachedDemuxer,
                     onDismiss: { showPlayer = false }
                 )
                 .transition(.opacity)

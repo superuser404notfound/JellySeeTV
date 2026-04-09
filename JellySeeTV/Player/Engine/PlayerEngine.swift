@@ -38,20 +38,27 @@ final class PlayerEngine {
 
     // MARK: - Load and Play
 
-    func load(url: URL, startPosition: Double? = nil) async throws {
+    /// Load a media URL. Pass a pre-opened `cachedDemuxer` for instant start.
+    func load(url: URL, startPosition: Double? = nil, cachedDemuxer: Demuxer? = nil) async throws {
         state = .loading
 
         #if DEBUG
         let loadStart = CFAbsoluteTimeGetCurrent()
         #endif
 
-        // 1. Open demuxer (off main thread — network I/O)
-        //    skipProbe: MKV/MP4 headers already contain codec info,
-        //    and Jellyfin PlaybackInfo gave us everything we need
-        let dmx = Demuxer()
-        try await Task.detached {
-            try dmx.open(url: url, skipProbe: true)
-        }.value
+        // 1. Use pre-opened demuxer or open fresh (off main thread)
+        let dmx: Demuxer
+        if let cached = cachedDemuxer {
+            dmx = cached
+            #if DEBUG
+            print("[PlayerEngine] Using pre-opened demuxer")
+            #endif
+        } else {
+            dmx = Demuxer()
+            try await Task.detached {
+                try dmx.open(url: url, skipProbe: true)
+            }.value
+        }
         demuxer = dmx
         duration = dmx.duration
 

@@ -26,13 +26,19 @@ final class PlayerViewModel {
     private var hasReportedStart = false
     private var mediaSourceID: String = ""
     private var playSessionID: String?
+    #if !targetEnvironment(simulator)
+    private var cachedDemuxer: Demuxer?
+    #endif
 
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
+    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, cachedDemuxer: Demuxer? = nil) {
         self.item = item
         self.startFromBeginning = startFromBeginning
         self.playbackService = playbackService
         self.userID = userID
         self.cachedPlaybackInfo = cachedPlaybackInfo
+        #if !targetEnvironment(simulator)
+        self.cachedDemuxer = cachedDemuxer
+        #endif
     }
 
     // MARK: - Lifecycle
@@ -75,8 +81,14 @@ final class PlayerViewModel {
                 nil
             }
 
-            // Load and start engine
+            // Load and start engine (use pre-opened demuxer if available)
+            #if !targetEnvironment(simulator)
+            let dmx = cachedDemuxer
+            cachedDemuxer = nil // consumed
+            try await engine.load(url: url, startPosition: startPos, cachedDemuxer: dmx)
+            #else
             try await engine.load(url: url, startPosition: startPos)
+            #endif
 
             // Update UI
             totalTime = formatSeconds(engine.duration)
