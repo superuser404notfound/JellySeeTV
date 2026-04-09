@@ -1,11 +1,21 @@
-import AVFoundation
+import Foundation
 import Observation
+import TVVLCKit
 
 @Observable
 @MainActor
 final class PlayerViewModel {
     var isLoading = true
     var errorMessage: String?
+    var isPlaying = false
+    var currentTime: String = "00:00"
+    var totalTime: String = "00:00"
+    var progress: Float = 0
+    var showControls = true
+    var audioTracks: [(index: Int, name: String)] = []
+    var subtitleTracks: [(index: Int, name: String)] = []
+    var currentAudioIndex: Int = -1
+    var currentSubtitleIndex: Int = -1
 
     let item: JellyfinItem
     let startFromBeginning: Bool
@@ -13,6 +23,7 @@ final class PlayerViewModel {
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private var progressTimer: Task<Void, Never>?
+    private var controlsTimer: Task<Void, Never>?
     private var hasReportedStart = false
 
     init(
@@ -25,7 +36,10 @@ final class PlayerViewModel {
         self.startFromBeginning = startFromBeginning
         self.playbackService = playbackService
         self.coordinator = PlaybackCoordinator(playbackService: playbackService, userID: userID)
+        setupCallbacks()
     }
+
+    // MARK: - Lifecycle
 
     func startPlayback() async {
         isLoading = true
@@ -33,8 +47,6 @@ final class PlayerViewModel {
 
         do {
             try await coordinator.preparePlayback(item: item, startFromBeginning: startFromBeginning)
-            isLoading = false
-            startPlayerStatusObserver()
             await reportStart()
             startProgressReporting()
         } catch {
@@ -43,24 +55,114 @@ final class PlayerViewModel {
         }
     }
 
-    private func startPlayerStatusObserver() {
-        // Watch for player to actually start rendering frames
-        Task {
-            while !Task.isCancelled {
-                if coordinator.player.timeControlStatus == .playing ||
-                   coordinator.player.currentItem?.status == .readyToPlay {
-                    isLoading = false
-                    return
-                }
-                try? await Task.sleep(for: .milliseconds(200))
-            }
-        }
-    }
-
     func stopPlayback() async {
         stopProgressReporting()
         await reportStop()
         coordinator.stop()
+    }
+
+    // MARK: - Controls
+
+    func togglePlayPause() {
+        coordinator.togglePlayPause()
+        showControlsTemporarily()
+    }
+
+    func seekForward() {
+        coordinator.seekForward(10)
+        showControlsTemporarily()
+    }
+
+    func seekBackward() {
+        coordinator.seekBackward(10)
+        showControlsTemporarily()
+    }
+
+    func setAudioTrack(_ index: Int) {
+        coordinator.currentAudioTrack = index
+        currentAudioIndex = index
+    }
+
+    func setSubtitleTrack(_ index: Int) {
+        coordinator.currentSubtitleTrack = index
+        currentSubtitleIndex = index
+    }
+
+    func showControlsTemporarily() {
+        showControls = true
+        controlsTimer?.cancel()
+        controlsTimer = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            showControls = false
+        }
+    }
+
+    func hideControls() {
+        controlsTimer?.cancel()
+        showControls = false
+    }
+
+    // MARK: - Callbacks
+
+    private func setupCallbacks() {
+        coordinator.onStateChanged = { [weak self] state in
+            guard let self else { return }
+            switch state {
+            case .playing:
+                isLoading = false
+                isPlaying = true
+                updateTrackLists()
+                showControlsTemporarily()
+            case .paused:
+                isPlaying = false
+                showControls = true
+            case .buffering:
+                isLoading = true
+            case .ended, .stopped:
+                isPlaying = false
+            case .error:
+                errorMessage = "Playback error"
+                isPlaying = false
+                isLoading = false
+            default:
+                break
+            }
+        }
+
+        coordinator.onTimeChanged = { [weak self] ticks in
+            guard let self else { return }
+            progress = coordinator.position
+            currentTime = formatTicks(ticks)
+
+            let dur = coordinator.durationTicks
+            if dur > 0 { totalTime = formatTicks(dur) }
+        }
+
+        coordinator.onEndReached = { [weak self] in
+            self?.isPlaying = false
+        }
+    }
+
+    private func updateTrackLists() {
+        audioTracks = coordinator.audioTracks
+        subtitleTracks = coordinator.subtitleTracks
+        currentAudioIndex = coordinator.currentAudioTrack
+        currentSubtitleIndex = coordinator.currentSubtitleTrack
+    }
+
+    // MARK: - Time Formatting
+
+    private func formatTicks(_ ticks: Int64) -> String {
+        let totalSeconds = Int(ticks / 10_000_000)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        }
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 
     // MARK: - Session Reporting
@@ -107,8 +209,6 @@ final class PlayerViewModel {
         try? await playbackService.reportPlaybackStopped(report)
     }
 
-    // MARK: - Progress Timer
-
     private func startProgressReporting() {
         progressTimer?.cancel()
         progressTimer = Task {
@@ -123,5 +223,7 @@ final class PlayerViewModel {
     private func stopProgressReporting() {
         progressTimer?.cancel()
         progressTimer = nil
+        controlsTimer?.cancel()
+        controlsTimer = nil
     }
 }

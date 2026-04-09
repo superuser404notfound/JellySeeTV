@@ -1,13 +1,18 @@
-import AVFoundation
-import AVKit
 import Foundation
+import TVVLCKit
 
 @MainActor
-final class PlaybackCoordinator {
-    let player = AVPlayer()
+final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
+    let player = VLCMediaPlayer()
     private(set) var playMethod: PlayMethod = .directPlay
     private(set) var mediaSourceID: String = ""
     private(set) var playSessionID: String?
+    private(set) var duration: Int64 = 0 // ticks
+
+    // Callbacks for state changes
+    var onStateChanged: ((VLCMediaPlayerState) -> Void)?
+    var onTimeChanged: ((Int64) -> Void)?  // position in ticks
+    var onEndReached: (() -> Void)?
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String
@@ -15,117 +20,155 @@ final class PlaybackCoordinator {
     init(playbackService: JellyfinPlaybackServiceProtocol, userID: String) {
         self.playbackService = playbackService
         self.userID = userID
+        super.init()
+        player.delegate = self
     }
 
-    /// Negotiate playback and start the stream
-    func preparePlayback(
-        item: JellyfinItem,
-        startFromBeginning: Bool
-    ) async throws {
-        // 1. Get playback info from server
+    // MARK: - Prepare and Start
+
+    func preparePlayback(item: JellyfinItem, startFromBeginning: Bool) async throws {
+        // 1. Get playback info
         let info = try await playbackService.getPlaybackInfo(itemID: item.id, userID: userID)
         playSessionID = info.playSessionId
 
-        // 2. Pick best media source
-        guard let source = pickBestSource(info.mediaSources) else {
+        // 2. Pick best source -- with VLCKit we can always DirectPlay
+        guard let source = info.mediaSources.first else {
             throw PlaybackError.noCompatibleSource
         }
         mediaSourceID = source.id
 
-        // 3. Determine play method and build URL
-        let streamURL: URL?
-        let nativeContainers: Set<String> = ["mp4", "m4v", "mov"]
-        let isNativeContainer = nativeContainers.contains(source.container?.lowercased() ?? "")
-
-        if source.supportsDirectPlay == true && isNativeContainer {
-            // Native container (mp4/mov) -- serve file directly
-            playMethod = .directPlay
-            streamURL = playbackService.buildStreamURL(
-                itemID: item.id, mediaSourceID: source.id, container: source.container, isStatic: true
-            )
-        } else if source.supportsDirectStream == true {
-            // Non-native container (mkv/webm) or DirectPlay not available
-            // Jellyfin remuxes to mp4 without re-encoding video/audio
-            playMethod = .directStream
-            streamURL = playbackService.buildStreamURL(
-                itemID: item.id, mediaSourceID: source.id, container: "mp4", isStatic: false
-            )
-        } else if source.supportsTranscoding == true, let transURL = source.transcodingUrl {
-            playMethod = .transcode
-            // Server provides relative transcoding URL, resolve against base
-            streamURL = playbackService.buildTranscodeURL(relativePath: transURL)
-        } else {
-            throw PlaybackError.noCompatibleSource
-        }
-
-        guard let url = streamURL else {
+        // 3. Build DirectPlay URL (always Static=true, VLCKit handles everything)
+        playMethod = .directPlay
+        guard let streamURL = playbackService.buildStreamURL(
+            itemID: item.id,
+            mediaSourceID: source.id,
+            container: source.container,
+            isStatic: true
+        ) else {
             throw PlaybackError.invalidStreamURL
         }
 
         #if DEBUG
-        print("[Player] Play method: \(playMethod.rawValue)")
-        print("[Player] Stream URL: \(url)")
-        print("[Player] DirectPlay: \(source.supportsDirectPlay ?? false), DirectStream: \(source.supportsDirectStream ?? false), Transcode: \(source.supportsTranscoding ?? false)")
-        print("[Player] Container: \(source.container ?? "unknown")")
+        print("[VLC Player] DirectPlay URL: \(streamURL)")
+        print("[VLC Player] Container: \(source.container ?? "?")")
         if let vs = source.mediaStreams?.first(where: { $0.type == .video }) {
-            print("[Player] Video: \(vs.codec ?? "?") \(vs.width ?? 0)x\(vs.height ?? 0)")
+            print("[VLC Player] Video: \(vs.codec ?? "?") \(vs.width ?? 0)x\(vs.height ?? 0)")
         }
         #endif
 
-        // 4. Configure AVPlayer
-        let playerItem = AVPlayerItem(url: url)
-        playerItem.preferredForwardBufferDuration = 30
-        player.replaceCurrentItem(with: playerItem)
+        // 4. Configure VLCMediaPlayer
+        let media = VLCMedia(url: streamURL)
+        media.addOptions([
+            "network-caching": 3000,
+            "clock-jitter": 0,
+        ])
+        player.media = media
 
-        // 5. Seek to resume position
-        if !startFromBeginning, let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
-            let seconds = ticks.ticksToSeconds
-            await player.seek(to: CMTime(seconds: seconds, preferredTimescale: 1000))
-        }
-
-        // 6. Set HDR/SDR display mode
-        configureDisplayMode(for: source)
-
-        // 7. Start playback
+        // 5. Start playback
         player.play()
+
+        // 6. Seek to resume position
+        if !startFromBeginning, let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
+            let ms = Int32(ticks / 10_000) // ticks to milliseconds
+            // Wait briefly for player to initialize before seeking
+            try? await Task.sleep(for: .milliseconds(500))
+            player.time = VLCTime(int: ms)
+        }
     }
 
-    /// Current playback position in Jellyfin ticks
-    var currentPositionTicks: Int64 {
-        guard let currentTime = player.currentItem?.currentTime(),
-              currentTime.isValid && !currentTime.isIndefinite else { return 0 }
-        return Int64(currentTime.seconds * 10_000_000)
+    // MARK: - Playback Controls
+
+    func togglePlayPause() {
+        if player.isPlaying {
+            player.pause()
+        } else {
+            player.play()
+        }
     }
 
-    var isPaused: Bool {
-        player.timeControlStatus == .paused
+    func seekForward(_ seconds: Int32 = 10) {
+        player.jumpForward(seconds)
+    }
+
+    func seekBackward(_ seconds: Int32 = 10) {
+        player.jumpBackward(seconds)
+    }
+
+    func seekTo(fraction: Float) {
+        player.position = fraction
     }
 
     func stop() {
-        player.pause()
-        player.replaceCurrentItem(with: nil)
-        resetDisplayMode()
+        player.stop()
     }
 
-    // MARK: - Source Selection
+    // MARK: - Position / Duration
 
-    private func pickBestSource(_ sources: [PlaybackMediaSource]) -> PlaybackMediaSource? {
-        // Prefer DirectPlay > DirectStream > Transcode
-        if let dp = sources.first(where: { $0.supportsDirectPlay == true }) { return dp }
-        if let ds = sources.first(where: { $0.supportsDirectStream == true }) { return ds }
-        if let tc = sources.first(where: { $0.supportsTranscoding == true }) { return tc }
-        return sources.first
+    var currentPositionTicks: Int64 {
+        let ms = player.time.intValue
+        return Int64(ms) * 10_000 // ms to ticks
     }
 
-    // MARK: - HDR/SDR
-
-    private func configureDisplayMode(for source: PlaybackMediaSource) {
-        // AVPlayer handles HDR/SDR display switching automatically on tvOS
-        // when the content has proper HDR metadata. No manual intervention needed.
+    var durationTicks: Int64 {
+        let ms = player.media?.length.intValue ?? 0
+        return Int64(ms) * 10_000
     }
 
-    private func resetDisplayMode() {
-        // No manual reset needed - AVPlayer restores display mode automatically
+    var position: Float {
+        player.position
+    }
+
+    var isPlaying: Bool {
+        player.isPlaying
+    }
+
+    var isPaused: Bool {
+        player.state == .paused
+    }
+
+    // MARK: - Audio Tracks
+
+    var audioTracks: [(index: Int, name: String)] {
+        guard let names = player.audioTrackNames as? [String],
+              let indexes = player.audioTrackIndexes as? [NSNumber] else { return [] }
+        return zip(indexes, names).map { (Int(truncating: $0.0), $0.1) }
+    }
+
+    var currentAudioTrack: Int {
+        get { Int(player.currentAudioTrackIndex) }
+        set { player.currentAudioTrackIndex = Int32(newValue) }
+    }
+
+    // MARK: - Subtitle Tracks
+
+    var subtitleTracks: [(index: Int, name: String)] {
+        guard let names = player.videoSubTitlesNames as? [String],
+              let indexes = player.videoSubTitlesIndexes as? [NSNumber] else { return [] }
+        return zip(indexes, names).map { (Int(truncating: $0.0), $0.1) }
+    }
+
+    var currentSubtitleTrack: Int {
+        get { Int(player.currentVideoSubTitleIndex) }
+        set { player.currentVideoSubTitleIndex = Int32(newValue) }
+    }
+
+    // MARK: - VLCMediaPlayerDelegate
+
+    nonisolated func mediaPlayerStateChanged(_ notification: Notification) {
+        Task { @MainActor in
+            let state = player.state
+            onStateChanged?(state)
+
+            if state == .ended || state == .stopped {
+                onEndReached?()
+            }
+        }
+    }
+
+    nonisolated func mediaPlayerTimeChanged(_ notification: Notification) {
+        Task { @MainActor in
+            onTimeChanged?(currentPositionTicks)
+        }
     }
 }
 
@@ -135,10 +178,8 @@ enum PlaybackError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noCompatibleSource:
-            "No compatible media source found"
-        case .invalidStreamURL:
-            "Could not build stream URL"
+        case .noCompatibleSource: "No compatible media source found"
+        case .invalidStreamURL: "Could not build stream URL"
         }
     }
 }

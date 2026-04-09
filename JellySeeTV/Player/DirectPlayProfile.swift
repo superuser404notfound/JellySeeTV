@@ -1,21 +1,13 @@
 import Foundation
-import VideoToolbox
 
-/// Builds the device profile JSON that tells Jellyfin what this Apple TV can play natively.
+/// Builds the device profile JSON that tells Jellyfin what this device can play.
+/// With VLCKit, we support virtually every format via DirectPlay.
 enum DirectPlayProfile {
-
-    /// Whether this device has hardware AV1 decode.
-    /// No current Apple TV supports AV1 (as of 2026). This check is future-proof --
-    /// it will automatically enable AV1 DirectPlay when Apple releases an Apple TV
-    /// with AV1 hardware decode support.
-    static let supportsAV1Hardware: Bool = {
-        VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1)
-    }()
 
     static func build() -> [String: Any] {
         [
-            "MaxStreamingBitrate": 120_000_000,
-            "MaxStaticBitrate": 120_000_000,
+            "MaxStreamingBitrate": 200_000_000,
+            "MaxStaticBitrate": 200_000_000,
             "MusicStreamingTranscodingBitrate": 384_000,
             "DirectPlayProfiles": directPlayProfiles,
             "TranscodingProfiles": transcodingProfiles,
@@ -25,32 +17,24 @@ enum DirectPlayProfile {
         ]
     }
 
-    // MARK: - DirectPlay (what we can play natively)
-
-    private static var videoCodecs: String {
-        var codecs = ["h264", "hevc", "vp9"]
-        if supportsAV1Hardware {
-            codecs.append("av1")
-        }
-        return codecs.joined(separator: ",")
-    }
+    // MARK: - DirectPlay (VLCKit plays everything)
 
     private static var directPlayProfiles: [[String: Any]] {
         [
             [
-                "Container": "mp4,m4v,mov",
+                "Container": "mp4,m4v,mov,mkv,webm,avi,ts,mpg,mpeg,flv,3gp,wmv,ogv,ogg",
                 "Type": "Video",
-                "VideoCodec": videoCodecs,
-                "AudioCodec": "aac,ac3,eac3,flac,alac,opus,mp3,vorbis,pcm_s16le,pcm_s24le",
+                "VideoCodec": "h264,hevc,av1,vp8,vp9,mpeg2video,mpeg4,msmpeg4v3,theora,vc1,wmv3",
+                "AudioCodec": "aac,ac3,eac3,flac,alac,opus,mp3,mp2,vorbis,dts,truehd,pcm_s16le,pcm_s24le,wmav2",
             ],
             [
-                "Container": "mp3,aac,flac,alac,m4a,m4b,ogg,opus,wav",
+                "Container": "mp3,aac,flac,alac,m4a,m4b,ogg,opus,wav,wma",
                 "Type": "Audio",
             ],
         ]
     }
 
-    // MARK: - Transcoding (fallback when DirectPlay not possible)
+    // MARK: - Transcoding (fallback, should rarely be needed)
 
     private static var transcodingProfiles: [[String: Any]] {
         [
@@ -66,59 +50,41 @@ enum DirectPlayProfile {
                 "BreakOnNonKeyFrames": true,
                 "CopyTimestamps": true,
             ],
-            [
-                "Container": "mp3",
-                "Type": "Audio",
-                "AudioCodec": "mp3",
-                "Protocol": "http",
-                "Context": "Streaming",
-            ],
         ]
     }
 
-    // MARK: - Codec Profiles (detailed capabilities)
+    // MARK: - Codec Profiles
 
     private static var codecProfiles: [[String: Any]] {
-        var profiles: [[String: Any]] = [
-            // H.264 limits
+        [
             [
                 "Type": "Video",
                 "Codec": "h264",
                 "Conditions": [
                     condition("LessThanEqual", "Width", "3840"),
                     condition("LessThanEqual", "Height", "2160"),
-                    condition("LessThanEqual", "VideoLevel", "52"),
-                    condition("NotEquals", "IsAnamorphic", "true"),
                 ],
             ],
-            // HEVC limits
             [
                 "Type": "Video",
                 "Codec": "hevc",
                 "Conditions": [
                     condition("LessThanEqual", "Width", "3840"),
                     condition("LessThanEqual", "Height", "2160"),
-                    condition("LessThanEqual", "VideoLevel", "186"),
                 ],
             ],
-        ]
-
-        // AV1 only if hardware decode available
-        if supportsAV1Hardware {
-            profiles.append([
+            [
                 "Type": "Video",
                 "Codec": "av1",
                 "Conditions": [
                     condition("LessThanEqual", "Width", "3840"),
                     condition("LessThanEqual", "Height", "2160"),
                 ],
-            ])
-        }
-
-        return profiles
+            ],
+        ]
     }
 
-    // MARK: - Subtitle Profiles
+    // MARK: - Subtitle Profiles (VLCKit renders all formats)
 
     private static var subtitleProfiles: [[String: Any]] {
         [
@@ -131,6 +97,8 @@ enum DirectPlayProfile {
             ["Format": "pgssub", "Method": "Embed"],
             ["Format": "dvdsub", "Method": "Embed"],
             ["Format": "pgs", "Method": "Embed"],
+            ["Format": "dvbsub", "Method": "Embed"],
+            ["Format": "idx", "Method": "External"],
         ]
     }
 
