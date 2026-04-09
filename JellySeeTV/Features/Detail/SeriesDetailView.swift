@@ -5,6 +5,7 @@ struct SeriesDetailView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: DetailViewModel?
     @State private var selectedEpisode: JellyfinItem?
+    @State private var navigateToItem: JellyfinItem?
     @State private var backdropURL: URL?
     @FocusState private var focusedSeasonID: String?
     @FocusState private var focusedEpisodeID: String?
@@ -64,6 +65,7 @@ struct SeriesDetailView: View {
                             title: "detail.similar",
                             items: vm.similarItems,
                             imageURLProvider: { vm.posterURL(for: $0) },
+                            onItemSelected: { navigateToItem = $0 },
                             cardStyle: .poster
                         )
                     }
@@ -73,6 +75,9 @@ struct SeriesDetailView: View {
             }
         }
         .ignoresSafeArea()
+        .navigationDestination(item: $navigateToItem) { item in
+            DetailRouterView(item: item)
+        }
         .onAppear {
             if viewModel == nil, let userID = appState.activeUser?.id {
                 viewModel = DetailViewModel(

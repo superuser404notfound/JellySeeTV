@@ -5,6 +5,7 @@ struct MovieDetailView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: DetailViewModel?
     @State private var navigateToSeries: JellyfinItem?
+    @State private var navigateToItem: JellyfinItem?
 
     let item: JellyfinItem
 
@@ -18,6 +19,9 @@ struct MovieDetailView: View {
             }
         }
         .ignoresSafeArea()
+        .navigationDestination(item: $navigateToItem) { item in
+            DetailRouterView(item: item)
+        }
         .navigationDestination(item: $navigateToSeries) { series in
             SeriesDetailView(item: series)
                 .toolbar(.hidden, for: .tabBar)
@@ -71,6 +75,7 @@ struct MovieDetailView: View {
                         title: "detail.similar",
                         items: vm.similarItems,
                         imageURLProvider: { vm.posterURL(for: $0) },
+                        onItemSelected: { navigateToItem = $0 },
                         cardStyle: .poster
                     )
                 }
