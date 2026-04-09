@@ -294,17 +294,17 @@ struct SeriesDetailView: View {
                     }
                     .padding(.horizontal, 50)
                 }
-                .onChange(of: focusedSeasonID) { _, newID in
-                    // When any season gets focus, redirect to the selected one
-                    if newID != nil && newID != vm.selectedSeasonID {
+                .onChange(of: focusedSeasonID) { oldID, newID in
+                    // Only redirect when focus ENTERS the season section from outside
+                    // (oldID was nil = coming from episodes or other section)
+                    if oldID == nil && newID != nil && newID != vm.selectedSeasonID {
                         focusedSeasonID = vm.selectedSeasonID
                     }
-                    if let selectedID = vm.selectedSeasonID {
-                        withAnimation { proxy.scrollTo(selectedID, anchor: .center) }
+                    if let focusedID = focusedSeasonID {
+                        withAnimation { proxy.scrollTo(focusedID, anchor: .center) }
                     }
                 }
                 .onChange(of: vm.selectedSeasonID) { _, newID in
-                    focusedSeasonID = newID
                     withAnimation { proxy.scrollTo(newID, anchor: .center) }
                 }
             }
