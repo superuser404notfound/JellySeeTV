@@ -57,6 +57,10 @@ final class PlayerViewModel {
             engine = coordinator.engine
 
             if engine == .avPlayer {
+                // preparePlayback already waited for readyToPlay + seek + play()
+                // So by this point video and audio are synced
+                isLoading = false
+                isPlaying = true
                 setupAVPlayerObservers()
             }
 
@@ -117,18 +121,12 @@ final class PlayerViewModel {
     // MARK: - AVPlayer Observers
 
     private func setupAVPlayerObservers() {
-        // Periodic time observer
         avPlayerObserver = coordinator.avPlayer.addPeriodicTimeObserver(
             forInterval: CMTime(value: 1, timescale: 2),
             queue: .main
         ) { [weak self] _ in
             guard let self else { return }
-            let status = self.coordinator.avPlayer.timeControlStatus
-            if status == .playing && self.isLoading {
-                self.isLoading = false
-                self.isPlaying = true
-            }
-            self.isPlaying = status == .playing
+            self.isPlaying = self.coordinator.avPlayer.timeControlStatus == .playing
         }
     }
 

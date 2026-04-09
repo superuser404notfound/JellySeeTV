@@ -1,5 +1,6 @@
 import AVFoundation
 import AVKit
+import Combine
 import Foundation
 import TVVLCKit
 
@@ -10,23 +11,20 @@ enum PlayerEngine: Sendable {
 
 @MainActor
 final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
-    // Engines
     let avPlayer = AVPlayer()
     let vlcPlayer = VLCMediaPlayer()
     private(set) var engine: PlayerEngine = .avPlayer
-
-    // Playback state
     private(set) var playMethod: PlayMethod = .directPlay
     private(set) var mediaSourceID: String = ""
     private(set) var playSessionID: String?
 
-    // VLCKit callbacks
     var onVLCStateChanged: ((VLCMediaPlayerState) -> Void)?
     var onVLCTimeChanged: ((Int64) -> Void)?
     var onVLCEndReached: (() -> Void)?
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String
+    private var cancellables = Set<AnyCancellable>()
     private static let nativeContainers: Set<String> = ["mp4", "m4v", "mov"]
 
     init(playbackService: JellyfinPlaybackServiceProtocol, userID: String) {
@@ -39,13 +37,9 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
     // MARK: - Prepare Playback
 
     func preparePlayback(item: JellyfinItem, startFromBeginning: Bool, cachedPlaybackInfo: PlaybackInfoResponse? = nil) async throws {
-        // Step 1: Use cached info or fetch fresh
         let avInfo: PlaybackInfoResponse
         if let cached = cachedPlaybackInfo {
             avInfo = cached
-            #if DEBUG
-            print("[Player] Using cached PlaybackInfo")
-            #endif
         } else {
             avInfo = try await playbackService.getPlaybackInfo(
                 itemID: item.id, userID: userID,
@@ -62,7 +56,6 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
         let isNative = Self.nativeContainers.contains(source.container?.lowercased() ?? "")
 
         if source.supportsDirectPlay == true && isNative {
-            // Path 1: AVPlayer DirectPlay (MP4/MOV -- instant)
             engine = .avPlayer
             playMethod = .directPlay
             guard let url = playbackService.buildStreamURL(
@@ -70,89 +63,96 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
                 container: source.container, isStatic: true
             ) else { throw PlaybackError.invalidStreamURL }
 
-            #if DEBUG
-            print("[Player] Engine: AVPlayer DirectPlay")
-            print("[Player] URL: \(url)")
-            #endif
-
-            await startAVPlayer(url: url, item: item, startFromBeginning: startFromBeginning)
+            try await startAVPlayer(url: url, item: item, startFromBeginning: startFromBeginning)
             return
         }
 
         if source.supportsTranscoding == true, let transURL = source.transcodingUrl {
-            // Path 2: AVPlayer HLS Remux (MKV → HLS, only container change, 2-3s)
             engine = .avPlayer
             playMethod = .directStream
             guard let url = playbackService.buildTranscodeURL(relativePath: transURL) else {
                 throw PlaybackError.invalidStreamURL
             }
 
-            #if DEBUG
-            print("[Player] Engine: AVPlayer HLS Remux")
-            print("[Player] URL: \(url)")
-            #endif
-
-            await startAVPlayer(url: url, item: item, startFromBeginning: startFromBeginning)
+            try await startAVPlayer(url: url, item: item, startFromBeginning: startFromBeginning)
             return
         }
 
-        // Step 2: VLCKit fallback for exotic codecs
-        let vlcInfo = try await playbackService.getPlaybackInfo(
-            itemID: item.id, userID: userID,
-            profile: DirectPlayProfile.vlcKitProfile()
-        )
-        guard let vlcSource = vlcInfo.mediaSources.first else {
-            throw PlaybackError.noCompatibleSource
-        }
-        mediaSourceID = vlcSource.id
-        playSessionID = vlcInfo.playSessionId
-
+        // VLCKit fallback -- reuse same source info, no extra API call
         engine = .vlcKit
         playMethod = .directPlay
         guard let url = playbackService.buildStreamURL(
-            itemID: item.id, mediaSourceID: vlcSource.id,
-            container: vlcSource.container, isStatic: true
+            itemID: item.id, mediaSourceID: source.id,
+            container: source.container, isStatic: true
         ) else { throw PlaybackError.invalidStreamURL }
-
-        #if DEBUG
-        print("[Player] Engine: VLCKit DirectPlay")
-        print("[Player] URL: \(url)")
-        #endif
 
         let media = VLCMedia(url: url)
         media.addOptions(["network-caching": 1500])
         vlcPlayer.media = media
         vlcPlayer.play()
         if !startFromBeginning, let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
-            try? await Task.sleep(for: .milliseconds(500))
+            try? await Task.sleep(for: .milliseconds(800))
             vlcPlayer.time = VLCTime(int: Int32(ticks / 10_000))
         }
     }
 
     // MARK: - AVPlayer Setup
 
-    private func startAVPlayer(url: URL, item: JellyfinItem, startFromBeginning: Bool) async {
+    private func startAVPlayer(url: URL, item: JellyfinItem, startFromBeginning: Bool) async throws {
         let playerItem = AVPlayerItem(url: url)
-        playerItem.preferredForwardBufferDuration = 5
+        playerItem.preferredForwardBufferDuration = 10
+
+        // Don't auto-play -- we control when playback starts
         avPlayer.automaticallyWaitsToMinimizeStalling = true
         avPlayer.replaceCurrentItem(with: playerItem)
 
-        // Wait until player has enough data to start without audio-before-video
-        await waitForReadyToPlay(playerItem)
+        // Wait for the player item to actually be ready (proper KVO, not polling)
+        try await waitForPlayerReady(playerItem)
 
+        // Seek BEFORE play, using completion handler
         if !startFromBeginning, let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
-            await avPlayer.seek(to: CMTime(seconds: ticks.ticksToSeconds, preferredTimescale: 1000))
+            await seekAVPlayer(to: ticks.ticksToSeconds)
         }
 
+        // Start playback only after item is ready and seek is complete
         avPlayer.play()
     }
 
-    private func waitForReadyToPlay(_ item: AVPlayerItem) async {
-        // Wait up to 10 seconds for the item to be ready
-        for _ in 0..<100 {
-            if item.status == .readyToPlay { return }
-            if item.status == .failed { return }
-            try? await Task.sleep(for: .milliseconds(100))
+    private func waitForPlayerReady(_ item: AVPlayerItem) async throws {
+        // Use Combine to properly observe status changes instead of polling
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            var resumed = false
+
+            item.publisher(for: \.status)
+                .filter { $0 != .unknown }
+                .first()
+                .sink { status in
+                    guard !resumed else { return }
+                    resumed = true
+                    if status == .readyToPlay {
+                        continuation.resume()
+                    } else {
+                        continuation.resume(throwing: PlaybackError.invalidStreamURL)
+                    }
+                }
+                .store(in: &cancellables)
+
+            // Timeout after 15 seconds
+            Task {
+                try? await Task.sleep(for: .seconds(15))
+                guard !resumed else { return }
+                resumed = true
+                continuation.resume(throwing: PlaybackError.invalidStreamURL)
+            }
+        }
+    }
+
+    private func seekAVPlayer(to seconds: TimeInterval) async {
+        await withCheckedContinuation { continuation in
+            let time = CMTime(seconds: seconds, preferredTimescale: 10000)
+            avPlayer.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
+                continuation.resume()
+            }
         }
     }
 
@@ -161,11 +161,7 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
     func togglePlayPause() {
         switch engine {
         case .avPlayer:
-            if avPlayer.timeControlStatus == .playing {
-                avPlayer.pause()
-            } else {
-                avPlayer.play()
-            }
+            if avPlayer.timeControlStatus == .playing { avPlayer.pause() } else { avPlayer.play() }
         case .vlcKit:
             if vlcPlayer.isPlaying { vlcPlayer.pause() } else { vlcPlayer.play() }
         }
@@ -192,6 +188,7 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
     }
 
     func stop() {
+        cancellables.removeAll()
         switch engine {
         case .avPlayer:
             avPlayer.pause()
@@ -228,7 +225,7 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
         }
     }
 
-    // MARK: - VLCKit Audio/Subtitle Tracks
+    // MARK: - VLCKit Tracks
 
     var vlcAudioTracks: [(index: Int, name: String)] {
         guard engine == .vlcKit,
