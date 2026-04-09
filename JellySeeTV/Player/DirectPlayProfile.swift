@@ -1,8 +1,21 @@
 import Foundation
 
+import UIKit
+
 /// Builds device profiles for Jellyfin playback negotiation.
 /// Two profiles: AVPlayer (primary, fast start) and VLCKit (fallback, universal).
 enum DirectPlayProfile {
+
+    /// Whether the connected display supports HDR
+    static var displaySupportsHDR: Bool {
+        #if os(tvOS)
+        let screen = UIScreen.main
+        // Check if display supports HDR (Dolby Vision, HDR10, HLG)
+        return screen.traitCollection.displayGamut == .P3
+        #else
+        return false
+        #endif
+    }
 
     /// AVPlayer profile: native containers + HLS remux for MKV
     static func avPlayerProfile() -> [String: Any] {
@@ -37,24 +50,7 @@ enum DirectPlayProfile {
                 ],
             ] as [[String: Any]],
             "ContainerProfiles": [] as [Any],
-            "CodecProfiles": [
-                [
-                    "Type": "Video",
-                    "Codec": "h264",
-                    "Conditions": [
-                        condition("LessThanEqual", "Width", "3840"),
-                        condition("LessThanEqual", "Height", "2160"),
-                    ],
-                ],
-                [
-                    "Type": "Video",
-                    "Codec": "hevc",
-                    "Conditions": [
-                        condition("LessThanEqual", "Width", "3840"),
-                        condition("LessThanEqual", "Height", "2160"),
-                    ],
-                ],
-            ] as [[String: Any]],
+            "CodecProfiles": avPlayerCodecProfiles,
             "SubtitleProfiles": [
                 ["Format": "srt", "Method": "External"],
                 ["Format": "ass", "Method": "External"],
@@ -95,6 +91,28 @@ enum DirectPlayProfile {
                 ["Format": "pgs", "Method": "Embed"],
                 ["Format": "dvbsub", "Method": "Embed"],
             ] as [[String: Any]],
+        ]
+    }
+
+    private static var avPlayerCodecProfiles: [[String: Any]] {
+        var conditions264: [[String: Any]] = [
+            condition("LessThanEqual", "Width", "3840"),
+            condition("LessThanEqual", "Height", "2160"),
+        ]
+        var conditionsHEVC: [[String: Any]] = [
+            condition("LessThanEqual", "Width", "3840"),
+            condition("LessThanEqual", "Height", "2160"),
+        ]
+
+        // If display doesn't support HDR, tell Jellyfin to only DirectPlay SDR content
+        // HDR content will be transcoded with tone-mapping to SDR
+        if !displaySupportsHDR {
+            conditionsHEVC.append(condition("Equals", "VideoRangeType", "SDR"))
+        }
+
+        return [
+            ["Type": "Video", "Codec": "h264", "Conditions": conditions264],
+            ["Type": "Video", "Codec": "hevc", "Conditions": conditionsHEVC],
         ]
     }
 

@@ -129,11 +129,23 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
         avPlayer.automaticallyWaitsToMinimizeStalling = true
         avPlayer.replaceCurrentItem(with: playerItem)
 
+        // Wait until player has enough data to start without audio-before-video
+        await waitForReadyToPlay(playerItem)
+
         if !startFromBeginning, let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
             await avPlayer.seek(to: CMTime(seconds: ticks.ticksToSeconds, preferredTimescale: 1000))
         }
 
         avPlayer.play()
+    }
+
+    private func waitForReadyToPlay(_ item: AVPlayerItem) async {
+        // Wait up to 10 seconds for the item to be ready
+        for _ in 0..<100 {
+            if item.status == .readyToPlay { return }
+            if item.status == .failed { return }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
     }
 
     // MARK: - Controls
