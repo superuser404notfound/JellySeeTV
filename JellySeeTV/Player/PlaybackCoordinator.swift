@@ -67,12 +67,7 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
             print("[Player] URL: \(url)")
             #endif
 
-            let playerItem = AVPlayerItem(url: url)
-            avPlayer.replaceCurrentItem(with: playerItem)
-            if !startFromBeginning, let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
-                await avPlayer.seek(to: CMTime(seconds: ticks.ticksToSeconds, preferredTimescale: 1000))
-            }
-            avPlayer.play()
+            await startAVPlayer(url: url, item: item, startFromBeginning: startFromBeginning)
             return
         }
 
@@ -89,12 +84,7 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
             print("[Player] URL: \(url)")
             #endif
 
-            let playerItem = AVPlayerItem(url: url)
-            avPlayer.replaceCurrentItem(with: playerItem)
-            if !startFromBeginning, let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
-                await avPlayer.seek(to: CMTime(seconds: ticks.ticksToSeconds, preferredTimescale: 1000))
-            }
-            avPlayer.play()
+            await startAVPlayer(url: url, item: item, startFromBeginning: startFromBeginning)
             return
         }
 
@@ -129,6 +119,21 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
             try? await Task.sleep(for: .milliseconds(500))
             vlcPlayer.time = VLCTime(int: Int32(ticks / 10_000))
         }
+    }
+
+    // MARK: - AVPlayer Setup
+
+    private func startAVPlayer(url: URL, item: JellyfinItem, startFromBeginning: Bool) async {
+        let playerItem = AVPlayerItem(url: url)
+        playerItem.preferredForwardBufferDuration = 5
+        avPlayer.automaticallyWaitsToMinimizeStalling = true
+        avPlayer.replaceCurrentItem(with: playerItem)
+
+        if !startFromBeginning, let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
+            await avPlayer.seek(to: CMTime(seconds: ticks.ticksToSeconds, preferredTimescale: 1000))
+        }
+
+        avPlayer.play()
     }
 
     // MARK: - Controls
