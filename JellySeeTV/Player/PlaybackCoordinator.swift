@@ -37,13 +37,13 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
         }
         mediaSourceID = source.id
 
-        // 3. Build DirectPlay URL (always Static=true, VLCKit handles everything)
+        // 3. Build stream URL -- no Static=true so Jellyfin streams progressively
         playMethod = .directPlay
         guard let streamURL = playbackService.buildStreamURL(
             itemID: item.id,
             mediaSourceID: source.id,
             container: source.container,
-            isStatic: true
+            isStatic: false
         ) else {
             throw PlaybackError.invalidStreamURL
         }

@@ -1,5 +1,4 @@
 import SwiftUI
-import GameController
 
 struct PlayerView: View {
     @State private var viewModel: PlayerViewModel
@@ -22,11 +21,11 @@ struct PlayerView: View {
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
-                // VLC Video output
+                // VLC Video
                 VLCPlayerWrapper(player: viewModel.coordinator.player)
                     .ignoresSafeArea()
 
-                // Loading overlay
+                // Loading
                 if viewModel.isLoading {
                     Color.black
                         .ignoresSafeArea()
@@ -34,7 +33,7 @@ struct PlayerView: View {
                         .transition(.opacity)
                 }
 
-                // Transport controls overlay
+                // Transport overlay
                 if viewModel.showControls && !viewModel.isLoading {
                     TransportOverlay(
                         title: viewModel.item.name,
@@ -54,6 +53,35 @@ struct PlayerView: View {
                     )
                     .transition(.opacity)
                 }
+
+                // Invisible tap catcher for showing/hiding controls
+                if !viewModel.isLoading {
+                    Color.clear
+                        .ignoresSafeArea()
+                        .focusable()
+                        .onPlayPauseCommand {
+                            viewModel.togglePlayPause()
+                        }
+                        .onExitCommand {
+                            dismissPlayer()
+                        }
+                        .onMoveCommand { direction in
+                            switch direction {
+                            case .left:
+                                viewModel.seekBackward()
+                            case .right:
+                                viewModel.seekForward()
+                            case .up, .down:
+                                if viewModel.showControls {
+                                    // Let focus system handle navigation to buttons
+                                } else {
+                                    viewModel.showControlsTemporarily()
+                                }
+                            @unknown default:
+                                break
+                            }
+                        }
+                }
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
@@ -61,68 +89,19 @@ struct PlayerView: View {
         .task {
             await viewModel.startPlayback()
         }
-        .onAppear { setupRemoteHandling() }
         .onDisappear {
             viewModel.coordinator.stop()
             Task { await viewModel.stopPlayback() }
         }
     }
 
-    // MARK: - Siri Remote
-
-    private func setupRemoteHandling() {
-        // Menu button = exit player
-        let menuPress = UITapGestureRecognizer(target: RemoteHandler.shared, action: #selector(RemoteHandler.menuPressed))
-        menuPress.allowedPressTypes = [NSNumber(value: UIPress.PressType.menu.rawValue)]
-        RemoteHandler.shared.onMenu = { [onDismiss] in
-            Task { @MainActor in
-                await viewModel.stopPlayback()
-                onDismiss()
-            }
-        }
-
-        // Play/Pause button
-        let playPausePress = UITapGestureRecognizer(target: RemoteHandler.shared, action: #selector(RemoteHandler.playPausePressed))
-        playPausePress.allowedPressTypes = [NSNumber(value: UIPress.PressType.playPause.rawValue)]
-        RemoteHandler.shared.onPlayPause = {
-            viewModel.togglePlayPause()
-        }
-
-        // Select button (tap on trackpad) = show/hide controls
-        let selectPress = UITapGestureRecognizer(target: RemoteHandler.shared, action: #selector(RemoteHandler.selectPressed))
-        selectPress.allowedPressTypes = [NSNumber(value: UIPress.PressType.select.rawValue)]
-        RemoteHandler.shared.onSelect = {
-            if viewModel.showControls {
-                viewModel.hideControls()
-            } else {
-                viewModel.showControlsTemporarily()
-            }
-        }
-
-        // Swipe left/right for seeking
-        let swipeLeft = UISwipeGestureRecognizer(target: RemoteHandler.shared, action: #selector(RemoteHandler.swipedLeft))
-        swipeLeft.direction = .left
-        RemoteHandler.shared.onSwipeLeft = { viewModel.seekBackward() }
-
-        let swipeRight = UISwipeGestureRecognizer(target: RemoteHandler.shared, action: #selector(RemoteHandler.swipedRight))
-        swipeRight.direction = .right
-        RemoteHandler.shared.onSwipeRight = { viewModel.seekForward() }
-
-        // Add gestures to the key window
-        if let window = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first?.windows.first {
-            // Remove old gestures
-            window.gestureRecognizers?.forEach { window.removeGestureRecognizer($0) }
-            window.addGestureRecognizer(menuPress)
-            window.addGestureRecognizer(playPausePress)
-            window.addGestureRecognizer(selectPress)
-            window.addGestureRecognizer(swipeLeft)
-            window.addGestureRecognizer(swipeRight)
+    private func dismissPlayer() {
+        viewModel.coordinator.stop()
+        Task {
+            await viewModel.stopPlayback()
+            onDismiss()
         }
     }
-
-    // MARK: - Error View
 
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 16) {
@@ -138,23 +117,4 @@ struct PlayerView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black)
     }
-}
-
-// MARK: - Remote Handler (ObjC target for gesture recognizers)
-
-@MainActor
-final class RemoteHandler: NSObject {
-    static let shared = RemoteHandler()
-
-    var onMenu: (() -> Void)?
-    var onPlayPause: (() -> Void)?
-    var onSelect: (() -> Void)?
-    var onSwipeLeft: (() -> Void)?
-    var onSwipeRight: (() -> Void)?
-
-    @objc func menuPressed() { onMenu?() }
-    @objc func playPausePressed() { onPlayPause?() }
-    @objc func selectPressed() { onSelect?() }
-    @objc func swipedLeft() { onSwipeLeft?() }
-    @objc func swipedRight() { onSwipeRight?() }
 }
