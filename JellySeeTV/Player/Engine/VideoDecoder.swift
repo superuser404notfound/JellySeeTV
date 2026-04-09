@@ -4,7 +4,7 @@ import CoreVideo
 #if !targetEnvironment(simulator)
 import CFFmpeg
 
-nonisolated struct DecodedVideoFrame {
+nonisolated struct DecodedVideoFrame: @unchecked Sendable {
     let pixelBuffer: CVPixelBuffer
     let pts: Double
     let duration: Double
