@@ -1,17 +1,14 @@
 import SwiftUI
 
-/// Native tvOS-style transport bar for the video player.
+/// Native tvOS-style transport bar — progress bar + time labels only.
+/// All controls via Siri Remote gestures (no on-screen buttons).
 struct TransportBar: View {
     let progress: Float
     let currentTime: String
     let remainingTime: String
-    let isPlaying: Bool
-    let onSeekBackward: () -> Void
-    let onTogglePlayPause: () -> Void
-    let onSeekForward: () -> Void
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 10) {
             // Progress bar
             progressBar
 
@@ -31,28 +28,6 @@ struct TransportBar: View {
                     .monospacedDigit()
                     .foregroundStyle(.white.opacity(0.7))
             }
-
-            // Transport buttons
-            HStack(spacing: 50) {
-                PlayerControlButton(
-                    systemName: "gobackward.10",
-                    size: 36,
-                    action: onSeekBackward
-                )
-
-                PlayerControlButton(
-                    systemName: isPlaying ? "pause.fill" : "play.fill",
-                    size: 44,
-                    action: onTogglePlayPause
-                )
-
-                PlayerControlButton(
-                    systemName: "goforward.10",
-                    size: 36,
-                    action: onSeekForward
-                )
-            }
-            .padding(.top, 4)
         }
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
@@ -88,45 +63,9 @@ struct TransportBar: View {
     }
 }
 
-// MARK: - Focusable Player Button
-
-/// A tvOS-focusable button for player controls with scale + glow on focus.
-struct PlayerControlButton: View {
-    let systemName: String
-    let size: CGFloat
-    let action: () -> Void
-
-    @Environment(\.isFocused) private var isFocused
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemName)
-                .font(.system(size: size, weight: .medium))
-                .foregroundStyle(.white)
-                .frame(width: size + 30, height: size + 30)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(PlayerButtonStyle())
-    }
-}
-
-/// Custom tvOS button style: scales up and glows when focused.
-struct PlayerButtonStyle: ButtonStyle {
-    @Environment(\.isFocused) private var isFocused
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(isFocused ? 1.2 : 1.0)
-            .opacity(configuration.isPressed ? 0.6 : 1.0)
-            .shadow(color: isFocused ? .white.opacity(0.5) : .clear, radius: 10)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
-    }
-}
-
 // MARK: - Title Overlay
 
-/// Title overlay that appears at the top of the player when transport is visible.
+/// Title overlay at the top of the player when transport is visible.
 struct PlayerTitleOverlay: View {
     let item: JellyfinItem
 

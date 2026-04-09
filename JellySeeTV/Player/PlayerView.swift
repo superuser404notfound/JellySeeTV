@@ -27,6 +27,12 @@ struct PlayerView: View {
                 VideoLayerView(renderer: viewModel.engine.videoRenderer)
                     .ignoresSafeArea()
 
+                // Tap handler — click on remote toggles overlay
+                RemoteTapHandler(onTap: {
+                    viewModel.toggleControls()
+                })
+                .ignoresSafeArea()
+
                 // Loading overlay
                 if viewModel.isLoading {
                     Color.black
@@ -35,70 +41,44 @@ struct PlayerView: View {
                         .transition(.opacity)
                 }
 
-                // When controls hidden: invisible focusable to catch remote input
-                if !viewModel.showControls && !viewModel.isLoading {
-                    Color.clear
-                        .focusable()
-                        .onMoveCommand { direction in
-                            switch direction {
-                            case .left: viewModel.seekBackward()
-                            case .right: viewModel.seekForward()
-                            default: viewModel.showControlsTemporarily()
-                            }
-                        }
-                        .onPlayPauseCommand {
-                            viewModel.togglePlayPause()
-                        }
-                        .onExitCommand {
-                            dismissPlayer()
-                        }
-                }
-
-                // Transport UI (native tvOS style)
+                // Transport overlay (native tvOS style)
                 if viewModel.showControls && !viewModel.isLoading {
-                    // Gradients for readability
                     gradientOverlays
                         .transition(.opacity)
 
-                    // Title at top
                     VStack {
                         PlayerTitleOverlay(item: viewModel.item)
                         Spacer()
                     }
                     .transition(.opacity)
 
-                    // Transport bar at bottom
                     VStack {
                         Spacer()
                         TransportBar(
                             progress: viewModel.progress,
                             currentTime: viewModel.currentTime,
-                            remainingTime: viewModel.remainingTime,
-                            isPlaying: viewModel.isPlaying,
-                            onSeekBackward: { viewModel.seekBackward() },
-                            onTogglePlayPause: { viewModel.togglePlayPause() },
-                            onSeekForward: { viewModel.seekForward() }
+                            remainingTime: viewModel.remainingTime
                         )
                     }
                     .transition(.opacity)
-                    .onExitCommand {
-                        dismissPlayer()
-                    }
-                    .onMoveCommand { direction in
-                        switch direction {
-                        case .left: viewModel.seekBackward()
-                        case .right: viewModel.seekForward()
-                        default: viewModel.showControlsTemporarily()
-                        }
-                    }
-                    .onPlayPauseCommand {
-                        viewModel.togglePlayPause()
-                    }
                 }
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
+        .onPlayPauseCommand {
+            viewModel.togglePlayPause()
+        }
+        .onExitCommand {
+            dismissPlayer()
+        }
+        .onMoveCommand { direction in
+            switch direction {
+            case .left: viewModel.seekBackward()
+            case .right: viewModel.seekForward()
+            default: viewModel.showControlsTemporarily()
+            }
+        }
         .task {
             await viewModel.startPlayback()
         }
@@ -112,7 +92,6 @@ struct PlayerView: View {
 
     private var gradientOverlays: some View {
         ZStack {
-            // Bottom gradient
             VStack {
                 Spacer()
                 LinearGradient(
@@ -124,7 +103,6 @@ struct PlayerView: View {
             }
             .ignoresSafeArea()
 
-            // Top gradient
             VStack {
                 LinearGradient(
                     colors: [.black.opacity(0.7), .clear],
