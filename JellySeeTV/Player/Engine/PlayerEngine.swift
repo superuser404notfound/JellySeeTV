@@ -80,10 +80,21 @@ final class PlayerEngine {
         let aOutput = AudioOutput()
         if dmx.audioStreamIndex >= 0,
            let codecPar = dmx.codecParameters(for: dmx.audioStreamIndex) {
-            aDecoder = try AudioDecoder(codecParameters: codecPar)
-            if let format = aDecoder?.audioFormat {
-                let startPTS = startPosition ?? 0
-                try aOutput.start(format: format, startPTS: startPTS)
+            do {
+                aDecoder = try AudioDecoder(codecParameters: codecPar)
+                if let format = aDecoder?.audioFormat {
+                    let startPTS = startPosition ?? 0
+                    try aOutput.start(format: format, startPTS: startPTS)
+                } else {
+                    #if DEBUG
+                    print("[PlayerEngine] WARNING: AudioDecoder has no audioFormat")
+                    #endif
+                }
+            } catch {
+                #if DEBUG
+                print("[PlayerEngine] Audio init error: \(error)")
+                #endif
+                // Continue without audio
             }
         }
         audioDecoder = aDecoder
