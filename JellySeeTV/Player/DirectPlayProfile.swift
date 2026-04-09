@@ -136,12 +136,12 @@ enum DirectPlayProfile {
 
     // MARK: - Helpers
 
-    private static func condition(_ condition: String, _ property: String, _ value: String) -> [String: String] {
+    private static func condition(_ condition: String, _ property: String, _ value: String) -> [String: Any] {
         [
             "Condition": condition,
             "Property": property,
             "Value": value,
-            "IsRequired": "false",
+            "IsRequired": false,
         ]
     }
 }
