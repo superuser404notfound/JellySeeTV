@@ -174,14 +174,18 @@ nonisolated final class Demuxer: @unchecked Sendable {
             ret = av_read_frame(ctx, pkt)
             if ret >= 0 { break } // Success
 
-            let averror_eof = Int32(-541478725) // AVERROR_EOF
-            let averror_eagain = Int32(-11) // EAGAIN
+            #if DEBUG
+            if retries == 0 {
+                print("[Demuxer] av_read_frame error: \(ret) (\(errorString(ret)))")
+            }
+            #endif
 
+            let averror_eof = Int32(-541478725) // AVERROR_EOF
             if ret == averror_eof {
                 #if DEBUG
                 print("[Demuxer] True EOF reached")
                 #endif
-                return nil // Actual end of file
+                return nil
             }
 
             // Retry on temporary errors
