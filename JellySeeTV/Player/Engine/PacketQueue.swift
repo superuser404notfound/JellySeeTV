@@ -1,11 +1,9 @@
 import Foundation
 
 /// Thread-safe bounded queue for demuxed packets.
-/// Blocks on enqueue when full, blocks on dequeue when empty.
 nonisolated final class PacketQueue: @unchecked Sendable {
     private var packets: [DemuxedPacket] = []
-    private let lock = NSLock()
-    private let notEmpty = NSCondition()
+    private let condition = NSCondition()
     private let capacity: Int
     private var isFlushed = false
 
@@ -13,47 +11,42 @@ nonisolated final class PacketQueue: @unchecked Sendable {
         self.capacity = capacity
     }
 
-    /// Enqueue a packet. Blocks if queue is at capacity.
     func enqueue(_ packet: DemuxedPacket) {
-        lock.lock()
-        // Wait if full (but don't block indefinitely)
+        condition.lock()
         while packets.count >= capacity && !isFlushed {
-            lock.unlock()
-            Thread.sleep(forTimeInterval: 0.001) // 1ms backpressure
-            lock.lock()
+            condition.unlock()
+            Thread.sleep(forTimeInterval: 0.001)
+            condition.lock()
         }
-        guard !isFlushed else {
-            lock.unlock()
-            return
+        if !isFlushed {
+            packets.append(packet)
         }
-        packets.append(packet)
-        lock.unlock()
-        notEmpty.signal()
+        condition.signal()
+        condition.unlock()
     }
 
-    /// Dequeue the next packet. Returns nil if flushed or timeout.
     func dequeue(timeout: TimeInterval = 0.1) -> DemuxedPacket? {
-        notEmpty.lock()
+        condition.lock()
+        let deadline = Date().addingTimeInterval(timeout)
         while packets.isEmpty && !isFlushed {
-            if !notEmpty.wait(until: Date().addingTimeInterval(timeout)) {
-                notEmpty.unlock()
-                return nil // Timeout
+            if !condition.wait(until: deadline) {
+                condition.unlock()
+                return nil
             }
         }
-        guard !packets.isEmpty else {
-            notEmpty.unlock()
+        if packets.isEmpty {
+            condition.unlock()
             return nil
         }
         let packet = packets.removeFirst()
-        notEmpty.unlock()
+        condition.unlock()
         return packet
     }
 
-    /// Number of packets currently queued
     var count: Int {
-        lock.lock()
+        condition.lock()
         let c = packets.count
-        lock.unlock()
+        condition.unlock()
         return c
     }
 
@@ -61,20 +54,18 @@ nonisolated final class PacketQueue: @unchecked Sendable {
         count == 0
     }
 
-    /// Flush all packets (called on seek or stop)
     func flush() {
-        lock.lock()
+        condition.lock()
         isFlushed = true
         packets.removeAll()
-        lock.unlock()
-        notEmpty.broadcast() // Wake any waiting dequeue
+        condition.signal()
+        condition.unlock()
     }
 
-    /// Reset after flush (ready to receive new packets)
     func reset() {
-        lock.lock()
+        condition.lock()
         isFlushed = false
         packets.removeAll()
-        lock.unlock()
+        condition.unlock()
     }
 }
