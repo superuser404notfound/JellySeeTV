@@ -8,7 +8,7 @@ struct SeriesDetailView: View {
     @State private var navigateToEpisode: JellyfinItem?
     @FocusState private var focusedSeasonID: String?
     @FocusState private var focusedEpisodeID: String?
-    @State private var hasEnteredEpisodes = false
+    @State private var episodeRedirectDone = false
 
     let item: JellyfinItem
 
@@ -297,16 +297,20 @@ struct SeriesDetailView: View {
                     .padding(.horizontal, 50)
                 }
                 .onChange(of: focusedSeasonID) { oldID, newID in
-                    // Only redirect when focus ENTERS the season section from outside
-                    // (oldID was nil = coming from episodes or other section)
                     if oldID == nil && newID != nil && newID != vm.selectedSeasonID {
                         focusedSeasonID = vm.selectedSeasonID
                     }
                     if let focusedID = focusedSeasonID {
                         withAnimation { proxy.scrollTo(focusedID, anchor: .center) }
                     }
+                    // Reset episode redirect so next time focus enters episodes
+                    // it will redirect to current episode again
+                    if newID != nil {
+                        episodeRedirectDone = false
+                    }
                 }
                 .onChange(of: vm.selectedSeasonID) { _, newID in
+                    episodeRedirectDone = false
                     withAnimation { proxy.scrollTo(newID, anchor: .center) }
                 }
             }
@@ -367,16 +371,12 @@ struct SeriesDetailView: View {
                     .onChange(of: vm.currentEpisodeID) { _, _ in
                         scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
                     }
-                    .onChange(of: focusedEpisodeID) { oldID, newID in
-                        if newID != nil && !hasEnteredEpisodes {
-                            // First entry into episode section - redirect to current
-                            hasEnteredEpisodes = true
+                    .onChange(of: focusedEpisodeID) { _, newID in
+                        if newID != nil && !episodeRedirectDone {
+                            episodeRedirectDone = true
                             if newID != vm.currentEpisodeID, let currentID = vm.currentEpisodeID {
                                 focusedEpisodeID = currentID
                             }
-                        } else if newID == nil {
-                            // Focus left episodes (e.g. navigated up to seasons)
-                            hasEnteredEpisodes = false
                         }
                     }
                     .onAppear {
