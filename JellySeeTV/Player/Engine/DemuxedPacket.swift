@@ -10,13 +10,11 @@ enum PacketStreamType {
 }
 
 /// Wrapper around FFmpeg AVPacket.
-/// Owns a cloned copy of the packet data via av_packet_clone.
-/// The packet stays alive until this object is deallocated.
+/// Owns a cloned copy via av_packet_clone. The ref-counted buffer
+/// stays alive until this object is deallocated.
 nonisolated final class DemuxedPacket: @unchecked Sendable {
-    /// The cloned AVPacket -- ref-counted by FFmpeg, stays valid until free
-    #if !targetEnvironment(simulator)
-    let avPacket: UnsafeMutablePointer<AVPacket>
-    #endif
+    // Store as raw Int to avoid Swift 6 deinit isolation issues
+    nonisolated(unsafe) private let pktAddress: Int
 
     let streamType: PacketStreamType
     let streamIndex: Int32
@@ -24,10 +22,14 @@ nonisolated final class DemuxedPacket: @unchecked Sendable {
     let durationSeconds: Double
 
     #if !targetEnvironment(simulator)
+    /// Access the AVPacket pointer (valid for lifetime of this object)
+    var avPacket: UnsafeMutablePointer<AVPacket> {
+        UnsafeMutablePointer(bitPattern: pktAddress)!
+    }
+
     init(packet: UnsafeMutablePointer<AVPacket>, streamType: PacketStreamType, streamIndex: Int32, pts: Double, duration: Double) {
-        // av_packet_clone creates a new packet with ref-counted data
-        // The data buffer stays alive until av_packet_free
-        self.avPacket = av_packet_clone(packet)!
+        let cloned = av_packet_clone(packet)!
+        self.pktAddress = Int(bitPattern: cloned)
         self.streamType = streamType
         self.streamIndex = streamIndex
         self.ptsSeconds = pts
@@ -35,12 +37,14 @@ nonisolated final class DemuxedPacket: @unchecked Sendable {
     }
 
     deinit {
-        // Safe to free: if VideoToolbox still has a ref, it added its own
-        var pkt: UnsafeMutablePointer<AVPacket>? = avPacket
-        av_packet_free(&pkt)
+        if let ptr = UnsafeMutablePointer<AVPacket>(bitPattern: pktAddress) {
+            var p: UnsafeMutablePointer<AVPacket>? = ptr
+            av_packet_free(&p)
+        }
     }
     #else
     init(streamType: PacketStreamType, streamIndex: Int32, pts: Double, duration: Double) {
+        self.pktAddress = 0
         self.streamType = streamType
         self.streamIndex = streamIndex
         self.ptsSeconds = pts
