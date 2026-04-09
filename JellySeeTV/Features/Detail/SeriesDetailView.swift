@@ -374,7 +374,10 @@ struct SeriesDetailView: View {
                     .onChange(of: focusedEpisodeID) { _, newID in
                         if newID != nil && !episodeRedirectDone {
                             episodeRedirectDone = true
-                            if newID != vm.currentEpisodeID, let currentID = vm.currentEpisodeID {
+                            // Only redirect if current episode is in this season's episodes
+                            if let currentID = vm.currentEpisodeID,
+                               newID != currentID,
+                               vm.episodes.contains(where: { $0.id == currentID }) {
                                 focusedEpisodeID = currentID
                             }
                         }
@@ -388,7 +391,8 @@ struct SeriesDetailView: View {
     }
 
     private func scrollToCurrentEpisode(proxy: ScrollViewProxy, vm: DetailViewModel) {
-        guard let currentID = vm.currentEpisodeID else { return }
+        guard let currentID = vm.currentEpisodeID,
+              vm.episodes.contains(where: { $0.id == currentID }) else { return }
         // Small delay to ensure LazyHStack has rendered the target view
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation(.easeInOut(duration: 0.3)) {
