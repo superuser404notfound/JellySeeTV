@@ -46,13 +46,37 @@ nonisolated final class AudioDecoder: @unchecked Sendable {
         let sampleRate = Double(ctx.pointee.sample_rate > 0 ? ctx.pointee.sample_rate : 48000)
         let channels = ctx.pointee.ch_layout.nb_channels > 0 ? ctx.pointee.ch_layout.nb_channels : 2
 
-        audioFormat = AVAudioFormat(
-            standardFormatWithSampleRate: sampleRate,
-            channels: AVAudioChannelCount(channels)
-        )
+        // Create format with proper channel layout
+        let channelCount = AVAudioChannelCount(channels)
+        if channelCount <= 2 {
+            audioFormat = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: channelCount)
+        } else {
+            // Multi-channel: use explicit layout
+            let layoutTag: AudioChannelLayoutTag
+            switch channels {
+            case 6: layoutTag = kAudioChannelLayoutTag_AudioUnit_5_1 // 5.1
+            case 8: layoutTag = kAudioChannelLayoutTag_AudioUnit_7_1 // 7.1
+            default: layoutTag = kAudioChannelLayoutTag_DiscreteInOrder | UInt32(channels)
+            }
 
-        // Setup swresample for format conversion → float32 planar
-        try setupResampler(ctx: ctx, sampleRate: Int32(sampleRate), channels: channels)
+            if let layout = AVAudioChannelLayout(layoutTag: layoutTag) {
+                audioFormat = AVAudioFormat(
+                    standardFormatWithSampleRate: sampleRate,
+                    channelLayout: layout
+                )
+            } else {
+                // Fallback: downmix to stereo
+                audioFormat = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)
+            }
+        }
+
+        #if DEBUG
+        print("[AudioDecoder] Format created: \(audioFormat?.description ?? "nil"), \(channels)ch @ \(sampleRate)Hz")
+        #endif
+
+        // Setup swresample -- output channels match the audioFormat
+        let outChannels = Int32(audioFormat?.channelCount ?? 2)
+        try setupResampler(ctx: ctx, sampleRate: Int32(sampleRate), channels: outChannels)
 
         #if DEBUG
         let codecName = String(cString: codec.pointee.name)
