@@ -8,6 +8,7 @@ struct SeriesDetailView: View {
     @State private var navigateToEpisode: JellyfinItem?
     @FocusState private var focusedSeasonID: String?
     @FocusState private var focusedEpisodeID: String?
+    @State private var hasEnteredEpisodes = false
 
     let item: JellyfinItem
 
@@ -367,11 +368,15 @@ struct SeriesDetailView: View {
                         scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
                     }
                     .onChange(of: focusedEpisodeID) { oldID, newID in
-                        // When entering episode section from above, redirect to current episode
-                        if oldID == nil && newID != nil && newID != vm.currentEpisodeID {
-                            if let currentID = vm.currentEpisodeID {
+                        if newID != nil && !hasEnteredEpisodes {
+                            // First entry into episode section - redirect to current
+                            hasEnteredEpisodes = true
+                            if newID != vm.currentEpisodeID, let currentID = vm.currentEpisodeID {
                                 focusedEpisodeID = currentID
                             }
+                        } else if newID == nil {
+                            // Focus left episodes (e.g. navigated up to seasons)
+                            hasEnteredEpisodes = false
                         }
                     }
                     .onAppear {
