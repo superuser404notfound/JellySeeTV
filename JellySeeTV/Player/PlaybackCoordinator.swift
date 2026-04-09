@@ -37,7 +37,7 @@ final class PlaybackCoordinator {
         if source.supportsDirectPlay == true {
             playMethod = .directPlay
             streamURL = playbackService.buildStreamURL(
-                itemID: item.id, mediaSourceID: source.id, isDirectStream: false
+                itemID: item.id, mediaSourceID: source.id, isDirectStream: true
             )
         } else if source.supportsDirectStream == true {
             playMethod = .directStream
