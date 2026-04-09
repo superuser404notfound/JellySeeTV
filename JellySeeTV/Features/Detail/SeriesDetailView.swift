@@ -365,11 +365,14 @@ struct SeriesDetailView: View {
                     .padding(.horizontal, 50)
                     .padding(.vertical, 16)
                     }
-                    .onChange(of: vm.episodes.count) { _, _ in
-                        scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
-                    }
-                    .onChange(of: vm.currentEpisodeID) { _, _ in
-                        scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
+                    .onChange(of: vm.selectedSeasonID) { _, _ in
+                        // Scroll to start on season change, then to current if applicable
+                        if let first = vm.episodes.first {
+                            episodeProxy.scrollTo(first.id, anchor: .leading)
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                            scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
+                        }
                     }
                     .onChange(of: focusedEpisodeID) { _, newID in
                         if newID != nil && !episodeRedirectDone {
