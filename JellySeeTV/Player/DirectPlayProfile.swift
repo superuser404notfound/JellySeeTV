@@ -4,7 +4,10 @@ import VideoToolbox
 /// Builds the device profile JSON that tells Jellyfin what this Apple TV can play natively.
 enum DirectPlayProfile {
 
-    /// Whether this device has hardware AV1 decode (Apple TV 4K 3rd gen 2022+)
+    /// Whether this device has hardware AV1 decode.
+    /// No current Apple TV supports AV1 (as of 2026). This check is future-proof --
+    /// it will automatically enable AV1 DirectPlay when Apple releases an Apple TV
+    /// with AV1 hardware decode support.
     static let supportsAV1Hardware: Bool = {
         VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1)
     }()
