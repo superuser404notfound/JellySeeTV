@@ -29,6 +29,7 @@ struct SeriesDetailView: View {
                 DetailContentOverlay {
                     glassPanel(vm: vm)
                         .padding(.horizontal, 50)
+                        .id("\(vm.item.id)-\(vm.item.genres?.count ?? 0)-\(vm.isLoading)")
                         .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
 
                     if let overview = displayItem.overview, !overview.isEmpty {
@@ -88,7 +89,6 @@ struct SeriesDetailView: View {
                 }
             }
         }
-        .onChange(of: viewModel?.item.id) { _, _ in updateBackdropURL() }
         .onChange(of: viewModel?.isLoading) { _, _ in updateBackdropURL() }
         .onChange(of: selectedEpisode?.id) { _, _ in updateBackdropURL() }
     }
