@@ -78,16 +78,20 @@ struct SeriesDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .fullScreenCover(isPresented: $showPlayer) {
-            if let ep = playItem, let userID = appState.activeUser?.id {
+        .overlay {
+            if showPlayer, let ep = playItem, let userID = appState.activeUser?.id {
                 PlayerView(
                     item: ep,
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
-                    userID: userID
+                    userID: userID,
+                    onDismiss: { showPlayer = false }
                 )
+                .transition(.opacity)
+                .ignoresSafeArea()
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showPlayer)
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
         }

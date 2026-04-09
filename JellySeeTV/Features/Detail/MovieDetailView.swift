@@ -21,16 +21,20 @@ struct MovieDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .fullScreenCover(isPresented: $showPlayer) {
-            if let userID = appState.activeUser?.id {
+        .overlay {
+            if showPlayer, let userID = appState.activeUser?.id {
                 PlayerView(
                     item: viewModel?.item ?? item,
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
-                    userID: userID
+                    userID: userID,
+                    onDismiss: { showPlayer = false }
                 )
+                .transition(.opacity)
+                .ignoresSafeArea()
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showPlayer)
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
         }

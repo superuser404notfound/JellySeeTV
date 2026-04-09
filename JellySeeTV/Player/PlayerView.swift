@@ -2,16 +2,17 @@ import SwiftUI
 import AVKit
 
 struct PlayerView: View {
-    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PlayerViewModel
+    let onDismiss: () -> Void
 
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String) {
+    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, onDismiss: @escaping () -> Void) {
         _viewModel = State(initialValue: PlayerViewModel(
             item: item,
             startFromBeginning: startFromBeginning,
             playbackService: playbackService,
             userID: userID
         ))
+        self.onDismiss = onDismiss
     }
 
     var body: some View {
@@ -24,10 +25,7 @@ struct PlayerView: View {
                 VideoPlayer(player: viewModel.coordinator.player)
                     .ignoresSafeArea()
                     .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)) { _ in
-                        Task {
-                            await viewModel.stopPlayback()
-                            dismiss()
-                        }
+                        dismissPlayer()
                     }
 
                 if viewModel.isLoading {
@@ -43,10 +41,18 @@ struct PlayerView: View {
             await viewModel.startPlayback()
         }
         .onDisappear {
-            // Stop audio immediately, then clean up async
             viewModel.coordinator.player.pause()
             viewModel.coordinator.player.replaceCurrentItem(with: nil)
             Task { await viewModel.stopPlayback() }
+        }
+    }
+
+    private func dismissPlayer() {
+        viewModel.coordinator.player.pause()
+        viewModel.coordinator.player.replaceCurrentItem(with: nil)
+        Task {
+            await viewModel.stopPlayback()
+            onDismiss()
         }
     }
 
@@ -58,7 +64,7 @@ struct PlayerView: View {
             Text(message)
                 .foregroundStyle(.secondary)
             Button {
-                dismiss()
+                onDismiss()
             } label: {
                 Text("home.retry")
             }
