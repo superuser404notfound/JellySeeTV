@@ -5,6 +5,7 @@ struct CollectionDetailView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: DetailViewModel?
     @State private var selectedItem: JellyfinItem?
+    @State private var showPlayer = false
 
     let item: JellyfinItem
 
@@ -76,7 +77,11 @@ struct CollectionDetailView: View {
                     title: "detail.play",
                     systemImage: "play.fill",
                     isProminent: true,
-                    action: { /* Phase 3 */ }
+                    action: {
+                        if let first = vm.collectionItems.first {
+                            selectedItem = first
+                        }
+                    }
                 )
 
                 GlassActionButton(

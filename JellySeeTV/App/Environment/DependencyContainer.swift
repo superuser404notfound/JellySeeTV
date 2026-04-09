@@ -12,6 +12,7 @@ final class DependencyContainer {
     let jellyfinItemService: JellyfinItemServiceProtocol
     let jellyfinSearchService: JellyfinSearchServiceProtocol
     let jellyfinImageService: JellyfinImageService
+    let jellyfinPlaybackService: JellyfinPlaybackServiceProtocol
     let cloudSyncService: CloudSyncServiceProtocol
 
     init(
@@ -29,6 +30,7 @@ final class DependencyContainer {
         self.jellyfinImageService = JellyfinImageService(baseURLProvider: { [weak jellyfinClient] in
             jellyfinClient?.baseURL
         })
+        self.jellyfinPlaybackService = JellyfinPlaybackService(client: jellyfinClient)
         self.cloudSyncService = CloudSyncService()
     }
 

@@ -6,6 +6,8 @@ struct MovieDetailView: View {
     @State private var viewModel: DetailViewModel?
     @State private var navigateToSeries: JellyfinItem?
     @State private var navigateToItem: JellyfinItem?
+    @State private var showPlayer = false
+    @State private var playFromBeginning = false
 
     let item: JellyfinItem
 
@@ -19,6 +21,16 @@ struct MovieDetailView: View {
             }
         }
         .ignoresSafeArea()
+        .fullScreenCover(isPresented: $showPlayer) {
+            if let userID = appState.activeUser?.id {
+                PlayerView(
+                    item: viewModel?.item ?? item,
+                    startFromBeginning: playFromBeginning,
+                    playbackService: dependencies.jellyfinPlaybackService,
+                    userID: userID
+                )
+            }
+        }
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
         }
@@ -113,14 +125,20 @@ struct MovieDetailView: View {
                     title: playButtonTitle(vm: vm),
                     systemImage: "play.fill",
                     isProminent: true,
-                    action: { /* Phase 3: Playback */ }
+                    action: {
+                        playFromBeginning = false
+                        showPlayer = true
+                    }
                 )
 
                 if hasProgress(vm: vm) {
                     GlassActionButton(
                         title: "detail.replay",
                         systemImage: "arrow.counterclockwise",
-                        action: { /* Phase 3: Replay from start */ }
+                        action: {
+                            playFromBeginning = true
+                            showPlayer = true
+                        }
                     )
                 }
 

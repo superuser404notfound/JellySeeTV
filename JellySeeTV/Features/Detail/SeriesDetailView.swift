@@ -7,6 +7,9 @@ struct SeriesDetailView: View {
     @State private var selectedEpisode: JellyfinItem?
     @State private var navigateToItem: JellyfinItem?
     @State private var backdropURL: URL?
+    @State private var showPlayer = false
+    @State private var playItem: JellyfinItem?
+    @State private var playFromBeginning = false
     @FocusState private var focusedSeasonID: String?
     @FocusState private var focusedEpisodeID: String?
     @State private var episodeRedirectDone = false
@@ -75,6 +78,16 @@ struct SeriesDetailView: View {
             }
         }
         .ignoresSafeArea()
+        .fullScreenCover(isPresented: $showPlayer) {
+            if let ep = playItem, let userID = appState.activeUser?.id {
+                PlayerView(
+                    item: ep,
+                    startFromBeginning: playFromBeginning,
+                    playbackService: dependencies.jellyfinPlaybackService,
+                    userID: userID
+                )
+            }
+        }
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
         }
@@ -160,7 +173,14 @@ struct SeriesDetailView: View {
                     title: playTitle,
                     systemImage: "play.fill",
                     isProminent: true,
-                    action: { /* Phase 3 */ }
+                    action: {
+                        let ep = selectedEpisode ?? vm.episodes.first(where: { $0.id == vm.currentEpisodeID }) ?? vm.episodes.first
+                        if let ep {
+                            playItem = ep
+                            playFromBeginning = false
+                            showPlayer = true
+                        }
+                    }
                 )
 
                 if !isShowingEpisode {
@@ -244,10 +264,9 @@ struct SeriesDetailView: View {
                         LazyHStack(spacing: 24) {
                             ForEach(vm.episodes) { episode in
                                 Button {
-                                    // TODO Phase 3: start playback
-                                    withAnimation(.easeInOut(duration: 0.3)) {
-                                        selectedEpisode = episode
-                                    }
+                                    playItem = episode
+                                    playFromBeginning = false
+                                    showPlayer = true
                                 } label: {
                                     EpisodeLandscapeCard(
                                         episode: episode,
@@ -269,14 +288,18 @@ struct SeriesDetailView: View {
                                     }
 
                                     Button {
-                                        // TODO Phase 3: play from start
+                                        playItem = episode
+                                        playFromBeginning = true
+                                        showPlayer = true
                                     } label: {
                                         Label("detail.play", systemImage: "play.fill")
                                     }
 
                                     if let ticks = episode.userData?.playbackPositionTicks, ticks > 0 {
                                         Button {
-                                            // TODO Phase 3: resume
+                                            playItem = episode
+                                            playFromBeginning = false
+                                            showPlayer = true
                                         } label: {
                                             Label("detail.resume", systemImage: "play.circle")
                                         }

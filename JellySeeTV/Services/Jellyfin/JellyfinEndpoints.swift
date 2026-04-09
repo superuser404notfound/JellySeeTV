@@ -29,6 +29,12 @@ enum JellyfinEndpoint: APIEndpoint {
     case genres(userID: String)
     case studios(userID: String)
 
+    // Playback
+    case playbackInfo(itemID: String, userID: String)
+    case sessionPlaying(report: PlaybackStartReport)
+    case sessionProgress(report: PlaybackProgressReport)
+    case sessionStopped(report: PlaybackStopReport)
+
     // Favorites
     case markFavorite(userID: String, itemID: String)
     case unmarkFavorite(userID: String, itemID: String)
@@ -70,6 +76,14 @@ enum JellyfinEndpoint: APIEndpoint {
             "/Genres"
         case .studios:
             "/Studios"
+        case .playbackInfo(let itemID, _):
+            "/Items/\(itemID)/PlaybackInfo"
+        case .sessionPlaying:
+            "/Sessions/Playing"
+        case .sessionProgress:
+            "/Sessions/Playing/Progress"
+        case .sessionStopped:
+            "/Sessions/Playing/Stopped"
         case .markFavorite(let userID, let itemID):
             "/Users/\(userID)/FavoriteItems/\(itemID)"
         case .unmarkFavorite(let userID, let itemID):
@@ -81,7 +95,8 @@ enum JellyfinEndpoint: APIEndpoint {
 
     var method: HTTPMethod {
         switch self {
-        case .authenticateByName, .quickConnectInitiate, .quickConnectAuthenticate, .markFavorite:
+        case .authenticateByName, .quickConnectInitiate, .quickConnectAuthenticate, .markFavorite,
+             .playbackInfo, .sessionPlaying, .sessionProgress, .sessionStopped:
             .post
         case .unmarkFavorite:
             .delete
@@ -159,6 +174,11 @@ enum JellyfinEndpoint: APIEndpoint {
                 URLQueryItem(name: "SortOrder", value: "Ascending"),
             ]
 
+        case .playbackInfo(_, let userID):
+            return [
+                URLQueryItem(name: "UserId", value: userID),
+            ]
+
         case .searchHints(let userID, let query, let limit):
             return [
                 URLQueryItem(name: "UserId", value: userID),
@@ -177,6 +197,14 @@ enum JellyfinEndpoint: APIEndpoint {
             AuthenticateBody(username: username, pw: password)
         case .quickConnectAuthenticate(let secret):
             QuickConnectAuthBody(secret: secret)
+        case .playbackInfo:
+            PlaybackInfoBody(deviceProfile: DirectPlayProfile.build())
+        case .sessionPlaying(let report):
+            report
+        case .sessionProgress(let report):
+            report
+        case .sessionStopped(let report):
+            report
         default:
             nil
         }
@@ -250,5 +278,55 @@ private struct QuickConnectAuthBody: Encodable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case secret = "Secret"
+    }
+}
+
+private struct PlaybackInfoBody: Encodable, Sendable {
+    let deviceProfile: [String: Any]
+
+    enum CodingKeys: String, CodingKey {
+        case deviceProfile = "DeviceProfile"
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        let data = try JSONSerialization.data(withJSONObject: deviceProfile)
+        let json = try JSONDecoder().decode(AnyCodableValue.self, from: data)
+        try container.encode(json, forKey: .deviceProfile)
+    }
+}
+
+/// Helper to encode arbitrary JSON dictionaries
+private enum AnyCodableValue: Codable, Sendable {
+    case string(String)
+    case int(Int)
+    case double(Double)
+    case bool(Bool)
+    case array([AnyCodableValue])
+    case dictionary([String: AnyCodableValue])
+    case null
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let v = try? container.decode(Bool.self) { self = .bool(v) }
+        else if let v = try? container.decode(Int.self) { self = .int(v) }
+        else if let v = try? container.decode(Double.self) { self = .double(v) }
+        else if let v = try? container.decode(String.self) { self = .string(v) }
+        else if let v = try? container.decode([AnyCodableValue].self) { self = .array(v) }
+        else if let v = try? container.decode([String: AnyCodableValue].self) { self = .dictionary(v) }
+        else { self = .null }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .string(let v): try container.encode(v)
+        case .int(let v): try container.encode(v)
+        case .double(let v): try container.encode(v)
+        case .bool(let v): try container.encode(v)
+        case .array(let v): try container.encode(v)
+        case .dictionary(let v): try container.encode(v)
+        case .null: try container.encodeNil()
+        }
     }
 }
