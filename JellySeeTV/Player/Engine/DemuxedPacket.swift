@@ -47,21 +47,24 @@ nonisolated final class DemuxedPacket {
     func withAVPacket<T>(_ body: (UnsafeMutablePointer<AVPacket>) -> T) -> T {
         let pkt = av_packet_alloc()!
 
-        // body MUST be called INSIDE withUnsafeBytes so the pointer stays valid
-        let result = data.withUnsafeBytes { rawBuf -> T in
-            pkt.pointee.data = UnsafeMutablePointer(mutating: rawBuf.baseAddress?.assumingMemoryBound(to: UInt8.self))
-            pkt.pointee.size = size
-            pkt.pointee.pts = pts
-            pkt.pointee.dts = dts
-            pkt.pointee.duration = duration
-            pkt.pointee.stream_index = streamIndex
-            pkt.pointee.flags = flags
-            return body(pkt)
+        // Allocate a proper ref-counted buffer that FFmpeg/VideoToolbox can keep
+        if data.count > 0 {
+            av_new_packet(pkt, Int32(data.count))
+            data.withUnsafeBytes { rawBuf in
+                if let src = rawBuf.baseAddress {
+                    memcpy(pkt.pointee.data, src, data.count)
+                }
+            }
         }
+        pkt.pointee.pts = pts
+        pkt.pointee.dts = dts
+        pkt.pointee.duration = duration
+        pkt.pointee.stream_index = streamIndex
+        pkt.pointee.flags = flags
 
-        // Clean up packet without freeing our data
-        pkt.pointee.data = nil
-        pkt.pointee.size = 0
+        let result = body(pkt)
+
+        // av_packet_free properly frees the ref-counted buffer
         var p: UnsafeMutablePointer<AVPacket>? = pkt
         av_packet_free(&p)
 
