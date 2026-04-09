@@ -7,6 +7,7 @@ struct SeriesDetailView: View {
     @State private var selectedEpisode: JellyfinItem?
     @State private var navigateToEpisode: JellyfinItem?
     @FocusState private var focusedSeasonID: String?
+    @FocusState private var focusedEpisodeID: String?
 
     let item: JellyfinItem
 
@@ -329,6 +330,7 @@ struct SeriesDetailView: View {
                                     )
                                 }
                                 .buttonStyle(EpisodeCardButtonStyle())
+                                .focused($focusedEpisodeID, equals: episode.id)
                                 .id(episode.id)
                                 .contextMenu {
                                     Button {
@@ -363,6 +365,14 @@ struct SeriesDetailView: View {
                     }
                     .onChange(of: vm.currentEpisodeID) { _, _ in
                         scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
+                    }
+                    .onChange(of: focusedEpisodeID) { oldID, newID in
+                        // When entering episode section from above, redirect to current episode
+                        if oldID == nil && newID != nil && newID != vm.currentEpisodeID {
+                            if let currentID = vm.currentEpisodeID {
+                                focusedEpisodeID = currentID
+                            }
+                        }
                     }
                     .onAppear {
                         scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
