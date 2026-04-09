@@ -28,6 +28,8 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9DD9136F2F8645860078D0BE /* JellySeeTV */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = JellySeeTV;
 			sourceTree = "<group>";
 		};
@@ -99,7 +101,6 @@
 				9DD913692F8645860078D0BE /* Sources */,
 				9DD9136A2F8645860078D0BE /* Frameworks */,
 				9DD9136B2F8645860078D0BE /* Resources */,
-				42A7293088F91C5A2EC8A4F8 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -172,27 +173,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		42A7293088F91C5A2EC8A4F8 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		C8C77817E5620FA701B09ABD /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -390,8 +370,7 @@
 					"-framework",
 					CoreText,
 					"-framework",
-					"
-",
+					"\n",
 					OpenGLES,
 					"-framework",
 					Security,
@@ -455,8 +434,7 @@
 					"-framework",
 					CoreText,
 					"-framework",
-					"
-",
+					"\n",
 					OpenGLES,
 					"-framework",
 					Security,
