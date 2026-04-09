@@ -45,6 +45,16 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
             throw APIError.invalidResponse
         }
         guard (200...299).contains(httpResponse.statusCode) else {
+            #if DEBUG
+            print("[PlaybackInfo] Status: \(httpResponse.statusCode)")
+            print("[PlaybackInfo] URL: \(url)")
+            if let bodyStr = String(data: bodyData, encoding: .utf8) {
+                print("[PlaybackInfo] Body: \(bodyStr.prefix(500))")
+            }
+            if let respStr = String(data: data, encoding: .utf8) {
+                print("[PlaybackInfo] Response: \(respStr.prefix(500))")
+            }
+            #endif
             throw APIError.httpError(statusCode: httpResponse.statusCode, data: data)
         }
 
