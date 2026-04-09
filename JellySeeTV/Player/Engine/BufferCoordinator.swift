@@ -91,37 +91,86 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
         }
     }
 
+    nonisolated(unsafe) private var audioFrameCount = 0
+    nonisolated(unsafe) private var videoFrameCount = 0
+
     private func audioDecodeLoop() {
-        guard let decoder = audioDecoder else { return }
+        guard let decoder = audioDecoder else {
+            #if DEBUG
+            print("[Audio Loop] No decoder, exiting")
+            #endif
+            return
+        }
+        #if DEBUG
+        print("[Audio Loop] Started")
+        #endif
         while isRunning {
             guard let packet = audioQueue.dequeue(timeout: 0.05) else {
-                if isEOF && audioQueue.isEmpty { return }
+                if isEOF && audioQueue.isEmpty {
+                    #if DEBUG
+                    print("[Audio Loop] EOF, decoded \(audioFrameCount) frames")
+                    #endif
+                    return
+                }
                 continue
             }
             packet.withAVPacket { pkt in
                 let frames = decoder.decode(packet: pkt)
                 for frame in frames {
                     audioOutput.scheduleBuffer(frame.pcmBuffer)
+                    audioFrameCount += 1
                 }
             }
+            #if DEBUG
+            if audioFrameCount > 0 && audioFrameCount % 100 == 0 {
+                print("[Audio Loop] Decoded \(audioFrameCount) frames, queue: \(audioQueue.count)")
+            }
+            #endif
         }
+        #if DEBUG
+        print("[Audio Loop] Stopped, decoded \(audioFrameCount) frames")
+        #endif
     }
 
     private func videoDecodeLoop() {
-        guard let decoder = videoDecoder else { return }
+        guard let decoder = videoDecoder else {
+            #if DEBUG
+            print("[Video Loop] No decoder, exiting")
+            #endif
+            return
+        }
+        #if DEBUG
+        print("[Video Loop] Started")
+        #endif
         while isRunning {
             while syncClock.isPaused && isRunning {
                 Thread.sleep(forTimeInterval: 0.01)
             }
             guard let packet = videoQueue.dequeue(timeout: 0.05) else {
-                if isEOF && videoQueue.isEmpty { return }
+                if isEOF && videoQueue.isEmpty {
+                    #if DEBUG
+                    print("[Video Loop] EOF, decoded \(videoFrameCount) frames")
+                    #endif
+                    return
+                }
                 continue
             }
             packet.withAVPacket { pkt in
                 let frames = decoder.decode(packet: pkt)
-                for frame in frames { displayWithSync(frame) }
+                for frame in frames {
+                    displayWithSync(frame)
+                    videoFrameCount += 1
+                }
             }
+            #if DEBUG
+            if videoFrameCount > 0 && videoFrameCount % 50 == 0 {
+                print("[Video Loop] Decoded \(videoFrameCount) frames, queue: \(videoQueue.count), clock: \(String(format: "%.1f", syncClock.currentTime))s")
+            }
+            #endif
         }
+        #if DEBUG
+        print("[Video Loop] Stopped, decoded \(videoFrameCount) frames")
+        #endif
     }
 
     private func displayWithSync(_ frame: DecodedVideoFrame) {
