@@ -35,7 +35,7 @@ final class VideoDecoder: @unchecked Sendable {
         if codecID == AV_CODEC_ID_H264 || codecID == AV_CODEC_ID_HEVC {
             var hwCtx: UnsafeMutablePointer<AVBufferRef>?
             ret = av_hwdevice_ctx_create(&hwCtx, AV_HWDEVICE_TYPE_VIDEOTOOLBOX, nil, nil, 0)
-            if ret >= 0, let hwCtx {
+            if ret >= 0, hwCtx != nil {
                 ctx.pointee.hw_device_ctx = av_buffer_ref(hwCtx)
                 av_buffer_unref(&hwCtx)
                 #if DEBUG
