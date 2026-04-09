@@ -121,8 +121,4 @@ final class LoginViewModel {
         guard let result = authResult else { return }
         try dependencies.saveSession(server: result.server, user: result.user, token: result.token)
     }
-
-    nonisolated deinit {
-        // Task cleanup happens automatically when the ViewModel is deallocated
-    }
 }

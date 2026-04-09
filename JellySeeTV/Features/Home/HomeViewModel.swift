@@ -183,15 +183,7 @@ final class HomeViewModel {
                 tags = allGenres.filter { GenreFilter.isPrimary($0.name) }
             case .studios:
                 let allStudios = try await libraryService.getStudios(userID: userID)
-                #if DEBUG
-                print("[Studios] All studios from Jellyfin (\(allStudios.count)):")
-                allStudios.forEach { print("  - \($0.name)") }
-                #endif
                 tags = allStudios.filter { StreamingProviders.isProvider($0.name) }
-                #if DEBUG
-                print("[Studios] Matched providers (\(tags.count)):")
-                tags.forEach { print("  ✓ \($0.name)") }
-                #endif
             default:
                 return nil
             }

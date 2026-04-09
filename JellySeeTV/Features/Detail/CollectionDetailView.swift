@@ -39,53 +39,22 @@ struct CollectionDetailView: View {
 
     private func contentView(vm: DetailViewModel) -> some View {
         ZStack {
-            backdrop(vm: vm)
+            DetailBackdrop(imageURL: vm.backdropURL(for: vm.item))
 
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Color.clear.frame(height: 500)
+            DetailContentOverlay {
+                glassPanel(vm: vm)
+                    .padding(.horizontal, 50)
 
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.6), .black.opacity(0.95)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(height: 200)
+                if let overview = vm.item.overview, !overview.isEmpty {
+                    ExpandableTextBox(text: overview)
+                        .padding(.horizontal, 50)
+                }
 
-                    VStack(alignment: .leading, spacing: 40) {
-                        glassPanel(vm: vm)
-                            .padding(.horizontal, 50)
-
-                        if let overview = vm.item.overview, !overview.isEmpty {
-                            ExpandableTextBox(text: overview)
-                                .padding(.horizontal, 50)
-                        }
-
-                        // Collection items list (vertical)
-                        if !vm.collectionItems.isEmpty {
-                            collectionList(vm: vm)
-                        }
-                    }
-                    .padding(.bottom, 80)
-                    .background(.black)
+                if !vm.collectionItems.isEmpty {
+                    collectionList(vm: vm)
                 }
             }
         }
-    }
-
-    // MARK: - Backdrop
-
-    private func backdrop(vm: DetailViewModel) -> some View {
-        AsyncCachedImage(url: vm.backdropURL(for: vm.item)) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } placeholder: {
-            Rectangle().fill(Color.Theme.surface)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .clipped()
-        .overlay(Color.black.opacity(0.15))
     }
 
     // MARK: - Glass Panel

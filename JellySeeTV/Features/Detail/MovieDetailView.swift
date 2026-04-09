@@ -37,85 +37,43 @@ struct MovieDetailView: View {
 
     private func contentView(vm: DetailViewModel) -> some View {
         ZStack {
-            // Fullscreen backdrop
-            backdrop(vm: vm)
+            DetailBackdrop(imageURL: vm.backdropURL(for: vm.item))
 
-            // Scrollable content overlay
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Spacer to push content below the visible backdrop area
-                    Color.clear.frame(height: 500)
+            DetailContentOverlay {
+                glassPanel(vm: vm)
+                    .padding(.horizontal, 50)
 
-                    // Gradient transition
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.6), .black.opacity(0.95)],
-                        startPoint: .top,
-                        endPoint: .bottom
+                if let overview = vm.item.overview, !overview.isEmpty {
+                    ExpandableTextBox(text: overview)
+                        .padding(.horizontal, 50)
+                }
+
+                if vm.item.mediaStreams != nil || vm.item.mediaSources != nil {
+                    TechInfoBox(item: vm.item)
+                }
+
+                if let people = vm.item.people, !people.isEmpty {
+                    CastRow(
+                        people: Array(people.prefix(15)),
+                        imageURLProvider: { person in
+                            dependencies.jellyfinImageService.personImageURL(
+                                personID: person.id,
+                                tag: person.primaryImageTag
+                            )
+                        }
                     )
-                    .frame(height: 200)
+                }
 
-                    // Content on solid black
-                    VStack(alignment: .leading, spacing: 40) {
-                        // Glass info panel
-                        glassPanel(vm: vm)
-                            .padding(.horizontal, 50)
-
-                        // Overview
-                        if let overview = vm.item.overview, !overview.isEmpty {
-                            ExpandableTextBox(text: overview)
-                                .padding(.horizontal, 50)
-                        }
-
-                        // Tech info
-                        if vm.item.mediaStreams != nil || vm.item.mediaSources != nil {
-                            TechInfoBox(item: vm.item)
-                        }
-
-                        // Cast
-                        if let people = vm.item.people, !people.isEmpty {
-                            CastRow(
-                                people: Array(people.prefix(15)),
-                                imageURLProvider: { person in
-                                    dependencies.jellyfinImageService.personImageURL(
-                                        personID: person.id,
-                                        tag: person.primaryImageTag
-                                    )
-                                }
-                            )
-                        }
-
-                        // Similar items
-                        if !vm.similarItems.isEmpty {
-                            HorizontalMediaRow(
-                                title: "detail.similar",
-                                items: vm.similarItems,
-                                imageURLProvider: { vm.posterURL(for: $0) },
-                                cardStyle: .poster
-                            )
-                        }
-                    }
-                    .padding(.bottom, 80)
-                    .background(.black)
+                if !vm.similarItems.isEmpty {
+                    HorizontalMediaRow(
+                        title: "detail.similar",
+                        items: vm.similarItems,
+                        imageURLProvider: { vm.posterURL(for: $0) },
+                        cardStyle: .poster
+                    )
                 }
             }
         }
-    }
-
-    // MARK: - Fullscreen Backdrop
-
-    private func backdrop(vm: DetailViewModel) -> some View {
-        AsyncCachedImage(url: vm.backdropURL(for: vm.item)) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } placeholder: {
-            Rectangle().fill(Color.Theme.surface)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .clipped()
-        .overlay(
-            Color.black.opacity(0.15)
-        )
     }
 
     // MARK: - Glass Panel
@@ -133,8 +91,7 @@ struct MovieDetailView: View {
                     .foregroundStyle(.secondary)
             }
 
-            // Metadata
-            metadataRow(vm: vm)
+            ItemMetadataRow(item: vm.item)
 
             // Genres
             if let genres = vm.item.genres, !genres.isEmpty {
@@ -191,40 +148,6 @@ struct MovieDetailView: View {
     }
 
     // MARK: - Helpers
-
-    private func metadataRow(vm: DetailViewModel) -> some View {
-        HStack(spacing: 12) {
-            if let year = vm.item.productionYear {
-                Text(String(year))
-            }
-            if let runtime = vm.item.runTimeTicks {
-                Text("·").foregroundStyle(.tertiary)
-                Text(runtime.ticksToDisplay)
-            }
-            if let rating = vm.item.officialRating {
-                Text("·").foregroundStyle(.tertiary)
-                Text(rating)
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(.secondary.opacity(0.5), lineWidth: 1)
-                    )
-            }
-            if let score = vm.item.communityRating {
-                Text("·").foregroundStyle(.tertiary)
-                HStack(spacing: 4) {
-                    Image(systemName: "star.fill")
-                        .foregroundStyle(.yellow)
-                        .font(.caption)
-                    Text(String(format: "%.1f", score))
-                }
-            }
-        }
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
-    }
 
     private func hasProgress(vm: DetailViewModel) -> Bool {
         if let ticks = vm.item.userData?.playbackPositionTicks, ticks > 0 { return true }
