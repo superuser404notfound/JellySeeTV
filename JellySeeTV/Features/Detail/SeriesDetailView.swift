@@ -352,17 +352,26 @@ struct SeriesDetailView: View {
                     .padding(.horizontal, 50)
                     .padding(.vertical, 16)
                     }
-                    .onChange(of: vm.episodes) { _, _ in
-                        if let currentID = vm.currentEpisodeID {
-                            episodeProxy.scrollTo(currentID, anchor: .center)
-                        }
+                    .onChange(of: vm.episodes.count) { _, _ in
+                        scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
                     }
-                    .onChange(of: vm.currentEpisodeID) { _, newID in
-                        if let newID {
-                            episodeProxy.scrollTo(newID, anchor: .center)
-                        }
+                    .onChange(of: vm.currentEpisodeID) { _, _ in
+                        scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
+                    }
+                    .onAppear {
+                        scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
                     }
                 }
+            }
+        }
+    }
+
+    private func scrollToCurrentEpisode(proxy: ScrollViewProxy, vm: DetailViewModel) {
+        guard let currentID = vm.currentEpisodeID else { return }
+        // Small delay to ensure LazyHStack has rendered the target view
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                proxy.scrollTo(currentID, anchor: .center)
             }
         }
     }
