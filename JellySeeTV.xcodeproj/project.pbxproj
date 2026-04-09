@@ -28,8 +28,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9DD9136F2F8645860078D0BE /* JellySeeTV */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = JellySeeTV;
 			sourceTree = "<group>";
 		};
@@ -370,14 +368,11 @@
 					"-framework",
 					CoreText,
 					"-framework",
-					"\n",
 					OpenGLES,
 					"-framework",
 					Security,
 					"-framework",
 					VideoToolbox,
-					"-framework",
-					TVVLCKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = de.superuser404.JellySeeTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -434,14 +429,11 @@
 					"-framework",
 					CoreText,
 					"-framework",
-					"\n",
 					OpenGLES,
 					"-framework",
 					Security,
 					"-framework",
 					VideoToolbox,
-					"-framework",
-					TVVLCKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = de.superuser404.JellySeeTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";

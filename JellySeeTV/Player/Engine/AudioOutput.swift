@@ -26,6 +26,11 @@ nonisolated final class AudioOutput {
         self.startPTS = startPTS
         self.scheduledSamples = 0
 
+        // Configure audio session for playback
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .moviePlayback)
+        try session.setActive(true)
+
         engine.connect(playerNode, to: engine.mainMixerNode, format: format)
         try engine.start()
         playerNode.play()
@@ -33,6 +38,7 @@ nonisolated final class AudioOutput {
 
         #if DEBUG
         print("[AudioOutput] Started: \(format.sampleRate)Hz, \(format.channelCount)ch")
+        print("[AudioOutput] Audio session active, engine running: \(engine.isRunning)")
         #endif
     }
 
