@@ -41,9 +41,11 @@ final class PlayerEngine {
     func load(url: URL, startPosition: Double? = nil) async throws {
         state = .loading
 
-        // 1. Open demuxer
+        // 1. Open demuxer (off main thread — network I/O)
         let dmx = Demuxer()
-        try dmx.open(url: url)
+        try await Task.detached {
+            try dmx.open(url: url)
+        }.value
         demuxer = dmx
         duration = dmx.duration
 

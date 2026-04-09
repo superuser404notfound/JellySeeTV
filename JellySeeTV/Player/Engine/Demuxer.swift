@@ -62,12 +62,23 @@ nonisolated final class Demuxer: @unchecked Sendable {
         try queue.sync {
             var ctx: UnsafeMutablePointer<AVFormatContext>?
 
-            // Open input
+            // Open input with reduced buffer/probe for faster start
             let urlString = url.absoluteString
             #if DEBUG
             print("[Demuxer] Opening URL: \(urlString)")
+            let openStart = CFAbsoluteTimeGetCurrent()
             #endif
-            var ret = avformat_open_input(&ctx, urlString, nil, nil)
+
+            // Set options for faster HTTP open
+            var opts: OpaquePointer?
+            av_dict_set(&opts, "analyzeduration", "1000000", 0)  // 1s instead of 5s default
+            av_dict_set(&opts, "probesize", "500000", 0)         // 500KB instead of 5MB default
+            av_dict_set(&opts, "fflags", "fastseek", 0)
+            av_dict_set(&opts, "reconnect", "1", 0)
+            av_dict_set(&opts, "reconnect_streamed", "1", 0)
+
+            var ret = avformat_open_input(&ctx, urlString, nil, &opts)
+            av_dict_free(&opts)
             guard ret >= 0, let ctx else {
                 let err = errorString(ret)
                 #if DEBUG
@@ -77,11 +88,23 @@ nonisolated final class Demuxer: @unchecked Sendable {
             }
             formatCtx = ctx
 
-            // Find stream info (reads a few packets to detect codecs)
+            #if DEBUG
+            let openTime = CFAbsoluteTimeGetCurrent() - openStart
+            print("[Demuxer] avformat_open_input: \(String(format: "%.2f", openTime))s")
+            let probeStart = CFAbsoluteTimeGetCurrent()
+            #endif
+
+            // Find stream info — limit analysis to speed up start
+            ctx.pointee.max_analyze_duration = 1_000_000 // 1 second
             ret = avformat_find_stream_info(ctx, nil)
             guard ret >= 0 else {
                 throw DemuxerError.streamInfoFailed(errorString(ret))
             }
+
+            #if DEBUG
+            let probeTime = CFAbsoluteTimeGetCurrent() - probeStart
+            print("[Demuxer] avformat_find_stream_info: \(String(format: "%.2f", probeTime))s")
+            #endif
 
             // Extract duration (container level, or fallback to longest stream)
             let dur = ctx.pointee.duration
