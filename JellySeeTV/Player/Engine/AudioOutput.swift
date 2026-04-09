@@ -92,12 +92,16 @@ nonisolated final class AudioOutput {
     // MARK: - Master Clock
 
     /// Current playback time in seconds. THE master clock for A/V sync.
+    /// Compensates for audio hardware output latency so video frames
+    /// are displayed at the moment the corresponding audio is heard.
     var currentPlaybackTime: Double {
         guard isStarted, let nodeTime = playerNode.lastRenderTime,
               let playerTime = playerNode.playerTime(forNodeTime: nodeTime) else {
             return startPTS
         }
-        return startPTS + Double(playerTime.sampleTime) / playerTime.sampleRate
+        let rawTime = startPTS + Double(playerTime.sampleTime) / playerTime.sampleRate
+        let latency = AVAudioSession.sharedInstance().outputLatency
+        return rawTime - latency
     }
 
     // MARK: - Flush (for seeking)

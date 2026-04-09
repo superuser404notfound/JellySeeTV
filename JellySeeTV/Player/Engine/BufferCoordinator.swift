@@ -184,7 +184,7 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 videoRenderer.display(pixelBuffer: frame.pixelBuffer, pts: frame.pts)
                 #if DEBUG
                 displayedCount += 1
-                if displayedCount <= 3 || displayedCount % 100 == 0 {
+                if displayedCount == 1 || displayedCount % 500 == 0 {
                     print("[Sync] DISPLAY #\(displayedCount) pts=\(String(format: "%.3f", frame.pts)) clock=\(String(format: "%.3f", syncClock.currentTime))")
                 }
                 #endif

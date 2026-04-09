@@ -83,11 +83,23 @@ nonisolated final class Demuxer: @unchecked Sendable {
                 throw DemuxerError.streamInfoFailed(errorString(ret))
             }
 
-            // Extract duration
+            // Extract duration (container level, or fallback to longest stream)
             let dur = ctx.pointee.duration
             let nopts = Int64(bitPattern: UInt64(0x8000000000000000))
             if dur > 0 && dur != nopts {
                 duration = Double(dur) / Double(AV_TIME_BASE)
+            } else {
+                // MKV over HTTP may not have container duration — check streams
+                let nbStreams = Int(ctx.pointee.nb_streams)
+                for i in 0..<nbStreams {
+                    guard let stream = ctx.pointee.streams[i] else { continue }
+                    let sDur = stream.pointee.duration
+                    if sDur > 0 && sDur != nopts {
+                        let tb = stream.pointee.time_base
+                        let streamDurSec = Double(sDur) * av_q2d(tb)
+                        if streamDurSec > duration { duration = streamDurSec }
+                    }
+                }
             }
 
             #if DEBUG
