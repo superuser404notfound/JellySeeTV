@@ -1,7 +1,7 @@
 import Foundation
 
 protocol JellyfinPlaybackServiceProtocol: Sendable {
-    func getPlaybackInfo(itemID: String, userID: String) async throws -> PlaybackInfoResponse
+    func getPlaybackInfo(itemID: String, userID: String, profile: [String: Any]?) async throws -> PlaybackInfoResponse
     func reportPlaybackStart(_ report: PlaybackStartReport) async throws
     func reportPlaybackProgress(_ report: PlaybackProgressReport) async throws
     func reportPlaybackStopped(_ report: PlaybackStopReport) async throws
@@ -16,17 +16,16 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
         self.client = client
     }
 
-    func getPlaybackInfo(itemID: String, userID: String) async throws -> PlaybackInfoResponse {
+    func getPlaybackInfo(itemID: String, userID: String, profile: [String: Any]? = nil) async throws -> PlaybackInfoResponse {
         guard let baseURL = client.baseURL else { throw APIError.invalidURL }
 
-        // Build URL manually to include UserId query param
         var components = URLComponents(url: baseURL.appendingPathComponent("/Items/\(itemID)/PlaybackInfo"), resolvingAgainstBaseURL: true)
         components?.queryItems = [URLQueryItem(name: "UserId", value: userID)]
 
         guard let url = components?.url else { throw APIError.invalidURL }
 
-        // Build body with DeviceProfile as raw JSON
-        let body: [String: Any] = ["DeviceProfile": DirectPlayProfile.build()]
+        let deviceProfile = profile ?? DirectPlayProfile.avPlayerProfile()
+        let body: [String: Any] = ["DeviceProfile": deviceProfile]
         let bodyData = try JSONSerialization.data(withJSONObject: body)
 
         var request = URLRequest(url: url)

@@ -1,4 +1,5 @@
 import SwiftUI
+import AVKit
 
 struct PlayerView: View {
     @State private var viewModel: PlayerViewModel
@@ -21,71 +22,25 @@ struct PlayerView: View {
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
-                // VLC Video
-                VLCPlayerWrapper(player: viewModel.coordinator.player)
-                    .ignoresSafeArea()
+                switch viewModel.engine {
+                case .avPlayer:
+                    avPlayerView
+                case .vlcKit:
+                    vlcPlayerView
+                case .none:
+                    EmptyView()
+                }
 
-                // Loading
+                // Loading overlay (both engines)
                 if viewModel.isLoading {
                     Color.black
                         .ignoresSafeArea()
                         .overlay(ProgressView())
                         .transition(.opacity)
                 }
-
-                // Transport overlay
-                if viewModel.showControls && !viewModel.isLoading {
-                    TransportOverlay(
-                        title: viewModel.item.name,
-                        isPlaying: viewModel.isPlaying,
-                        currentTime: viewModel.currentTime,
-                        totalTime: viewModel.totalTime,
-                        progress: viewModel.progress,
-                        audioTracks: viewModel.audioTracks,
-                        subtitleTracks: viewModel.subtitleTracks,
-                        currentAudioIndex: viewModel.currentAudioIndex,
-                        currentSubtitleIndex: viewModel.currentSubtitleIndex,
-                        onTogglePlayPause: { viewModel.togglePlayPause() },
-                        onSeekForward: { viewModel.seekForward() },
-                        onSeekBackward: { viewModel.seekBackward() },
-                        onSelectAudio: { viewModel.setAudioTrack($0) },
-                        onSelectSubtitle: { viewModel.setSubtitleTrack($0) }
-                    )
-                    .transition(.opacity)
-                }
-
-                // Invisible tap catcher for showing/hiding controls
-                if !viewModel.isLoading {
-                    Color.clear
-                        .ignoresSafeArea()
-                        .focusable()
-                        .onPlayPauseCommand {
-                            viewModel.togglePlayPause()
-                        }
-                        .onExitCommand {
-                            dismissPlayer()
-                        }
-                        .onMoveCommand { direction in
-                            switch direction {
-                            case .left:
-                                viewModel.seekBackward()
-                            case .right:
-                                viewModel.seekForward()
-                            case .up, .down:
-                                if viewModel.showControls {
-                                    // Let focus system handle navigation to buttons
-                                } else {
-                                    viewModel.showControlsTemporarily()
-                                }
-                            @unknown default:
-                                break
-                            }
-                        }
-                }
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
-        .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
         .task {
             await viewModel.startPlayback()
         }
@@ -95,6 +50,65 @@ struct PlayerView: View {
         }
     }
 
+    // MARK: - AVPlayer (native tvOS controls)
+
+    private var avPlayerView: some View {
+        VideoPlayer(player: viewModel.coordinator.avPlayer)
+            .ignoresSafeArea()
+            .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)) { _ in
+                dismissPlayer()
+            }
+            .onExitCommand {
+                dismissPlayer()
+            }
+    }
+
+    // MARK: - VLCKit (custom controls)
+
+    private var vlcPlayerView: some View {
+        ZStack {
+            VLCPlayerWrapper(player: viewModel.coordinator.vlcPlayer)
+                .ignoresSafeArea()
+
+            if viewModel.showControls {
+                TransportOverlay(
+                    title: viewModel.item.name,
+                    isPlaying: viewModel.isPlaying,
+                    currentTime: viewModel.currentTime,
+                    totalTime: viewModel.totalTime,
+                    progress: viewModel.progress,
+                    audioTracks: viewModel.audioTracks,
+                    subtitleTracks: viewModel.subtitleTracks,
+                    currentAudioIndex: viewModel.currentAudioIndex,
+                    currentSubtitleIndex: viewModel.currentSubtitleIndex,
+                    onTogglePlayPause: { viewModel.togglePlayPause() },
+                    onSeekForward: { viewModel.seekForward() },
+                    onSeekBackward: { viewModel.seekBackward() },
+                    onSelectAudio: { viewModel.setAudioTrack($0) },
+                    onSelectSubtitle: { viewModel.setSubtitleTrack($0) }
+                )
+                .transition(.opacity)
+            }
+
+            // Input catcher for VLCKit mode
+            Color.clear
+                .ignoresSafeArea()
+                .focusable()
+                .onPlayPauseCommand { viewModel.togglePlayPause() }
+                .onExitCommand { dismissPlayer() }
+                .onMoveCommand { direction in
+                    switch direction {
+                    case .left: viewModel.seekBackward()
+                    case .right: viewModel.seekForward()
+                    default: viewModel.showControlsTemporarily()
+                    }
+                }
+        }
+        .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
+    }
+
+    // MARK: - Dismiss
+
     private func dismissPlayer() {
         viewModel.coordinator.stop()
         Task {
@@ -102,6 +116,8 @@ struct PlayerView: View {
             onDismiss()
         }
     }
+
+    // MARK: - Error
 
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 16) {
