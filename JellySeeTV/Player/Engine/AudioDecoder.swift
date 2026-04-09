@@ -163,24 +163,36 @@ final class AudioDecoder: @unchecked Sendable {
             return nil
         }
 
-        // Get output buffer pointers
+        // Get output pointers
         let channels = Int(format.channelCount)
-        var outPointers = [UnsafeMutablePointer<UInt8>?](repeating: nil, count: channels)
+        guard let floatData = pcmBuffer.floatChannelData else { return nil }
+
+        // Build output pointer array for swr_convert
+        var outPtrs = [UnsafeMutablePointer<UInt8>?](repeating: nil, count: channels)
         for ch in 0..<channels {
-            if let channelData = pcmBuffer.floatChannelData?[ch] {
-                outPointers[ch] = UnsafeMutablePointer<UInt8>(OpaquePointer(channelData))
+            outPtrs[ch] = UnsafeMutableRawPointer(floatData[ch]).assumingMemoryBound(to: UInt8.self)
+        }
+
+        // Build input pointer array
+        let inData = frame.pointee.extended_data!
+        var inPtrs = [UnsafePointer<UInt8>?](repeating: nil, count: channels)
+        for ch in 0..<min(channels, Int(frame.pointee.ch_layout.nb_channels)) {
+            if let ptr = inData[ch] {
+                inPtrs[ch] = UnsafePointer(ptr)
             }
         }
 
         // Convert
-        let converted = outPointers.withUnsafeMutableBufferPointer { buf -> Int32 in
-            swr_convert(
-                swr,
-                buf.baseAddress,
-                Int32(dstSamples),
-                UnsafeMutablePointer(mutating: frame.pointee.extended_data),
-                frame.pointee.nb_samples
-            )
+        let converted = outPtrs.withUnsafeMutableBufferPointer { outBuf in
+            inPtrs.withUnsafeMutableBufferPointer { inBuf in
+                swr_convert(
+                    swr,
+                    outBuf.baseAddress,
+                    Int32(dstSamples),
+                    inBuf.baseAddress,
+                    frame.pointee.nb_samples
+                )
+            }
         }
 
         guard converted > 0 else { return nil }
@@ -203,19 +215,16 @@ final class AudioDecoder: @unchecked Sendable {
     // MARK: - Cleanup
 
     func close() {
-        if var swr = swrCtx {
-            swr_free(&swr)
-            swrCtx = nil
-        }
-        if var ctx = codecCtx {
-            avcodec_free_context(&ctx)
-            codecCtx = nil
-        }
+        var swr: OpaquePointer? = swrCtx
+        if swr != nil { swr_free(&swr) }
+        swrCtx = nil
+
+        var ctx: UnsafeMutablePointer<AVCodecContext>? = codecCtx
+        if ctx != nil { avcodec_free_context(&ctx) }
+        codecCtx = nil
     }
 
-    deinit {
-        close()
-    }
+    nonisolated deinit {}
 }
 
 enum AudioDecoderError: LocalizedError {
