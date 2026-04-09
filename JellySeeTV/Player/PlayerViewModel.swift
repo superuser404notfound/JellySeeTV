@@ -14,6 +14,14 @@ final class PlayerViewModel {
     var remainingTime: String = "-00:00"
     var progress: Float = 0
 
+    // Scrubbing state
+    var isScrubbing = false
+    var scrubProgress: Float = 0
+    var scrubTime: String = "00:00"
+    /// Progress shown on the bar: scrub position during scrub, live position otherwise
+    var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
+    private var scrubStartTime: Double = 0
+
     let item: JellyfinItem
     let engine = PlayerEngine()
 
@@ -131,6 +139,48 @@ final class PlayerViewModel {
     func seekBackward() {
         Task { await engine.seek(to: engine.currentTime - 10) }
         showControlsTemporarily()
+    }
+
+    // MARK: - Scrubbing
+
+    /// Called when user starts panning on remote touch surface.
+    func beginScrub() {
+        guard engine.duration > 0 else { return }
+        isScrubbing = true
+        scrubStartTime = engine.currentTime
+        scrubProgress = progress
+        showControls = true
+        controlsTimer?.cancel()
+    }
+
+    /// Called during pan — normalizedDelta is -1.0 to 1.0 relative to touch surface.
+    func updateScrub(normalizedDelta: CGFloat) {
+        guard isScrubbing, engine.duration > 0 else { return }
+        // Map full touch surface swipe to ~30% of duration for natural feel
+        let timeDelta = Double(normalizedDelta) * engine.duration * 0.3
+        let targetTime = max(0, min(engine.duration, scrubStartTime + timeDelta))
+        scrubProgress = Float(targetTime / engine.duration)
+        scrubTime = formatSeconds(targetTime)
+    }
+
+    /// Called when pan ends — commit the seek.
+    func commitScrub() {
+        guard isScrubbing, engine.duration > 0 else {
+            isScrubbing = false
+            return
+        }
+        let targetTime = Double(scrubProgress) * engine.duration
+        isScrubbing = false
+        Task {
+            await engine.seek(to: targetTime)
+            scheduleControlsHide()
+        }
+    }
+
+    /// Cancel scrub — return to original position.
+    func cancelScrub() {
+        isScrubbing = false
+        scheduleControlsHide()
     }
 
     func showControlsTemporarily() {

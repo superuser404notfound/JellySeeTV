@@ -6,9 +6,21 @@ struct TransportBar: View {
     let progress: Float
     let currentTime: String
     let remainingTime: String
+    let isScrubbing: Bool
+    let scrubTime: String
 
     var body: some View {
         VStack(spacing: 10) {
+            // Scrub time preview (large, centered, only during scrub)
+            if isScrubbing {
+                Text(scrubTime)
+                    .font(.system(size: 56, weight: .medium))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .transition(.opacity)
+                    .padding(.bottom, 16)
+            }
+
             // Progress bar
             progressBar
 
@@ -31,6 +43,7 @@ struct TransportBar: View {
         }
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
+        .animation(.easeInOut(duration: 0.2), value: isScrubbing)
     }
 
     // MARK: - Progress Bar
@@ -39,27 +52,30 @@ struct TransportBar: View {
         GeometryReader { geo in
             let width = geo.size.width
             let knobX = max(0, min(width, width * CGFloat(progress)))
+            let trackHeight: CGFloat = isScrubbing ? 10 : 6
+            let knobSize: CGFloat = isScrubbing ? 22 : 14
 
             ZStack(alignment: .leading) {
                 // Background track
                 Capsule()
                     .fill(.white.opacity(0.2))
-                    .frame(height: 6)
+                    .frame(height: trackHeight)
 
                 // Filled track
                 Capsule()
                     .fill(.white)
-                    .frame(width: knobX, height: 6)
+                    .frame(width: knobX, height: trackHeight)
 
                 // Playhead knob
                 Circle()
                     .fill(.white)
-                    .frame(width: 14, height: 14)
+                    .frame(width: knobSize, height: knobSize)
                     .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
-                    .offset(x: knobX - 7)
+                    .offset(x: knobX - knobSize / 2)
             }
+            .animation(.easeInOut(duration: 0.2), value: isScrubbing)
         }
-        .frame(height: 14)
+        .frame(height: 22)
     }
 }
 

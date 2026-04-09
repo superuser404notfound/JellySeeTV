@@ -27,10 +27,25 @@ struct PlayerView: View {
                 VideoLayerView(renderer: viewModel.engine.videoRenderer)
                     .ignoresSafeArea()
 
-                // Tap handler — click on remote toggles overlay
-                RemoteTapHandler(onTap: {
-                    viewModel.toggleControls()
-                })
+                // Remote gesture handler
+                RemoteTapHandler(
+                    onTap: {
+                        if viewModel.isScrubbing {
+                            viewModel.commitScrub()
+                        } else {
+                            viewModel.toggleControls()
+                        }
+                    },
+                    onPanChanged: { delta in
+                        if !viewModel.isScrubbing {
+                            viewModel.beginScrub()
+                        }
+                        viewModel.updateScrub(normalizedDelta: delta)
+                    },
+                    onPanEnded: {
+                        viewModel.commitScrub()
+                    }
+                )
                 .ignoresSafeArea()
 
                 // Loading overlay
@@ -55,9 +70,11 @@ struct PlayerView: View {
                     VStack {
                         Spacer()
                         TransportBar(
-                            progress: viewModel.progress,
+                            progress: viewModel.displayedProgress,
                             currentTime: viewModel.currentTime,
-                            remainingTime: viewModel.remainingTime
+                            remainingTime: viewModel.remainingTime,
+                            isScrubbing: viewModel.isScrubbing,
+                            scrubTime: viewModel.scrubTime
                         )
                     }
                     .transition(.opacity)
@@ -70,7 +87,13 @@ struct PlayerView: View {
             viewModel.togglePlayPause()
         }
         .onExitCommand {
-            dismissPlayer()
+            if viewModel.isScrubbing {
+                viewModel.cancelScrub()
+            } else if viewModel.showControls {
+                viewModel.showControls = false
+            } else {
+                dismissPlayer()
+            }
         }
         .onMoveCommand { direction in
             switch direction {
