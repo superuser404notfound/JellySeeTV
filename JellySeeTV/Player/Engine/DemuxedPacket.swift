@@ -9,42 +9,75 @@ enum PacketStreamType {
     case subtitle
 }
 
-/// Wrapper around an FFmpeg AVPacket with stream info.
+/// Wrapper around FFmpeg AVPacket data.
+/// Copies the packet data to owned memory for safe cross-thread use.
 nonisolated final class DemuxedPacket {
-    /// Raw pointer stored as Int for Swift 6 deinit compatibility
-    private let packetAddress: Int
-    let streamType: PacketStreamType
+    let data: Data
+    let size: Int32
+    let pts: Int64
+    let dts: Int64
+    let duration: Int64
     let streamIndex: Int32
-    let pts: Double
-    let duration: Double
+    let flags: Int32
+    let streamType: PacketStreamType
+    let ptsSeconds: Double
+    let durationSeconds: Double
 
     #if !targetEnvironment(simulator)
-    var packet: UnsafeMutablePointer<AVPacket> {
-        UnsafeMutablePointer(bitPattern: packetAddress)!
-    }
-
     init(packet: UnsafeMutablePointer<AVPacket>, streamType: PacketStreamType, streamIndex: Int32, pts: Double, duration: Double) {
-        let cloned = av_packet_clone(packet)!
-        self.packetAddress = Int(bitPattern: cloned)
-        self.streamType = streamType
+        // Copy packet data to owned memory
+        if let pktData = packet.pointee.data, packet.pointee.size > 0 {
+            self.data = Data(bytes: pktData, count: Int(packet.pointee.size))
+        } else {
+            self.data = Data()
+        }
+        self.size = packet.pointee.size
+        self.pts = packet.pointee.pts
+        self.dts = packet.pointee.dts
+        self.duration = packet.pointee.duration
         self.streamIndex = streamIndex
-        self.pts = pts
-        self.duration = duration
+        self.flags = packet.pointee.flags
+        self.streamType = streamType
+        self.ptsSeconds = pts
+        self.durationSeconds = duration
     }
 
-    deinit {
-        if let ptr = UnsafeMutablePointer<AVPacket>(bitPattern: packetAddress) {
-            var p: UnsafeMutablePointer<AVPacket>? = ptr
+    /// Creates a temporary AVPacket pointing to our copied data for decoding.
+    /// The caller must NOT free this packet -- the data is owned by DemuxedPacket.
+    func withAVPacket<T>(_ body: (UnsafeMutablePointer<AVPacket>) -> T) -> T {
+        let pkt = av_packet_alloc()!
+        defer {
+            // Don't free the data buffer -- we own it
+            pkt.pointee.data = nil
+            pkt.pointee.size = 0
+            var p: UnsafeMutablePointer<AVPacket>? = pkt
             av_packet_free(&p)
         }
+
+        data.withUnsafeBytes { rawBuf in
+            pkt.pointee.data = UnsafeMutablePointer(mutating: rawBuf.baseAddress?.assumingMemoryBound(to: UInt8.self))
+            pkt.pointee.size = size
+            pkt.pointee.pts = pts
+            pkt.pointee.dts = dts
+            pkt.pointee.duration = duration
+            pkt.pointee.stream_index = streamIndex
+            pkt.pointee.flags = flags
+        }
+
+        return body(pkt)
     }
     #else
     init(streamType: PacketStreamType, streamIndex: Int32, pts: Double, duration: Double) {
-        self.packetAddress = 0
-        self.streamType = streamType
+        self.data = Data()
+        self.size = 0
+        self.pts = 0
+        self.dts = 0
+        self.duration = 0
         self.streamIndex = streamIndex
-        self.pts = pts
-        self.duration = duration
+        self.flags = 0
+        self.streamType = streamType
+        self.ptsSeconds = pts
+        self.durationSeconds = duration
     }
     #endif
 }

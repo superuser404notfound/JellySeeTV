@@ -98,9 +98,11 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 if isEOF && audioQueue.isEmpty { return }
                 continue
             }
-            let frames = decoder.decode(packet: packet.packet)
-            for frame in frames {
-                audioOutput.scheduleBuffer(frame.pcmBuffer)
+            packet.withAVPacket { pkt in
+                let frames = decoder.decode(packet: pkt)
+                for frame in frames {
+                    audioOutput.scheduleBuffer(frame.pcmBuffer)
+                }
             }
         }
     }
@@ -115,8 +117,10 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 if isEOF && videoQueue.isEmpty { return }
                 continue
             }
-            let frames = decoder.decode(packet: packet.packet)
-            for frame in frames { displayWithSync(frame) }
+            packet.withAVPacket { pkt in
+                let frames = decoder.decode(packet: pkt)
+                for frame in frames { displayWithSync(frame) }
+            }
         }
     }
 
