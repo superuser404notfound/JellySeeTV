@@ -6,6 +6,7 @@ struct SeriesDetailView: View {
     @State private var viewModel: DetailViewModel?
     @State private var selectedEpisode: JellyfinItem?
     @State private var navigateToEpisode: JellyfinItem?
+    @Namespace private var seasonNamespace
 
     let item: JellyfinItem
 
@@ -287,17 +288,18 @@ struct SeriesDetailView: View {
                                     Task { await vm.loadEpisodes(seasonID: season.id) }
                                 },
                                 onFocused: {
-                                    // When any season tab gets focus, scroll to the selected one
                                     withAnimation {
                                         proxy.scrollTo(vm.selectedSeasonID, anchor: .center)
                                     }
                                 }
                             )
                             .id(season.id)
+                            .prefersDefaultFocus(vm.selectedSeasonID == season.id, in: seasonNamespace)
                         }
                     }
                     .padding(.horizontal, 50)
                 }
+                .focusScope(seasonNamespace)
                 .onChange(of: vm.selectedSeasonID) { _, newID in
                     withAnimation { proxy.scrollTo(newID, anchor: .center) }
                 }
