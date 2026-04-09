@@ -1,0 +1,14 @@
+prefix=/Users/vincentherbst/Dev/JellySeeTV/Vendor/FFmpeg/build/output-appletvos
+exec_prefix=${prefix}
+libdir=/Users/vincentherbst/Dev/JellySeeTV/Vendor/FFmpeg/build/output-appletvos/lib
+includedir=/Users/vincentherbst/Dev/JellySeeTV/Vendor/FFmpeg/build/output-appletvos/include
+
+Name: libavformat
+Description: FFmpeg container format library
+Version: 61.7.100
+Requires: libavcodec >= 61.19.100, libswresample >= 5.3.100, libavutil >= 59.39.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavformat -lm -framework CoreFoundation -framework Security
+Libs.private: 
+Cflags: -I${includedir}
