@@ -34,15 +34,21 @@ final class PlaybackCoordinator {
 
         // 3. Determine play method and build URL
         let streamURL: URL?
-        if source.supportsDirectPlay == true {
+        let nativeContainers: Set<String> = ["mp4", "m4v", "mov"]
+        let isNativeContainer = nativeContainers.contains(source.container?.lowercased() ?? "")
+
+        if source.supportsDirectPlay == true && isNativeContainer {
+            // Native container (mp4/mov) -- serve file directly
             playMethod = .directPlay
             streamURL = playbackService.buildStreamURL(
                 itemID: item.id, mediaSourceID: source.id, container: source.container, isStatic: true
             )
         } else if source.supportsDirectStream == true {
+            // Non-native container (mkv/webm) or DirectPlay not available
+            // Jellyfin remuxes to mp4 without re-encoding video/audio
             playMethod = .directStream
             streamURL = playbackService.buildStreamURL(
-                itemID: item.id, mediaSourceID: source.id, container: source.container, isStatic: true
+                itemID: item.id, mediaSourceID: source.id, container: "mp4", isStatic: false
             )
         } else if source.supportsTranscoding == true, let transURL = source.transcodingUrl {
             playMethod = .transcode

@@ -38,7 +38,7 @@ enum DirectPlayProfile {
     private static var directPlayProfiles: [[String: Any]] {
         [
             [
-                "Container": "mp4,m4v,mov,mkv,webm",
+                "Container": "mp4,m4v,mov",
                 "Type": "Video",
                 "VideoCodec": videoCodecs,
                 "AudioCodec": "aac,ac3,eac3,flac,alac,opus,mp3,vorbis,pcm_s16le,pcm_s24le",
