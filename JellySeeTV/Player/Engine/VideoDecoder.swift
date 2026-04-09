@@ -4,7 +4,7 @@ import CoreVideo
 #if !targetEnvironment(simulator)
 import CFFmpeg
 
-struct DecodedVideoFrame {
+nonisolated struct DecodedVideoFrame {
     let pixelBuffer: CVPixelBuffer
     let pts: Double
     let duration: Double
@@ -159,7 +159,7 @@ nonisolated final class VideoDecoder: @unchecked Sendable {
     nonisolated deinit {}
 }
 
-private func av_frame_free_safe(_ frame: UnsafeMutablePointer<AVFrame>) {
+nonisolated private func av_frame_free_safe(_ frame: UnsafeMutablePointer<AVFrame>) {
     var f: UnsafeMutablePointer<AVFrame>? = frame
     av_frame_free(&f)
 }
