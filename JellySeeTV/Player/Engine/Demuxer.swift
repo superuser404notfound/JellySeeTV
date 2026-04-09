@@ -154,7 +154,8 @@ nonisolated final class Demuxer: @unchecked Sendable {
 
     // MARK: - Read Packets
 
-    /// Reads the next packet from the container. Returns nil at EOF.
+    /// Reads the next packet from the container. Returns nil only at true EOF.
+    /// Retries on temporary errors (network buffering, EAGAIN).
     func readPacket() -> DemuxedPacket? {
         guard isOpen, let ctx = formatCtx else { return nil }
 
@@ -164,8 +165,43 @@ nonisolated final class Demuxer: @unchecked Sendable {
             av_packet_free(&p)
         }
 
-        let ret = av_read_frame(ctx, pkt)
-        guard ret >= 0 else { return nil } // EOF or error
+        // Retry loop for temporary errors
+        var ret: Int32 = 0
+        var retries = 0
+        let maxRetries = 50 // ~5 seconds of retries
+
+        repeat {
+            ret = av_read_frame(ctx, pkt)
+            if ret >= 0 { break } // Success
+
+            let averror_eof = Int32(-541478725) // AVERROR_EOF
+            let averror_eagain = Int32(-11) // EAGAIN
+
+            if ret == averror_eof {
+                #if DEBUG
+                print("[Demuxer] True EOF reached")
+                #endif
+                return nil // Actual end of file
+            }
+
+            // Retry on temporary errors
+            retries += 1
+            if retries <= maxRetries {
+                Thread.sleep(forTimeInterval: 0.1) // Wait 100ms before retry
+                #if DEBUG
+                if retries % 10 == 0 {
+                    print("[Demuxer] Read retry \(retries)/\(maxRetries), error: \(ret)")
+                }
+                #endif
+            }
+        } while retries <= maxRetries
+
+        guard ret >= 0 else {
+            #if DEBUG
+            print("[Demuxer] Read failed after \(retries) retries, error: \(ret) (\(errorString(ret)))")
+            #endif
+            return nil
+        }
 
         let streamIdx = pkt.pointee.stream_index
         let stream = ctx.pointee.streams[Int(streamIdx)]!
