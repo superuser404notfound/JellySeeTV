@@ -59,10 +59,10 @@ final class PlayerViewModel {
             }
             mediaSourceID = source.id
 
-            // Build DirectPlay URL (always Static=true, our engine handles everything)
+            // Build DirectPlay URL (no Static -- FFmpeg handles HTTP streaming natively)
             guard let url = playbackService.buildStreamURL(
                 itemID: item.id, mediaSourceID: source.id,
-                container: source.container, isStatic: true
+                container: source.container, isStatic: false
             ) else {
                 throw PlayerEngineError.noURL
             }
