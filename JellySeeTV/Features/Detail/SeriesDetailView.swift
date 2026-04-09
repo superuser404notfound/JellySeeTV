@@ -6,7 +6,7 @@ struct SeriesDetailView: View {
     @State private var viewModel: DetailViewModel?
     @State private var selectedEpisode: JellyfinItem?
     @State private var navigateToEpisode: JellyfinItem?
-    @Namespace private var seasonNamespace
+    @FocusState private var focusedSeasonID: String?
 
     let item: JellyfinItem
 
@@ -283,24 +283,28 @@ struct SeriesDetailView: View {
                                 id: season.id,
                                 name: season.name,
                                 isSelected: vm.selectedSeasonID == season.id,
+                                focusedID: $focusedSeasonID,
                                 action: {
                                     selectedEpisode = nil
                                     Task { await vm.loadEpisodes(seasonID: season.id) }
-                                },
-                                onFocused: {
-                                    withAnimation {
-                                        proxy.scrollTo(vm.selectedSeasonID, anchor: .center)
-                                    }
                                 }
                             )
                             .id(season.id)
-                            .prefersDefaultFocus(vm.selectedSeasonID == season.id, in: seasonNamespace)
                         }
                     }
                     .padding(.horizontal, 50)
                 }
-                .focusScope(seasonNamespace)
+                .onChange(of: focusedSeasonID) { _, newID in
+                    // When any season gets focus, redirect to the selected one
+                    if newID != nil && newID != vm.selectedSeasonID {
+                        focusedSeasonID = vm.selectedSeasonID
+                    }
+                    if let selectedID = vm.selectedSeasonID {
+                        withAnimation { proxy.scrollTo(selectedID, anchor: .center) }
+                    }
+                }
                 .onChange(of: vm.selectedSeasonID) { _, newID in
+                    focusedSeasonID = newID
                     withAnimation { proxy.scrollTo(newID, anchor: .center) }
                 }
             }
@@ -385,10 +389,10 @@ struct SeasonTab: View {
     let id: String
     let name: String
     let isSelected: Bool
+    var focusedID: FocusState<String?>.Binding
     let action: () -> Void
-    var onFocused: (() -> Void)?
 
-    @FocusState private var isFocused: Bool
+    private var isFocused: Bool { focusedID.wrappedValue == id }
 
     var body: some View {
         Button { action() } label: {
@@ -400,7 +404,6 @@ struct SeasonTab: View {
                     .padding(.horizontal, 24)
                     .padding(.vertical, 10)
 
-                // Selection indicator
                 RoundedRectangle(cornerRadius: 2)
                     .fill(isSelected ? Color.accentColor : .clear)
                     .frame(height: 3)
@@ -412,10 +415,7 @@ struct SeasonTab: View {
             )
         }
         .buttonStyle(SeasonTabButtonStyle())
-        .focused($isFocused)
-        .onChange(of: isFocused) { _, focused in
-            if focused { onFocused?() }
-        }
+        .focused(focusedID, equals: id)
     }
 
     private var tabBackground: Color {
