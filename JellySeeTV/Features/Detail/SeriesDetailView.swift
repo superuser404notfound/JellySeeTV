@@ -20,9 +20,26 @@ struct SeriesDetailView: View {
     }
 
     var body: some View {
+        // Read Observable properties directly in body for proper tracking
+        let backdropTags = viewModel?.item.backdropImageTags
+        let parentBackdropTags = viewModel?.item.parentBackdropImageTags
+        let itemID = viewModel?.item.id ?? item.id
+        let backdropURL: URL? = {
+            if let ep = selectedEpisode {
+                return dependencies.jellyfinImageService.episodeThumbnailURL(for: ep)
+            }
+            if let tag = backdropTags?.first {
+                return dependencies.jellyfinImageService.imageURL(itemID: itemID, imageType: .backdrop, tag: tag, maxWidth: 1920)
+            }
+            if let tag = parentBackdropTags?.first, let seriesId = viewModel?.item.seriesId {
+                return dependencies.jellyfinImageService.imageURL(itemID: seriesId, imageType: .backdrop, tag: tag, maxWidth: 1920)
+            }
+            return nil
+        }()
+
         ZStack {
-            DetailBackdrop(imageURL: resolveBackdropURL())
-                .id(viewModel?.item.backdropImageTags?.first ?? selectedEpisode?.id ?? "empty")
+            DetailBackdrop(imageURL: backdropURL)
+                .id(backdropTags?.first ?? selectedEpisode?.id ?? "empty")
                 .animation(.easeInOut(duration: 0.5), value: selectedEpisode?.id)
 
             if let vm = viewModel {
@@ -91,16 +108,6 @@ struct SeriesDetailView: View {
                 }
             }
         }
-    }
-
-    // MARK: - Backdrop URL
-
-    private func resolveBackdropURL() -> URL? {
-        if let ep = selectedEpisode {
-            return dependencies.jellyfinImageService.episodeThumbnailURL(for: ep)
-                ?? viewModel.flatMap { $0.backdropURL(for: $0.item) }
-        }
-        return viewModel.flatMap { $0.backdropURL(for: $0.item) }
     }
 
     // MARK: - Glass Panel
