@@ -21,15 +21,15 @@ struct SeriesDetailView: View {
 
     var body: some View {
         ZStack {
-            // Backdrop -- read vm.item directly to track changes
             DetailBackdrop(imageURL: resolveBackdropURL())
+                .id(viewModel?.item.backdropImageTags?.first ?? selectedEpisode?.id ?? "empty")
                 .animation(.easeInOut(duration: 0.5), value: selectedEpisode?.id)
-                .animation(.easeInOut(duration: 0.3), value: viewModel?.item.backdropImageTags?.first)
 
             if let vm = viewModel {
                 DetailContentOverlay {
                     glassPanel(vm: vm)
                         .padding(.horizontal, 50)
+                        .id(vm.item.genres?.first ?? vm.item.name)
                         .animation(.easeInOut(duration: 0.3), value: selectedEpisode?.id)
 
                     if let overview = displayItem.overview, !overview.isEmpty {

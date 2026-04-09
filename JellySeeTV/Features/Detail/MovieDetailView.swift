@@ -38,10 +38,12 @@ struct MovieDetailView: View {
     private func contentView(vm: DetailViewModel) -> some View {
         ZStack {
             DetailBackdrop(imageURL: vm.backdropURL(for: vm.item))
+                .id(vm.item.backdropImageTags?.first ?? "empty")
 
             DetailContentOverlay {
                 glassPanel(vm: vm)
                     .padding(.horizontal, 50)
+                    .id(vm.item.genres?.first ?? vm.item.name)
 
                 if let overview = vm.item.overview, !overview.isEmpty {
                     ExpandableTextBox(text: overview)
