@@ -84,16 +84,25 @@ nonisolated final class Demuxer: @unchecked Sendable {
             }
 
             // Extract duration
-            if ctx.pointee.duration > 0 {
-                duration = Double(ctx.pointee.duration) / Double(AV_TIME_BASE)
+            let dur = ctx.pointee.duration
+            let nopts = Int64(bitPattern: UInt64(0x8000000000000000))
+            if dur > 0 && dur != nopts {
+                duration = Double(dur) / Double(AV_TIME_BASE)
             }
+
+            #if DEBUG
+            print("[Demuxer] nb_streams: \(ctx.pointee.nb_streams), raw duration: \(dur)")
+            #endif
 
             // Enumerate streams
             let nbStreams = Int(ctx.pointee.nb_streams)
             for i in 0..<nbStreams {
                 guard let stream = ctx.pointee.streams[i] else { continue }
-                guard stream.pointee.codecpar != nil else { continue }
-                let codecpar = stream.pointee.codecpar.pointee
+                let codecpar = stream.pointee.codecpar!.pointee
+
+                #if DEBUG
+                print("[Demuxer] Stream[\(i)]: codec_type=\(codecpar.codec_type.rawValue), codec_id=\(codecpar.codec_id.rawValue)")
+                #endif
 
                 let info = extractStreamInfo(stream: stream, index: Int32(i))
 
