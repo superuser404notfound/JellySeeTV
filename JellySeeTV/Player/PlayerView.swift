@@ -35,18 +35,52 @@ struct PlayerView: View {
                         .transition(.opacity)
                 }
 
-                // Transport controls
+                // Transport UI (native tvOS style)
                 if viewModel.showControls && !viewModel.isLoading {
-                    transportOverlay
+                    transportUI
                         .transition(.opacity)
+                }
+
+                // Bottom gradient (always visible when controls shown, helps readability)
+                if viewModel.showControls && !viewModel.isLoading {
+                    VStack {
+                        Spacer()
+                        LinearGradient(
+                            colors: [.clear, .black.opacity(0.7)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 300)
+                        .allowsHitTesting(false)
+                    }
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+
+                    // Top gradient for title
+                    VStack {
+                        LinearGradient(
+                            colors: [.black.opacity(0.7), .clear],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 200)
+                        .allowsHitTesting(false)
+                        Spacer()
+                    }
+                    .ignoresSafeArea()
+                    .transition(.opacity)
                 }
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
         .focusable()
-        .onPlayPauseCommand { viewModel.togglePlayPause() }
-        .onExitCommand { dismissPlayer() }
+        .onPlayPauseCommand {
+            viewModel.togglePlayPause()
+        }
+        .onExitCommand {
+            dismissPlayer()
+        }
         .onMoveCommand { direction in
             switch direction {
             case .left: viewModel.seekBackward()
@@ -63,71 +97,29 @@ struct PlayerView: View {
         }
     }
 
-    // MARK: - Transport Overlay
+    // MARK: - Native Transport UI
 
-    private var transportOverlay: some View {
-        VStack {
-            Spacer()
-
-            VStack(spacing: 16) {
-                Text(viewModel.item.name)
-                    .font(.headline)
-                    .lineLimit(1)
-
-                // Progress bar
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(.white.opacity(0.2)).frame(height: 6)
-                        Capsule().fill(.tint).frame(
-                            width: max(0, geo.size.width * CGFloat(viewModel.progress)),
-                            height: 6
-                        )
-                    }
-                }
-                .frame(height: 6)
-
-                // Time + controls
-                HStack {
-                    Text(viewModel.currentTime)
-                        .font(.caption)
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-
-                    Spacer()
-
-                    HStack(spacing: 30) {
-                        Button { viewModel.seekBackward() } label: {
-                            Image(systemName: "gobackward.10").font(.title3)
-                        }
-                        .buttonStyle(.plain)
-
-                        Button { viewModel.togglePlayPause() } label: {
-                            Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-                                .font(.title2)
-                        }
-                        .buttonStyle(.plain)
-
-                        Button { viewModel.seekForward() } label: {
-                            Image(systemName: "goforward.10").font(.title3)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    Spacer()
-
-                    Text(viewModel.totalTime)
-                        .font(.caption)
-                        .monospacedDigit()
-                        .foregroundStyle(.secondary)
-                }
+    private var transportUI: some View {
+        ZStack {
+            // Title at top
+            VStack {
+                PlayerTitleOverlay(item: viewModel.item)
+                Spacer()
             }
-            .padding(30)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.ultraThinMaterial)
-            )
-            .padding(.horizontal, 60)
-            .padding(.bottom, 40)
+
+            // Transport bar at bottom
+            VStack {
+                Spacer()
+                TransportBar(
+                    progress: viewModel.progress,
+                    currentTime: viewModel.currentTime,
+                    remainingTime: viewModel.remainingTime,
+                    isPlaying: viewModel.isPlaying,
+                    onSeekBackward: { viewModel.seekBackward() },
+                    onTogglePlayPause: { viewModel.togglePlayPause() },
+                    onSeekForward: { viewModel.seekForward() }
+                )
+            }
         }
     }
 

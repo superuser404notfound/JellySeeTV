@@ -11,6 +11,7 @@ final class PlayerViewModel {
     var showControls = false
     var currentTime: String = "00:00"
     var totalTime: String = "00:00"
+    var remainingTime: String = "-00:00"
     var progress: Float = 0
 
     let item: JellyfinItem
@@ -117,7 +118,9 @@ final class PlayerViewModel {
 
     func togglePlayPause() {
         engine.togglePlayPause()
-        showControlsTemporarily()
+        showControls = true
+        // Pause: keep controls visible. Play: schedule auto-hide
+        scheduleControlsHide()
     }
 
     func seekForward() {
@@ -132,7 +135,22 @@ final class PlayerViewModel {
 
     func showControlsTemporarily() {
         showControls = true
+        scheduleControlsHide()
+    }
+
+    func toggleControls() {
+        if showControls {
+            showControls = false
+            controlsTimer?.cancel()
+        } else {
+            showControlsTemporarily()
+        }
+    }
+
+    private func scheduleControlsHide() {
         controlsTimer?.cancel()
+        // Don't auto-hide when paused
+        guard isPlaying else { return }
         controlsTimer = Task {
             try? await Task.sleep(for: .seconds(5))
             guard !Task.isCancelled else { return }
@@ -150,6 +168,8 @@ final class PlayerViewModel {
 
                 // Update from engine
                 currentTime = formatSeconds(engine.currentTime)
+                let remaining = engine.duration - engine.currentTime
+                remainingTime = remaining > 0 ? "-\(formatSeconds(remaining))" : "-00:00"
                 progress = engine.progress
 
                 #if !targetEnvironment(simulator)
