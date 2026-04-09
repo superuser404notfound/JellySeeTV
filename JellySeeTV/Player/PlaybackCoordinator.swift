@@ -56,6 +56,16 @@ final class PlaybackCoordinator {
             throw PlaybackError.invalidStreamURL
         }
 
+        #if DEBUG
+        print("[Player] Play method: \(playMethod.rawValue)")
+        print("[Player] Stream URL: \(url)")
+        print("[Player] DirectPlay: \(source.supportsDirectPlay ?? false), DirectStream: \(source.supportsDirectStream ?? false), Transcode: \(source.supportsTranscoding ?? false)")
+        print("[Player] Container: \(source.container ?? "unknown")")
+        if let vs = source.mediaStreams?.first(where: { $0.type == .video }) {
+            print("[Player] Video: \(vs.codec ?? "?") \(vs.width ?? 0)x\(vs.height ?? 0)")
+        }
+        #endif
+
         // 4. Configure AVPlayer
         let playerItem = AVPlayerItem(url: url)
         playerItem.preferredForwardBufferDuration = 30
