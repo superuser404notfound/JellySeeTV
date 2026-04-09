@@ -24,7 +24,7 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
 
         guard let url = components?.url else { throw APIError.invalidURL }
 
-        let deviceProfile = profile ?? DirectPlayProfile.avPlayerProfile()
+        let deviceProfile = profile ?? DirectPlayProfile.customEngineProfile()
         let body: [String: Any] = ["DeviceProfile": deviceProfile]
         let bodyData = try JSONSerialization.data(withJSONObject: body)
 

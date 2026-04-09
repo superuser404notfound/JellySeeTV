@@ -5,10 +5,6 @@ struct JellySeeTVApp: App {
     @State private var appState = AppState()
     @State private var dependencies = DependencyContainer()
 
-    init() {
-        FFmpegTest.verify()
-    }
-
     var body: some Scene {
         WindowGroup {
             AppRouter()
