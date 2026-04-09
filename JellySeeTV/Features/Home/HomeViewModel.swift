@@ -188,45 +188,27 @@ final class HomeViewModel {
                 return nil
             }
 
-            // Build TagCardData with backdrop images
-            var cardData: [TagCardData] = []
-            for tag in tags {
-                var backdropURL: URL?
-                var logoURL: URL?
+            // Fetch a batch of random items for backdrops (single API call)
+            let backdropQuery = ItemQuery(
+                includeItemTypes: [.movie, .series],
+                sortBy: "Random",
+                limit: min(tags.count, 20)
+            )
+            let backdropItems = (try? await libraryService.getItems(userID: userID, query: backdropQuery).items) ?? []
 
-                if isStudio {
-                    // Studio logo from Jellyfin
-                    logoURL = imageService.studioLogoURL(studioName: tag.name)
-                    // Get one item from this studio for backdrop
-                    let query = ItemQuery(
-                        includeItemTypes: [.movie, .series],
-                        sortBy: "Random",
-                        limit: 1,
-                        studioNames: [tag.name]
-                    )
-                    if let item = try? await libraryService.getItems(userID: userID, query: query).items.first {
-                        backdropURL = imageService.backdropURL(for: item)
-                    }
-                } else {
-                    // Get one item from this genre for backdrop
-                    let query = ItemQuery(
-                        includeItemTypes: [.movie, .series],
-                        sortBy: "Random",
-                        limit: 1,
-                        genres: [tag.name]
-                    )
-                    if let item = try? await libraryService.getItems(userID: userID, query: query).items.first {
-                        backdropURL = imageService.backdropURL(for: item) ?? imageService.posterURL(for: item)
-                    }
-                }
+            // Build TagCardData, distributing backdrop images round-robin
+            let cardData: [TagCardData] = tags.enumerated().map { index, tag in
+                let backdropItem = backdropItems.isEmpty ? nil : backdropItems[index % backdropItems.count]
+                let backdropURL = backdropItem.flatMap { imageService.backdropURL(for: $0) ?? imageService.posterURL(for: $0) }
+                let logoURL = isStudio ? imageService.studioLogoURL(studioName: tag.name) : nil
 
-                cardData.append(TagCardData(
+                return TagCardData(
                     id: tag.id,
                     name: tag.name,
                     backdropURL: backdropURL,
                     logoURL: logoURL,
                     isStudio: isStudio
-                ))
+                )
             }
 
             return HomeTagRowData(type: type, tags: cardData)

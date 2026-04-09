@@ -6,6 +6,7 @@ struct FilteredGridView: View {
     @State private var items: [JellyfinItem] = []
     @State private var isLoading = true
     @State private var selectedItem: JellyfinItem?
+    @Environment(\.dismiss) private var dismiss
 
     let title: String
     let query: ItemQuery
@@ -20,8 +21,13 @@ struct FilteredGridView: View {
                 .padding(.top, 20)
 
             if isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 400)
+                VStack(spacing: 16) {
+                    ProgressView()
+                    // Focusable element so Menu button works during loading
+                    Button("") { dismiss() }
+                        .opacity(0)
+                }
+                .frame(maxWidth: .infinity, minHeight: 400)
             } else if items.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "film")
@@ -29,6 +35,9 @@ struct FilteredGridView: View {
                         .foregroundStyle(.tertiary)
                     Text("home.retry")
                         .foregroundStyle(.secondary)
+                    Button { dismiss() } label: {
+                        Text("detail.showSeries")
+                    }
                 }
                 .frame(maxWidth: .infinity, minHeight: 400)
             } else {
