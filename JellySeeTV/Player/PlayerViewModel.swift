@@ -29,16 +29,19 @@ final class PlayerViewModel {
     private var controlsTimer: Task<Void, Never>?
     private var avPlayerObserver: Any?
     private var hasReportedStart = false
+    private var cachedPlaybackInfo: PlaybackInfoResponse?
 
     init(
         item: JellyfinItem,
         startFromBeginning: Bool,
         playbackService: JellyfinPlaybackServiceProtocol,
-        userID: String
+        userID: String,
+        cachedPlaybackInfo: PlaybackInfoResponse? = nil
     ) {
         self.item = item
         self.startFromBeginning = startFromBeginning
         self.playbackService = playbackService
+        self.cachedPlaybackInfo = cachedPlaybackInfo
         self.coordinator = PlaybackCoordinator(playbackService: playbackService, userID: userID)
         setupVLCCallbacks()
     }
@@ -50,7 +53,7 @@ final class PlayerViewModel {
         errorMessage = nil
 
         do {
-            try await coordinator.preparePlayback(item: item, startFromBeginning: startFromBeginning)
+            try await coordinator.preparePlayback(item: item, startFromBeginning: startFromBeginning, cachedPlaybackInfo: cachedPlaybackInfo)
             engine = coordinator.engine
 
             if engine == .avPlayer {

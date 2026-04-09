@@ -38,12 +38,20 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
 
     // MARK: - Prepare Playback
 
-    func preparePlayback(item: JellyfinItem, startFromBeginning: Bool) async throws {
-        // Step 1: Try AVPlayer path first
-        let avInfo = try await playbackService.getPlaybackInfo(
-            itemID: item.id, userID: userID,
-            profile: DirectPlayProfile.avPlayerProfile()
-        )
+    func preparePlayback(item: JellyfinItem, startFromBeginning: Bool, cachedPlaybackInfo: PlaybackInfoResponse? = nil) async throws {
+        // Step 1: Use cached info or fetch fresh
+        let avInfo: PlaybackInfoResponse
+        if let cached = cachedPlaybackInfo {
+            avInfo = cached
+            #if DEBUG
+            print("[Player] Using cached PlaybackInfo")
+            #endif
+        } else {
+            avInfo = try await playbackService.getPlaybackInfo(
+                itemID: item.id, userID: userID,
+                profile: DirectPlayProfile.avPlayerProfile()
+            )
+        }
         playSessionID = avInfo.playSessionId
 
         guard let source = avInfo.mediaSources.first else {

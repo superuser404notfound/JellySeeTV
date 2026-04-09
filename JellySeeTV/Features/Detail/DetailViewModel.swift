@@ -12,9 +12,11 @@ final class DetailViewModel {
     var similarItems: [JellyfinItem] = []
     var selectedSeasonID: String?
     var isLoading = false
+    var cachedPlaybackInfo: PlaybackInfoResponse?
 
     private let itemService: JellyfinItemServiceProtocol
     private let libraryService: JellyfinLibraryServiceProtocol?
+    private let playbackService: JellyfinPlaybackServiceProtocol?
     private let imageService: JellyfinImageService
     private let userID: String
 
@@ -23,12 +25,14 @@ final class DetailViewModel {
         itemService: JellyfinItemServiceProtocol,
         imageService: JellyfinImageService,
         userID: String,
-        libraryService: JellyfinLibraryServiceProtocol? = nil
+        libraryService: JellyfinLibraryServiceProtocol? = nil,
+        playbackService: JellyfinPlaybackServiceProtocol? = nil
     ) {
         self.item = item
         self.isFavorite = item.userData?.isFavorite ?? false
         self.itemService = itemService
         self.libraryService = libraryService
+        self.playbackService = playbackService
         self.imageService = imageService
         self.userID = userID
     }
@@ -43,6 +47,9 @@ final class DetailViewModel {
         } catch {
             // Keep existing item data
         }
+
+        // Pre-fetch playback info in background so play starts instantly
+        prefetchPlaybackInfo(for: item.id)
 
         // Load similar items
         do {
@@ -141,6 +148,23 @@ final class DetailViewModel {
             NotificationCenter.default.post(name: .homeFavoritesDidChange, object: nil)
         } catch {
             isFavorite = oldValue
+        }
+    }
+
+    // MARK: - Playback Info Pre-fetch
+
+    func prefetchPlaybackInfo(for itemID: String) {
+        guard let playbackService else { return }
+        Task {
+            cachedPlaybackInfo = try? await playbackService.getPlaybackInfo(
+                itemID: itemID, userID: userID,
+                profile: DirectPlayProfile.avPlayerProfile()
+            )
+            #if DEBUG
+            if cachedPlaybackInfo != nil {
+                print("[Prefetch] PlaybackInfo cached for \(itemID)")
+            }
+            #endif
         }
     }
 

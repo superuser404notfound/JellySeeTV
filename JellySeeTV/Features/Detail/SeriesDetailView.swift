@@ -85,6 +85,7 @@ struct SeriesDetailView: View {
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
+                    cachedPlaybackInfo: ep.id == viewModel?.item.id ? viewModel?.cachedPlaybackInfo : nil,
                     onDismiss: { showPlayer = false }
                 )
                 .transition(.opacity)
@@ -102,7 +103,8 @@ struct SeriesDetailView: View {
                     itemService: dependencies.jellyfinItemService,
                     imageService: dependencies.jellyfinImageService,
                     userID: userID,
-                    libraryService: dependencies.jellyfinLibraryService
+                    libraryService: dependencies.jellyfinLibraryService,
+                    playbackService: dependencies.jellyfinPlaybackService
                 )
                 Task {
                     await viewModel?.loadFullDetail()

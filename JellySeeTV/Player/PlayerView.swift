@@ -5,12 +5,13 @@ struct PlayerView: View {
     @State private var viewModel: PlayerViewModel
     let onDismiss: () -> Void
 
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, onDismiss: @escaping () -> Void) {
+    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, onDismiss: @escaping () -> Void) {
         _viewModel = State(initialValue: PlayerViewModel(
             item: item,
             startFromBeginning: startFromBeginning,
             playbackService: playbackService,
-            userID: userID
+            userID: userID,
+            cachedPlaybackInfo: cachedPlaybackInfo
         ))
         self.onDismiss = onDismiss
     }

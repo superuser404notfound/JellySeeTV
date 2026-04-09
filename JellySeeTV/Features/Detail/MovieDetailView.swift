@@ -28,6 +28,7 @@ struct MovieDetailView: View {
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
+                    cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
                     onDismiss: { showPlayer = false }
                 )
                 .transition(.opacity)
@@ -48,7 +49,8 @@ struct MovieDetailView: View {
                     item: item,
                     itemService: dependencies.jellyfinItemService,
                     imageService: dependencies.jellyfinImageService,
-                    userID: userID
+                    userID: userID,
+                    playbackService: dependencies.jellyfinPlaybackService
                 )
                 Task { await viewModel?.loadFullDetail() }
             }

@@ -28,7 +28,8 @@ struct CollectionDetailView: View {
                     item: item,
                     itemService: dependencies.jellyfinItemService,
                     imageService: dependencies.jellyfinImageService,
-                    userID: userID
+                    userID: userID,
+                    playbackService: dependencies.jellyfinPlaybackService
                 )
                 Task {
                     await viewModel?.loadFullDetail()
