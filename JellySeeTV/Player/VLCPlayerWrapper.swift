@@ -23,6 +23,7 @@ class VLCVideoUIView: UIView {
         self.player = player
         super.init(frame: .zero)
         backgroundColor = .black
+        isUserInteractionEnabled = false // Don't steal focus from SwiftUI overlay
     }
 
     required init?(coder: NSCoder) {
@@ -32,7 +33,6 @@ class VLCVideoUIView: UIView {
     override func didMoveToWindow() {
         super.didMoveToWindow()
         if window != nil {
-            // View is now in the hierarchy -- safe to set drawable
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 self.player.drawable = self
@@ -42,9 +42,10 @@ class VLCVideoUIView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        // Ensure VLC video fills the entire view
         for subview in subviews {
             subview.frame = bounds
         }
     }
+
+    override var canBecomeFocused: Bool { false }
 }

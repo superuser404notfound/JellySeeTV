@@ -18,12 +18,17 @@ struct TransportOverlay: View {
 
     @State private var showAudioPicker = false
     @State private var showSubtitlePicker = false
+    @FocusState private var focusedButton: TransportButton?
+
+    enum TransportButton: Hashable {
+        case seekBack, playPause, seekForward, audio, subtitle
+    }
 
     var body: some View {
         VStack {
             Spacer()
 
-            VStack(spacing: 16) {
+            VStack(spacing: 20) {
                 // Title
                 Text(title)
                     .font(.headline)
@@ -32,108 +37,79 @@ struct TransportOverlay: View {
                 // Progress bar
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
-                        // Track
-                        Capsule()
-                            .fill(.white.opacity(0.2))
-                            .frame(height: 6)
-
-                        // Progress
-                        Capsule()
-                            .fill(.tint)
-                            .frame(width: max(0, geo.size.width * CGFloat(progress)), height: 6)
+                        Capsule().fill(.white.opacity(0.2)).frame(height: 6)
+                        Capsule().fill(.tint).frame(width: max(0, geo.size.width * CGFloat(progress)), height: 6)
                     }
                 }
                 .frame(height: 6)
 
-                // Time + controls
+                // Time
                 HStack {
                     Text(currentTime)
                         .font(.caption)
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
-
                     Spacer()
-
-                    // Seek back
-                    HStack(spacing: 30) {
-                        Button { onSeekBackward() } label: {
-                            Image(systemName: "gobackward.10")
-                                .font(.title3)
-                        }
-                        .buttonStyle(.plain)
-
-                        // Play/Pause
-                        Button { onTogglePlayPause() } label: {
-                            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                .font(.title2)
-                        }
-                        .buttonStyle(.plain)
-
-                        // Seek forward
-                        Button { onSeekForward() } label: {
-                            Image(systemName: "goforward.10")
-                                .font(.title3)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    Spacer()
-
                     Text(totalTime)
                         .font(.caption)
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
                 }
 
-                // Track selection
-                HStack(spacing: 20) {
-                    if audioTracks.count > 1 {
-                        Button {
-                            showAudioPicker.toggle()
-                            showSubtitlePicker = false
-                        } label: {
-                            Label(currentAudioName, systemImage: "speaker.wave.2")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
+                // Transport buttons
+                HStack(spacing: 40) {
+                    transportButton(icon: "gobackward.10", focused: .seekBack) {
+                        onSeekBackward()
                     }
 
-                    if !subtitleTracks.isEmpty {
-                        Button {
-                            showSubtitlePicker.toggle()
-                            showAudioPicker = false
-                        } label: {
-                            Label(currentSubtitleName, systemImage: "captions.bubble")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
+                    transportButton(icon: isPlaying ? "pause.fill" : "play.fill", focused: .playPause, isLarge: true) {
+                        onTogglePlayPause()
+                    }
+
+                    transportButton(icon: "goforward.10", focused: .seekForward) {
+                        onSeekForward()
                     }
                 }
 
-                // Track picker popups
-                if showAudioPicker {
-                    trackPicker(
-                        title: "Audio",
-                        tracks: audioTracks,
-                        currentIndex: currentAudioIndex,
-                        onSelect: { index in
-                            onSelectAudio(index)
+                // Track selection
+                HStack(spacing: 24) {
+                    if audioTracks.count > 1 {
+                        transportButton(
+                            label: currentAudioName,
+                            icon: "speaker.wave.2",
+                            focused: .audio
+                        ) {
+                            showAudioPicker.toggle()
+                            showSubtitlePicker = false
+                        }
+                    }
+
+                    if !subtitleTracks.isEmpty {
+                        transportButton(
+                            label: currentSubtitleName,
+                            icon: "captions.bubble",
+                            focused: .subtitle
+                        ) {
+                            showSubtitlePicker.toggle()
                             showAudioPicker = false
                         }
+                    }
+                }
+
+                // Pickers
+                if showAudioPicker {
+                    trackPicker(
+                        tracks: audioTracks,
+                        currentIndex: currentAudioIndex,
+                        onSelect: { onSelectAudio($0); showAudioPicker = false }
                     )
                 }
 
                 if showSubtitlePicker {
                     trackPicker(
-                        title: "Subtitles",
                         tracks: [(-1, "Off")] + subtitleTracks,
                         currentIndex: currentSubtitleIndex,
-                        onSelect: { index in
-                            onSelectSubtitle(index)
-                            showSubtitlePicker = false
-                        }
+                        onSelect: { onSelectSubtitle($0); showSubtitlePicker = false }
                     )
                 }
             }
@@ -145,7 +121,58 @@ struct TransportOverlay: View {
             .padding(.horizontal, 60)
             .padding(.bottom, 40)
         }
+        .onAppear {
+            focusedButton = .playPause
+        }
     }
+
+    // MARK: - Transport Button
+
+    private func transportButton(label: String? = nil, icon: String, focused: TransportButton, isLarge: Bool = false, action: @escaping () -> Void) -> some View {
+        Button { action() } label: {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(isLarge ? .title : .title3)
+                if let label {
+                    Text(label)
+                        .font(.caption)
+                }
+            }
+            .padding(.horizontal, label != nil ? 16 : 8)
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(TransportButtonStyle())
+        .focused($focusedButton, equals: focused)
+    }
+
+    // MARK: - Track Picker
+
+    private func trackPicker(tracks: [(index: Int, name: String)], currentIndex: Int, onSelect: @escaping (Int) -> Void) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(tracks, id: \.index) { track in
+                    Button {
+                        onSelect(track.index)
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(track.name)
+                                .font(.caption)
+                            if track.index == currentIndex {
+                                Image(systemName: "checkmark")
+                                    .font(.caption2)
+                                    .foregroundStyle(.tint)
+                            }
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                    }
+                    .buttonStyle(TransportButtonStyle())
+                }
+            }
+        }
+    }
+
+    // MARK: - Helpers
 
     private var currentAudioName: String {
         audioTracks.first { $0.index == currentAudioIndex }?.name ?? "Audio"
@@ -155,33 +182,21 @@ struct TransportOverlay: View {
         if currentSubtitleIndex < 0 { return "Off" }
         return subtitleTracks.first { $0.index == currentSubtitleIndex }?.name ?? "Subtitles"
     }
+}
 
-    private func trackPicker(title: String, tracks: [(index: Int, name: String)], currentIndex: Int, onSelect: @escaping (Int) -> Void) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(tracks, id: \.index) { track in
-                Button {
-                    onSelect(track.index)
-                } label: {
-                    HStack {
-                        Text(track.name)
-                            .font(.caption)
-                        Spacer()
-                        if track.index == currentIndex {
-                            Image(systemName: "checkmark")
-                                .font(.caption)
-                                .foregroundStyle(.tint)
-                        }
-                    }
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 12)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.ultraThinMaterial)
-        )
-        .padding(.top, 8)
+// MARK: - Button Style
+
+struct TransportButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(isFocused ? .primary : .secondary)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isFocused ? .white.opacity(0.2) : .clear)
+            )
+            .scaleEffect(isFocused ? 1.1 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
     }
 }

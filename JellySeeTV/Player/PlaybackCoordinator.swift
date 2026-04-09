@@ -59,8 +59,10 @@ final class PlaybackCoordinator: NSObject, VLCMediaPlayerDelegate {
         // 4. Configure VLCMediaPlayer
         let media = VLCMedia(url: streamURL)
         media.addOptions([
-            "network-caching": 3000,
+            "network-caching": 1000,
             "clock-jitter": 0,
+            "file-caching": 1000,
+            "live-caching": 1000,
         ])
         player.media = media
 
