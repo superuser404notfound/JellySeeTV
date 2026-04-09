@@ -16,6 +16,8 @@ struct PlayerView: View {
 
     var body: some View {
         ZStack {
+            Color.black.ignoresSafeArea()
+
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
@@ -41,6 +43,9 @@ struct PlayerView: View {
             await viewModel.startPlayback()
         }
         .onDisappear {
+            // Stop audio immediately, then clean up async
+            viewModel.coordinator.player.pause()
+            viewModel.coordinator.player.replaceCurrentItem(with: nil)
             Task { await viewModel.stopPlayback() }
         }
     }
