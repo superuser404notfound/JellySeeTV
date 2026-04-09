@@ -48,7 +48,7 @@ struct MovieDetailView: View {
 
                     // Gradient transition
                     LinearGradient(
-                        colors: [.clear, .black.opacity(0.85), .black],
+                        colors: [.clear, .black.opacity(0.6), .black.opacity(0.95)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -114,7 +114,7 @@ struct MovieDetailView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped()
         .overlay(
-            Color.black.opacity(0.3)
+            Color.black.opacity(0.15)
         )
     }
 

@@ -58,7 +58,7 @@ struct SeriesDetailView: View {
                     Color.clear.frame(height: 500)
 
                     LinearGradient(
-                        colors: [.clear, .black.opacity(0.85), .black],
+                        colors: [.clear, .black.opacity(0.6), .black.opacity(0.95)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -140,7 +140,7 @@ struct SeriesDetailView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped()
-        .overlay(Color.black.opacity(0.3))
+        .overlay(Color.black.opacity(0.15))
         .animation(.easeInOut(duration: 0.5), value: selectedEpisode?.id)
     }
 
