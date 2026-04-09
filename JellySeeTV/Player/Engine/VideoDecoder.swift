@@ -14,10 +14,12 @@ nonisolated struct DecodedVideoFrame: @unchecked Sendable {
 /// with FFmpeg software fallback for unsupported codecs.
 nonisolated final class VideoDecoder: @unchecked Sendable {
     private var codecCtx: UnsafeMutablePointer<AVCodecContext>?
+    private let streamTimeBase: AVRational
     private(set) var width: Int32 = 0
     private(set) var height: Int32 = 0
 
-    init(codecParameters: UnsafeMutablePointer<AVCodecParameters>) throws {
+    init(codecParameters: UnsafeMutablePointer<AVCodecParameters>, streamTimeBase: AVRational = AVRational(num: 1, den: 90000)) throws {
+        self.streamTimeBase = streamTimeBase
         let codecID = codecParameters.pointee.codec_id
         guard let codec = avcodec_find_decoder(codecID) else {
             throw VideoDecoderError.codecNotFound
@@ -30,6 +32,9 @@ nonisolated final class VideoDecoder: @unchecked Sendable {
 
         var ret = avcodec_parameters_to_context(ctx, codecParameters)
         guard ret >= 0 else { throw VideoDecoderError.parameterCopyFailed }
+
+        // Set packet time base so FFmpeg can compute best_effort_timestamp correctly
+        ctx.pointee.pkt_timebase = streamTimeBase
 
         // Try VideoToolbox hardware acceleration for H.264/HEVC
         if codecID == AV_CODEC_ID_H264 || codecID == AV_CODEC_ID_HEVC {
@@ -52,6 +57,11 @@ nonisolated final class VideoDecoder: @unchecked Sendable {
 
         width = codecParameters.pointee.width
         height = codecParameters.pointee.height
+
+        #if DEBUG
+        let ctb = ctx.pointee.time_base
+        print("[VideoDecoder] Codec time_base: \(ctb.num)/\(ctb.den), Stream time_base: \(streamTimeBase.num)/\(streamTimeBase.den)")
+        #endif
     }
 
     // MARK: - Decode
@@ -132,18 +142,22 @@ nonisolated final class VideoDecoder: @unchecked Sendable {
     // MARK: - Timing
 
     private func framePTS(_ frame: UnsafeMutablePointer<AVFrame>) -> Double {
-        guard let ctx = codecCtx else { return 0 }
         let pts = frame.pointee.best_effort_timestamp
-        if pts != Int64(bitPattern: UInt64(0x8000000000000000)) {
-            return Double(pts) * av_q2d(ctx.pointee.time_base)
+        let nopts = Int64(bitPattern: UInt64(0x8000000000000000))
+        if pts != nopts {
+            return Double(pts) * av_q2d(streamTimeBase)
+        }
+        // Fallback: try pts field
+        if frame.pointee.pts != nopts {
+            return Double(frame.pointee.pts) * av_q2d(streamTimeBase)
         }
         return 0
     }
 
     private func frameDuration(_ frame: UnsafeMutablePointer<AVFrame>) -> Double {
-        guard let ctx = codecCtx else { return 1.0 / 24.0 }
         let dur = frame.pointee.duration
-        if dur > 0 { return Double(dur) * av_q2d(ctx.pointee.time_base) }
+        if dur > 0 { return Double(dur) * av_q2d(streamTimeBase) }
+        guard let ctx = codecCtx else { return 1.0 / 24.0 }
         let fps = av_q2d(ctx.pointee.framerate)
         return fps > 0 ? 1.0 / fps : 1.0 / 24.0
     }

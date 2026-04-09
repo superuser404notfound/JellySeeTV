@@ -16,11 +16,13 @@ nonisolated final class AudioDecoder: @unchecked Sendable {
     private var codecCtx: UnsafeMutablePointer<AVCodecContext>?
     private var swrCtx: OpaquePointer? // SwrContext
     private var outputFormat: AVAudioFormat?
+    private let streamTimeBase: AVRational
 
     /// The audio format for AVAudioEngine output
     private(set) var audioFormat: AVAudioFormat?
 
-    init(codecParameters: UnsafeMutablePointer<AVCodecParameters>) throws {
+    init(codecParameters: UnsafeMutablePointer<AVCodecParameters>, streamTimeBase: AVRational = AVRational(num: 1, den: 90000)) throws {
+        self.streamTimeBase = streamTimeBase
         let codecID = codecParameters.pointee.codec_id
         guard let codec = avcodec_find_decoder(codecID) else {
             throw AudioDecoderError.codecNotFound
@@ -36,6 +38,7 @@ nonisolated final class AudioDecoder: @unchecked Sendable {
             throw AudioDecoderError.parameterCopyFailed
         }
 
+        ctx.pointee.pkt_timebase = streamTimeBase
         ctx.pointee.thread_count = 2
         ret = avcodec_open2(ctx, codec, nil)
         guard ret >= 0 else {
@@ -227,11 +230,13 @@ nonisolated final class AudioDecoder: @unchecked Sendable {
     // MARK: - Timing
 
     private func framePTS(_ frame: UnsafeMutablePointer<AVFrame>) -> Double {
-        guard let ctx = codecCtx else { return 0 }
-        let tb = ctx.pointee.time_base
+        let nopts = Int64(bitPattern: UInt64(0x8000000000000000))
         let pts = frame.pointee.best_effort_timestamp
-        if pts != Int64(bitPattern: UInt64(0x8000000000000000)) {
-            return Double(pts) * av_q2d(tb)
+        if pts != nopts {
+            return Double(pts) * av_q2d(streamTimeBase)
+        }
+        if frame.pointee.pts != nopts {
+            return Double(frame.pointee.pts) * av_q2d(streamTimeBase)
         }
         return 0
     }

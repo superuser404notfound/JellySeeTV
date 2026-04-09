@@ -1,34 +1,43 @@
 import SwiftUI
-import AVFoundation
 
-/// UIViewRepresentable that hosts an AVSampleBufferDisplayLayer for video rendering.
+/// UIViewRepresentable that hosts the video renderer's CALayer.
 struct VideoLayerView: UIViewRepresentable {
     let renderer: VideoRenderer
 
     func makeUIView(context: Context) -> VideoDisplayUIView {
-        let view = VideoDisplayUIView()
+        let view = VideoDisplayUIView(displayLayer: renderer.displayLayer)
         view.backgroundColor = .black
-        // Add the display layer
-        view.layer.addSublayer(renderer.displayLayer)
         return view
     }
 
     func updateUIView(_ uiView: VideoDisplayUIView, context: Context) {
-        // Update layer frame if needed
-        renderer.displayLayer.frame = uiView.bounds
+        uiView.updateLayerFrame()
     }
 }
 
-/// UIView subclass that keeps the display layer sized correctly
+/// UIView subclass that keeps the display layer sized correctly.
 class VideoDisplayUIView: UIView {
+    private let displayLayer: CALayer
+
+    init(displayLayer: CALayer) {
+        self.displayLayer = displayLayer
+        super.init(frame: .zero)
+        layer.addSublayer(displayLayer)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    func updateLayerFrame() {
+        guard displayLayer.frame != bounds else { return }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        displayLayer.frame = bounds
+        CATransaction.commit()
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
-        // Resize all sublayers to fill the view
-        layer.sublayers?.forEach { sublayer in
-            if sublayer is AVSampleBufferDisplayLayer {
-                sublayer.frame = bounds
-            }
-        }
+        updateLayerFrame()
     }
 
     override var canBecomeFocused: Bool { false }

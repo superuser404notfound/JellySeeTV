@@ -9,12 +9,12 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
     nonisolated(unsafe) let videoDecoder: VideoDecoder?
     nonisolated(unsafe) let audioDecoder: AudioDecoder?
     nonisolated(unsafe) let audioOutput: AudioOutput
+    nonisolated(unsafe) let videoRenderer: VideoRenderer
     nonisolated(unsafe) let syncClock: SyncClock
 
     nonisolated(unsafe) let videoQueue = PacketQueue(capacity: 200)
     nonisolated(unsafe) let audioQueue = PacketQueue(capacity: 400)
 
-    nonisolated(unsafe) var onVideoFrame: ((DecodedVideoFrame) -> Void)?
     nonisolated(unsafe) var onEndOfFile: (() -> Void)?
     nonisolated(unsafe) var onError: ((String) -> Void)?
 
@@ -24,11 +24,12 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
     nonisolated(unsafe) private var isRunning = false
     nonisolated(unsafe) private var isEOF = false
 
-    init(demuxer: Demuxer, videoDecoder: VideoDecoder?, audioDecoder: AudioDecoder?, audioOutput: AudioOutput) {
+    init(demuxer: Demuxer, videoDecoder: VideoDecoder?, audioDecoder: AudioDecoder?, audioOutput: AudioOutput, videoRenderer: VideoRenderer) {
         self.demuxer = demuxer
         self.videoDecoder = videoDecoder
         self.audioDecoder = audioDecoder
         self.audioOutput = audioOutput
+        self.videoRenderer = videoRenderer
         self.syncClock = SyncClock(audioOutput: audioOutput)
     }
 
@@ -80,7 +81,8 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
         while isRunning {
             guard let packet = demuxer.readPacket() else {
                 isEOF = true
-                Task { @MainActor in onEndOfFile?() }
+                let callback = onEndOfFile
+                DispatchQueue.main.async { callback?() }
                 return
             }
             switch packet.streamType {
@@ -93,6 +95,10 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
 
     nonisolated(unsafe) private var audioFrameCount = 0
     nonisolated(unsafe) private var videoFrameCount = 0
+    #if DEBUG
+    nonisolated(unsafe) private var displayedCount = 0
+    nonisolated(unsafe) private var droppedCount = 0
+    #endif
 
     private func audioDecodeLoop() {
         guard let decoder = audioDecoder else {
@@ -175,9 +181,21 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
         while isRunning {
             switch syncClock.shouldDisplay(framePTS: frame.pts) {
             case .display:
-                Task { @MainActor in onVideoFrame?(frame) }
+                videoRenderer.display(pixelBuffer: frame.pixelBuffer, pts: frame.pts)
+                #if DEBUG
+                displayedCount += 1
+                if displayedCount <= 3 || displayedCount % 100 == 0 {
+                    print("[Sync] DISPLAY #\(displayedCount) pts=\(String(format: "%.3f", frame.pts)) clock=\(String(format: "%.3f", syncClock.currentTime))")
+                }
+                #endif
                 return
             case .drop:
+                #if DEBUG
+                droppedCount += 1
+                if droppedCount <= 3 || droppedCount % 500 == 0 {
+                    print("[Sync] DROP #\(droppedCount) pts=\(String(format: "%.3f", frame.pts)) clock=\(String(format: "%.3f", syncClock.currentTime))")
+                }
+                #endif
                 return
             case .wait(let seconds):
                 Thread.sleep(forTimeInterval: min(seconds, 0.05))

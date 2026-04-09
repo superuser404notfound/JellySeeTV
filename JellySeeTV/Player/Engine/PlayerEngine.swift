@@ -67,11 +67,12 @@ final class PlayerEngine {
             )
         }
 
-        // 3. Create video decoder
+        // 3. Create video decoder (with stream time base for correct PTS)
         var vDecoder: VideoDecoder? = nil
         if dmx.videoStreamIndex >= 0,
            let codecPar = dmx.codecParameters(for: dmx.videoStreamIndex) {
-            vDecoder = try VideoDecoder(codecParameters: codecPar)
+            let vtb = dmx.timeBase(for: dmx.videoStreamIndex)
+            vDecoder = try VideoDecoder(codecParameters: codecPar, streamTimeBase: vtb)
         }
         videoDecoder = vDecoder
 
@@ -81,7 +82,8 @@ final class PlayerEngine {
         if dmx.audioStreamIndex >= 0,
            let codecPar = dmx.codecParameters(for: dmx.audioStreamIndex) {
             do {
-                aDecoder = try AudioDecoder(codecParameters: codecPar)
+                let atb = dmx.timeBase(for: dmx.audioStreamIndex)
+                aDecoder = try AudioDecoder(codecParameters: codecPar, streamTimeBase: atb)
                 if let format = aDecoder?.audioFormat {
                     let startPTS = startPosition ?? 0
                     try aOutput.start(format: format, startPTS: startPTS)
@@ -105,22 +107,15 @@ final class PlayerEngine {
             try dmx.seek(to: pos)
         }
 
-        // 6. Create buffer coordinator and wire up callbacks
+        // 6. Create buffer coordinator (renderer called directly from decode thread)
         let coordinator = BufferCoordinator(
             demuxer: dmx,
             videoDecoder: vDecoder,
             audioDecoder: aDecoder,
-            audioOutput: aOutput
+            audioOutput: aOutput,
+            videoRenderer: videoRenderer
         )
         bufferCoordinator = coordinator
-
-        coordinator.onVideoFrame = { [weak self] frame in
-            self?.videoRenderer.enqueue(
-                pixelBuffer: frame.pixelBuffer,
-                pts: frame.pts,
-                duration: frame.duration
-            )
-        }
 
         coordinator.onEndOfFile = { [weak self] in
             self?.state = .idle
