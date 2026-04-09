@@ -110,11 +110,10 @@ struct PlayerView: View {
     // MARK: - Dismiss
 
     private func dismissPlayer() {
+        // Dismiss immediately, stop audio, then clean up async
         viewModel.coordinator.stop()
-        Task {
-            await viewModel.stopPlayback()
-            onDismiss()
-        }
+        onDismiss()
+        Task { await viewModel.stopPlayback() }
     }
 
     // MARK: - Error
