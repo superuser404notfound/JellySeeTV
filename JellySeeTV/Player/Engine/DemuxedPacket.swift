@@ -10,7 +10,7 @@ enum PacketStreamType {
 }
 
 /// Wrapper around an FFmpeg AVPacket with stream info.
-final class DemuxedPacket {
+nonisolated final class DemuxedPacket {
     /// Raw pointer stored as Int for Swift 6 deinit compatibility
     private let packetAddress: Int
     let streamType: PacketStreamType

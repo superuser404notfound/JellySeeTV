@@ -2,7 +2,7 @@ import Foundation
 
 /// Thread-safe bounded queue for demuxed packets.
 /// Blocks on enqueue when full, blocks on dequeue when empty.
-final class PacketQueue: @unchecked Sendable {
+nonisolated final class PacketQueue: @unchecked Sendable {
     private var packets: [DemuxedPacket] = []
     private let lock = NSLock()
     private let notEmpty = NSCondition()

@@ -7,7 +7,7 @@ import AVFoundation
 /// The audio still plays correctly as 5.1/7.1 surround.
 /// Atmos passthrough requires Apple's private HDMI bitstream API
 /// and will be added as a future enhancement.
-final class AudioOutput {
+nonisolated final class AudioOutput {
     private let engine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
     private var format: AVAudioFormat?

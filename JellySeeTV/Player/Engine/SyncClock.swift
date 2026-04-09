@@ -12,7 +12,7 @@ enum FrameAction {
 
 /// Audio-master A/V sync clock.
 /// Video frames are timed relative to the audio output position.
-final class SyncClock {
+nonisolated final class SyncClock {
     private let audioOutput: AudioOutput
 
     /// Maximum allowed drift before dropping frames (seconds)

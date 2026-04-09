@@ -3,7 +3,7 @@ import CoreMedia
 import CoreVideo
 
 /// Renders decoded CVPixelBuffer frames via AVSampleBufferDisplayLayer.
-final class VideoRenderer {
+nonisolated final class VideoRenderer {
     let displayLayer = AVSampleBufferDisplayLayer()
 
     init() {
