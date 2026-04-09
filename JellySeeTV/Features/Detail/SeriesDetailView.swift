@@ -85,7 +85,7 @@ struct SeriesDetailView: View {
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
-                    cachedPlaybackInfo: ep.id == viewModel?.item.id ? viewModel?.cachedPlaybackInfo : nil,
+                    cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
                     onDismiss: { showPlayer = false }
                 )
                 .transition(.opacity)

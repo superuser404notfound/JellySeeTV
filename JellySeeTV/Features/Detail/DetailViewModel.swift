@@ -105,6 +105,11 @@ final class DetailViewModel {
                 selectedSeasonID = seasonToLoad
                 await loadEpisodes(seasonID: seasonToLoad)
                 currentEpisodeID = targetEpisodeID
+
+                // Pre-fetch playback info for the target episode
+                if let epID = targetEpisodeID {
+                    prefetchPlaybackInfo(for: epID)
+                }
             }
         } catch {
             // Handle error
@@ -165,7 +170,29 @@ final class DetailViewModel {
                 print("[Prefetch] PlaybackInfo cached for \(itemID)")
             }
             #endif
+
+            // Pre-warm HTTP connection so FFmpeg open is instant
+            if let source = cachedPlaybackInfo?.mediaSources.first,
+               let url = playbackService.buildStreamURL(
+                itemID: itemID, mediaSourceID: source.id,
+                container: source.container, isStatic: false
+               ) {
+                warmUpConnection(to: url)
+            }
         }
+    }
+
+    /// Send a HEAD request to establish DNS + TCP connection in advance.
+    /// The OS connection cache keeps it alive for FFmpeg's subsequent open.
+    private func warmUpConnection(to url: URL) {
+        var request = URLRequest(url: url)
+        request.httpMethod = "HEAD"
+        request.timeoutInterval = 5
+        URLSession.shared.dataTask(with: request) { _, _, _ in
+            #if DEBUG
+            print("[Prefetch] Connection warmed for \(url.lastPathComponent)")
+            #endif
+        }.resume()
     }
 
     func posterURL(for item: JellyfinItem) -> URL? {
