@@ -9,77 +9,40 @@ enum PacketStreamType {
     case subtitle
 }
 
-/// Wrapper around FFmpeg AVPacket data.
-/// Copies the packet data to owned memory for safe cross-thread use.
-nonisolated final class DemuxedPacket {
-    let data: Data
-    let size: Int32
-    let pts: Int64
-    let dts: Int64
-    let duration: Int64
-    let streamIndex: Int32
-    let flags: Int32
+/// Wrapper around FFmpeg AVPacket.
+/// Owns a cloned copy of the packet data via av_packet_clone.
+/// The packet stays alive until this object is deallocated.
+nonisolated final class DemuxedPacket: @unchecked Sendable {
+    /// The cloned AVPacket -- ref-counted by FFmpeg, stays valid until free
+    #if !targetEnvironment(simulator)
+    let avPacket: UnsafeMutablePointer<AVPacket>
+    #endif
+
     let streamType: PacketStreamType
+    let streamIndex: Int32
     let ptsSeconds: Double
     let durationSeconds: Double
 
     #if !targetEnvironment(simulator)
     init(packet: UnsafeMutablePointer<AVPacket>, streamType: PacketStreamType, streamIndex: Int32, pts: Double, duration: Double) {
-        // Copy packet data to owned memory
-        if let pktData = packet.pointee.data, packet.pointee.size > 0 {
-            self.data = Data(bytes: pktData, count: Int(packet.pointee.size))
-        } else {
-            self.data = Data()
-        }
-        self.size = packet.pointee.size
-        self.pts = packet.pointee.pts
-        self.dts = packet.pointee.dts
-        self.duration = packet.pointee.duration
-        self.streamIndex = streamIndex
-        self.flags = packet.pointee.flags
+        // av_packet_clone creates a new packet with ref-counted data
+        // The data buffer stays alive until av_packet_free
+        self.avPacket = av_packet_clone(packet)!
         self.streamType = streamType
+        self.streamIndex = streamIndex
         self.ptsSeconds = pts
         self.durationSeconds = duration
     }
 
-    /// Creates a temporary AVPacket pointing to our copied data for decoding.
-    /// The caller must NOT free this packet -- the data is owned by DemuxedPacket.
-    func withAVPacket<T>(_ body: (UnsafeMutablePointer<AVPacket>) -> T) -> T {
-        let pkt = av_packet_alloc()!
-
-        // Allocate a proper ref-counted buffer that FFmpeg/VideoToolbox can keep
-        if data.count > 0 {
-            av_new_packet(pkt, Int32(data.count))
-            data.withUnsafeBytes { rawBuf in
-                if let src = rawBuf.baseAddress {
-                    memcpy(pkt.pointee.data, src, data.count)
-                }
-            }
-        }
-        pkt.pointee.pts = pts
-        pkt.pointee.dts = dts
-        pkt.pointee.duration = duration
-        pkt.pointee.stream_index = streamIndex
-        pkt.pointee.flags = flags
-
-        let result = body(pkt)
-
-        // av_packet_free properly frees the ref-counted buffer
-        var p: UnsafeMutablePointer<AVPacket>? = pkt
-        av_packet_free(&p)
-
-        return result
+    deinit {
+        // Safe to free: if VideoToolbox still has a ref, it added its own
+        var pkt: UnsafeMutablePointer<AVPacket>? = avPacket
+        av_packet_free(&pkt)
     }
     #else
     init(streamType: PacketStreamType, streamIndex: Int32, pts: Double, duration: Double) {
-        self.data = Data()
-        self.size = 0
-        self.pts = 0
-        self.dts = 0
-        self.duration = 0
-        self.streamIndex = streamIndex
-        self.flags = 0
         self.streamType = streamType
+        self.streamIndex = streamIndex
         self.ptsSeconds = pts
         self.durationSeconds = duration
     }

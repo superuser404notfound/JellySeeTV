@@ -114,12 +114,11 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 }
                 continue
             }
-            packet.withAVPacket { pkt in
-                let frames = decoder.decode(packet: pkt)
-                for frame in frames {
-                    audioOutput.scheduleBuffer(frame.pcmBuffer)
-                    audioFrameCount += 1
-                }
+            // packet.avPacket is owned by DemuxedPacket, stays alive until packet is deallocated
+            let frames = decoder.decode(packet: packet.avPacket)
+            for frame in frames {
+                audioOutput.scheduleBuffer(frame.pcmBuffer)
+                audioFrameCount += 1
             }
             #if DEBUG
             if audioFrameCount > 0 && audioFrameCount % 100 == 0 {
@@ -155,12 +154,10 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 }
                 continue
             }
-            packet.withAVPacket { pkt in
-                let frames = decoder.decode(packet: pkt)
-                for frame in frames {
-                    displayWithSync(frame)
-                    videoFrameCount += 1
-                }
+            let frames = decoder.decode(packet: packet.avPacket)
+            for frame in frames {
+                displayWithSync(frame)
+                videoFrameCount += 1
             }
             #if DEBUG
             if videoFrameCount > 0 && videoFrameCount % 50 == 0 {
