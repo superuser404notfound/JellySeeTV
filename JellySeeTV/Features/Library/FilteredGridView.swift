@@ -6,6 +6,7 @@ struct FilteredGridView: View {
     @State private var items: [JellyfinItem] = []
     @State private var isLoading = true
     @State private var selectedItem: JellyfinItem?
+    @FocusState private var focusedItemID: String?
     @Environment(\.dismiss) private var dismiss
 
     let title: String
@@ -54,6 +55,7 @@ struct FilteredGridView: View {
                             )
                         }
                         .buttonStyle(GridCardButtonStyle())
+                        .focused($focusedItemID, equals: item.id)
                     }
                 }
                 .padding(.horizontal, 60)
@@ -67,6 +69,11 @@ struct FilteredGridView: View {
         }
         .task {
             await loadItems()
+            if let firstID = items.first?.id {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    focusedItemID = firstID
+                }
+            }
         }
     }
 
