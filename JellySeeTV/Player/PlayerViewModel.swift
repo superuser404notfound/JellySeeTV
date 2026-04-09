@@ -116,7 +116,7 @@ final class PlayerViewModel {
     private func setupAVPlayerObservers() {
         // Periodic time observer
         avPlayerObserver = coordinator.avPlayer.addPeriodicTimeObserver(
-            forInterval: CMTime(seconds: 0.5, preferredTimescale: 1),
+            forInterval: CMTime(value: 1, timescale: 2),
             queue: .main
         ) { [weak self] _ in
             guard let self else { return }
