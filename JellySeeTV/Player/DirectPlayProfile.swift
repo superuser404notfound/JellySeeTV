@@ -1,7 +1,13 @@
 import Foundation
+import VideoToolbox
 
 /// Builds the device profile JSON that tells Jellyfin what this Apple TV can play natively.
 enum DirectPlayProfile {
+
+    /// Whether this device has hardware AV1 decode (Apple TV 4K 3rd gen 2022+)
+    static let supportsAV1Hardware: Bool = {
+        VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1)
+    }()
 
     static func build() -> [String: Any] {
         [
@@ -18,16 +24,22 @@ enum DirectPlayProfile {
 
     // MARK: - DirectPlay (what we can play natively)
 
+    private static var videoCodecs: String {
+        var codecs = ["h264", "hevc", "vp9"]
+        if supportsAV1Hardware {
+            codecs.append("av1")
+        }
+        return codecs.joined(separator: ",")
+    }
+
     private static var directPlayProfiles: [[String: Any]] {
         [
-            // Video containers
             [
                 "Container": "mp4,m4v,mov,mkv,webm",
                 "Type": "Video",
-                "VideoCodec": "h264,hevc,av1,vp9",
+                "VideoCodec": videoCodecs,
                 "AudioCodec": "aac,ac3,eac3,flac,alac,opus,mp3,vorbis,pcm_s16le,pcm_s24le",
             ],
-            // Audio-only
             [
                 "Container": "mp3,aac,flac,alac,m4a,m4b,ogg,opus,wav",
                 "Type": "Audio",
@@ -64,7 +76,7 @@ enum DirectPlayProfile {
     // MARK: - Codec Profiles (detailed capabilities)
 
     private static var codecProfiles: [[String: Any]] {
-        [
+        var profiles: [[String: Any]] = [
             // H.264 limits
             [
                 "Type": "Video",
@@ -86,16 +98,21 @@ enum DirectPlayProfile {
                     condition("LessThanEqual", "VideoLevel", "186"),
                 ],
             ],
-            // AV1 limits
-            [
+        ]
+
+        // AV1 only if hardware decode available
+        if supportsAV1Hardware {
+            profiles.append([
                 "Type": "Video",
                 "Codec": "av1",
                 "Conditions": [
                     condition("LessThanEqual", "Width", "3840"),
                     condition("LessThanEqual", "Height", "2160"),
                 ],
-            ],
-        ]
+            ])
+        }
+
+        return profiles
     }
 
     // MARK: - Subtitle Profiles
