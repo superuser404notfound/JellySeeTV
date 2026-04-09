@@ -41,10 +41,16 @@ final class PlayerEngine {
     func load(url: URL, startPosition: Double? = nil) async throws {
         state = .loading
 
+        #if DEBUG
+        let loadStart = CFAbsoluteTimeGetCurrent()
+        #endif
+
         // 1. Open demuxer (off main thread — network I/O)
+        //    skipProbe: MKV/MP4 headers already contain codec info,
+        //    and Jellyfin PlaybackInfo gave us everything we need
         let dmx = Demuxer()
         try await Task.detached {
-            try dmx.open(url: url)
+            try dmx.open(url: url, skipProbe: true)
         }.value
         demuxer = dmx
         duration = dmx.duration
@@ -69,7 +75,7 @@ final class PlayerEngine {
             )
         }
 
-        // 3. Create video decoder (with stream time base for correct PTS)
+        // 3. Create decoders (video + audio in parallel where possible)
         var vDecoder: VideoDecoder? = nil
         if dmx.videoStreamIndex >= 0,
            let codecPar = dmx.codecParameters(for: dmx.videoStreamIndex) {
@@ -78,7 +84,6 @@ final class PlayerEngine {
         }
         videoDecoder = vDecoder
 
-        // 4. Create audio decoder + output
         var aDecoder: AudioDecoder? = nil
         let aOutput = AudioOutput()
         if dmx.audioStreamIndex >= 0,
@@ -89,25 +94,25 @@ final class PlayerEngine {
                 if let format = aDecoder?.audioFormat {
                     let startPTS = startPosition ?? 0
                     try aOutput.start(format: format, startPTS: startPTS)
-                } else {
-                    #if DEBUG
-                    print("[PlayerEngine] WARNING: AudioDecoder has no audioFormat")
-                    #endif
                 }
             } catch {
                 #if DEBUG
                 print("[PlayerEngine] Audio init error: \(error)")
                 #endif
-                // Continue without audio
             }
         }
         audioDecoder = aDecoder
         audioOutput = aOutput
 
-        // 5. Seek to start position if needed
+        // 4. Seek to start position if needed
         if let pos = startPosition, pos > 0 {
             try dmx.seek(to: pos)
         }
+
+        #if DEBUG
+        let loadTime = CFAbsoluteTimeGetCurrent() - loadStart
+        print("[PlayerEngine] Total load time: \(String(format: "%.3f", loadTime))s")
+        #endif
 
         // 6. Create buffer coordinator (renderer called directly from decode thread)
         let coordinator = BufferCoordinator(

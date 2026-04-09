@@ -57,22 +57,23 @@ nonisolated final class Demuxer: @unchecked Sendable {
 
     // MARK: - Open
 
-    /// Opens a media URL and probes stream info
-    func open(url: URL) throws {
+    /// Opens a media URL and probes stream info.
+    /// When `skipProbe` is true, skips `avformat_find_stream_info` entirely
+    /// (use when codec info is already known from Jellyfin PlaybackInfo).
+    func open(url: URL, skipProbe: Bool = false) throws {
         try queue.sync {
             var ctx: UnsafeMutablePointer<AVFormatContext>?
 
-            // Open input with reduced buffer/probe for faster start
             let urlString = url.absoluteString
             #if DEBUG
-            print("[Demuxer] Opening URL: \(urlString)")
+            print("[Demuxer] Opening URL: \(urlString) (skipProbe: \(skipProbe))")
             let openStart = CFAbsoluteTimeGetCurrent()
             #endif
 
-            // Set options for faster HTTP open
+            // Minimal options for fast HTTP open
             var opts: OpaquePointer?
-            av_dict_set(&opts, "analyzeduration", "1000000", 0)  // 1s instead of 5s default
-            av_dict_set(&opts, "probesize", "500000", 0)         // 500KB instead of 5MB default
+            av_dict_set(&opts, "analyzeduration", "0", 0)
+            av_dict_set(&opts, "probesize", "32768", 0)     // 32KB — just MKV/MP4 headers
             av_dict_set(&opts, "fflags", "fastseek", 0)
             av_dict_set(&opts, "reconnect", "1", 0)
             av_dict_set(&opts, "reconnect_streamed", "1", 0)
@@ -90,21 +91,32 @@ nonisolated final class Demuxer: @unchecked Sendable {
 
             #if DEBUG
             let openTime = CFAbsoluteTimeGetCurrent() - openStart
-            print("[Demuxer] avformat_open_input: \(String(format: "%.2f", openTime))s")
-            let probeStart = CFAbsoluteTimeGetCurrent()
+            print("[Demuxer] avformat_open_input: \(String(format: "%.3f", openTime))s")
             #endif
 
-            // Find stream info — limit analysis to speed up start
-            ctx.pointee.max_analyze_duration = 1_000_000 // 1 second
-            ret = avformat_find_stream_info(ctx, nil)
-            guard ret >= 0 else {
-                throw DemuxerError.streamInfoFailed(errorString(ret))
+            if !skipProbe {
+                #if DEBUG
+                let probeStart = CFAbsoluteTimeGetCurrent()
+                #endif
+                ctx.pointee.max_analyze_duration = 500_000 // 0.5s max
+                ret = avformat_find_stream_info(ctx, nil)
+                guard ret >= 0 else {
+                    throw DemuxerError.streamInfoFailed(errorString(ret))
+                }
+                #if DEBUG
+                let probeTime = CFAbsoluteTimeGetCurrent() - probeStart
+                print("[Demuxer] avformat_find_stream_info: \(String(format: "%.3f", probeTime))s")
+                #endif
+            } else {
+                // Minimal probe: just read enough for the container to detect streams
+                // MKV/MP4 headers contain codec info, no need to decode packets
+                ctx.pointee.max_analyze_duration = 0
+                ret = avformat_find_stream_info(ctx, nil)
+                // Ignore errors — stream info may be incomplete but usable
+                #if DEBUG
+                print("[Demuxer] Fast probe (skipProbe): ret=\(ret), streams=\(ctx.pointee.nb_streams)")
+                #endif
             }
-
-            #if DEBUG
-            let probeTime = CFAbsoluteTimeGetCurrent() - probeStart
-            print("[Demuxer] avformat_find_stream_info: \(String(format: "%.2f", probeTime))s")
-            #endif
 
             // Extract duration (container level, or fallback to longest stream)
             let dur = ctx.pointee.duration
