@@ -23,13 +23,16 @@ nonisolated final class DemuxedPacket: @unchecked Sendable {
 
     #if !targetEnvironment(simulator)
     /// Access the AVPacket pointer (valid for lifetime of this object)
-    var avPacket: UnsafeMutablePointer<AVPacket> {
-        UnsafeMutablePointer(bitPattern: pktAddress)!
+    var avPacket: UnsafeMutablePointer<AVPacket>? {
+        UnsafeMutablePointer(bitPattern: pktAddress)
     }
 
     init(packet: UnsafeMutablePointer<AVPacket>, streamType: PacketStreamType, streamIndex: Int32, pts: Double, duration: Double) {
-        let cloned = av_packet_clone(packet)!
-        self.pktAddress = Int(bitPattern: cloned)
+        if let cloned = av_packet_clone(packet) {
+            self.pktAddress = Int(bitPattern: cloned)
+        } else {
+            self.pktAddress = 0
+        }
         self.streamType = streamType
         self.streamIndex = streamIndex
         self.ptsSeconds = pts

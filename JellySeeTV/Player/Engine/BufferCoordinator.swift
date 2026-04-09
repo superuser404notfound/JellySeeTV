@@ -114,8 +114,8 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 }
                 continue
             }
-            // packet.avPacket is owned by DemuxedPacket, stays alive until packet is deallocated
-            let frames = decoder.decode(packet: packet.avPacket)
+            guard let avPkt = packet.avPacket else { continue }
+            let frames = decoder.decode(packet: avPkt)
             for frame in frames {
                 audioOutput.scheduleBuffer(frame.pcmBuffer)
                 audioFrameCount += 1
@@ -154,7 +154,8 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 }
                 continue
             }
-            let frames = decoder.decode(packet: packet.avPacket)
+            guard let avPkt = packet.avPacket else { continue }
+            let frames = decoder.decode(packet: avPkt)
             for frame in frames {
                 displayWithSync(frame)
                 videoFrameCount += 1
