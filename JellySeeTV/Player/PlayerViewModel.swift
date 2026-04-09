@@ -108,6 +108,9 @@ final class PlayerViewModel {
     private func setupCallbacks() {
         coordinator.onStateChanged = { [weak self] state in
             guard let self else { return }
+            #if DEBUG
+            print("[VLC State] \(state.rawValue)")
+            #endif
             switch state {
             case .playing:
                 isLoading = false
@@ -118,7 +121,11 @@ final class PlayerViewModel {
                 isPlaying = false
                 showControls = true
             case .buffering:
-                isLoading = true
+                // Don't show loading overlay once we've started playing
+                // Only show it for initial buffering
+                if !isPlaying && coordinator.currentPositionTicks == 0 {
+                    isLoading = true
+                }
             case .ended, .stopped:
                 isPlaying = false
             case .error:
@@ -132,6 +139,13 @@ final class PlayerViewModel {
 
         coordinator.onTimeChanged = { [weak self] ticks in
             guard let self else { return }
+            // Once we get time updates, video is definitely playing
+            if isLoading && ticks > 0 {
+                isLoading = false
+                isPlaying = true
+                updateTrackLists()
+                showControlsTemporarily()
+            }
             progress = coordinator.position
             currentTime = formatTicks(ticks)
 
