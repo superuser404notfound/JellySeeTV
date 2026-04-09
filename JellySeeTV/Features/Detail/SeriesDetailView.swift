@@ -352,16 +352,14 @@ struct SeriesDetailView: View {
                     .padding(.horizontal, 50)
                     .padding(.vertical, 16)
                     }
-                    .onAppear {
+                    .onChange(of: vm.episodes) { _, _ in
                         if let currentID = vm.currentEpisodeID {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                withAnimation { episodeProxy.scrollTo(currentID, anchor: .center) }
-                            }
+                            episodeProxy.scrollTo(currentID, anchor: .center)
                         }
                     }
                     .onChange(of: vm.currentEpisodeID) { _, newID in
                         if let newID {
-                            withAnimation { episodeProxy.scrollTo(newID, anchor: .center) }
+                            episodeProxy.scrollTo(newID, anchor: .center)
                         }
                     }
                 }
@@ -465,7 +463,7 @@ struct EpisodeLandscapeCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(borderColor, lineWidth: 2)
+                        .stroke(borderColor, lineWidth: isCurrent ? 3 : 2)
                 )
 
                 // Progress bar
@@ -519,7 +517,7 @@ struct EpisodeLandscapeCard: View {
 
     private var borderColor: Color {
         if isSelected { return .accentColor.opacity(0.8) }
-        if isCurrent { return .green.opacity(0.6) }
+        if isCurrent { return .green.opacity(0.8) }
         return .clear
     }
 }
