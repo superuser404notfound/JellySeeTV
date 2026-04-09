@@ -4,7 +4,7 @@ import Observation
 import CFFmpeg
 
 /// The state of the player engine
-enum EngineState: Sendable {
+enum EngineState: Sendable, Equatable {
     case idle
     case loading
     case playing

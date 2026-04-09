@@ -112,7 +112,7 @@ final class BufferCoordinator: @unchecked Sendable {
 
     // MARK: - Demux Loop
 
-    private func demuxLoop() {
+    nonisolated private func demuxLoop() {
         while isRunning {
             guard let packet = demuxer.readPacket() else {
                 // EOF
@@ -135,7 +135,7 @@ final class BufferCoordinator: @unchecked Sendable {
 
     // MARK: - Audio Decode Loop
 
-    private func audioDecodeLoop() {
+    nonisolated private func audioDecodeLoop() {
         guard let decoder = audioDecoder else { return }
 
         while isRunning {
@@ -153,7 +153,7 @@ final class BufferCoordinator: @unchecked Sendable {
 
     // MARK: - Video Decode + Sync Loop
 
-    private func videoDecodeLoop() {
+    nonisolated private func videoDecodeLoop() {
         guard let decoder = videoDecoder else { return }
 
         while isRunning {
@@ -175,7 +175,7 @@ final class BufferCoordinator: @unchecked Sendable {
     }
 
     /// Display a video frame respecting A/V sync
-    private func displayWithSync(_ frame: DecodedVideoFrame) {
+    nonisolated private func displayWithSync(_ frame: DecodedVideoFrame) {
         while isRunning {
             let action = syncClock.shouldDisplay(framePTS: frame.pts)
 
