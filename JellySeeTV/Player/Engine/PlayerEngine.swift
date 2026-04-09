@@ -173,11 +173,16 @@ final class PlayerEngine {
     }
 
     func seek(to seconds: Double) async {
+        let target = max(0, min(seconds, duration))
         let prevState = state
         state = .seeking
+        #if DEBUG
+        print("[PlayerEngine] Seek to \(String(format: "%.1f", target))s (duration: \(String(format: "%.1f", duration))s)")
+        #endif
         do {
-            try bufferCoordinator?.seek(to: max(0, min(seconds, duration)))
-            videoRenderer.flush()
+            try bufferCoordinator?.seek(to: target)
+            // Don't flush the renderer — keep the last frame visible
+            // until the decode loop delivers a new one
         } catch {
             #if DEBUG
             print("[PlayerEngine] Seek error: \(error)")

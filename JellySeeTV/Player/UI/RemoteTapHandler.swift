@@ -1,104 +1,52 @@
 import SwiftUI
 
-/// Callbacks for Siri Remote interactions.
-struct RemoteActions {
-    let onTap: () -> Void
-    let onSwipe: ((_ direction: SwipeDirection, _ velocity: CGFloat) -> Void)?
-    let onPanChanged: ((_ translation: CGFloat) -> Void)?
-    let onPanEnded: (() -> Void)?
-
-    enum SwipeDirection {
-        case left, right
-    }
-}
-
-/// UIViewRepresentable that detects taps, swipes, and pans on the Siri Remote.
+/// UIViewRepresentable that captures Siri Remote input for the player.
+/// Handles: clickpad tap, touch surface pan (scrubbing).
+/// Must be the focused view to receive events on tvOS.
 struct RemoteTapHandler: UIViewRepresentable {
-    let actions: RemoteActions
-
-    init(onTap: @escaping () -> Void,
-         onSwipe: ((_ direction: RemoteActions.SwipeDirection, _ velocity: CGFloat) -> Void)? = nil,
-         onPanChanged: ((_ translation: CGFloat) -> Void)? = nil,
-         onPanEnded: (() -> Void)? = nil) {
-        self.actions = RemoteActions(
-            onTap: onTap,
-            onSwipe: onSwipe,
-            onPanChanged: onPanChanged,
-            onPanEnded: onPanEnded
-        )
-    }
+    var onTap: () -> Void
+    var onPanChanged: ((CGFloat) -> Void)?
+    var onPanEnded: (() -> Void)?
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(actions: actions)
+        Coordinator()
     }
 
-    func makeUIView(context: Context) -> RemoteTapUIView {
-        let view = RemoteTapUIView()
-        view.coordinator = context.coordinator
+    func makeUIView(context: Context) -> RemoteInputView {
+        let view = RemoteInputView()
+        let coord = context.coordinator
+        coord.onTap = onTap
+        coord.onPanChanged = onPanChanged
+        coord.onPanEnded = onPanEnded
 
-        // Tap (select press)
-        let tap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap))
-        tap.allowedPressTypes = [NSNumber(value: UIPress.PressType.select.rawValue)]
-        view.addGestureRecognizer(tap)
-
-        // Pan for scrubbing on touch surface
-        let pan = UIPanGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handlePan(_:)))
+        // Pan on touch surface for scrubbing
+        let pan = UIPanGestureRecognizer(target: coord, action: #selector(Coordinator.handlePan(_:)))
+        pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
         view.addGestureRecognizer(pan)
-
-        // Swipe left
-        let swipeLeft = UISwipeGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleSwipeLeft))
-        swipeLeft.direction = .left
-        view.addGestureRecognizer(swipeLeft)
-
-        // Swipe right
-        let swipeRight = UISwipeGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleSwipeRight))
-        swipeRight.direction = .right
-        view.addGestureRecognizer(swipeRight)
-
-        // Let pan and swipe coexist
-        pan.require(toFail: swipeLeft)
-        pan.require(toFail: swipeRight)
 
         return view
     }
 
-    func updateUIView(_ uiView: RemoteTapUIView, context: Context) {
-        context.coordinator.actions = actions
+    func updateUIView(_ uiView: RemoteInputView, context: Context) {
+        context.coordinator.onTap = onTap
+        context.coordinator.onPanChanged = onPanChanged
+        context.coordinator.onPanEnded = onPanEnded
     }
 
-    // MARK: - Coordinator
-
     class Coordinator: NSObject {
-        var actions: RemoteActions
-        private var panStartX: CGFloat = 0
-
-        init(actions: RemoteActions) {
-            self.actions = actions
-        }
-
-        @objc func handleTap() {
-            actions.onTap()
-        }
-
-        @objc func handleSwipeLeft() {
-            actions.onSwipe?(.left, 1.0)
-        }
-
-        @objc func handleSwipeRight() {
-            actions.onSwipe?(.right, 1.0)
-        }
+        var onTap: (() -> Void)?
+        var onPanChanged: ((CGFloat) -> Void)?
+        var onPanEnded: (() -> Void)?
 
         @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+            guard let view = gesture.view else { return }
             switch gesture.state {
-            case .began:
-                panStartX = 0
             case .changed:
-                let translation = gesture.translation(in: gesture.view)
-                // Normalize: touch surface is ~1920 logical points on tvOS
-                let normalizedX = translation.x / 1920.0
-                actions.onPanChanged?(normalizedX)
+                let translation = gesture.translation(in: view)
+                let normalized = translation.x / 1920.0
+                onPanChanged?(normalized)
             case .ended, .cancelled:
-                actions.onPanEnded?()
+                onPanEnded?()
             default:
                 break
             }
@@ -106,8 +54,43 @@ struct RemoteTapHandler: UIViewRepresentable {
     }
 }
 
-/// UIView that can become focused to receive remote events.
-class RemoteTapUIView: UIView {
+/// UIView that grabs focus and handles the select press (clickpad tap).
+/// Uses pressesBegan/pressesEnded instead of UITapGestureRecognizer for
+/// more reliable detection on tvOS.
+class RemoteInputView: UIView {
     weak var coordinator: RemoteTapHandler.Coordinator?
+
     override var canBecomeFocused: Bool { true }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window != nil {
+            DispatchQueue.main.async {
+                self.setNeedsFocusUpdate()
+                self.updateFocusIfNeeded()
+            }
+        }
+    }
+
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        // Only handle select (clickpad) press
+        guard presses.contains(where: { $0.type == .select }) else {
+            super.pressesBegan(presses, with: event)
+            return
+        }
+    }
+
+    override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        if presses.contains(where: { $0.type == .select }) {
+            coordinator?.onTap?()
+        } else {
+            super.pressesEnded(presses, with: event)
+        }
+    }
+
+    override func pressesCancelled(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        super.pressesCancelled(presses, with: event)
+    }
+
+    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [self] }
 }

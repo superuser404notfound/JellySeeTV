@@ -64,15 +64,34 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
     func resume() { audioOutput.resume() }
 
     func seek(to seconds: Double) throws {
+        #if DEBUG
+        print("[BufferCoordinator] Seek to \(String(format: "%.1f", seconds))s")
+        #endif
+
+        // 1. Stop audio playback to prevent glitches
         audioOutput.flush()
+
+        // 2. Flush queues so decode loops don't process stale packets
         videoQueue.flush()
         audioQueue.flush()
+
+        // 3. Flush decoders to clear internal buffered frames
         _ = videoDecoder?.flush()
         _ = audioDecoder?.flush()
+
+        // 4. Seek the demuxer to nearest keyframe
         try demuxer.seek(to: seconds)
+
+        // 5. Reset queues (unset flushed flag so enqueue/dequeue work again)
         videoQueue.reset()
         audioQueue.reset()
+
+        // 6. Restart audio from new position
         audioOutput.restartAfterFlush(startPTS: seconds)
+
+        #if DEBUG
+        print("[BufferCoordinator] Seek complete, audio restarted at \(String(format: "%.1f", seconds))s")
+        #endif
     }
 
     // MARK: - Loops (all run on background threads)
