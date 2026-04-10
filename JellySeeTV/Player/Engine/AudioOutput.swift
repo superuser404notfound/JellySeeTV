@@ -14,6 +14,8 @@ nonisolated final class AudioOutput {
     private var startPTS: Double = 0
     private var isStarted = false
     private var scheduledSamples: Int64 = 0
+    /// Cache the last good clock time to return when paused/seeking
+    private var lastKnownTime: Double = 0
 
     init() {
         engine.attach(playerNode)
@@ -25,6 +27,7 @@ nonisolated final class AudioOutput {
         self.format = format
         self.startPTS = startPTS
         self.scheduledSamples = 0
+        self.lastKnownTime = startPTS
 
         // Configure audio session
         do {
@@ -95,13 +98,17 @@ nonisolated final class AudioOutput {
     /// Compensates for audio hardware output latency so video frames
     /// are displayed at the moment the corresponding audio is heard.
     var currentPlaybackTime: Double {
-        guard isStarted, let nodeTime = playerNode.lastRenderTime,
+        guard isStarted else { return lastKnownTime }
+        guard let nodeTime = playerNode.lastRenderTime,
               let playerTime = playerNode.playerTime(forNodeTime: nodeTime) else {
-            return startPTS
+            // Paused / no recent render → return the last known good time
+            return lastKnownTime
         }
         let rawTime = startPTS + Double(playerTime.sampleTime) / playerTime.sampleRate
         let latency = AVAudioSession.sharedInstance().outputLatency
-        return rawTime - latency
+        let time = rawTime - latency
+        lastKnownTime = time
+        return time
     }
 
     // MARK: - Flush (for seeking)
@@ -114,6 +121,7 @@ nonisolated final class AudioOutput {
 
     func restartAfterFlush(startPTS: Double) {
         self.startPTS = startPTS
+        self.lastKnownTime = startPTS
         playerNode.play()
     }
 }

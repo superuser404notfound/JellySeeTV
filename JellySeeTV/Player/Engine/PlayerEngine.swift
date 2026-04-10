@@ -173,7 +173,14 @@ final class PlayerEngine {
     }
 
     func seek(to seconds: Double) async {
-        let target = max(0, min(seconds, duration))
+        // Only upper-clamp if duration is known (>0). For unknown duration
+        // (some MKV streams over HTTP), allow any positive seek.
+        let target: Double
+        if duration > 0 {
+            target = max(0, min(seconds, duration))
+        } else {
+            target = max(0, seconds)
+        }
         let prevState = state
         state = .seeking
         #if DEBUG
