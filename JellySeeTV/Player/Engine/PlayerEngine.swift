@@ -201,11 +201,12 @@ final class PlayerEngine {
         }
     }
 
-    /// Seek by reopening the stream with Jellyfin's StartTimeTicks parameter.
-    /// Jellyfin remuxes the stream and emits PTS values starting at 0, so we
-    /// keep the audio clock 0-based and add a displayTimeOffset for the UI.
+    /// Seek by atomically replacing the demuxer with a new one positioned at
+    /// `seconds` via Jellyfin's StartTimeTicks. The decoders, audio output,
+    /// and renderer are REUSED across seeks (no resource churn / VT session leak).
     func seek(to seconds: Double) async {
         guard let url = sourceURL else { return }
+        guard let coordinator = bufferCoordinator else { return }
         guard !isSeekInProgress else {
             #if DEBUG
             print("[PlayerEngine] Seek already in progress, ignoring")
@@ -225,42 +226,44 @@ final class PlayerEngine {
         }
 
         #if DEBUG
-        print("[PlayerEngine] Seek (reload) to \(String(format: "%.1f", target))s")
+        print("[PlayerEngine] Seek to \(String(format: "%.1f", target))s")
         let seekStart = CFAbsoluteTimeGetCurrent()
         #endif
 
         state = .seeking
 
-        // Strip any existing StartTimeTicks before adding the new one
+        // Build the seek URL with Jellyfin's StartTimeTicks parameter
         let baseURL = stripStartTimeTicks(from: url)
         let seekURL = appendStartTimeTicks(to: baseURL, seconds: target)
 
-        // Stop the current pipeline cleanly (sync, all loops will exit)
-        await tearDownPipeline()
-
-        // Open fresh pipeline. The new stream is 0-based, so:
-        //  - audioOutput.startPTS = 0 (don't pass startPosition)
-        //  - displayTimeOffset = target (added when reading time for UI/sync clock)
-        displayTimeOffset = target
+        // Open the new demuxer in the background (off main thread)
+        let newDemuxer = Demuxer()
         do {
-            // After seek, start paused — user must click to resume
-            try await load(url: seekURL, startPosition: nil, streamAlreadyAtPosition: true, startPaused: true)
-            // Force display the first frame so user sees the new position
-            bufferCoordinator?.forceDisplayNextFrame = true
-            // Restore the original duration so progress bar still works
-            if originalDuration > 0 {
-                duration = originalDuration
-            }
-            #if DEBUG
-            let elapsed = CFAbsoluteTimeGetCurrent() - seekStart
-            print("[PlayerEngine] Seek complete in \(String(format: "%.3f", elapsed))s, displayOffset=\(target)")
-            #endif
+            try await Task.detached {
+                try newDemuxer.open(url: seekURL, skipProbe: true)
+            }.value
         } catch {
             #if DEBUG
-            print("[PlayerEngine] Seek (reload) error: \(error)")
+            print("[PlayerEngine] Seek demuxer open failed: \(error)")
             #endif
             state = .error("Seek failed: \(error.localizedDescription)")
+            return
         }
+
+        // Atomically swap into the running pipeline (decoders/audio reused).
+        // pauseAfter:true → audio stays paused; click to resume.
+        await coordinator.replaceDemuxer(newDemuxer, pauseAfter: true)
+
+        // Update display offset so the user sees the new position
+        displayTimeOffset = target
+        // Reset internal demuxer reference so stop() closes the new one
+        demuxer = newDemuxer
+        state = .paused
+
+        #if DEBUG
+        let elapsed = CFAbsoluteTimeGetCurrent() - seekStart
+        print("[PlayerEngine] Seek complete in \(String(format: "%.3f", elapsed))s, offset=\(target)")
+        #endif
     }
 
     /// Strip any existing StartTimeTicks query item from a URL.

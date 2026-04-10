@@ -3,10 +3,8 @@ import AVFoundation
 /// Audio output via AVAudioEngine. Decodes all audio to PCM for playback.
 /// Serves as the master clock for A/V sync.
 ///
-/// Note: Dolby Atmos spatial metadata is lost during PCM decode.
-/// The audio still plays correctly as 5.1/7.1 surround.
-/// Atmos passthrough requires Apple's private HDMI bitstream API
-/// and will be added as a future enhancement.
+/// Designed to be reused across seeks: flush() captures a sample-time baseline,
+/// so the clock returns the new startPTS immediately after restart.
 nonisolated final class AudioOutput {
     private let engine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
@@ -14,8 +12,11 @@ nonisolated final class AudioOutput {
     private var startPTS: Double = 0
     private var isStarted = false
     private var scheduledSamples: Int64 = 0
-    /// Cache the last good clock time to return when paused/seeking
     private var lastKnownTime: Double = 0
+    /// AVAudioPlayerNode.sampleTime is monotonic across stop/play, so we
+    /// capture the value at flush() and subtract it in currentPlaybackTime.
+    /// This makes the clock "reset" relative to the new playback start.
+    private var sampleTimeBase: AVAudioFramePosition = 0
 
     init() {
         engine.attach(playerNode)
@@ -28,6 +29,7 @@ nonisolated final class AudioOutput {
         self.startPTS = startPTS
         self.scheduledSamples = 0
         self.lastKnownTime = startPTS
+        self.sampleTimeBase = 0
 
         // Configure audio session
         do {
@@ -95,25 +97,36 @@ nonisolated final class AudioOutput {
     // MARK: - Master Clock
 
     /// Current playback time in seconds. THE master clock for A/V sync.
-    /// Compensates for audio hardware output latency so video frames
-    /// are displayed at the moment the corresponding audio is heard.
     var currentPlaybackTime: Double {
         guard isStarted else { return lastKnownTime }
         guard let nodeTime = playerNode.lastRenderTime,
               let playerTime = playerNode.playerTime(forNodeTime: nodeTime) else {
-            // Paused / no recent render → return the last known good time
             return lastKnownTime
         }
-        let rawTime = startPTS + Double(playerTime.sampleTime) / playerTime.sampleRate
+        // Subtract the baseline captured at the last flush() — makes the
+        // sample counter "reset" to 0 across seeks while keeping the same
+        // underlying playerNode (avoiding VT/audio-engine resource churn).
+        let relativeSamples = max(0, playerTime.sampleTime - sampleTimeBase)
+        let rawTime = startPTS + Double(relativeSamples) / playerTime.sampleRate
         let latency = AVAudioSession.sharedInstance().outputLatency
-        let time = rawTime - latency
+        let time = max(startPTS, rawTime - latency)
         lastKnownTime = time
         return time
     }
 
     // MARK: - Flush (for seeking)
 
+    /// Flush all scheduled buffers and capture a new sample-time baseline.
+    /// After this, currentPlaybackTime will return startPTS until new buffers play.
     func flush() {
+        // Capture current sampleTime BEFORE stopping (after stop, lastRenderTime
+        // becomes nil). This becomes the new "zero" for currentPlaybackTime.
+        if let nodeTime = playerNode.lastRenderTime,
+           let playerTime = playerNode.playerTime(forNodeTime: nodeTime) {
+            // Add scheduled samples that haven't played yet, so any in-flight
+            // audio is fully accounted for as the baseline.
+            sampleTimeBase = playerTime.sampleTime + AVAudioFramePosition(scheduledSamples)
+        }
         playerNode.stop()
         playerNode.reset()
         scheduledSamples = 0
