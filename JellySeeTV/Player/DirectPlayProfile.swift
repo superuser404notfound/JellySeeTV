@@ -75,17 +75,28 @@ enum DirectPlayProfile {
             "ContainerProfiles": [] as [Any],
 
             // ─── Codec-level constraints ───
-            // Constrain HEVC to Main 8-bit, and audio to stereo. This
-            // forces Jellyfin to actually transcode (not just remux)
-            // any HEVC Main10 / HDR / Atmos source. Our DirectPlayProfile
-            // already excludes EAC3, so multi-channel EAC3 sources hit
-            // the transcoder; the constraint here also caps the
-            // transcoder output so the final stream is something
-            // AVPlayer's HLS reader handles reliably.
+            // Force the server to deliver SDR + 8-bit + stereo. The Apple
+            // TV system setting "Match Dynamic Range" is OFF in our use
+            // case, which means the Apple TV stays in SDR mode and would
+            // have to client-side tone-map any incoming HDR stream — and
+            // AVPlayer's HLS reader hangs on HEVC Main10 / HDR streams in
+            // fragmented MP4 segments when that happens. Forcing the
+            // server to do HDR→SDR tone mapping (via Jellyfin's HDR
+            // tone-mapping pipeline) gives us a clean SDR stream that
+            // AVPlayer plays reliably.
             //
-            // Trade-off: HDR is downgraded to SDR and Atmos to stereo
-            // AC3. Will revisit once we know which constraint is the
-            // root cause.
+            // The four constraints together:
+            //   1. VideoRangeType = SDR        — explicit "no HDR / DV"
+            //   2. VideoBitDepth ≤ 8           — forces 8-bit even if the
+            //                                    source is 10-bit Main10
+            //   3. VideoProfile = main         — HEVC profile cap
+            //   4. AudioChannels ≤ 2           — downmix multi-channel
+            //                                    (also avoids EAC3 Atmos
+            //                                    HLS-remux issues)
+            //
+            // Trade-off: HDR is downgraded to SDR, Dolby Atmos to stereo.
+            // Phase 2 will graduate this to a runtime decision based on
+            // actual display + audio receiver capabilities.
             "CodecProfiles": [
                 [
                     "Type": "Video",
@@ -93,8 +104,32 @@ enum DirectPlayProfile {
                     "Conditions": [
                         [
                             "Condition": "EqualsAny",
+                            "Property": "VideoRangeType",
+                            "Value": "SDR",
+                            "IsRequired": true,
+                        ],
+                        [
+                            "Condition": "EqualsAny",
                             "Property": "VideoProfile",
                             "Value": "main",
+                            "IsRequired": true,
+                        ],
+                        [
+                            "Condition": "LessThanEqual",
+                            "Property": "VideoBitDepth",
+                            "Value": "8",
+                            "IsRequired": true,
+                        ],
+                    ],
+                ],
+                [
+                    "Type": "Video",
+                    "Codec": "h264",
+                    "Conditions": [
+                        [
+                            "Condition": "EqualsAny",
+                            "Property": "VideoRangeType",
+                            "Value": "SDR",
                             "IsRequired": true,
                         ],
                         [
