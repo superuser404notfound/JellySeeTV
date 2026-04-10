@@ -87,21 +87,35 @@ final class MPVPlayerEngine {
     private func initializeMpvIfNeeded() throws {
         guard mpvHandle == nil else { return }
 
+        // Activate AVAudioSession for mpv's audiounit AO
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .moviePlayback)
+            try session.setActive(true)
+            #if DEBUG
+            print("[MPV] AVAudioSession active")
+            #endif
+        } catch {
+            #if DEBUG
+            print("[MPV] AVAudioSession error: \(error)")
+            #endif
+        }
+
         guard let handle = mpv_create() else {
             throw MPVError.createFailed
         }
         mpvHandle = handle
 
-        // EXACTLY the working v3 config + ONLY enable audio stream
+        // Audio enabled, video still null
         setOption(handle, "vo", "null")
-        setOption(handle, "ao", "null")     // KEEP ao=null for now
+        setOption(handle, "ao", "audiounit")  // CHANGED: real audio output
         setOption(handle, "vid", "no")
-        setOption(handle, "aid", "auto")    // CHANGED: was "no", now auto-select
+        setOption(handle, "aid", "auto")
         setOption(handle, "config", "no")
         setOption(handle, "idle", "yes")
 
         #if DEBUG
-        mpv_request_log_messages(handle, "info")
+        mpv_request_log_messages(handle, "v")  // verbose for diagnosis
         #endif
 
         let ret = mpv_initialize(handle)
@@ -112,7 +126,7 @@ final class MPVPlayerEngine {
         }
 
         #if DEBUG
-        print("[MPV] Initialized (test: aid=auto, ao=null, no callbacks)")
+        print("[MPV] Initialized (test: aid=auto, ao=audiounit)")
         #endif
     }
 
