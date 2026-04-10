@@ -91,6 +91,9 @@ struct SeriesDetailView: View {
                 )
                 .transition(.opacity)
                 .ignoresSafeArea()
+                .task {
+                    viewModel?.clearAndRefreshDemuxer()
+                }
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showPlayer)

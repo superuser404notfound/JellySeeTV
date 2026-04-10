@@ -100,7 +100,7 @@ final class PlayerViewModel {
             #endif
 
             // Update UI
-            totalTime = formatSeconds(engine.duration)
+            totalTime = formatSeconds(effectiveDuration)
             isLoading = false
             isPlaying = true
 
@@ -143,9 +143,18 @@ final class PlayerViewModel {
 
     // MARK: - Scrubbing
 
+    /// Effective duration: prefer engine, fall back to Jellyfin's runTimeTicks.
+    var effectiveDuration: Double {
+        if engine.duration > 0 { return engine.duration }
+        if let ticks = item.runTimeTicks, ticks > 0 {
+            return Double(ticks) / 10_000_000
+        }
+        return 0
+    }
+
     /// Called when user starts panning on remote touch surface.
     func beginScrub() {
-        guard engine.duration > 0 else { return }
+        guard effectiveDuration > 0 else { return }
         isScrubbing = true
         scrubStartTime = engine.currentTime
         scrubProgress = progress
@@ -155,21 +164,23 @@ final class PlayerViewModel {
 
     /// Called during pan — normalizedDelta is -1.0 to 1.0 relative to touch surface.
     func updateScrub(normalizedDelta: CGFloat) {
-        guard isScrubbing, engine.duration > 0 else { return }
+        let dur = effectiveDuration
+        guard isScrubbing, dur > 0 else { return }
         // Map full touch surface swipe to ~30% of duration for natural feel
-        let timeDelta = Double(normalizedDelta) * engine.duration * 0.3
-        let targetTime = max(0, min(engine.duration, scrubStartTime + timeDelta))
-        scrubProgress = Float(targetTime / engine.duration)
+        let timeDelta = Double(normalizedDelta) * dur * 0.3
+        let targetTime = max(0, min(dur, scrubStartTime + timeDelta))
+        scrubProgress = Float(targetTime / dur)
         scrubTime = formatSeconds(targetTime)
     }
 
     /// Called when pan ends — commit the seek.
     func commitScrub() {
-        guard isScrubbing, engine.duration > 0 else {
+        let dur = effectiveDuration
+        guard isScrubbing, dur > 0 else {
             isScrubbing = false
             return
         }
-        let targetTime = Double(scrubProgress) * engine.duration
+        let targetTime = Double(scrubProgress) * dur
         isScrubbing = false
         Task {
             await engine.seek(to: targetTime)
@@ -216,11 +227,13 @@ final class PlayerViewModel {
                 try? await Task.sleep(for: .milliseconds(250))
                 guard !Task.isCancelled else { return }
 
-                // Update from engine
-                currentTime = formatSeconds(engine.currentTime)
-                let remaining = engine.duration - engine.currentTime
+                // Update from engine (use effective duration as fallback)
+                let dur = effectiveDuration
+                let cur = engine.currentTime
+                currentTime = formatSeconds(cur)
+                let remaining = dur - cur
                 remainingTime = remaining > 0 ? "-\(formatSeconds(remaining))" : "-00:00"
-                progress = engine.progress
+                progress = dur > 0 ? Float(cur / dur) : 0
 
                 #if !targetEnvironment(simulator)
                 switch engine.state {

@@ -18,6 +18,15 @@ final class DetailViewModel {
     #if !targetEnvironment(simulator)
     /// Pre-opened demuxer — FFmpeg HTTP connection already established
     private(set) var cachedDemuxer: Demuxer?
+
+    /// Clear the cached demuxer (after the player has consumed it) and
+    /// pre-open a fresh one for the next playback attempt.
+    func clearAndRefreshDemuxer() {
+        cachedDemuxer = nil
+        if let url = cachedStreamURL {
+            preOpenDemuxer(url: url)
+        }
+    }
     #endif
 
     private let itemService: JellyfinItemServiceProtocol

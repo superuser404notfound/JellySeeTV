@@ -27,7 +27,7 @@ struct PlayerView: View {
                 VideoLayerView(renderer: viewModel.engine.videoRenderer)
                     .ignoresSafeArea()
 
-                // Remote gesture handler
+                // Single remote input handler — captures ALL Siri Remote events
                 RemoteTapHandler(
                     onTap: {
                         if viewModel.isScrubbing {
@@ -36,6 +36,24 @@ struct PlayerView: View {
                             viewModel.toggleControls()
                         }
                     },
+                    onPlayPause: {
+                        viewModel.togglePlayPause()
+                    },
+                    onMenu: {
+                        if viewModel.isScrubbing {
+                            viewModel.cancelScrub()
+                        } else if viewModel.showControls {
+                            viewModel.showControls = false
+                        } else {
+                            dismissPlayer()
+                        }
+                    },
+                    onLeft: {
+                        viewModel.seekBackward()
+                    },
+                    onRight: {
+                        viewModel.seekForward()
+                    },
                     onPanChanged: { delta in
                         if !viewModel.isScrubbing {
                             viewModel.beginScrub()
@@ -43,7 +61,9 @@ struct PlayerView: View {
                         viewModel.updateScrub(normalizedDelta: delta)
                     },
                     onPanEnded: {
-                        viewModel.commitScrub()
+                        if viewModel.isScrubbing {
+                            viewModel.commitScrub()
+                        }
                     }
                 )
                 .ignoresSafeArea()
@@ -83,25 +103,6 @@ struct PlayerView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
-        .onPlayPauseCommand {
-            viewModel.togglePlayPause()
-        }
-        .onExitCommand {
-            if viewModel.isScrubbing {
-                viewModel.cancelScrub()
-            } else if viewModel.showControls {
-                viewModel.showControls = false
-            } else {
-                dismissPlayer()
-            }
-        }
-        .onMoveCommand { direction in
-            switch direction {
-            case .left: viewModel.seekBackward()
-            case .right: viewModel.seekForward()
-            default: viewModel.showControlsTemporarily()
-            }
-        }
         .task {
             await viewModel.startPlayback()
         }

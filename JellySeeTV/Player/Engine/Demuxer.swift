@@ -292,7 +292,11 @@ nonisolated final class Demuxer: @unchecked Sendable {
         guard isOpen, let ctx = formatCtx else { return }
 
         let timestamp = Int64(seconds * Double(AV_TIME_BASE))
-        let ret = avformat_seek_file(ctx, -1, Int64.min, timestamp, timestamp, 0)
+        // AVSEEK_FLAG_BACKWARD = 1 → land on a keyframe AT or BEFORE the target.
+        // Without this, the decoder gets non-keyframe packets first and produces
+        // no output until the next IDR frame, causing a frozen video.
+        let AVSEEK_FLAG_BACKWARD: Int32 = 1
+        let ret = avformat_seek_file(ctx, -1, Int64.min, timestamp, timestamp, AVSEEK_FLAG_BACKWARD)
         guard ret >= 0 else {
             throw DemuxerError.seekFailed(errorString(ret))
         }
