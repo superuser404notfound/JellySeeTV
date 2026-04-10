@@ -24,7 +24,7 @@ struct PlayerView: View {
                 errorView(error)
             } else {
                 // Video layer (UIView that VLC renders into)
-                VideoLayerView(drawableView: viewModel.engine.drawableView)
+                VideoLayerView(engine: viewModel.engine)
                     .ignoresSafeArea()
 
                 // Single remote input handler — captures ALL Siri Remote events

@@ -42,19 +42,14 @@ final class VLCPlayerEngine: NSObject {
     var currentAudioTrackIndex: Int = -1
     var currentSubtitleTrackIndex: Int = -1
 
-    /// The view VLC renders into. Add this to a SwiftUI hierarchy via VideoLayerView.
-    let drawableView: UIView = {
-        let v = UIView()
-        v.backgroundColor = .black
-        v.contentMode = .scaleAspectFit
-        return v
-    }()
-
     // MARK: - Private
 
     private var player: VLCMediaPlayer?
     private var pendingStartPosition: Double?
     private var hasFetchedTracksForCurrentMedia = false
+    /// Drawable handed to us by VideoLayerView once it has a real
+    /// view-hierarchy + Auto Layout constraints.
+    private weak var drawableView: UIView?
 
     override init() {
         super.init()
@@ -62,6 +57,18 @@ final class VLCPlayerEngine: NSObject {
 
     deinit {
         // VLCMediaPlayer cleanup happens automatically when reference drops
+    }
+
+    // MARK: - Drawable
+
+    /// Called by VideoLayerView once the drawable subview is in the
+    /// view hierarchy with Auto Layout constraints. Wires it through to
+    /// VLC, creating the player on first call if needed.
+    func attachDrawable(_ view: UIView) {
+        drawableView = view
+        if let player = player {
+            player.drawable = view
+        }
     }
 
     // MARK: - Initialization
@@ -93,11 +100,13 @@ final class VLCPlayerEngine: NSObject {
 
         let p = VLCMediaPlayer(options: options)
         p.delegate = self
-        p.drawable = drawableView
+        if let drawable = drawableView {
+            p.drawable = drawable
+        }
         player = p
 
         #if DEBUG
-        print("[VLC] Initialized")
+        print("[VLC] Initialized (drawable=\(drawableView != nil ? "set" : "pending"))")
         #endif
     }
 
