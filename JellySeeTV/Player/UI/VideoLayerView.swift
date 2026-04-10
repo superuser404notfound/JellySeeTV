@@ -1,51 +1,32 @@
 import SwiftUI
-import QuartzCore
+import UIKit
 
-/// UIViewRepresentable that hosts a CAMetalLayer for mpv to render into.
+/// UIViewRepresentable that hosts the UIView VLC renders into.
+/// VLC manages its own rendering pipeline (CoreVideo + VideoToolbox); we only
+/// hand it a black UIView to draw inside.
 struct VideoLayerView: UIViewRepresentable {
-    let metalLayer: CAMetalLayer
+    let drawableView: UIView
 
-    func makeUIView(context: Context) -> MetalView {
-        let view = MetalView(metalLayer: metalLayer)
-        view.backgroundColor = .black
-        return view
+    func makeUIView(context: Context) -> ContainerView {
+        let container = ContainerView()
+        container.backgroundColor = .black
+        container.addSubview(drawableView)
+        return container
     }
 
-    func updateUIView(_ uiView: MetalView, context: Context) {
-        uiView.updateLayerSize()
+    func updateUIView(_ uiView: ContainerView, context: Context) {
+        // Layout happens in ContainerView.layoutSubviews
+        uiView.setNeedsLayout()
     }
 }
 
-/// UIView that hosts a CAMetalLayer and keeps its frame + drawableSize in sync.
-class MetalView: UIView {
-    let metalLayer: CAMetalLayer
-
-    init(metalLayer: CAMetalLayer) {
-        self.metalLayer = metalLayer
-        super.init(frame: .zero)
-        layer.addSublayer(metalLayer)
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-
-    func updateLayerSize() {
-        guard bounds != .zero else { return }
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        metalLayer.frame = bounds
-        // drawableSize must be in PIXELS, not points
-        let scale = window?.windowScene?.screen.scale ?? 2.0
-        metalLayer.contentsScale = scale
-        metalLayer.drawableSize = CGSize(
-            width: bounds.width * scale,
-            height: bounds.height * scale
-        )
-        CATransaction.commit()
-    }
-
+/// Container that keeps the VLC drawable view filling its bounds.
+final class ContainerView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
-        updateLayerSize()
+        for sub in subviews {
+            sub.frame = bounds
+        }
     }
 
     override var canBecomeFocused: Bool { false }

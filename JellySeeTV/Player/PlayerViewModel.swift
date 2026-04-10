@@ -25,7 +25,7 @@ final class PlayerViewModel {
     private var scrubStartTime: Double = 0
 
     let item: JellyfinItem
-    let engine = MPVPlayerEngine()
+    let engine = VLCPlayerEngine()
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String

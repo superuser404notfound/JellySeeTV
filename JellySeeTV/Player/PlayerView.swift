@@ -23,8 +23,8 @@ struct PlayerView: View {
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
-                // Video layer (CAMetalLayer that mpv renders into)
-                VideoLayerView(metalLayer: viewModel.engine.metalLayer)
+                // Video layer (UIView that VLC renders into)
+                VideoLayerView(drawableView: viewModel.engine.drawableView)
                     .ignoresSafeArea()
 
                 // Single remote input handler — captures ALL Siri Remote events
@@ -118,7 +118,8 @@ struct PlayerView: View {
             await viewModel.startPlayback()
         }
         .onChange(of: scenePhase) { _, newPhase in
-            // Pause when going to background to avoid MoltenVK crashes
+            // Pause when going to background — VLC's video output is GL-backed
+            // and can't draw without an active scene.
             if newPhase == .background || newPhase == .inactive {
                 viewModel.engine.pause()
             }
