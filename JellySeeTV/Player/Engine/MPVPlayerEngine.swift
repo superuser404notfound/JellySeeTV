@@ -76,7 +76,7 @@ final class MPVPlayerEngine {
     private func initializeMpvIfNeeded() throws {
         guard mpvHandle == nil else { return }
 
-        // Activate AVAudioSession before mpv (audiounit AO needs it)
+        // Activate AVAudioSession before mpv (avfoundation AO needs it on tvOS)
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .moviePlayback)
@@ -104,14 +104,13 @@ final class MPVPlayerEngine {
         setOption(handle, "gpu-context", "moltenvk")
         setOption(handle, "hwdec", "videotoolbox-copy")
 
-        // Audio
-        setOption(handle, "ao", "audiounit")
-        // CRITICAL WORKAROUND: MPVKit's audiounit AO fails on tvOS with
-        // "unable to retrieve audio unit channel layout" because AURemoteIO
-        // doesn't expose kAudioUnitProperty_AudioChannelLayout. With this
-        // option, mpv falls back to a null AO instead of bailing out — so
-        // playback continues (silently) instead of failing entirely.
-        setOption(handle, "audio-fallback-to-null", "yes")
+        // Audio: use avfoundation AO (AVSampleBufferAudioRenderer) instead of
+        // audiounit. The audiounit AO is broken on tvOS — AURemoteIO does not
+        // expose kAudioUnitProperty_AudioChannelLayout, so mpv bails out with
+        // -10879 (kAudioUnitErr_InvalidProperty). avfoundation works around
+        // this by going through AVSampleBufferAudioRenderer, which is the
+        // same backend our old custom engine used successfully.
+        setOption(handle, "ao", "avfoundation")
 
         // No mpv config files, no built-in UI/input — we drive everything from Swift
         setOption(handle, "config", "no")
