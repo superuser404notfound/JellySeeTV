@@ -2,9 +2,6 @@ import AVFoundation
 
 /// Audio output via AVAudioEngine. Decodes all audio to PCM for playback.
 /// Serves as the master clock for A/V sync.
-///
-/// Designed to be reused across seeks: flush() captures a sample-time baseline,
-/// so the clock returns the new startPTS immediately after restart.
 nonisolated final class AudioOutput {
     private let engine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
@@ -13,10 +10,12 @@ nonisolated final class AudioOutput {
     private var isStarted = false
     private var scheduledSamples: Int64 = 0
     private var lastKnownTime: Double = 0
-    /// AVAudioPlayerNode.sampleTime is monotonic across stop/play, so we
-    /// capture the value at flush() and subtract it in currentPlaybackTime.
-    /// This makes the clock "reset" relative to the new playback start.
-    private var sampleTimeBase: AVAudioFramePosition = 0
+
+    /// AVAudioPlayerNode.sampleTime can return a non-zero value at start
+    /// (engine global counter, persisted state). We capture the FIRST observed
+    /// sample time after start/flush as the baseline, so the clock effectively
+    /// resets to startPTS each time.
+    private var sampleTimeBaseline: AVAudioFramePosition? = nil
 
     init() {
         engine.attach(playerNode)
@@ -29,7 +28,7 @@ nonisolated final class AudioOutput {
         self.startPTS = startPTS
         self.scheduledSamples = 0
         self.lastKnownTime = startPTS
-        self.sampleTimeBase = 0
+        self.sampleTimeBaseline = nil
 
         // Configure audio session
         do {
@@ -73,6 +72,7 @@ nonisolated final class AudioOutput {
         engine.stop()
         isStarted = false
         scheduledSamples = 0
+        sampleTimeBaseline = nil
     }
 
     func pause() {
@@ -97,16 +97,23 @@ nonisolated final class AudioOutput {
     // MARK: - Master Clock
 
     /// Current playback time in seconds. THE master clock for A/V sync.
+    /// On the first call after start/flush, captures the current sampleTime
+    /// as a baseline so the clock starts at startPTS regardless of the
+    /// underlying playerNode's internal counter.
     var currentPlaybackTime: Double {
         guard isStarted else { return lastKnownTime }
         guard let nodeTime = playerNode.lastRenderTime,
               let playerTime = playerNode.playerTime(forNodeTime: nodeTime) else {
             return lastKnownTime
         }
-        // Subtract the baseline captured at the last flush() — makes the
-        // sample counter "reset" to 0 across seeks while keeping the same
-        // underlying playerNode (avoiding VT/audio-engine resource churn).
-        let relativeSamples = max(0, playerTime.sampleTime - sampleTimeBase)
+
+        // Capture baseline on first observation after start/flush
+        if sampleTimeBaseline == nil {
+            sampleTimeBaseline = playerTime.sampleTime
+        }
+        let baseline = sampleTimeBaseline ?? 0
+        let relativeSamples = max(0, playerTime.sampleTime - baseline)
+
         let rawTime = startPTS + Double(relativeSamples) / playerTime.sampleRate
         let latency = AVAudioSession.sharedInstance().outputLatency
         let time = max(startPTS, rawTime - latency)
@@ -116,25 +123,21 @@ nonisolated final class AudioOutput {
 
     // MARK: - Flush (for seeking)
 
-    /// Flush all scheduled buffers and capture a new sample-time baseline.
-    /// After this, currentPlaybackTime will return startPTS until new buffers play.
+    /// Flush all scheduled buffers and reset the sample-time baseline.
+    /// After this + restartAfterFlush, currentPlaybackTime returns startPTS
+    /// until new audio renders, then advances naturally.
     func flush() {
-        // Capture current sampleTime BEFORE stopping (after stop, lastRenderTime
-        // becomes nil). This becomes the new "zero" for currentPlaybackTime.
-        if let nodeTime = playerNode.lastRenderTime,
-           let playerTime = playerNode.playerTime(forNodeTime: nodeTime) {
-            // Add scheduled samples that haven't played yet, so any in-flight
-            // audio is fully accounted for as the baseline.
-            sampleTimeBase = playerTime.sampleTime + AVAudioFramePosition(scheduledSamples)
-        }
         playerNode.stop()
         playerNode.reset()
         scheduledSamples = 0
+        // Reset baseline so the next observation captures the new starting point
+        sampleTimeBaseline = nil
     }
 
     func restartAfterFlush(startPTS: Double) {
         self.startPTS = startPTS
         self.lastKnownTime = startPTS
+        self.sampleTimeBaseline = nil
         playerNode.play()
     }
 }

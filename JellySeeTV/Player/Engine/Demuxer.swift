@@ -228,10 +228,12 @@ nonisolated final class Demuxer: @unchecked Sendable {
 
     // MARK: - Read Packets
 
-    /// Reads the next packet from the container. Returns nil only at true EOF.
-    /// Retries on temporary errors (network buffering, EAGAIN).
+    /// Reads the next packet from the container. Returns nil only at true EOF
+    /// or when interrupted via the FFmpeg interrupt callback.
     func readPacket() -> DemuxedPacket? {
-        guard isOpen, let ctx = formatCtx else { return nil }
+        // Bail out immediately if the demuxer is being closed
+        guard isOpen, interruptFlag.pointee == 0,
+              let ctx = formatCtx else { return nil }
 
         let pkt = av_packet_alloc()!
         defer {
@@ -245,6 +247,10 @@ nonisolated final class Demuxer: @unchecked Sendable {
         let maxRetries = 50 // ~5 seconds of retries
 
         repeat {
+            // Check interrupt flag before each call — we may have been closed
+            if interruptFlag.pointee != 0 || !isOpen {
+                return nil
+            }
             ret = av_read_frame(ctx, pkt)
             if ret >= 0 { break } // Success
 
@@ -255,9 +261,16 @@ nonisolated final class Demuxer: @unchecked Sendable {
             #endif
 
             let averror_eof = Int32(-541478725) // AVERROR_EOF
+            let averror_exit = Int32(-1414092869) // AVERROR_EXIT (interrupt callback)
             if ret == averror_eof {
                 #if DEBUG
                 print("[Demuxer] True EOF reached")
+                #endif
+                return nil
+            }
+            if ret == averror_exit {
+                #if DEBUG
+                print("[Demuxer] Read interrupted (closing)")
                 #endif
                 return nil
             }
