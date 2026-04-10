@@ -130,6 +130,15 @@ final class AVPlayerEngine {
             endObserver = nil
         }
 
+        // Don't let AVFoundation auto-pick a closed-caption / subtitle
+        // track from the HLS playlist. Jellyfin's HLS often advertises a
+        // CC track tagged accessibility.transcribes-spoken-dialog with
+        // default=YES, which AVPlayerViewController complains about
+        // ("Received a non-forced-only media selection ... when display
+        // type was forced-only"). The user can still enable subs from
+        // the system overlay.
+        player.appliesMediaSelectionCriteriaAutomatically = false
+
         let asset = AVURLAsset(url: url)
         let item = AVPlayerItem(asset: asset)
         playerItem = item
