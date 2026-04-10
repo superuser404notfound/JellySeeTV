@@ -220,9 +220,14 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 }
                 continue
             }
+            // Re-check after dequeue: a seek may have started while we were waiting
+            if isSeeking { continue }
             guard let avPkt = packet.avPacket else { continue }
             let frames = decoder.decode(packet: avPkt)
+            // Re-check after decoding (it can take time): drop stale frames
+            if isSeeking { continue }
             for frame in frames {
+                if isSeeking { break }
                 audioOutput.scheduleBuffer(frame.pcmBuffer)
                 audioFrameCount += 1
             }
@@ -275,9 +280,14 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
                 }
                 continue
             }
+            // Re-check after dequeue: a seek may have started while we were waiting
+            if isSeeking { continue }
             guard let avPkt = packet.avPacket else { continue }
             let frames = decoder.decode(packet: avPkt)
+            // Re-check after decoding (it can take time): drop stale frames
+            if isSeeking { continue }
             for frame in frames {
+                if isSeeking { break }
                 displayWithSync(frame)
                 videoFrameCount += 1
             }

@@ -47,13 +47,14 @@ struct PlayerView: View {
                             // Click during real scrub commits the seek
                             viewModel.commitScrub()
                         } else {
-                            // No scrub in progress (or user just touched without moving)
-                            // → cancel any pending scrub state and do normal click
+                            // No real scrub → cancel any stale scrub state, do normal click
                             viewModel.cancelScrub()
                             viewModel.handleClick()
                         }
                     },
                     onPlayPause: {
+                        // Cancel any stale scrub state first
+                        viewModel.cancelScrub()
                         viewModel.togglePlayPause()
                     },
                     onMenu: {
@@ -66,9 +67,11 @@ struct PlayerView: View {
                         }
                     },
                     onLeft: {
+                        viewModel.cancelScrub()
                         viewModel.seekBackward()
                     },
                     onRight: {
+                        viewModel.cancelScrub()
                         viewModel.seekForward()
                     },
                     onPanChanged: { delta in
