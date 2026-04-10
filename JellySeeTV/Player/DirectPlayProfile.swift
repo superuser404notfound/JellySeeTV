@@ -25,7 +25,17 @@ enum DirectPlayProfile {
 
     static func avPlayerProfile() -> [String: Any] {
         [
-            "MaxStreamingBitrate": 200_000_000,
+            // Hard-cap streaming bitrate so the server-side transcoder
+            // doesn't try to re-encode 4K HDR @ 200 Mbit/s in real time —
+            // that needs hardware encode (NVENC / QuickSync / VideoToolbox)
+            // and falls way behind without it, leaving the HLS manifest
+            // empty and AVPlayer hanging on initial load.
+            //
+            // 25 Mbit/s is plenty for 1080p HEVC SDR and is realistic for
+            // any modest server CPU. Direct-play files (where the server
+            // only remuxes containers) ignore this anyway — it only kicks
+            // in when an actual transcode happens.
+            "MaxStreamingBitrate": 25_000_000,
             "MaxStaticBitrate": 200_000_000,
             "MusicStreamingTranscodingBitrate": 384_000,
 
@@ -147,6 +157,30 @@ enum DirectPlayProfile {
                             "Condition": "LessThanEqual",
                             "Property": "AudioChannels",
                             "Value": "2",
+                            "IsRequired": true,
+                        ],
+                    ],
+                ],
+                // Resolution cap: forces 4K sources to downscale to 1080p
+                // when the server has to transcode (e.g. 4K HDR sources
+                // hitting our SDR constraint). Real-time 4K HEVC encode
+                // requires GPU-accelerated encoding which most servers
+                // don't have, so the HLS manifest fills slowly and
+                // AVPlayer hangs. 1080p HEVC encode is realistic on a
+                // modest CPU. Direct-play files are unaffected.
+                [
+                    "Type": "Video",
+                    "Conditions": [
+                        [
+                            "Condition": "LessThanEqual",
+                            "Property": "Width",
+                            "Value": "1920",
+                            "IsRequired": true,
+                        ],
+                        [
+                            "Condition": "LessThanEqual",
+                            "Property": "Height",
+                            "Value": "1080",
                             "IsRequired": true,
                         ],
                     ],
