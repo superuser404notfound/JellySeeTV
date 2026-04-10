@@ -43,11 +43,13 @@ struct PlayerView: View {
                 // Single remote input handler — captures ALL Siri Remote events
                 RemoteTapHandler(
                     onTap: {
-                        if viewModel.isScrubbing {
-                            // Click during scrub commits the seek
+                        if viewModel.isScrubbing && viewModel.didMoveScrub {
+                            // Click during real scrub commits the seek
                             viewModel.commitScrub()
                         } else {
-                            // Native click behavior: open overlay or toggle play/pause
+                            // No scrub in progress (or user just touched without moving)
+                            // → cancel any pending scrub state and do normal click
+                            viewModel.cancelScrub()
                             viewModel.handleClick()
                         }
                     },
@@ -70,14 +72,19 @@ struct PlayerView: View {
                         viewModel.seekForward()
                     },
                     onPanChanged: { delta in
+                        // First pan in this gesture sequence starts/continues scrub
                         if !viewModel.isScrubbing {
                             viewModel.beginScrub()
                         }
                         viewModel.updateScrub(normalizedDelta: delta)
                     },
                     onPanEnded: {
-                        // Stay in scrub mode — user must click to confirm
-                        // (matches native tvOS player behavior)
+                        // Stay in scrub mode — user must click to confirm.
+                        // Re-baseline so the NEXT pan starts from the current
+                        // scrub position (not the engine playback position).
+                        if viewModel.isScrubbing {
+                            viewModel.continueScrub()
+                        }
                     }
                 )
                 .ignoresSafeArea()

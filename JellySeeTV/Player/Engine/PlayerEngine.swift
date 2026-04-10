@@ -256,6 +256,13 @@ final class PlayerEngine {
 
         // Update display offset so the user sees the new position
         displayTimeOffset = target
+        // Explicitly update displayed time so the UI/scrub is correct
+        // even before the next time-update tick
+        currentTime = target
+        let dur = (duration > 0) ? duration : originalDuration
+        if dur > 0 {
+            progress = Float(target / dur)
+        }
         // Reset internal demuxer reference so stop() closes the new one
         demuxer = newDemuxer
         state = .paused
@@ -355,6 +362,9 @@ final class PlayerEngine {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(250))
                 guard !Task.isCancelled else { return }
+                // Skip updates during seek — clock returns stale/invalid values
+                // and we already set currentTime explicitly when seek completes.
+                if case .seeking = state { continue }
                 if let clock = bufferCoordinator?.syncClock {
                     // Add displayTimeOffset for seek-by-reload (stream is 0-based)
                     currentTime = clock.currentTime + displayTimeOffset

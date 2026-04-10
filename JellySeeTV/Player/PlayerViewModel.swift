@@ -18,6 +18,8 @@ final class PlayerViewModel {
     var isScrubbing = false
     var scrubProgress: Float = 0
     var scrubTime: String = "00:00"
+    /// True if the user actually moved the scrub position (not just touched briefly)
+    var didMoveScrub = false
     /// Progress shown on the bar: scrub position during scrub, live position otherwise
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
     private var scrubStartTime: Double = 0
@@ -161,16 +163,24 @@ final class PlayerViewModel {
     }
 
     /// Called when user starts panning on remote touch surface.
+    /// Captures the CURRENT engine position as the scrub baseline.
     func beginScrub() {
         guard effectiveDuration > 0 else { return }
         isScrubbing = true
+        didMoveScrub = false
+        // Use the current engine time (already includes displayTimeOffset after seek)
         scrubStartTime = engine.currentTime
-        scrubProgress = progress
+        scrubProgress = Float(scrubStartTime / effectiveDuration)
+        scrubTime = formatSeconds(scrubStartTime)
         showControls = true
         controlsTimer?.cancel()
+        #if DEBUG
+        print("[Scrub] Begin at \(String(format: "%.1f", scrubStartTime))s")
+        #endif
     }
 
     /// Called during pan — normalizedDelta is -1.0 to 1.0 relative to touch surface.
+    /// Each pan gesture is RELATIVE: the delta from the start of THIS pan, not cumulative.
     func updateScrub(normalizedDelta: CGFloat) {
         let dur = effectiveDuration
         guard isScrubbing, dur > 0 else { return }
@@ -179,9 +189,29 @@ final class PlayerViewModel {
         let targetTime = max(0, min(dur, scrubStartTime + timeDelta))
         scrubProgress = Float(targetTime / dur)
         scrubTime = formatSeconds(targetTime)
+        // Mark as moved if delta is meaningful (>1 second from origin)
+        if abs(targetTime - scrubStartTime) > 1.0 {
+            didMoveScrub = true
+        }
     }
 
-    /// Called when pan ends — commit the seek.
+    /// Called when a new pan gesture starts (after a previous one ended).
+    /// Re-baselines the scrub from the CURRENT scrub position, so successive
+    /// pans accumulate naturally instead of always starting from the engine position.
+    func continueScrub() {
+        guard isScrubbing else {
+            beginScrub()
+            return
+        }
+        // Re-baseline at the current scrub target so the next pan is relative to it
+        let dur = effectiveDuration
+        scrubStartTime = Double(scrubProgress) * dur
+        #if DEBUG
+        print("[Scrub] Continue from \(String(format: "%.1f", scrubStartTime))s")
+        #endif
+    }
+
+    /// Called when user clicks to confirm the scrub. Performs the actual seek.
     func commitScrub() {
         let dur = effectiveDuration
         guard isScrubbing, dur > 0 else {
@@ -190,6 +220,9 @@ final class PlayerViewModel {
         }
         let targetTime = Double(scrubProgress) * dur
         isScrubbing = false
+        #if DEBUG
+        print("[Scrub] Commit to \(String(format: "%.1f", targetTime))s")
+        #endif
         Task {
             await engine.seek(to: targetTime)
             scheduleControlsHide()
@@ -199,6 +232,7 @@ final class PlayerViewModel {
     /// Cancel scrub — return to original position.
     func cancelScrub() {
         isScrubbing = false
+        didMoveScrub = false
         scheduleControlsHide()
     }
 
@@ -253,12 +287,15 @@ final class PlayerViewModel {
                 guard !Task.isCancelled else { return }
 
                 // Update from engine (use effective duration as fallback)
-                let dur = effectiveDuration
-                let cur = engine.currentTime
-                currentTime = formatSeconds(cur)
-                let remaining = dur - cur
-                remainingTime = remaining > 0 ? "-\(formatSeconds(remaining))" : "-00:00"
-                progress = dur > 0 ? Float(cur / dur) : 0
+                // Don't overwrite display values during scrub or seek
+                if !isScrubbing {
+                    let dur = effectiveDuration
+                    let cur = engine.currentTime
+                    currentTime = formatSeconds(cur)
+                    let remaining = dur - cur
+                    remainingTime = remaining > 0 ? "-\(formatSeconds(remaining))" : "-00:00"
+                    progress = dur > 0 ? Float(cur / dur) : 0
+                }
 
                 #if !targetEnvironment(simulator)
                 switch engine.state {
