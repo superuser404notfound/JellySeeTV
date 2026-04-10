@@ -35,6 +35,11 @@ final class PlayerViewModel {
     private var controlsTimer: Task<Void, Never>?
     private var stateObserver: Task<Void, Never>?
     private var hasReportedStart = false
+    /// Set to true the first time the engine reaches `.playing`.
+    /// Used to suppress the loading overlay on subsequent `.loading` /
+    /// buffering events — once we've shown a frame, the overlay would
+    /// just flicker over a video that's actually rendering.
+    private var hasStartedPlaying = false
     private var mediaSourceID: String = ""
     private var playSessionID: String?
 
@@ -286,12 +291,26 @@ final class PlayerViewModel {
                 }
 
                 switch engine.state {
-                case .playing: isPlaying = true; isLoading = false
-                case .paused: isPlaying = false
-                case .idle: isPlaying = false
-                case .loading: isLoading = true
-                case .seeking: break // Keep current state
-                case .error(let msg): errorMessage = msg; isLoading = false
+                case .playing:
+                    isPlaying = true
+                    isLoading = false
+                    hasStartedPlaying = true
+                case .paused:
+                    isPlaying = false
+                case .idle:
+                    isPlaying = false
+                case .loading:
+                    // Only show the spinner before the very first frame.
+                    // Mid-playback re-buffering must not put a black overlay
+                    // over the (still rendering) video layer.
+                    if !hasStartedPlaying {
+                        isLoading = true
+                    }
+                case .seeking:
+                    break // Keep current state
+                case .error(let msg):
+                    errorMessage = msg
+                    isLoading = false
                 }
             }
         }

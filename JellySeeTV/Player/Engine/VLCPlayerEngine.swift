@@ -131,15 +131,11 @@ final class VLCPlayerEngine: NSObject {
         print("[VLC] Loading: \(url.absoluteString)")
         #endif
 
+        // No media options — VLC defaults are correct on tvOS, and Swiftfin
+        // / VLCUI runs with no options too. In particular, setting
+        // `:avcodec-hw=videotoolbox` as a media option destabilises the
+        // decoder pipeline on tvOS in some cases.
         let media = VLCMedia(url: url)
-        // Per-stream options live on the media object, not the player.
-        // network-caching is in milliseconds; VLC's HTTP reader uses it as
-        // its read-ahead buffer, which keeps long-form direct play smooth.
-        media.addOption(":network-caching=1500")
-        media.addOption(":http-reconnect")
-        media.addOption(":avcodec-hw=videotoolbox")
-        media.addOption(":no-osd")
-
         player.media = media
         player.play()
     }
