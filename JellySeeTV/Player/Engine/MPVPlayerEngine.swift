@@ -69,7 +69,6 @@ final class MPVPlayerEngine {
     }
 
     private let eventQueue = DispatchQueue(label: "mpv.events", qos: .userInitiated)
-    private var loadContinuation: CheckedContinuation<Void, Error>?
 
     init() {}
 
@@ -95,23 +94,12 @@ final class MPVPlayerEngine {
         mpv_request_log_messages(handle, "info")
         #endif
 
-        // Video output via MoltenVK rendering into our CAMetalLayer.
-        // wid MUST be set as INT64 (raw pointer to the layer), not as a string.
-        let metalLayerPtr = Unmanaged.passUnretained(metalLayer).toOpaque()
-        var wid = Int64(Int(bitPattern: metalLayerPtr))
-        let widRet = mpv_set_option(handle, "wid", MPV_FORMAT_INT64, &wid)
-        #if DEBUG
-        if widRet < 0 {
-            print("[MPV] setOption(wid) failed: \(String(cString: mpv_error_string(widRet)))")
-        } else {
-            print("[MPV] wid set to \(wid)")
-        }
-        #endif
-
-        setOption(handle, "vo", "gpu-next")
-        setOption(handle, "gpu-api", "vulkan")
-        setOption(handle, "gpu-context", "moltenvk")
-        setOption(handle, "hwdec", "videotoolbox-copy")
+        // BRINGUP DIAGNOSIS: start with audio-only (no video output) to verify
+        // mpv loads and decodes correctly. Once that works, we'll wire up the
+        // CAMetalLayer rendering separately.
+        setOption(handle, "vo", "null")
+        setOption(handle, "ao", "audiounit")
+        setOption(handle, "hwdec", "no")
 
         // No config file, no UI, no input handling — we drive everything from Swift
         setOption(handle, "config", "no")
@@ -185,24 +173,11 @@ final class MPVPlayerEngine {
         print("[MPV] Loading: \(url.absoluteString)")
         #endif
 
-        // Build loadfile command
-        // Format: ["loadfile", url, "replace", "0", "start=N"]
-        var args: [String] = ["loadfile", url.absoluteString, "replace"]
-        if let pos = startPosition, pos > 0 {
-            args.append("0")
-            args.append("start=\(pos)")
-        }
-
-        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
-            self.loadContinuation = cont
-            self.command(handle, args: args) { error in
-                if let error = error {
-                    self.loadContinuation = nil
-                    cont.resume(throwing: error)
-                }
-                // Otherwise wait for MPV_EVENT_FILE_LOADED to fire the continuation
-            }
-        }
+        // Simple loadfile command — let mpv events drive state transitions
+        let args: [String] = ["loadfile", url.absoluteString]
+        command(handle, args: args)
+        // State will transition to .playing via MPV_EVENT_FILE_LOADED
+        // (or to .error via MPV_EVENT_END_FILE with error reason)
     }
 
     func play() {
@@ -294,10 +269,6 @@ final class MPVPlayerEngine {
             Task { @MainActor in
                 self.state = .playing
                 self.fetchTrackList()
-                if let cont = self.loadContinuation {
-                    self.loadContinuation = nil
-                    cont.resume(returning: ())
-                }
             }
 
         case MPV_EVENT_END_FILE:
@@ -310,10 +281,6 @@ final class MPVPlayerEngine {
                 let errCode = endData?.error ?? 0
                 let errMsg = String(cString: mpv_error_string(errCode))
                 Task { @MainActor in
-                    if let cont = self.loadContinuation {
-                        self.loadContinuation = nil
-                        cont.resume(throwing: MPVError.loadFailed(errMsg))
-                    }
                     self.state = .error("Playback failed: \(errMsg)")
                 }
             } else if reason == MPV_END_FILE_REASON_EOF {
