@@ -87,18 +87,15 @@ final class VLCPlayerEngine: NSObject {
             #endif
         }
 
-        // VLCKit options — passed at instance creation
-        // --no-osd: VLC's built-in on-screen display off (we have our own UI)
-        // --avcodec-hw=videotoolbox: hardware decode via VideoToolbox
-        // --network-caching: HTTP buffer in ms (1.5s is a good balance for direct play)
-        let options: [String] = [
-            "--no-osd",
-            "--avcodec-hw=videotoolbox",
-            "--network-caching=1500",
-            "--http-reconnect",
-        ]
-
-        let p = VLCMediaPlayer(options: options)
+        // IMPORTANT: do NOT pass options to VLCMediaPlayer's init.
+        // VLCMediaPlayer(options:) spawns a *private libvlc instance* with
+        // its own video-output thread setup, which on tvOS breaks the
+        // OpenGLES2 video view (it ends up calling -doResetBuffers off the
+        // main thread, the render pipeline wedges, and playback stays in
+        // an infinite buffering loop). The shared default libvlc instance
+        // sets the vout up correctly. Per-stream tunables (HW decode,
+        // network cache) are applied as VLCMedia options instead — see load().
+        let p = VLCMediaPlayer()
         p.delegate = self
         if let drawable = drawableView {
             p.drawable = drawable
@@ -135,6 +132,14 @@ final class VLCPlayerEngine: NSObject {
         #endif
 
         let media = VLCMedia(url: url)
+        // Per-stream options live on the media object, not the player.
+        // network-caching is in milliseconds; VLC's HTTP reader uses it as
+        // its read-ahead buffer, which keeps long-form direct play smooth.
+        media.addOption(":network-caching=1500")
+        media.addOption(":http-reconnect")
+        media.addOption(":avcodec-hw=videotoolbox")
+        media.addOption(":no-osd")
+
         player.media = media
         player.play()
     }
