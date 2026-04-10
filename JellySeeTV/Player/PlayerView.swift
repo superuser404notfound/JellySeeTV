@@ -44,9 +44,11 @@ struct PlayerView: View {
                 RemoteTapHandler(
                     onTap: {
                         if viewModel.isScrubbing {
+                            // Click during scrub commits the seek
                             viewModel.commitScrub()
                         } else {
-                            viewModel.toggleControls()
+                            // Native click behavior: open overlay or toggle play/pause
+                            viewModel.handleClick()
                         }
                     },
                     onPlayPause: {
@@ -74,9 +76,8 @@ struct PlayerView: View {
                         viewModel.updateScrub(normalizedDelta: delta)
                     },
                     onPanEnded: {
-                        if viewModel.isScrubbing {
-                            viewModel.commitScrub()
-                        }
+                        // Stay in scrub mode — user must click to confirm
+                        // (matches native tvOS player behavior)
                     }
                 )
                 .ignoresSafeArea()

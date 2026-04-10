@@ -36,6 +36,13 @@ nonisolated final class Demuxer: @unchecked Sendable {
     }
     private let queue = DispatchQueue(label: "demuxer", qos: .userInitiated)
     private var isOpen = false
+    /// Interrupt flag — when true, FFmpeg's interrupt callback aborts blocking I/O.
+    /// Read from a C callback, so we use a heap-allocated Int32 for atomic-ish access.
+    private let interruptFlag: UnsafeMutablePointer<Int32> = {
+        let p = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
+        p.initialize(to: 0)
+        return p
+    }()
 
     // Selected stream indices
     private(set) var videoStreamIndex: Int32 = -1
@@ -62,7 +69,26 @@ nonisolated final class Demuxer: @unchecked Sendable {
     /// (use when codec info is already known from Jellyfin PlaybackInfo).
     func open(url: URL, skipProbe: Bool = false) throws {
         try queue.sync {
-            var ctx: UnsafeMutablePointer<AVFormatContext>?
+            // Reset the interrupt flag for this session
+            interruptFlag.pointee = 0
+
+            // Pre-allocate the format context so we can attach the interrupt
+            // callback BEFORE avformat_open_input opens the HTTP connection
+            guard let ctx = avformat_alloc_context() else {
+                throw DemuxerError.openFailed("avformat_alloc_context failed")
+            }
+
+            // Set interrupt callback — FFmpeg will call this during blocking I/O
+            // and abort if it returns non-zero. We use a heap-allocated flag for
+            // safe access from the C callback.
+            ctx.pointee.interrupt_callback.callback = { opaque in
+                guard let opaque = opaque else { return 0 }
+                let flag = opaque.assumingMemoryBound(to: Int32.self)
+                return flag.pointee
+            }
+            ctx.pointee.interrupt_callback.opaque = UnsafeMutableRawPointer(interruptFlag)
+
+            var ctxOpt: UnsafeMutablePointer<AVFormatContext>? = ctx
 
             let urlString = url.absoluteString
             #if DEBUG
@@ -78,15 +104,16 @@ nonisolated final class Demuxer: @unchecked Sendable {
             av_dict_set(&opts, "reconnect", "1", 0)
             av_dict_set(&opts, "reconnect_streamed", "1", 0)
 
-            var ret = avformat_open_input(&ctx, urlString, nil, &opts)
+            var ret = avformat_open_input(&ctxOpt, urlString, nil, &opts)
             av_dict_free(&opts)
-            guard ret >= 0, let ctx else {
+            guard ret >= 0, ctxOpt != nil else {
                 let err = errorString(ret)
                 #if DEBUG
                 print("[Demuxer] FAILED to open: \(err) (code: \(ret))")
                 #endif
                 throw DemuxerError.openFailed(err)
             }
+            // ctx is the same pointer we pre-allocated; use it directly
             formatCtx = ctx
 
             #if DEBUG
@@ -330,7 +357,15 @@ nonisolated final class Demuxer: @unchecked Sendable {
 
     // MARK: - Close
 
+    /// Signal the FFmpeg interrupt callback to abort any in-progress I/O.
+    /// Call this BEFORE close() to make sure any blocked av_read_frame returns.
+    func interruptIO() {
+        interruptFlag.pointee = 1
+    }
+
     func close() {
+        // Set interrupt flag first so any in-progress I/O aborts immediately
+        interruptFlag.pointee = 1
         queue.sync {
             if formatCtx != nil {
                 avformat_close_input(&formatCtx)
@@ -346,10 +381,13 @@ nonisolated final class Demuxer: @unchecked Sendable {
     }
 
     nonisolated deinit {
+        interruptFlag.pointee = 1
         var ptr: UnsafeMutablePointer<AVFormatContext>? = UnsafeMutablePointer(bitPattern: formatCtxAddress)
         if ptr != nil {
             avformat_close_input(&ptr)
         }
+        interruptFlag.deinitialize(count: 1)
+        interruptFlag.deallocate()
     }
 
     // MARK: - Helpers

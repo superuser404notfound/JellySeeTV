@@ -52,12 +52,24 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
 
     func stop() {
         isRunning = false
+        // Interrupt any in-progress FFmpeg I/O so the demux loop can exit
+        demuxer.interruptIO()
         videoQueue.flush()
         audioQueue.flush()
         demuxTask?.cancel()
         videoDecodeTask?.cancel()
         audioDecodeTask?.cancel()
         audioOutput.stop()
+    }
+
+    /// Asynchronous variant that waits for all decode loops to actually exit.
+    /// Call this before closing the demuxer to avoid use-after-free crashes.
+    func stopAndWait() async {
+        stop()
+        // Await each task to make sure the loops have fully unwound
+        await demuxTask?.value
+        await videoDecodeTask?.value
+        await audioDecodeTask?.value
     }
 
     func pause() { audioOutput.pause() }
@@ -114,6 +126,10 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
 
     nonisolated(unsafe) private var audioFrameCount = 0
     nonisolated(unsafe) private var videoFrameCount = 0
+    /// When set, the video loop displays the next decoded frame immediately
+    /// (bypassing sync clock). Used after seek-while-paused so the user sees
+    /// the new position even though playback hasn't resumed yet.
+    nonisolated(unsafe) var forceDisplayNextFrame = false
     #if DEBUG
     nonisolated(unsafe) private var displayedCount = 0
     nonisolated(unsafe) private var droppedCount = 0
@@ -167,7 +183,8 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
         print("[Video Loop] Started")
         #endif
         while isRunning {
-            while syncClock.isPaused && isRunning {
+            // While paused, only proceed if we need to force-display next frame
+            while syncClock.isPaused && !forceDisplayNextFrame && isRunning {
                 Thread.sleep(forTimeInterval: 0.01)
             }
             guard let packet = videoQueue.dequeue(timeout: 0.05) else {
@@ -197,6 +214,17 @@ nonisolated final class BufferCoordinator: @unchecked Sendable {
     }
 
     private func displayWithSync(_ frame: DecodedVideoFrame) {
+        // If we're forcing a frame display (e.g. first frame after seek-while-paused),
+        // bypass sync entirely
+        if forceDisplayNextFrame {
+            videoRenderer.display(pixelBuffer: frame.pixelBuffer, pts: frame.pts)
+            forceDisplayNextFrame = false
+            #if DEBUG
+            print("[Sync] FORCED DISPLAY pts=\(String(format: "%.3f", frame.pts))")
+            #endif
+            return
+        }
+
         while isRunning {
             switch syncClock.shouldDisplay(framePTS: frame.pts) {
             case .display:

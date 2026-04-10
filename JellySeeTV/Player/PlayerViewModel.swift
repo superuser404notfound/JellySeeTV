@@ -207,6 +207,23 @@ final class PlayerViewModel {
         scheduleControlsHide()
     }
 
+    /// Native tvOS player click behavior:
+    /// - Closed overlay → open overlay (don't change playback)
+    /// - Open overlay + playing → pause (keep overlay)
+    /// - Open overlay + paused → resume (keep overlay)
+    func handleClick() {
+        if !showControls {
+            showControls = true
+            scheduleControlsHide()
+            return
+        }
+        // Overlay is open → toggle playback
+        engine.togglePlayPause()
+        // Keep overlay visible after the toggle
+        showControls = true
+        scheduleControlsHide()
+    }
+
     func toggleControls() {
         if showControls {
             showControls = false

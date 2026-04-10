@@ -53,7 +53,7 @@ final class PlayerEngine {
     /// Load a media URL. Pass a pre-opened `cachedDemuxer` for instant start.
     /// `streamAlreadyAtPosition`: if true, the URL already includes a server-side
     /// time offset (e.g., StartTimeTicks), so we skip the FFmpeg seek call.
-    func load(url: URL, startPosition: Double? = nil, cachedDemuxer: Demuxer? = nil, streamAlreadyAtPosition: Bool = false) async throws {
+    func load(url: URL, startPosition: Double? = nil, cachedDemuxer: Demuxer? = nil, streamAlreadyAtPosition: Bool = false, startPaused: Bool = false) async throws {
         state = .loading
         // Only update sourceURL on initial load (not on seek-by-reload)
         if !streamAlreadyAtPosition {
@@ -165,7 +165,12 @@ final class PlayerEngine {
 
         // 7. Start pipeline
         coordinator.start()
-        state = .playing
+        if startPaused {
+            coordinator.pause()
+            state = .paused
+        } else {
+            state = .playing
+        }
         startTimeUpdates()
 
         #if DEBUG
@@ -238,7 +243,10 @@ final class PlayerEngine {
         //  - displayTimeOffset = target (added when reading time for UI/sync clock)
         displayTimeOffset = target
         do {
-            try await load(url: seekURL, startPosition: nil, streamAlreadyAtPosition: true)
+            // After seek, start paused — user must click to resume
+            try await load(url: seekURL, startPosition: nil, streamAlreadyAtPosition: true, startPaused: true)
+            // Force display the first frame so user sees the new position
+            bufferCoordinator?.forceDisplayNextFrame = true
             // Restore the original duration so progress bar still works
             if originalDuration > 0 {
                 duration = originalDuration
@@ -281,16 +289,14 @@ final class PlayerEngine {
     private func tearDownPipeline() async {
         stopTimeUpdates()
 
-        // 1. Stop the buffer coordinator (cancels decode loops)
-        bufferCoordinator?.stop()
-
-        // 2. Stop audio output IMMEDIATELY to silence the speaker
+        // 1. Stop audio output IMMEDIATELY to silence the speaker
         audioOutput?.stop()
 
-        // 3. Wait for decode loops to actually exit (they check isRunning each iter)
-        try? await Task.sleep(for: .milliseconds(100))
+        // 2. Stop the buffer coordinator and WAIT for all decode loops to exit
+        //    This uses the FFmpeg interrupt callback to abort any blocked I/O
+        await bufferCoordinator?.stopAndWait()
 
-        // 4. Close decoders and demuxer
+        // 3. Now safe to close decoders and demuxer (no concurrent access)
         videoDecoder?.close()
         audioDecoder?.close()
         demuxer?.close()
