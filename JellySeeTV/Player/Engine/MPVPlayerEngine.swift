@@ -158,9 +158,9 @@ final class MPVPlayerEngine {
         command(handle, args: ["loadfile", url.absoluteString])
 
         #if DEBUG
-        // Synchronous drain for 2 seconds — show ALL log messages
-        print("[MPV] Draining events for 3s...")
-        let deadline = Date().addingTimeInterval(3.0)
+        // Synchronous drain — show ALL log messages
+        print("[MPV] Draining events for 6s...")
+        let deadline = Date().addingTimeInterval(6.0)
         while Date() < deadline {
             guard let eventPtr = mpv_wait_event(handle, 0.05) else { continue }
             let event = eventPtr.pointee
