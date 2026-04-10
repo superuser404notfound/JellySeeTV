@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		9D08CE1D2F88F08400A5A416 /* VLCKitSPM in Frameworks */ = {isa = PBXBuildFile; productRef = 9D08CE1C2F88F08400A5A416 /* VLCKitSPM */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
 		9DD9136D2F8645860078D0BE /* JellySeeTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JellySeeTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -27,7 +23,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9D08CE1D2F88F08400A5A416 /* VLCKitSPM in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,7 +115,6 @@
 			mainGroup = 9DD913642F8645860078D0BE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				9DA28F242F88EC1200E5469B /* XCRemoteSwiftPackageReference "vlckit-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9DD9136E2F8645860078D0BE /* Products */;
@@ -358,25 +352,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		9DA28F242F88EC1200E5469B /* XCRemoteSwiftPackageReference "vlckit-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tylerjonesio/vlckit-spm";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.5.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		9D08CE1C2F88F08400A5A416 /* VLCKitSPM */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9DA28F242F88EC1200E5469B /* XCRemoteSwiftPackageReference "vlckit-spm" */;
-			productName = VLCKitSPM;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9DD913652F8645860078D0BE /* Project object */;
 }
