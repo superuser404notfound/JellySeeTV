@@ -36,11 +36,17 @@ final class PlayerEngine {
     private var bufferCoordinator: BufferCoordinator?
     private var timeUpdateTask: Task<Void, Never>?
 
+    // Source URL — kept so we can reopen the stream for seeking
+    private var sourceURL: URL?
+
     // MARK: - Load and Play
 
     /// Load a media URL. Pass a pre-opened `cachedDemuxer` for instant start.
-    func load(url: URL, startPosition: Double? = nil, cachedDemuxer: Demuxer? = nil) async throws {
+    /// `streamAlreadyAtPosition`: if true, the URL already includes a server-side
+    /// time offset (e.g., StartTimeTicks), so we skip the FFmpeg seek call.
+    func load(url: URL, startPosition: Double? = nil, cachedDemuxer: Demuxer? = nil, streamAlreadyAtPosition: Bool = false) async throws {
         state = .loading
+        sourceURL = url
 
         #if DEBUG
         let loadStart = CFAbsoluteTimeGetCurrent()
@@ -111,8 +117,8 @@ final class PlayerEngine {
         audioDecoder = aDecoder
         audioOutput = aOutput
 
-        // 4. Seek to start position if needed
-        if let pos = startPosition, pos > 0 {
+        // 4. Seek to start position if needed (skip if URL already has it)
+        if let pos = startPosition, pos > 0, !streamAlreadyAtPosition {
             try dmx.seek(to: pos)
         }
 
@@ -172,30 +178,77 @@ final class PlayerEngine {
         }
     }
 
+    /// Seek by reopening the stream with a server-side time offset.
+    /// This avoids FFmpeg's HTTP range-request seeking which is unreliable
+    /// for MKV-over-HTTP and prone to crashes from concurrent demuxer access.
     func seek(to seconds: Double) async {
-        // Only upper-clamp if duration is known (>0). For unknown duration
-        // (some MKV streams over HTTP), allow any positive seek.
+        guard let url = sourceURL else { return }
+
+        // Clamp to known duration if available
         let target: Double
         if duration > 0 {
             target = max(0, min(seconds, duration))
         } else {
             target = max(0, seconds)
         }
-        let prevState = state
-        state = .seeking
+
         #if DEBUG
-        print("[PlayerEngine] Seek to \(String(format: "%.1f", target))s (duration: \(String(format: "%.1f", duration))s)")
+        print("[PlayerEngine] Seek (reload) to \(String(format: "%.1f", target))s")
+        let seekStart = CFAbsoluteTimeGetCurrent()
         #endif
+
+        state = .seeking
+
+        // Build URL with Jellyfin's StartTimeTicks parameter
+        let seekURL = appendStartTimeTicks(to: url, seconds: target)
+
+        // Stop the current pipeline cleanly (sync, all loops will exit)
+        await tearDownPipeline()
+
+        // Open fresh pipeline at new position
         do {
-            try bufferCoordinator?.seek(to: target)
-            // Don't flush the renderer — keep the last frame visible
-            // until the decode loop delivers a new one
+            try await load(url: seekURL, startPosition: target, streamAlreadyAtPosition: true)
+            #if DEBUG
+            let elapsed = CFAbsoluteTimeGetCurrent() - seekStart
+            print("[PlayerEngine] Seek complete in \(String(format: "%.3f", elapsed))s")
+            #endif
         } catch {
             #if DEBUG
-            print("[PlayerEngine] Seek error: \(error)")
+            print("[PlayerEngine] Seek (reload) error: \(error)")
             #endif
+            state = .error("Seek failed: \(error.localizedDescription)")
         }
-        state = prevState == .paused ? .paused : .playing
+    }
+
+    /// Build a Jellyfin stream URL with the given start position as StartTimeTicks.
+    private func appendStartTimeTicks(to url: URL, seconds: Double) -> URL {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+            return url
+        }
+        var queryItems = components.queryItems ?? []
+        queryItems.removeAll { $0.name == "StartTimeTicks" }
+        let ticks = Int64(seconds * 10_000_000)
+        queryItems.append(URLQueryItem(name: "StartTimeTicks", value: String(ticks)))
+        components.queryItems = queryItems
+        return components.url ?? url
+    }
+
+    /// Stop and clean up the current playback pipeline. Used before a seek-reload.
+    private func tearDownPipeline() async {
+        stopTimeUpdates()
+        bufferCoordinator?.stop()
+        // Give the decode loops a brief moment to exit cleanly
+        try? await Task.sleep(for: .milliseconds(30))
+        audioOutput?.stop()
+        videoDecoder?.close()
+        audioDecoder?.close()
+        demuxer?.close()
+
+        bufferCoordinator = nil
+        videoDecoder = nil
+        audioDecoder = nil
+        audioOutput = nil
+        demuxer = nil
     }
 
     func stop() {
