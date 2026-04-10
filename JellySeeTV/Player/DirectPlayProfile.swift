@@ -30,12 +30,16 @@ enum DirectPlayProfile {
             "MusicStreamingTranscodingBitrate": 384_000,
 
             // ─── DirectPlay: containers AVPlayer can demux natively ───
+            // Conservative codec list. HEVC Main10 (10-bit / HDR) and EAC3
+            // multi-channel are intentionally excluded — see CodecProfiles
+            // below — because Jellyfin's HLS remuxer produces manifests
+            // for those that AVPlayer's HLS reader hangs on.
             "DirectPlayProfiles": [
                 [
                     "Container": "mp4,m4v,mov",
                     "Type": "Video",
                     "VideoCodec": "h264,hevc",
-                    "AudioCodec": "aac,ac3,eac3,alac,flac,opus,mp3",
+                    "AudioCodec": "aac,ac3,alac,flac,opus,mp3",
                 ],
                 [
                     "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus",
@@ -53,7 +57,7 @@ enum DirectPlayProfile {
                     "Container": "mp4",
                     "Protocol": "hls",
                     "VideoCodec": "h264,hevc",
-                    "AudioCodec": "aac,ac3,eac3",
+                    "AudioCodec": "aac,ac3",
                     "Context": "Streaming",
                     "MinSegments": 1,
                     "BreakOnNonKeyFrames": true,
@@ -70,10 +74,49 @@ enum DirectPlayProfile {
             // ─── Container profiles: empty, no special remux rules ───
             "ContainerProfiles": [] as [Any],
 
-            // ─── Codec-level constraints (resolution, bit depth) ───
-            // Apple TV 4K supports up to 4K HEVC 10-bit HDR. We let
-            // Jellyfin enforce that — no need to be more conservative.
-            "CodecProfiles": [] as [[String: Any]],
+            // ─── Codec-level constraints ───
+            // Constrain HEVC to Main 8-bit, and audio to stereo. This
+            // forces Jellyfin to actually transcode (not just remux)
+            // any HEVC Main10 / HDR / Atmos source. Our DirectPlayProfile
+            // already excludes EAC3, so multi-channel EAC3 sources hit
+            // the transcoder; the constraint here also caps the
+            // transcoder output so the final stream is something
+            // AVPlayer's HLS reader handles reliably.
+            //
+            // Trade-off: HDR is downgraded to SDR and Atmos to stereo
+            // AC3. Will revisit once we know which constraint is the
+            // root cause.
+            "CodecProfiles": [
+                [
+                    "Type": "Video",
+                    "Codec": "hevc",
+                    "Conditions": [
+                        [
+                            "Condition": "EqualsAny",
+                            "Property": "VideoProfile",
+                            "Value": "main",
+                            "IsRequired": true,
+                        ],
+                        [
+                            "Condition": "LessThanEqual",
+                            "Property": "VideoBitDepth",
+                            "Value": "8",
+                            "IsRequired": true,
+                        ],
+                    ],
+                ],
+                [
+                    "Type": "VideoAudio",
+                    "Conditions": [
+                        [
+                            "Condition": "LessThanEqual",
+                            "Property": "AudioChannels",
+                            "Value": "2",
+                            "IsRequired": true,
+                        ],
+                    ],
+                ],
+            ] as [[String: Any]],
 
             // ─── Subtitles ───
             // External WebVTT works directly with AVPlayer / HLS.
