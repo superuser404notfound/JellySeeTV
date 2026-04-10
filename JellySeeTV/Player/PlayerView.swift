@@ -4,6 +4,7 @@ struct PlayerView: View {
     @State private var viewModel: PlayerViewModel
     let onDismiss: () -> Void
 
+    #if !targetEnvironment(simulator)
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, cachedDemuxer: Demuxer? = nil, onDismiss: @escaping () -> Void) {
         _viewModel = State(initialValue: PlayerViewModel(
             item: item,
@@ -15,6 +16,18 @@ struct PlayerView: View {
         ))
         self.onDismiss = onDismiss
     }
+    #else
+    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, cachedDemuxer: Any? = nil, onDismiss: @escaping () -> Void) {
+        _viewModel = State(initialValue: PlayerViewModel(
+            item: item,
+            startFromBeginning: startFromBeginning,
+            playbackService: playbackService,
+            userID: userID,
+            cachedPlaybackInfo: cachedPlaybackInfo
+        ))
+        self.onDismiss = onDismiss
+    }
+    #endif
 
     var body: some View {
         ZStack {

@@ -39,16 +39,24 @@ final class PlayerViewModel {
     private var cachedDemuxer: Demuxer?
     #endif
 
+    #if !targetEnvironment(simulator)
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, cachedDemuxer: Demuxer? = nil) {
         self.item = item
         self.startFromBeginning = startFromBeginning
         self.playbackService = playbackService
         self.userID = userID
         self.cachedPlaybackInfo = cachedPlaybackInfo
-        #if !targetEnvironment(simulator)
         self.cachedDemuxer = cachedDemuxer
-        #endif
     }
+    #else
+    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
+        self.item = item
+        self.startFromBeginning = startFromBeginning
+        self.playbackService = playbackService
+        self.userID = userID
+        self.cachedPlaybackInfo = cachedPlaybackInfo
+    }
+    #endif
 
     // MARK: - Lifecycle
 

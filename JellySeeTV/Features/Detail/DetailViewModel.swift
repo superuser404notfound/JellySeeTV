@@ -18,6 +18,8 @@ final class DetailViewModel {
     #if !targetEnvironment(simulator)
     /// Pre-opened demuxer — FFmpeg HTTP connection already established
     private(set) var cachedDemuxer: Demuxer?
+    /// Prevents multiple concurrent pre-open operations
+    private var isPreOpening = false
 
     /// Clear the cached demuxer (after the player has consumed it) and
     /// pre-open a fresh one for the next playback attempt.
@@ -199,19 +201,31 @@ final class DetailViewModel {
     }
 
     /// Open FFmpeg demuxer in background so the HTTP connection is ready when user presses play.
+    /// Skips if a pre-open is already in progress or a cached demuxer already exists.
     private func preOpenDemuxer(url: URL) {
         #if !targetEnvironment(simulator)
+        guard !isPreOpening, cachedDemuxer == nil else {
+            #if DEBUG
+            print("[Prefetch] Skip pre-open (in progress: \(isPreOpening), cached: \(cachedDemuxer != nil))")
+            #endif
+            return
+        }
+        isPreOpening = true
         Task.detached { [weak self] in
             let dmx = Demuxer()
             do {
                 try dmx.open(url: url, skipProbe: true)
                 await MainActor.run {
                     self?.cachedDemuxer = dmx
+                    self?.isPreOpening = false
                 }
                 #if DEBUG
                 print("[Prefetch] Demuxer pre-opened for \(url.lastPathComponent)")
                 #endif
             } catch {
+                await MainActor.run {
+                    self?.isPreOpening = false
+                }
                 #if DEBUG
                 print("[Prefetch] Demuxer pre-open failed: \(error)")
                 #endif

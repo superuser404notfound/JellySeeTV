@@ -38,6 +38,15 @@ final class PlayerEngine {
 
     // Source URL — kept so we can reopen the stream for seeking
     private var sourceURL: URL?
+    /// Time offset added to the audio clock for display purposes.
+    /// When seeking via Jellyfin StartTimeTicks, the new stream's PTS is 0-based,
+    /// so we add this offset to show the user the actual position in the file.
+    private var displayTimeOffset: Double = 0
+    /// Original media duration (preserved across seeks since the seeked stream
+    /// reports a different/zero duration).
+    private var originalDuration: Double = 0
+    /// Prevents concurrent seek operations from interfering.
+    private var isSeekInProgress = false
 
     // MARK: - Load and Play
 
@@ -46,7 +55,12 @@ final class PlayerEngine {
     /// time offset (e.g., StartTimeTicks), so we skip the FFmpeg seek call.
     func load(url: URL, startPosition: Double? = nil, cachedDemuxer: Demuxer? = nil, streamAlreadyAtPosition: Bool = false) async throws {
         state = .loading
-        sourceURL = url
+        // Only update sourceURL on initial load (not on seek-by-reload)
+        if !streamAlreadyAtPosition {
+            sourceURL = url
+            displayTimeOffset = 0
+            originalDuration = 0
+        }
 
         #if DEBUG
         let loadStart = CFAbsoluteTimeGetCurrent()
@@ -67,6 +81,10 @@ final class PlayerEngine {
         }
         demuxer = dmx
         duration = dmx.duration
+        // Remember the original duration on first load
+        if originalDuration == 0 && dmx.duration > 0 {
+            originalDuration = dmx.duration
+        }
 
         // 2. Extract track info
         audioTracks = dmx.audioStreams.map { stream in
@@ -178,16 +196,25 @@ final class PlayerEngine {
         }
     }
 
-    /// Seek by reopening the stream with a server-side time offset.
-    /// This avoids FFmpeg's HTTP range-request seeking which is unreliable
-    /// for MKV-over-HTTP and prone to crashes from concurrent demuxer access.
+    /// Seek by reopening the stream with Jellyfin's StartTimeTicks parameter.
+    /// Jellyfin remuxes the stream and emits PTS values starting at 0, so we
+    /// keep the audio clock 0-based and add a displayTimeOffset for the UI.
     func seek(to seconds: Double) async {
         guard let url = sourceURL else { return }
+        guard !isSeekInProgress else {
+            #if DEBUG
+            print("[PlayerEngine] Seek already in progress, ignoring")
+            #endif
+            return
+        }
+        isSeekInProgress = true
+        defer { isSeekInProgress = false }
 
         // Clamp to known duration if available
         let target: Double
-        if duration > 0 {
-            target = max(0, min(seconds, duration))
+        let knownDuration = (duration > 0) ? duration : originalDuration
+        if knownDuration > 0 {
+            target = max(0, min(seconds, knownDuration))
         } else {
             target = max(0, seconds)
         }
@@ -199,18 +226,26 @@ final class PlayerEngine {
 
         state = .seeking
 
-        // Build URL with Jellyfin's StartTimeTicks parameter
-        let seekURL = appendStartTimeTicks(to: url, seconds: target)
+        // Strip any existing StartTimeTicks before adding the new one
+        let baseURL = stripStartTimeTicks(from: url)
+        let seekURL = appendStartTimeTicks(to: baseURL, seconds: target)
 
         // Stop the current pipeline cleanly (sync, all loops will exit)
         await tearDownPipeline()
 
-        // Open fresh pipeline at new position
+        // Open fresh pipeline. The new stream is 0-based, so:
+        //  - audioOutput.startPTS = 0 (don't pass startPosition)
+        //  - displayTimeOffset = target (added when reading time for UI/sync clock)
+        displayTimeOffset = target
         do {
-            try await load(url: seekURL, startPosition: target, streamAlreadyAtPosition: true)
+            try await load(url: seekURL, startPosition: nil, streamAlreadyAtPosition: true)
+            // Restore the original duration so progress bar still works
+            if originalDuration > 0 {
+                duration = originalDuration
+            }
             #if DEBUG
             let elapsed = CFAbsoluteTimeGetCurrent() - seekStart
-            print("[PlayerEngine] Seek complete in \(String(format: "%.3f", elapsed))s")
+            print("[PlayerEngine] Seek complete in \(String(format: "%.3f", elapsed))s, displayOffset=\(target)")
             #endif
         } catch {
             #if DEBUG
@@ -218,6 +253,15 @@ final class PlayerEngine {
             #endif
             state = .error("Seek failed: \(error.localizedDescription)")
         }
+    }
+
+    /// Strip any existing StartTimeTicks query item from a URL.
+    private func stripStartTimeTicks(from url: URL) -> URL {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+            return url
+        }
+        components.queryItems = (components.queryItems ?? []).filter { $0.name != "StartTimeTicks" }
+        return components.url ?? url
     }
 
     /// Build a Jellyfin stream URL with the given start position as StartTimeTicks.
@@ -236,10 +280,17 @@ final class PlayerEngine {
     /// Stop and clean up the current playback pipeline. Used before a seek-reload.
     private func tearDownPipeline() async {
         stopTimeUpdates()
+
+        // 1. Stop the buffer coordinator (cancels decode loops)
         bufferCoordinator?.stop()
-        // Give the decode loops a brief moment to exit cleanly
-        try? await Task.sleep(for: .milliseconds(30))
+
+        // 2. Stop audio output IMMEDIATELY to silence the speaker
         audioOutput?.stop()
+
+        // 3. Wait for decode loops to actually exit (they check isRunning each iter)
+        try? await Task.sleep(for: .milliseconds(100))
+
+        // 4. Close decoders and demuxer
         videoDecoder?.close()
         audioDecoder?.close()
         demuxer?.close()
@@ -269,6 +320,9 @@ final class PlayerEngine {
         state = .idle
         currentTime = 0
         progress = 0
+        displayTimeOffset = 0
+        originalDuration = 0
+        sourceURL = nil
     }
 
     // MARK: - Track Selection
@@ -293,9 +347,11 @@ final class PlayerEngine {
                 try? await Task.sleep(for: .milliseconds(250))
                 guard !Task.isCancelled else { return }
                 if let clock = bufferCoordinator?.syncClock {
-                    currentTime = clock.currentTime
-                    if duration > 0 {
-                        progress = Float(currentTime / duration)
+                    // Add displayTimeOffset for seek-by-reload (stream is 0-based)
+                    currentTime = clock.currentTime + displayTimeOffset
+                    let dur = (duration > 0) ? duration : originalDuration
+                    if dur > 0 {
+                        progress = Float(currentTime / dur)
                     }
                 }
             }
