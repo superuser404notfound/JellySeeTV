@@ -95,28 +95,23 @@ final class MPVPlayerEngine {
         let metalLayerPtr = Unmanaged.passUnretained(metalLayer).toOpaque()
         let wid = Int64(Int(bitPattern: metalLayerPtr))
 
+        // Video output via MoltenVK rendering into our CAMetalLayer
         setOption(handle, "wid", String(wid))
         setOption(handle, "vo", "gpu-next")
         setOption(handle, "gpu-api", "vulkan")
         setOption(handle, "gpu-context", "moltenvk")
         setOption(handle, "hwdec", "videotoolbox-copy")
 
-        // Disable mpv's built-in input — we drive everything from Swift
+        // No config file, no UI, no input handling — we drive everything from Swift
         setOption(handle, "config", "no")
-        setOption(handle, "osc", "no")
-        setOption(handle, "input-default-bindings", "no")
-        setOption(handle, "input-vo-keyboard", "no")
-        setOption(handle, "force-window", "no")
         setOption(handle, "idle", "yes")
-
-        // Keep the player alive at EOF instead of terminating
         setOption(handle, "keep-open", "always")
 
         // HDR / tone-mapping
         setOption(handle, "tone-mapping", "bt.2446a")
         setOption(handle, "target-colorspace-hint", "yes")
 
-        // Subtitles — use libass with reasonable defaults
+        // Subtitles — libass with reasonable defaults
         setOption(handle, "sub-auto", "fuzzy")
         setOption(handle, "sub-font-size", "55")
         setOption(handle, "sub-color", "#FFFFFFFF")
@@ -126,7 +121,6 @@ final class MPVPlayerEngine {
 
         // Network resilience
         setOption(handle, "network-timeout", "10")
-        setOption(handle, "stream-buffer-size", "8MiB")
 
         // Initialize
         let ret = mpv_initialize(handle)
@@ -523,10 +517,17 @@ final class MPVPlayerEngine {
     }
 
     private nonisolated func command(_ handle: OpaquePointer, args: [String], completion: ((Error?) -> Void)? = nil) {
-        // Build a NULL-terminated C string array
-        var cStrings: [UnsafePointer<CChar>?] = args.map { ($0 as NSString).utf8String }
-        cStrings.append(nil)
-        let ret = cStrings.withUnsafeMutableBufferPointer { buf -> Int32 in
+        // Use strdup to ensure each C string outlives the mpv_command call.
+        // (NSString).utf8String returns an autoreleased pointer that may be freed
+        // before mpv_command runs, causing crashes.
+        let cStrings: [UnsafeMutablePointer<CChar>?] = args.map { strdup($0) }
+        defer {
+            for ptr in cStrings { if let p = ptr { free(p) } }
+        }
+        // Build NULL-terminated array of UnsafePointer<CChar>?
+        var ptrs: [UnsafePointer<CChar>?] = cStrings.map { $0.map { UnsafePointer($0) } }
+        ptrs.append(nil)
+        let ret = ptrs.withUnsafeMutableBufferPointer { buf -> Int32 in
             mpv_command(handle, buf.baseAddress)
         }
         if ret < 0 {
