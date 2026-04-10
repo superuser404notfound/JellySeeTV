@@ -41,12 +41,16 @@ final class MPVPlayerEngine {
     var currentSubtitleTrackIndex: Int = -1
 
     /// The Metal layer mpv renders into. Add this to a UIView to display video.
-    /// Scale is set later by the host view via window.screen.scale.
     let metalLayer: CAMetalLayer = {
         let layer = CAMetalLayer()
         layer.framebufferOnly = false
         layer.isOpaque = true
         layer.backgroundColor = UIColor.black.cgColor
+        layer.pixelFormat = .bgra8Unorm
+        // Set a default drawable size so mpv has something to work with
+        // before the host view has actually laid out. The host view will
+        // update this once it has real bounds.
+        layer.drawableSize = CGSize(width: 1920, height: 1080)
         return layer
     }()
 
@@ -86,17 +90,24 @@ final class MPVPlayerEngine {
         }
         mpvHandle = handle
 
-        // Logging
+        // Logging — verbose during bringup
         #if DEBUG
-        mpv_request_log_messages(handle, "warn")
+        mpv_request_log_messages(handle, "info")
         #endif
 
-        // Pre-init options (must be set BEFORE mpv_initialize)
+        // Video output via MoltenVK rendering into our CAMetalLayer.
+        // wid MUST be set as INT64 (raw pointer to the layer), not as a string.
         let metalLayerPtr = Unmanaged.passUnretained(metalLayer).toOpaque()
-        let wid = Int64(Int(bitPattern: metalLayerPtr))
+        var wid = Int64(Int(bitPattern: metalLayerPtr))
+        let widRet = mpv_set_option(handle, "wid", MPV_FORMAT_INT64, &wid)
+        #if DEBUG
+        if widRet < 0 {
+            print("[MPV] setOption(wid) failed: \(String(cString: mpv_error_string(widRet)))")
+        } else {
+            print("[MPV] wid set to \(wid)")
+        }
+        #endif
 
-        // Video output via MoltenVK rendering into our CAMetalLayer
-        setOption(handle, "wid", String(wid))
         setOption(handle, "vo", "gpu-next")
         setOption(handle, "gpu-api", "vulkan")
         setOption(handle, "gpu-context", "moltenvk")
