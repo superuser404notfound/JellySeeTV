@@ -2,6 +2,7 @@ import Foundation
 import Observation
 import QuartzCore
 import UIKit
+import AVFoundation
 import Libmpv
 
 /// The state of the player engine
@@ -84,42 +85,37 @@ final class MPVPlayerEngine {
     private func initializeMpvIfNeeded() throws {
         guard mpvHandle == nil else { return }
 
+        // Set up AVAudioSession FIRST — mpv's audiounit AO needs an active session
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .moviePlayback)
+            try session.setActive(true)
+            #if DEBUG
+            print("[MPV] AVAudioSession active")
+            #endif
+        } catch {
+            #if DEBUG
+            print("[MPV] AVAudioSession error: \(error)")
+            #endif
+        }
+
         guard let handle = mpv_create() else {
             throw MPVError.createFailed
         }
         mpvHandle = handle
 
-        // Logging — verbose during bringup
+        // ABSOLUTE MINIMUM CONFIG — no callbacks, no observers, no fancy options
+        setOption(handle, "vo", "null")
+        setOption(handle, "ao", "null")  // even simpler — no audio output
+        setOption(handle, "vid", "no")
+        setOption(handle, "aid", "no")
+        setOption(handle, "config", "no")
+        setOption(handle, "idle", "yes")
+
+        // Logging
         #if DEBUG
         mpv_request_log_messages(handle, "info")
         #endif
-
-        // BRINGUP DIAGNOSIS: start with audio-only (no video output) to verify
-        // mpv loads and decodes correctly. Once that works, we'll wire up the
-        // CAMetalLayer rendering separately.
-        setOption(handle, "vo", "null")
-        setOption(handle, "ao", "audiounit")
-        setOption(handle, "hwdec", "no")
-
-        // No config file, no UI, no input handling — we drive everything from Swift
-        setOption(handle, "config", "no")
-        setOption(handle, "idle", "yes")
-        setOption(handle, "keep-open", "always")
-
-        // HDR / tone-mapping
-        setOption(handle, "tone-mapping", "bt.2446a")
-        setOption(handle, "target-colorspace-hint", "yes")
-
-        // Subtitles — libass with reasonable defaults
-        setOption(handle, "sub-auto", "fuzzy")
-        setOption(handle, "sub-font-size", "55")
-        setOption(handle, "sub-color", "#FFFFFFFF")
-        setOption(handle, "sub-border-color", "#FF000000")
-        setOption(handle, "sub-border-size", "3")
-        setOption(handle, "blend-subtitles", "yes")
-
-        // Network resilience
-        setOption(handle, "network-timeout", "10")
 
         // Initialize
         let ret = mpv_initialize(handle)
@@ -129,25 +125,22 @@ final class MPVPlayerEngine {
             throw MPVError.initFailed(String(cString: mpv_error_string(ret)))
         }
 
-        // Observe properties
-        observeProperty(handle, "time-pos", MPV_FORMAT_DOUBLE, userdata: 1)
-        observeProperty(handle, "duration", MPV_FORMAT_DOUBLE, userdata: 2)
-        observeProperty(handle, "pause", MPV_FORMAT_FLAG, userdata: 3)
-        observeProperty(handle, "track-list", MPV_FORMAT_NODE, userdata: 4)
-        observeProperty(handle, "eof-reached", MPV_FORMAT_FLAG, userdata: 5)
-        observeProperty(handle, "core-idle", MPV_FORMAT_FLAG, userdata: 6)
-        observeProperty(handle, "seeking", MPV_FORMAT_FLAG, userdata: 7)
-
-        // Wakeup callback drives our event loop
-        let opaqueSelf = Unmanaged.passUnretained(self).toOpaque()
-        mpv_set_wakeup_callback(handle, { ctx in
-            guard let ctx = ctx else { return }
-            let engine = Unmanaged<MPVPlayerEngine>.fromOpaque(ctx).takeUnretainedValue()
-            engine.scheduleEventDrain()
-        }, opaqueSelf)
-
         #if DEBUG
-        print("[MPV] Initialized")
+        print("[MPV] Initialized (minimal)")
+        // Drain any pending log messages synchronously
+        while let eventPtr = mpv_wait_event(handle, 0.0) {
+            let event = eventPtr.pointee
+            if event.event_id == MPV_EVENT_NONE { break }
+            if event.event_id == MPV_EVENT_LOG_MESSAGE {
+                if let logData = event.data?.assumingMemoryBound(to: mpv_event_log_message.self).pointee {
+                    let prefix = String(cString: logData.prefix)
+                    let text = String(cString: logData.text).trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !text.isEmpty {
+                        print("[MPV:\(prefix)] \(text)")
+                    }
+                }
+            }
+        }
         #endif
     }
 
@@ -170,14 +163,33 @@ final class MPVPlayerEngine {
         currentSubtitleTrackIndex = -1
 
         #if DEBUG
-        print("[MPV] Loading: \(url.absoluteString)")
+        print("[MPV] About to issue loadfile")
         #endif
 
         // Simple loadfile command — let mpv events drive state transitions
-        let args: [String] = ["loadfile", url.absoluteString]
-        command(handle, args: args)
-        // State will transition to .playing via MPV_EVENT_FILE_LOADED
-        // (or to .error via MPV_EVENT_END_FILE with error reason)
+        command(handle, args: ["loadfile", url.absoluteString])
+
+        #if DEBUG
+        print("[MPV] loadfile dispatched, draining events for 2s...")
+        // Drain events for 2 seconds to see what mpv is doing
+        let deadline = Date().addingTimeInterval(2.0)
+        while Date() < deadline {
+            guard let eventPtr = mpv_wait_event(handle, 0.05) else { continue }
+            let event = eventPtr.pointee
+            if event.event_id == MPV_EVENT_NONE { continue }
+            print("[MPV] event: \(event.event_id.rawValue)")
+            if event.event_id == MPV_EVENT_LOG_MESSAGE {
+                if let logData = event.data?.assumingMemoryBound(to: mpv_event_log_message.self).pointee {
+                    let prefix = String(cString: logData.prefix)
+                    let text = String(cString: logData.text).trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !text.isEmpty {
+                        print("[MPV:\(prefix)] \(text)")
+                    }
+                }
+            }
+        }
+        print("[MPV] Drain complete")
+        #endif
     }
 
     func play() {
