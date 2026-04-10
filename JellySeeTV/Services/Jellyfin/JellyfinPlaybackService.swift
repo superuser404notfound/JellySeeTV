@@ -96,6 +96,15 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
 
     func buildTranscodeURL(relativePath: String) -> URL? {
         guard let baseURL = client.baseURL else { return nil }
-        return URL(string: "\(baseURL)\(relativePath)")
+        // Jellyfin returns TranscodingUrl as a path with query string, e.g.
+        // "/videos/<id>/main.m3u8?DeviceId=...&MediaSourceId=...&api_key=..."
+        // We need to splice that onto the base URL while keeping the query.
+        // URL.appendingPathComponent would percent-encode the '?', so use
+        // URLComponents directly.
+        let trimmed = relativePath.hasPrefix("/") ? relativePath : "/\(relativePath)"
+        guard let url = URL(string: trimmed, relativeTo: baseURL)?.absoluteURL else {
+            return nil
+        }
+        return url
     }
 }

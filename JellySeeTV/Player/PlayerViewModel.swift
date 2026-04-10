@@ -59,15 +59,40 @@ final class PlayerViewModel {
             }
             mediaSourceID = source.id
 
-            // Build streaming URL. AVPlayer prefers HLS / fragmented MP4 —
-            // Jellyfin will pick the right path based on the device profile.
-            guard let url = playbackService.buildStreamURL(
-                itemID: item.id,
-                mediaSourceID: source.id,
-                container: source.container,
-                isStatic: false
-            ) else {
-                throw PlayerEngineError.noURL
+            // Pick the right URL based on what Jellyfin offered for this
+            // source. The server already evaluated our DeviceProfile and
+            // decided whether direct play, container remux (DirectStream),
+            // or full transcode is needed.
+            //
+            // - If TranscodingUrl is set, the server has prepared an HLS
+            //   playlist for us (typically /videos/<id>/main.m3u8). This
+            //   handles MKV→fMP4 remuxing and any codec transcoding the
+            //   source needs. AVPlayer can play HLS natively.
+            // - Otherwise the source is direct-playable as-is, so we hit
+            //   /Videos/<id>/stream.<container>?Static=true and AVPlayer
+            //   reads the file straight from the server.
+            let url: URL
+            if let transcodePath = source.transcodingUrl, !transcodePath.isEmpty {
+                guard let transcodeURL = playbackService.buildTranscodeURL(relativePath: transcodePath) else {
+                    throw PlayerEngineError.noURL
+                }
+                url = transcodeURL
+                #if DEBUG
+                print("[PlayerViewModel] Using transcoded HLS path")
+                #endif
+            } else {
+                guard let directURL = playbackService.buildStreamURL(
+                    itemID: item.id,
+                    mediaSourceID: source.id,
+                    container: source.container,
+                    isStatic: true
+                ) else {
+                    throw PlayerEngineError.noURL
+                }
+                url = directURL
+                #if DEBUG
+                print("[PlayerViewModel] Using direct stream")
+                #endif
             }
 
             // Start position
