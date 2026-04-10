@@ -57,19 +57,21 @@ final class MPVPlayerEngine {
 
     // MARK: - Private
 
-    /// Use Int to avoid Sendable issues with raw pointers across actor boundaries
+    /// Use Int to avoid Sendable issues with raw pointers across actor boundaries.
+    /// Atomic access via OSAllocatedUnfairLock would be ideal but Int writes are
+    /// atomic on 64-bit Apple platforms, so plain nonisolated is safe enough here.
+    nonisolated private let _mpvHandleAddress = MPVHandleStorage()
     nonisolated private var mpvHandleAddress: Int {
-        get { _mpvHandleAddress }
-        set { _mpvHandleAddress = newValue }
+        get { _mpvHandleAddress.value }
+        set { _mpvHandleAddress.value = newValue }
     }
-    nonisolated(unsafe) private var _mpvHandleAddress: Int = 0
 
     private var mpvHandle: OpaquePointer? {
         get { mpvHandleAddress == 0 ? nil : OpaquePointer(bitPattern: mpvHandleAddress) }
         set { mpvHandleAddress = newValue.map { Int(bitPattern: $0) } ?? 0 }
     }
 
-    private let eventQueue = DispatchQueue(label: "mpv.events", qos: .userInitiated)
+    nonisolated private let eventQueue = DispatchQueue(label: "mpv.events", qos: .userInitiated)
 
     init() {}
 
@@ -235,7 +237,9 @@ final class MPVPlayerEngine {
 
     // MARK: - Event Loop
 
-    private func scheduleEventDrain() {
+    /// Called from mpv's wakeup callback (background thread).
+    /// Must be nonisolated since the callback runs off the MainActor.
+    nonisolated fileprivate func scheduleEventDrain() {
         eventQueue.async { [weak self] in
             self?.drainEvents()
         }
@@ -509,6 +513,14 @@ final class MPVPlayerEngine {
             completion?(nil)
         }
     }
+}
+
+// MARK: - Storage
+
+/// Thread-safe storage for the mpv handle address.
+/// Int writes are atomic on 64-bit, so no lock needed.
+nonisolated final class MPVHandleStorage: @unchecked Sendable {
+    nonisolated(unsafe) var value: Int = 0
 }
 
 // MARK: - Errors
