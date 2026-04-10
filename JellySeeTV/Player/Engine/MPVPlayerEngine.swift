@@ -108,11 +108,14 @@ final class MPVPlayerEngine {
 
         // Audio enabled, video still null
         setOption(handle, "vo", "null")
-        setOption(handle, "ao", "audiounit")  // CHANGED: real audio output
+        setOption(handle, "ao", "audiounit")
         setOption(handle, "vid", "no")
         setOption(handle, "aid", "auto")
         setOption(handle, "config", "no")
         setOption(handle, "idle", "yes")
+        // Force stereo to bypass MPVKit's audiounit channel layout query
+        // (kAudioUnitProperty_AudioChannelLayout isn't supported by AURemoteIO on tvOS)
+        setOption(handle, "audio-channels", "stereo")
 
         #if DEBUG
         mpv_request_log_messages(handle, "v")  // verbose for diagnosis
