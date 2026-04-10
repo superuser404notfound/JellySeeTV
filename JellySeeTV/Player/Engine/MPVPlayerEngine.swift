@@ -48,27 +48,17 @@ final class MPVPlayerEngine {
         layer.isOpaque = true
         layer.backgroundColor = UIColor.black.cgColor
         layer.pixelFormat = .bgra8Unorm
-        // Set a default drawable size so mpv has something to work with
-        // before the host view has actually laid out. The host view will
-        // update this once it has real bounds.
+        // Default drawable size — host view updates this on layout
         layer.drawableSize = CGSize(width: 1920, height: 1080)
         return layer
     }()
 
     // MARK: - Private
 
-    /// Use Int to avoid Sendable issues with raw pointers across actor boundaries.
-    /// Atomic access via OSAllocatedUnfairLock would be ideal but Int writes are
-    /// atomic on 64-bit Apple platforms, so plain nonisolated is safe enough here.
-    nonisolated private let _mpvHandleAddress = MPVHandleStorage()
-    nonisolated private var mpvHandleAddress: Int {
-        get { _mpvHandleAddress.value }
-        set { _mpvHandleAddress.value = newValue }
-    }
-
-    private var mpvHandle: OpaquePointer? {
-        get { mpvHandleAddress == 0 ? nil : OpaquePointer(bitPattern: mpvHandleAddress) }
-        set { mpvHandleAddress = newValue.map { Int(bitPattern: $0) } ?? 0 }
+    nonisolated private let handleStorage = MPVHandleStorage()
+    nonisolated private var mpvHandle: OpaquePointer? {
+        let addr = handleStorage.value
+        return addr == 0 ? nil : OpaquePointer(bitPattern: addr)
     }
 
     nonisolated private let eventQueue = DispatchQueue(label: "mpv.events", qos: .userInitiated)
@@ -76,25 +66,21 @@ final class MPVPlayerEngine {
     init() {}
 
     deinit {
-        if mpvHandleAddress != 0, let handle = OpaquePointer(bitPattern: mpvHandleAddress) {
+        if let handle = mpvHandle {
             mpv_terminate_destroy(handle)
         }
     }
 
-    // MARK: - Lifecycle
+    // MARK: - Initialization
 
-    /// Initialize the mpv instance with our chosen options. Called once before first load.
     private func initializeMpvIfNeeded() throws {
         guard mpvHandle == nil else { return }
 
-        // Activate AVAudioSession for mpv's audiounit AO
+        // Activate AVAudioSession before mpv (audiounit AO needs it)
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .moviePlayback)
             try session.setActive(true)
-            #if DEBUG
-            print("[MPV] AVAudioSession active")
-            #endif
         } catch {
             #if DEBUG
             print("[MPV] AVAudioSession error: \(error)")
@@ -104,32 +90,80 @@ final class MPVPlayerEngine {
         guard let handle = mpv_create() else {
             throw MPVError.createFailed
         }
-        mpvHandle = handle
+        handleStorage.value = Int(bitPattern: handle)
 
-        // Audio enabled, video still null
-        setOption(handle, "vo", "null")
+        // ====== Pre-init options ======
+
+        // Video output via MoltenVK rendering into our CAMetalLayer
+        let widValue = Int64(Int(bitPattern: Unmanaged.passUnretained(metalLayer).toOpaque()))
+        var wid = widValue
+        mpv_set_option(handle, "wid", MPV_FORMAT_INT64, &wid)
+
+        setOption(handle, "vo", "gpu-next")
+        setOption(handle, "gpu-api", "vulkan")
+        setOption(handle, "gpu-context", "moltenvk")
+        setOption(handle, "hwdec", "videotoolbox-copy")
+
+        // Audio
         setOption(handle, "ao", "audiounit")
-        setOption(handle, "vid", "no")
-        setOption(handle, "aid", "auto")
+        // CRITICAL WORKAROUND: MPVKit's audiounit AO fails on tvOS with
+        // "unable to retrieve audio unit channel layout" because AURemoteIO
+        // doesn't expose kAudioUnitProperty_AudioChannelLayout. With this
+        // option, mpv falls back to a null AO instead of bailing out — so
+        // playback continues (silently) instead of failing entirely.
+        setOption(handle, "audio-fallback-to-null", "yes")
+
+        // No mpv config files, no built-in UI/input — we drive everything from Swift
         setOption(handle, "config", "no")
         setOption(handle, "idle", "yes")
-        // Force stereo to bypass MPVKit's audiounit channel layout query
-        // (kAudioUnitProperty_AudioChannelLayout isn't supported by AURemoteIO on tvOS)
-        setOption(handle, "audio-channels", "stereo")
+        setOption(handle, "keep-open", "always")
+        setOption(handle, "network-timeout", "10")
 
+        // HDR / tone mapping
+        setOption(handle, "tone-mapping", "bt.2446a")
+        setOption(handle, "target-colorspace-hint", "yes")
+
+        // Subtitles via libass
+        setOption(handle, "sub-auto", "fuzzy")
+        setOption(handle, "sub-font-size", "55")
+        setOption(handle, "sub-color", "#FFFFFFFF")
+        setOption(handle, "sub-border-color", "#FF000000")
+        setOption(handle, "sub-border-size", "3")
+        setOption(handle, "blend-subtitles", "yes")
+
+        // Logging
         #if DEBUG
-        mpv_request_log_messages(handle, "v")  // verbose for diagnosis
+        mpv_request_log_messages(handle, "warn")
         #endif
+
+        // ====== Initialize ======
 
         let ret = mpv_initialize(handle)
         guard ret >= 0 else {
             mpv_terminate_destroy(handle)
-            mpvHandle = nil
+            handleStorage.value = 0
             throw MPVError.initFailed(String(cString: mpv_error_string(ret)))
         }
 
+        // ====== Post-init: observers + wakeup callback ======
+
+        observeProperty(handle, "time-pos", MPV_FORMAT_DOUBLE, userdata: 1)
+        observeProperty(handle, "duration", MPV_FORMAT_DOUBLE, userdata: 2)
+        observeProperty(handle, "pause", MPV_FORMAT_FLAG, userdata: 3)
+        observeProperty(handle, "track-list", MPV_FORMAT_NODE, userdata: 4)
+        observeProperty(handle, "seeking", MPV_FORMAT_FLAG, userdata: 5)
+        observeProperty(handle, "core-idle", MPV_FORMAT_FLAG, userdata: 6)
+
+        // Wakeup callback drives async event loop
+        let opaqueSelf = Unmanaged.passUnretained(self).toOpaque()
+        mpv_set_wakeup_callback(handle, { ctx in
+            guard let ctx = ctx else { return }
+            let engine = Unmanaged<MPVPlayerEngine>.fromOpaque(ctx).takeUnretainedValue()
+            engine.scheduleEventDrain()
+        }, opaqueSelf)
+
         #if DEBUG
-        print("[MPV] Initialized (test: aid=auto, ao=audiounit)")
+        print("[MPV] Initialized (full pipeline)")
         #endif
     }
 
@@ -155,31 +189,12 @@ final class MPVPlayerEngine {
         print("[MPV] Loading: \(url.absoluteString)")
         #endif
 
-        command(handle, args: ["loadfile", url.absoluteString])
-
-        #if DEBUG
-        // Synchronous drain — show ALL log messages
-        print("[MPV] Draining events for 6s...")
-        let deadline = Date().addingTimeInterval(6.0)
-        while Date() < deadline {
-            guard let eventPtr = mpv_wait_event(handle, 0.05) else { continue }
-            let event = eventPtr.pointee
-            if event.event_id == MPV_EVENT_NONE { continue }
-            if event.event_id == MPV_EVENT_LOG_MESSAGE {
-                if let logData = event.data?.assumingMemoryBound(to: mpv_event_log_message.self).pointee {
-                    let prefix = String(cString: logData.prefix)
-                    let level = String(cString: logData.level)
-                    let text = String(cString: logData.text).trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !text.isEmpty {
-                        print("[mpv:\(level)/\(prefix)] \(text)")
-                    }
-                }
-            } else {
-                print("[MPV] event id=\(event.event_id.rawValue)")
-            }
+        if let pos = startPosition, pos > 0 {
+            command(handle, args: ["loadfile", url.absoluteString, "replace", "0", "start=\(pos)"])
+        } else {
+            command(handle, args: ["loadfile", url.absoluteString])
         }
-        print("[MPV] Drain complete")
-        #endif
+        // State transitions to .playing via MPV_EVENT_FILE_LOADED in event loop
     }
 
     func play() {
@@ -206,13 +221,12 @@ final class MPVPlayerEngine {
 
     func seek(to seconds: Double) async {
         guard let handle = mpvHandle else { return }
-        let target = max(0, min(seconds, duration > 0 ? duration : seconds))
+        let target = max(0, seconds)
         state = .seeking
         #if DEBUG
         print("[MPV] Seek to \(String(format: "%.1f", target))s")
         #endif
         command(handle, args: ["seek", String(target), "absolute"])
-        // State will return to .playing/.paused via property observer
     }
 
     func stop() {
@@ -225,29 +239,19 @@ final class MPVPlayerEngine {
 
     func selectAudioTrack(index: Int) async {
         guard let handle = mpvHandle else { return }
-        // index is the mpv track id (1-based for tracks, "no" for off)
-        if index < 0 {
-            setProperty(handle, "aid", "no")
-        } else {
-            setProperty(handle, "aid", String(index))
-        }
+        setProperty(handle, "aid", index < 0 ? "no" : String(index))
         currentAudioTrackIndex = index
     }
 
     func selectSubtitleTrack(index: Int) async {
         guard let handle = mpvHandle else { return }
-        if index < 0 {
-            setProperty(handle, "sid", "no")
-        } else {
-            setProperty(handle, "sid", String(index))
-        }
+        setProperty(handle, "sid", index < 0 ? "no" : String(index))
         currentSubtitleTrackIndex = index
     }
 
-    // MARK: - Event Loop
+    // MARK: - Event Loop (runs on background thread)
 
-    /// Called from mpv's wakeup callback (background thread).
-    /// Must be nonisolated since the callback runs off the MainActor.
+    /// Called from mpv's wakeup callback.
     nonisolated fileprivate func scheduleEventDrain() {
         eventQueue.async { [weak self] in
             self?.drainEvents()
@@ -255,7 +259,7 @@ final class MPVPlayerEngine {
     }
 
     private nonisolated func drainEvents() {
-        guard let handle = OpaquePointer(bitPattern: mpvHandleAddress) else { return }
+        guard let handle = mpvHandle else { return }
         while true {
             guard let eventPtr = mpv_wait_event(handle, 0) else { break }
             let event = eventPtr.pointee
@@ -270,26 +274,27 @@ final class MPVPlayerEngine {
             #if DEBUG
             print("[MPV] FILE_LOADED")
             #endif
-            Task { @MainActor in
-                self.state = .playing
-                self.fetchTrackList()
+            Task { @MainActor [weak self] in
+                self?.state = .playing
+                self?.fetchTrackList()
             }
 
         case MPV_EVENT_END_FILE:
             let endData = event.data?.assumingMemoryBound(to: mpv_event_end_file.self).pointee
-            let reason = endData?.reason
             #if DEBUG
-            print("[MPV] END_FILE reason=\(String(describing: reason))")
+            if let r = endData?.reason {
+                print("[MPV] END_FILE reason=\(r.rawValue)")
+            }
             #endif
-            if reason == MPV_END_FILE_REASON_ERROR {
+            if endData?.reason == MPV_END_FILE_REASON_ERROR {
                 let errCode = endData?.error ?? 0
                 let errMsg = String(cString: mpv_error_string(errCode))
-                Task { @MainActor in
-                    self.state = .error("Playback failed: \(errMsg)")
+                Task { @MainActor [weak self] in
+                    self?.state = .error("Playback failed: \(errMsg)")
                 }
-            } else if reason == MPV_END_FILE_REASON_EOF {
-                Task { @MainActor in
-                    self.state = .idle
+            } else if endData?.reason == MPV_END_FILE_REASON_EOF {
+                Task { @MainActor [weak self] in
+                    self?.state = .idle
                 }
             }
 
@@ -300,9 +305,10 @@ final class MPVPlayerEngine {
             #if DEBUG
             if let logData = event.data?.assumingMemoryBound(to: mpv_event_log_message.self).pointee {
                 let prefix = String(cString: logData.prefix)
+                let level = String(cString: logData.level)
                 let text = String(cString: logData.text).trimmingCharacters(in: .whitespacesAndNewlines)
                 if !text.isEmpty {
-                    print("[MPV:\(prefix)] \(text)")
+                    print("[mpv:\(level)/\(prefix)] \(text)")
                 }
             }
             #endif
@@ -326,7 +332,8 @@ final class MPVPlayerEngine {
         case "time-pos":
             if prop.format == MPV_FORMAT_DOUBLE, let dataPtr = prop.data {
                 let value = dataPtr.assumingMemoryBound(to: Double.self).pointee
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
                     self.currentTime = value
                     if self.duration > 0 {
                         self.progress = Float(value / self.duration)
@@ -337,38 +344,37 @@ final class MPVPlayerEngine {
         case "duration":
             if prop.format == MPV_FORMAT_DOUBLE, let dataPtr = prop.data {
                 let value = dataPtr.assumingMemoryBound(to: Double.self).pointee
-                Task { @MainActor in
-                    self.duration = value
+                Task { @MainActor [weak self] in
+                    self?.duration = value
                 }
             }
 
         case "pause":
             if prop.format == MPV_FORMAT_FLAG, let dataPtr = prop.data {
                 let isPaused = dataPtr.assumingMemoryBound(to: Int32.self).pointee != 0
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
                     if case .seeking = self.state { return }
                     self.state = isPaused ? .paused : .playing
                 }
             }
 
         case "track-list":
-            Task { @MainActor in
-                self.fetchTrackList()
+            Task { @MainActor [weak self] in
+                self?.fetchTrackList()
             }
 
         case "seeking":
             if prop.format == MPV_FORMAT_FLAG, let dataPtr = prop.data {
                 let isSeeking = dataPtr.assumingMemoryBound(to: Int32.self).pointee != 0
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
                     if isSeeking {
                         self.state = .seeking
-                    } else {
-                        // Re-read pause to determine post-seek state
-                        if let handle = self.mpvHandle {
-                            var flag: Int32 = 0
-                            mpv_get_property(handle, "pause", MPV_FORMAT_FLAG, &flag)
-                            self.state = flag != 0 ? .paused : .playing
-                        }
+                    } else if let handle = self.mpvHandle {
+                        var flag: Int32 = 0
+                        mpv_get_property(handle, "pause", MPV_FORMAT_FLAG, &flag)
+                        self.state = flag != 0 ? .paused : .playing
                     }
                 }
             }
@@ -415,9 +421,7 @@ final class MPVPlayerEngine {
                 let v = values[j]
                 switch key {
                 case "id":
-                    if v.format == MPV_FORMAT_INT64 {
-                        id = Int(v.u.int64)
-                    }
+                    if v.format == MPV_FORMAT_INT64 { id = Int(v.u.int64) }
                 case "type":
                     if v.format == MPV_FORMAT_STRING, let s = v.u.string {
                         type = String(cString: s)
@@ -435,13 +439,9 @@ final class MPVPlayerEngine {
                         codec = String(cString: s)
                     }
                 case "default":
-                    if v.format == MPV_FORMAT_FLAG {
-                        isDefault = v.u.flag != 0
-                    }
+                    if v.format == MPV_FORMAT_FLAG { isDefault = v.u.flag != 0 }
                 case "selected":
-                    if v.format == MPV_FORMAT_FLAG {
-                        isSelected = v.u.flag != 0
-                    }
+                    if v.format == MPV_FORMAT_FLAG { isSelected = v.u.flag != 0 }
                 default:
                     break
                 }
@@ -498,28 +498,21 @@ final class MPVPlayerEngine {
         mpv_observe_property(handle, userdata, name, format)
     }
 
-    private nonisolated func command(_ handle: OpaquePointer, args: [String], completion: ((Error?) -> Void)? = nil) {
-        // Use strdup to ensure each C string outlives the mpv_command call.
-        // (NSString).utf8String returns an autoreleased pointer that may be freed
-        // before mpv_command runs, causing crashes.
+    private nonisolated func command(_ handle: OpaquePointer, args: [String]) {
+        // strdup keeps the C strings alive across the mpv_command call
         let cStrings: [UnsafeMutablePointer<CChar>?] = args.map { strdup($0) }
         defer {
             for ptr in cStrings { if let p = ptr { free(p) } }
         }
-        // Build NULL-terminated array of UnsafePointer<CChar>?
         var ptrs: [UnsafePointer<CChar>?] = cStrings.map { $0.map { UnsafePointer($0) } }
         ptrs.append(nil)
-        let ret = ptrs.withUnsafeMutableBufferPointer { buf -> Int32 in
+        let ret = ptrs.withUnsafeMutableBufferPointer { buf in
             mpv_command(handle, buf.baseAddress)
         }
         if ret < 0 {
-            let msg = String(cString: mpv_error_string(ret))
             #if DEBUG
-            print("[MPV] command(\(args.first ?? "?")) failed: \(msg)")
+            print("[MPV] command(\(args.first ?? "?")) failed: \(String(cString: mpv_error_string(ret)))")
             #endif
-            completion?(MPVError.commandFailed(msg))
-        } else {
-            completion?(nil)
         }
     }
 }
@@ -527,7 +520,7 @@ final class MPVPlayerEngine {
 // MARK: - Storage
 
 /// Thread-safe storage for the mpv handle address.
-/// Int writes are atomic on 64-bit, so no lock needed.
+/// Int writes are atomic on 64-bit Apple platforms.
 nonisolated final class MPVHandleStorage: @unchecked Sendable {
     nonisolated(unsafe) var value: Int = 0
 }
