@@ -25,12 +25,17 @@ struct TrackInfo: Identifiable, Sendable, Equatable {
 }
 
 /// VLCKit-backed video player engine.
-/// libvlc handles demuxing, decoding (VideoToolbox HW), audio output via
-/// AVAudioSession + AudioQueue, A/V sync, seeking, subtitles, and HDR.
-/// We render into a plain UIView that we pass as `drawable`.
+///
+/// IMPORTANT: this engine does NOT own the VLCMediaPlayer. The
+/// VLCContainerView (UIView) creates the player together with its drawable
+/// subview in the same synchronous init — that's the supported tvOS
+/// pattern (matches Swiftfin / VLCUI). The view then calls `bind(player:)`
+/// to hand the player back to us.
+///
+/// Until `bind()` runs, calls to `load(url:)` are queued and replayed.
 @Observable
 @MainActor
-final class VLCPlayerEngine: NSObject {
+final class VLCPlayerEngine {
     // MARK: - Public State
 
     var state: EngineState = .idle
@@ -44,37 +49,19 @@ final class VLCPlayerEngine: NSObject {
 
     // MARK: - Private
 
-    private var player: VLCMediaPlayer?
+    private weak var player: VLCMediaPlayer?
     private var pendingStartPosition: Double?
+    private var pendingLoad: (url: URL, startPosition: Double?)?
     private var hasFetchedTracksForCurrentMedia = false
-    /// Drawable handed to us by VideoLayerView once it has a real
-    /// view-hierarchy + Auto Layout constraints.
-    private weak var drawableView: UIView?
 
-    override init() {
-        super.init()
-    }
+    init() {}
 
-    deinit {
-        // VLCMediaPlayer cleanup happens automatically when reference drops
-    }
+    // MARK: - Bind from view
 
-    // MARK: - Drawable
-
-    /// Called by VideoLayerView once the drawable subview is in the
-    /// view hierarchy with Auto Layout constraints. Wires it through to
-    /// VLC, creating the player on first call if needed.
-    func attachDrawable(_ view: UIView) {
-        drawableView = view
-        if let player = player {
-            player.drawable = view
-        }
-    }
-
-    // MARK: - Initialization
-
-    private func ensurePlayer() {
-        guard player == nil else { return }
+    /// Called by VLCContainerView once the player and its drawable are set
+    /// up. Replays any load() that came in before the view was attached.
+    func bind(player: VLCMediaPlayer) {
+        self.player = player
 
         // Activate AVAudioSession (VLC's audio output goes through it on tvOS)
         do {
@@ -87,34 +74,33 @@ final class VLCPlayerEngine: NSObject {
             #endif
         }
 
-        // IMPORTANT: do NOT pass options to VLCMediaPlayer's init.
-        // VLCMediaPlayer(options:) spawns a *private libvlc instance* with
-        // its own video-output thread setup, which on tvOS breaks the
-        // OpenGLES2 video view (it ends up calling -doResetBuffers off the
-        // main thread, the render pipeline wedges, and playback stays in
-        // an infinite buffering loop). The shared default libvlc instance
-        // sets the vout up correctly. Per-stream tunables (HW decode,
-        // network cache) are applied as VLCMedia options instead — see load().
-        let p = VLCMediaPlayer()
-        p.delegate = self
-        if let drawable = drawableView {
-            p.drawable = drawable
-        }
-        player = p
-
         #if DEBUG
-        print("[VLC] Initialized (drawable=\(drawableView != nil ? "set" : "pending"))")
+        print("[VLC] Engine bound to player")
         #endif
+
+        if let pending = pendingLoad {
+            pendingLoad = nil
+            performLoad(url: pending.url, startPosition: pending.startPosition)
+        }
     }
 
     // MARK: - Public API
 
     /// Load a media URL. Replaces any current playback.
     func load(url: URL, startPosition: Double? = nil) async throws {
-        ensurePlayer()
-        guard let player = player else {
-            throw VLCEngineError.notInitialized
+        guard player != nil else {
+            // View hasn't bound yet — queue and let bind() replay it
+            pendingLoad = (url, startPosition)
+            #if DEBUG
+            print("[VLC] load() queued (player not yet bound)")
+            #endif
+            return
         }
+        performLoad(url: url, startPosition: startPosition)
+    }
+
+    private func performLoad(url: URL, startPosition: Double?) {
+        guard let player = player else { return }
 
         state = .loading
         currentTime = 0
@@ -132,9 +118,7 @@ final class VLCPlayerEngine: NSObject {
         #endif
 
         // No media options — VLC defaults are correct on tvOS, and Swiftfin
-        // / VLCUI runs with no options too. In particular, setting
-        // `:avcodec-hw=videotoolbox` as a media option destabilises the
-        // decoder pipeline on tvOS in some cases.
+        // / VLCUI runs with no options too.
         let media = VLCMedia(url: url)
         player.media = media
         player.play()
@@ -169,7 +153,6 @@ final class VLCPlayerEngine: NSObject {
         #if DEBUG
         print("[VLC] Seek to \(String(format: "%.1f", target))s")
         #endif
-        // VLCTime takes milliseconds as Int32
         player.time = VLCTime(int: Int32(target * 1000))
     }
 
@@ -183,24 +166,79 @@ final class VLCPlayerEngine: NSObject {
 
     func selectAudioTrack(index: Int) async {
         guard let player = player else { return }
-        // VLCMediaPlayer uses -1 for "disabled" / no audio track
         player.currentAudioTrackIndex = Int32(index)
         currentAudioTrackIndex = index
     }
 
     func selectSubtitleTrack(index: Int) async {
         guard let player = player else { return }
-        // VLCMediaPlayer uses -1 for "disabled" / no subtitle
         player.currentVideoSubTitleIndex = Int32(index)
         currentSubtitleTrackIndex = index
+    }
+
+    // MARK: - Delegate Callbacks (called from VLCContainerView on main actor)
+
+    /// Called from VLCContainerView's mediaPlayerStateChanged delegate.
+    func handleStateChanged(state vlcState: VLCMediaPlayerState) {
+        guard let player = player else { return }
+
+        #if DEBUG
+        print("[VLC] state=\(vlcStateName(vlcState))")
+        #endif
+
+        switch vlcState {
+        case .opening, .buffering:
+            if case .seeking = self.state { return }
+            self.state = .loading
+
+        case .playing:
+            // First playing event after a load: apply pending startPosition + grab tracks
+            if let start = pendingStartPosition, start > 0 {
+                player.time = VLCTime(int: Int32(start * 1000))
+                pendingStartPosition = nil
+            }
+            self.state = .playing
+            fetchTrackListIfReady()
+
+        case .paused:
+            self.state = .paused
+
+        case .stopped, .ended:
+            self.state = .idle
+
+        case .error:
+            self.state = .error("VLC playback error")
+
+        case .esAdded:
+            // New elementary stream — refresh tracks
+            hasFetchedTracksForCurrentMedia = false
+            fetchTrackListIfReady()
+
+        @unknown default:
+            break
+        }
+    }
+
+    /// Called from VLCContainerView's mediaPlayerTimeChanged delegate.
+    func handleTimeChanged(timeMs: Int32, lengthMs: Int32) {
+        currentTime = Double(timeMs) / 1000.0
+        if lengthMs > 0 {
+            duration = Double(lengthMs) / 1000.0
+        }
+        if duration > 0 {
+            progress = Float(currentTime / duration)
+        }
+
+        // Late-bind track list if VLC reported them after first frames
+        if !hasFetchedTracksForCurrentMedia {
+            fetchTrackListIfReady()
+        }
     }
 
     // MARK: - Track List
 
     private func fetchTrackListIfReady() {
         guard !hasFetchedTracksForCurrentMedia, let player = player else { return }
-        // VLCKit only knows the track lists once playback has actually started
-        // and the demuxer reported them. audioTrackIndexes is empty until then.
         let audioIndexes = (player.audioTrackIndexes as? [NSNumber]) ?? []
         guard !audioIndexes.isEmpty || player.numberOfSubtitlesTracks > 0 else { return }
 
@@ -208,7 +246,6 @@ final class VLCPlayerEngine: NSObject {
         var audio: [TrackInfo] = []
         for (i, idNum) in audioIndexes.enumerated() {
             let id = idNum.intValue
-            // VLC reports id == -1 for the "Disable" pseudo-track — skip it
             guard id >= 0 else { continue }
             let name = i < audioNames.count ? audioNames[i] : "Audio \(id)"
             audio.append(TrackInfo(
@@ -246,88 +283,8 @@ final class VLCPlayerEngine: NSObject {
         print("[VLC] Tracks: \(audio.count) audio, \(subs.count) subs")
         #endif
     }
-}
 
-// MARK: - VLCMediaPlayerDelegate
-
-extension VLCPlayerEngine: VLCMediaPlayerDelegate {
-    nonisolated func mediaPlayerStateChanged(_ aNotification: Notification) {
-        // VLC delegate fires from a libvlc background thread — bounce to main
-        Task { @MainActor [weak self] in
-            self?.handleStateChanged()
-        }
-    }
-
-    nonisolated func mediaPlayerTimeChanged(_ aNotification: Notification) {
-        Task { @MainActor [weak self] in
-            self?.handleTimeChanged()
-        }
-    }
-
-    @MainActor
-    private func handleStateChanged() {
-        guard let player = player else { return }
-        let vlcState = player.state
-
-        #if DEBUG
-        print("[VLC] state=\(vlcStateName(vlcState))")
-        #endif
-
-        switch vlcState {
-        case .opening, .buffering:
-            if case .seeking = state { return }
-            state = .loading
-
-        case .playing:
-            // First playing event after a load: apply pending startPosition + grab tracks
-            if let start = pendingStartPosition, start > 0 {
-                player.time = VLCTime(int: Int32(start * 1000))
-                pendingStartPosition = nil
-            }
-            state = .playing
-            fetchTrackListIfReady()
-
-        case .paused:
-            state = .paused
-
-        case .stopped, .ended:
-            state = .idle
-
-        case .error:
-            state = .error("VLC playback error")
-
-        case .esAdded:
-            // New elementary stream — refresh tracks
-            hasFetchedTracksForCurrentMedia = false
-            fetchTrackListIfReady()
-
-        @unknown default:
-            break
-        }
-    }
-
-    @MainActor
-    private func handleTimeChanged() {
-        guard let player = player else { return }
-        // VLCTime.intValue is Int32 milliseconds
-        let ms = player.time.intValue
-        currentTime = Double(ms) / 1000.0
-
-        // Duration may not be known until after first frame; refresh on every tick
-        if let lengthMs = player.media?.length.intValue, lengthMs > 0 {
-            duration = Double(lengthMs) / 1000.0
-        }
-        if duration > 0 {
-            progress = Float(currentTime / duration)
-        }
-
-        // Late-bind track list if VLC reported them after first frames
-        if !hasFetchedTracksForCurrentMedia {
-            fetchTrackListIfReady()
-        }
-    }
-
-    private nonisolated func vlcStateName(_ state: VLCMediaPlayerState) -> String {
+    private func vlcStateName(_ state: VLCMediaPlayerState) -> String {
         switch state {
         case .stopped: return "stopped"
         case .opening: return "opening"
@@ -346,12 +303,10 @@ extension VLCPlayerEngine: VLCMediaPlayerDelegate {
 
 enum VLCEngineError: LocalizedError {
     case notInitialized
-    case loadFailed(String)
 
     var errorDescription: String? {
         switch self {
         case .notInitialized: "VLC player not initialized"
-        case .loadFailed(let msg): "Failed to load media: \(msg)"
         }
     }
 }

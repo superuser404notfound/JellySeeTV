@@ -1,25 +1,22 @@
 import SwiftUI
 import UIKit
+import VLCKitSPM
 
 /// UIViewRepresentable that hosts the UIView VLC renders into.
 ///
-/// VLCKit on tvOS uses an OpenGLES2-backed video view that misbehaves badly
-/// if the host view's frame changes via direct .frame assignment from
-/// layoutSubviews — VLC's render thread tries to mutate layer properties
-/// off-main, which on modern UIKit results in a stuck render pipeline.
+/// This view *owns* the VLCMediaPlayer (like Swiftfin/VLCUI's
+/// UIVLCVideoPlayerView). Creating the player and its drawable subview
+/// in the same synchronous init avoids a race condition in libvlc's
+/// internal video-output thread setup that wedges playback in an
+/// infinite buffering loop on tvOS.
 ///
-/// Pattern (matches Swiftfin / VLCUI):
-///   ContainerView    ← what SwiftUI hosts
-///     └── contentView ← VLC drawable, sized via Auto Layout constraints
+/// The engine is a thin state container; it gets a weak reference to
+/// the player via `engine.bind(player:)` once the view exists.
 struct VideoLayerView: UIViewRepresentable {
     let engine: VLCPlayerEngine
 
     func makeUIView(context: Context) -> VLCContainerView {
-        let container = VLCContainerView()
-        // Hand the VLC-drawable subview to the engine *after* it's in a
-        // view hierarchy with non-zero bounds-track from Auto Layout.
-        engine.attachDrawable(container.contentView)
-        return container
+        VLCContainerView(engine: engine)
     }
 
     func updateUIView(_ uiView: VLCContainerView, context: Context) {
@@ -27,17 +24,26 @@ struct VideoLayerView: UIViewRepresentable {
     }
 }
 
-/// Container UIView that owns the VLC drawable as a constraint-pinned subview.
-final class VLCContainerView: UIView {
-    let contentView: UIView = {
+/// UIView that owns the VLCMediaPlayer and a constraint-pinned drawable
+/// subview. Implements VLCMediaPlayerDelegate and forwards events to the
+/// engine on the main actor.
+final class VLCContainerView: UIView, VLCMediaPlayerDelegate {
+    private weak var engine: VLCPlayerEngine?
+    private let player: VLCMediaPlayer
+    private let contentView: UIView = {
         let v = UIView()
         v.backgroundColor = .black
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
 
-    init() {
+    init(engine: VLCPlayerEngine) {
+        self.engine = engine
+        // Player and drawable are created together, in this synchronous
+        // init, before any layout pass. This is the supported tvOS pattern.
+        self.player = VLCMediaPlayer()
         super.init(frame: .zero)
+
         backgroundColor = .black
         addSubview(contentView)
         NSLayoutConstraint.activate([
@@ -46,9 +52,44 @@ final class VLCContainerView: UIView {
             contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
         ])
+
+        player.delegate = self
+        player.drawable = contentView
+
+        // Hand the player back to the engine so it can drive load/play/seek.
+        // bind() is also responsible for replaying any pending load() that
+        // happened before the view was attached.
+        engine.bind(player: player)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) not implemented") }
 
+    override func removeFromSuperview() {
+        // Stop playback before the view leaves the hierarchy. We can't do
+        // this in deinit under Swift 6 strict concurrency since
+        // VLCMediaPlayer isn't Sendable.
+        player.stop()
+        super.removeFromSuperview()
+    }
+
     override var canBecomeFocused: Bool { false }
+
+    // MARK: - VLCMediaPlayerDelegate
+
+    func mediaPlayerStateChanged(_ aNotification: Notification) {
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            self.engine?.handleStateChanged(state: self.player.state)
+        }
+    }
+
+    func mediaPlayerTimeChanged(_ aNotification: Notification) {
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            self.engine?.handleTimeChanged(
+                timeMs: self.player.time.intValue,
+                lengthMs: self.player.media?.length.intValue ?? 0
+            )
+        }
+    }
 }
