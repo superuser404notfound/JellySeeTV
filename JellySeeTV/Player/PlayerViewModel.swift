@@ -25,7 +25,7 @@ final class PlayerViewModel {
     private var scrubStartTime: Double = 0
 
     let item: JellyfinItem
-    let engine = PlayerEngine()
+    let engine = MPVPlayerEngine()
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String
@@ -37,20 +37,7 @@ final class PlayerViewModel {
     private var hasReportedStart = false
     private var mediaSourceID: String = ""
     private var playSessionID: String?
-    #if !targetEnvironment(simulator)
-    private var cachedDemuxer: Demuxer?
-    #endif
 
-    #if !targetEnvironment(simulator)
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, cachedDemuxer: Demuxer? = nil) {
-        self.item = item
-        self.startFromBeginning = startFromBeginning
-        self.playbackService = playbackService
-        self.userID = userID
-        self.cachedPlaybackInfo = cachedPlaybackInfo
-        self.cachedDemuxer = cachedDemuxer
-    }
-    #else
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
         self.item = item
         self.startFromBeginning = startFromBeginning
@@ -58,7 +45,6 @@ final class PlayerViewModel {
         self.userID = userID
         self.cachedPlaybackInfo = cachedPlaybackInfo
     }
-    #endif
 
     // MARK: - Lifecycle
 
@@ -100,14 +86,8 @@ final class PlayerViewModel {
                 nil
             }
 
-            // Load and start engine (use pre-opened demuxer if available)
-            #if !targetEnvironment(simulator)
-            let dmx = cachedDemuxer
-            cachedDemuxer = nil // consumed
-            try await engine.load(url: url, startPosition: startPos, cachedDemuxer: dmx)
-            #else
+            // Load and start engine
             try await engine.load(url: url, startPosition: startPos)
-            #endif
 
             // Update UI
             totalTime = formatSeconds(effectiveDuration)
@@ -149,6 +129,14 @@ final class PlayerViewModel {
     func seekBackward() {
         Task { await engine.seek(to: engine.currentTime - 10) }
         showControlsTemporarily()
+    }
+
+    func selectAudioTrack(id: Int) {
+        Task { await engine.selectAudioTrack(index: id) }
+    }
+
+    func selectSubtitleTrack(id: Int) {
+        Task { await engine.selectSubtitleTrack(index: id) }
     }
 
     // MARK: - Scrubbing
@@ -297,7 +285,6 @@ final class PlayerViewModel {
                     progress = dur > 0 ? Float(cur / dur) : 0
                 }
 
-                #if !targetEnvironment(simulator)
                 switch engine.state {
                 case .playing: isPlaying = true; isLoading = false
                 case .paused: isPlaying = false
@@ -306,7 +293,6 @@ final class PlayerViewModel {
                 case .seeking: break // Keep current state
                 case .error(let msg): errorMessage = msg; isLoading = false
                 }
-                #endif
             }
         }
     }

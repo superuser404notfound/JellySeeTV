@@ -11,18 +11,11 @@
 		9DA28E472F87F84400E5469B /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA28E462F87F84400E5469B /* CoreMedia.framework */; };
 		9DA28E492F87F84F00E5469B /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA28E482F87F84F00E5469B /* AudioToolbox.framework */; };
 		9DA28E4B2F87F85900E5469B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DA28E4A2F87F85900E5469B /* Security.framework */; };
-		E414F04F5282BEF5289CA9FA /* Pods_JellySeeTV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAF849E208C426E2CA1B0AF7 /* Pods_JellySeeTV.framework */; };
+		9DA28F262F88EC1200E5469B /* MPVKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9DA28F252F88EC1200E5469B /* MPVKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		78250365F5175798231FB5D2 /* Pods-JellySeeTV.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JellySeeTV.debug.xcconfig"; path = "Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV.debug.xcconfig"; sourceTree = "<group>"; };
-		9DA28E442F87F83100E5469B /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
-		9DA28E462F87F84400E5469B /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		9DA28E482F87F84F00E5469B /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
-		9DA28E4A2F87F85900E5469B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		9DD9136D2F8645860078D0BE /* JellySeeTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JellySeeTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		BAF849E208C426E2CA1B0AF7 /* Pods_JellySeeTV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JellySeeTV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		E15CF2820F11C70614FFC6AE /* Pods-JellySeeTV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JellySeeTV.release.xcconfig"; path = "Target Support Files/Pods-JellySeeTV/Pods-JellySeeTV.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -41,8 +34,8 @@
 				9DA28E4B2F87F85900E5469B /* Security.framework in Frameworks */,
 				9DA28E492F87F84F00E5469B /* AudioToolbox.framework in Frameworks */,
 				9DA28E472F87F84400E5469B /* CoreMedia.framework in Frameworks */,
+				9DA28F262F88EC1200E5469B /* MPVKit in Frameworks */,
 				9DA28E452F87F83100E5469B /* VideoToolbox.framework in Frameworks */,
-				E414F04F5282BEF5289CA9FA /* Pods_JellySeeTV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,7 +47,6 @@
 			children = (
 				9DD9136F2F8645860078D0BE /* JellySeeTV */,
 				9DD9136E2F8645860078D0BE /* Products */,
-				EBC52448A75F47141AFB1BD5 /* Pods */,
 				F2FA2CF0B38B315088DC439E /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -67,15 +59,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		EBC52448A75F47141AFB1BD5 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				78250365F5175798231FB5D2 /* Pods-JellySeeTV.debug.xcconfig */,
-				E15CF2820F11C70614FFC6AE /* Pods-JellySeeTV.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		F2FA2CF0B38B315088DC439E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -83,7 +66,6 @@
 				9DA28E482F87F84F00E5469B /* AudioToolbox.framework */,
 				9DA28E462F87F84400E5469B /* CoreMedia.framework */,
 				9DA28E442F87F83100E5469B /* VideoToolbox.framework */,
-				BAF849E208C426E2CA1B0AF7 /* Pods_JellySeeTV.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -95,7 +77,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9DD913782F8645880078D0BE /* Build configuration list for PBXNativeTarget "JellySeeTV" */;
 			buildPhases = (
-				C8C77817E5620FA701B09ABD /* [CP] Check Pods Manifest.lock */,
 				9DD913692F8645860078D0BE /* Sources */,
 				9DD9136A2F8645860078D0BE /* Frameworks */,
 				9DD9136B2F8645860078D0BE /* Resources */,
@@ -150,6 +131,9 @@
 			);
 			mainGroup = 9DD913642F8645860078D0BE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9DA28F242F88EC1200E5469B /* XCRemoteSwiftPackageReference "MPVKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9DD9136E2F8645860078D0BE /* Products */;
 			projectDirPath = "";
@@ -169,31 +153,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		C8C77817E5620FA701B09ABD /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-JellySeeTV-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9DD913692F8645860078D0BE /* Sources */ = {
@@ -329,7 +288,6 @@
 		};
 		9DD913792F8645880078D0BE /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 78250365F5175798231FB5D2 /* Pods-JellySeeTV.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -338,7 +296,6 @@
 				DEVELOPMENT_TEAM = 4NY63S72W9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				"HEADER_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/Vendor/FFmpeg/include";
 				INFOPLIST_FILE = SupportingFiles/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
@@ -346,41 +303,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/Vendor/FFmpeg/lib";
 				MARKETING_VERSION = 1.0;
-				"OTHER_LDFLAGS[arch=*]" = (
-					"$(inherited)",
-					"-lavformat",
-					"-lavcodec",
-					"-lavutil",
-					"-lswresample",
-					"-lbz2",
-					"-lc++",
-					"-liconv",
-					"-lxml2",
-					"-lz",
-					"-framework",
-					AVFoundation,
-					"-framework",
-					AudioToolbox,
-					"-framework",
-					CoreMedia,
-					"-framework",
-					CoreText,
-					"-framework",
-					OpenGLES,
-					"-framework",
-					Security,
-					"-framework",
-					VideoToolbox,
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = de.superuser404.JellySeeTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				"SWIFT_INCLUDE_PATHS[arch=*]" = "$(SRCROOT)/Vendor/FFmpeg/CFFmpeg";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -390,7 +319,6 @@
 		};
 		9DD9137A2F8645880078D0BE /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E15CF2820F11C70614FFC6AE /* Pods-JellySeeTV.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -399,7 +327,6 @@
 				DEVELOPMENT_TEAM = 4NY63S72W9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				"HEADER_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/Vendor/FFmpeg/include";
 				INFOPLIST_FILE = SupportingFiles/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
@@ -407,41 +334,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/Vendor/FFmpeg/lib";
 				MARKETING_VERSION = 1.0;
-				"OTHER_LDFLAGS[arch=*]" = (
-					"$(inherited)",
-					"-lavformat",
-					"-lavcodec",
-					"-lavutil",
-					"-lswresample",
-					"-lbz2",
-					"-lc++",
-					"-liconv",
-					"-lxml2",
-					"-lz",
-					"-framework",
-					AVFoundation,
-					"-framework",
-					AudioToolbox,
-					"-framework",
-					CoreMedia,
-					"-framework",
-					CoreText,
-					"-framework",
-					OpenGLES,
-					"-framework",
-					Security,
-					"-framework",
-					VideoToolbox,
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = de.superuser404.JellySeeTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				"SWIFT_INCLUDE_PATHS[arch=*]" = "$(SRCROOT)/Vendor/FFmpeg/CFFmpeg";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -471,6 +370,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9DA28F242F88EC1200E5469B /* XCRemoteSwiftPackageReference "MPVKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mpvkit/MPVKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.41.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9DA28F252F88EC1200E5469B /* MPVKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9DA28F242F88EC1200E5469B /* XCRemoteSwiftPackageReference "MPVKit" */;
+			productName = MPVKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9DD913652F8645860078D0BE /* Project object */;
 }

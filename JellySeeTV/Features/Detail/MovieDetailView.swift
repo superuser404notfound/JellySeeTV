@@ -29,16 +29,10 @@ struct MovieDetailView: View {
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
-                    cachedDemuxer: viewModel?.cachedDemuxer,
                     onDismiss: { showPlayer = false }
                 )
                 .transition(.opacity)
                 .ignoresSafeArea()
-                .task {
-                    // Player has captured the demuxer; clear our reference
-                    // and pre-open a fresh one for the next playback
-                    viewModel?.clearAndRefreshDemuxer()
-                }
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showPlayer)

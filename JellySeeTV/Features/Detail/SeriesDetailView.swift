@@ -86,14 +86,10 @@ struct SeriesDetailView: View {
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
-                    cachedDemuxer: viewModel?.cachedDemuxer,
                     onDismiss: { showPlayer = false }
                 )
                 .transition(.opacity)
                 .ignoresSafeArea()
-                .task {
-                    viewModel?.clearAndRefreshDemuxer()
-                }
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showPlayer)

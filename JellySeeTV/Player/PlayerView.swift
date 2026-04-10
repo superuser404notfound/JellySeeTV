@@ -1,23 +1,11 @@
 import SwiftUI
 
 struct PlayerView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var viewModel: PlayerViewModel
     let onDismiss: () -> Void
 
-    #if !targetEnvironment(simulator)
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, cachedDemuxer: Demuxer? = nil, onDismiss: @escaping () -> Void) {
-        _viewModel = State(initialValue: PlayerViewModel(
-            item: item,
-            startFromBeginning: startFromBeginning,
-            playbackService: playbackService,
-            userID: userID,
-            cachedPlaybackInfo: cachedPlaybackInfo,
-            cachedDemuxer: cachedDemuxer
-        ))
-        self.onDismiss = onDismiss
-    }
-    #else
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, cachedDemuxer: Any? = nil, onDismiss: @escaping () -> Void) {
+    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, onDismiss: @escaping () -> Void) {
         _viewModel = State(initialValue: PlayerViewModel(
             item: item,
             startFromBeginning: startFromBeginning,
@@ -27,7 +15,6 @@ struct PlayerView: View {
         ))
         self.onDismiss = onDismiss
     }
-    #endif
 
     var body: some View {
         ZStack {
@@ -36,8 +23,8 @@ struct PlayerView: View {
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
-                // Video layer
-                VideoLayerView(renderer: viewModel.engine.videoRenderer)
+                // Video layer (CAMetalLayer that mpv renders into)
+                VideoLayerView(metalLayer: viewModel.engine.metalLayer)
                     .ignoresSafeArea()
 
                 // Single remote input handler — captures ALL Siri Remote events
@@ -129,6 +116,12 @@ struct PlayerView: View {
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
         .task {
             await viewModel.startPlayback()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            // Pause when going to background to avoid MoltenVK crashes
+            if newPhase == .background || newPhase == .inactive {
+                viewModel.engine.pause()
+            }
         }
         .onDisappear {
             viewModel.engine.stop()
