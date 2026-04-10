@@ -87,40 +87,23 @@ final class MPVPlayerEngine {
     private func initializeMpvIfNeeded() throws {
         guard mpvHandle == nil else { return }
 
-        // Set up AVAudioSession FIRST — mpv's audiounit AO needs an active session
-        do {
-            let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .moviePlayback)
-            try session.setActive(true)
-            #if DEBUG
-            print("[MPV] AVAudioSession active")
-            #endif
-        } catch {
-            #if DEBUG
-            print("[MPV] AVAudioSession error: \(error)")
-            #endif
-        }
-
         guard let handle = mpv_create() else {
             throw MPVError.createFailed
         }
         mpvHandle = handle
 
-        // Logging
+        // EXACTLY the working v3 config + ONLY enable audio stream
+        setOption(handle, "vo", "null")
+        setOption(handle, "ao", "null")     // KEEP ao=null for now
+        setOption(handle, "vid", "no")
+        setOption(handle, "aid", "auto")    // CHANGED: was "no", now auto-select
+        setOption(handle, "config", "no")
+        setOption(handle, "idle", "yes")
+
         #if DEBUG
         mpv_request_log_messages(handle, "info")
         #endif
 
-        // STEP 2: Audio enabled, video still disabled
-        setOption(handle, "vo", "null")          // no video output yet
-        setOption(handle, "vid", "no")           // no video stream selected
-        setOption(handle, "ao", "audiounit")     // CoreAudio output
-        setOption(handle, "config", "no")
-        setOption(handle, "idle", "yes")
-        setOption(handle, "keep-open", "always")
-        setOption(handle, "network-timeout", "10")
-
-        // Initialize
         let ret = mpv_initialize(handle)
         guard ret >= 0 else {
             mpv_terminate_destroy(handle)
@@ -128,22 +111,8 @@ final class MPVPlayerEngine {
             throw MPVError.initFailed(String(cString: mpv_error_string(ret)))
         }
 
-        // Property observers for state tracking
-        observeProperty(handle, "time-pos", MPV_FORMAT_DOUBLE, userdata: 1)
-        observeProperty(handle, "duration", MPV_FORMAT_DOUBLE, userdata: 2)
-        observeProperty(handle, "pause", MPV_FORMAT_FLAG, userdata: 3)
-        observeProperty(handle, "track-list", MPV_FORMAT_NODE, userdata: 4)
-
-        // Wakeup callback drives our event loop
-        let opaqueSelf = Unmanaged.passUnretained(self).toOpaque()
-        mpv_set_wakeup_callback(handle, { ctx in
-            guard let ctx = ctx else { return }
-            let engine = Unmanaged<MPVPlayerEngine>.fromOpaque(ctx).takeUnretainedValue()
-            engine.scheduleEventDrain()
-        }, opaqueSelf)
-
         #if DEBUG
-        print("[MPV] Initialized (audio-only)")
+        print("[MPV] Initialized (test: aid=auto, ao=null, no callbacks)")
         #endif
     }
 
@@ -170,7 +139,30 @@ final class MPVPlayerEngine {
         #endif
 
         command(handle, args: ["loadfile", url.absoluteString])
-        // State transitions via MPV_EVENT_FILE_LOADED handled by drain loop
+
+        #if DEBUG
+        // Synchronous drain for 2 seconds — show ALL log messages
+        print("[MPV] Draining events for 3s...")
+        let deadline = Date().addingTimeInterval(3.0)
+        while Date() < deadline {
+            guard let eventPtr = mpv_wait_event(handle, 0.05) else { continue }
+            let event = eventPtr.pointee
+            if event.event_id == MPV_EVENT_NONE { continue }
+            if event.event_id == MPV_EVENT_LOG_MESSAGE {
+                if let logData = event.data?.assumingMemoryBound(to: mpv_event_log_message.self).pointee {
+                    let prefix = String(cString: logData.prefix)
+                    let level = String(cString: logData.level)
+                    let text = String(cString: logData.text).trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !text.isEmpty {
+                        print("[mpv:\(level)/\(prefix)] \(text)")
+                    }
+                }
+            } else {
+                print("[MPV] event id=\(event.event_id.rawValue)")
+            }
+        }
+        print("[MPV] Drain complete")
+        #endif
     }
 
     func play() {
