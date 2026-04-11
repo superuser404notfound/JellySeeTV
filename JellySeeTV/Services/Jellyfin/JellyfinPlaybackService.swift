@@ -24,7 +24,12 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
 
         guard let url = components?.url else { throw APIError.invalidURL }
 
-        let deviceProfile = profile ?? DirectPlayProfile.avPlayerProfile()
+        // The caller (PlayerViewModel / DetailViewModel) is responsible
+        // for picking the right profile, since DirectPlayProfile.current()
+        // touches UIScreen and must run on the main actor. Fall back to
+        // an empty profile only if no caller hands one in (shouldn't
+        // happen in practice).
+        let deviceProfile = profile ?? [:]
         let body: [String: Any] = ["DeviceProfile": deviceProfile]
         let bodyData = try JSONSerialization.data(withJSONObject: body)
 

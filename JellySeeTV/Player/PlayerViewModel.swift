@@ -49,7 +49,7 @@ final class PlayerViewModel {
                 info = try await playbackService.getPlaybackInfo(
                     itemID: item.id,
                     userID: userID,
-                    profile: DirectPlayProfile.avPlayerProfile()
+                    profile: DirectPlayProfile.current()
                 )
             }
             playSessionID = info.playSessionId

@@ -163,7 +163,7 @@ final class DetailViewModel {
         Task {
             cachedPlaybackInfo = try? await playbackService.getPlaybackInfo(
                 itemID: itemID, userID: userID,
-                profile: DirectPlayProfile.avPlayerProfile()
+                profile: DirectPlayProfile.current()
             )
             #if DEBUG
             if cachedPlaybackInfo != nil {

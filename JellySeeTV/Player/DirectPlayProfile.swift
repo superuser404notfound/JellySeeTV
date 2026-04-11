@@ -2,48 +2,102 @@ import Foundation
 
 /// Jellyfin device profile for AVPlayer (AVFoundation) on Apple TV.
 ///
-/// Strategy: list exactly what AVPlayer can handle natively. Anything
-/// else falls into Jellyfin's transcoding profile, which targets the
-/// same AVPlayer-supported codecs and a fragmented MP4 / HLS container.
+/// We have two flavors and pick one at runtime based on the connected
+/// display's actual capabilities (see `DisplayCapabilities`):
 ///
-/// Container handling:
-/// - mp4 / m4v / mov: direct play (AVPlayer's native format)
-/// - mkv: AVPlayer cannot demux MKV. Jellyfin remuxes to fragmented
-///   MP4 / HLS *without re-encoding* — only the container is swapped,
-///   the video and audio streams are byte-for-byte the same. Cost on
-///   the server is negligible (~1% CPU per stream).
-/// - everything else: server-side transcode to HEVC + EAC3 in fMP4/HLS
+/// - `permissiveHDRProfile`: HDR-capable display with Match Dynamic
+///   Range on. AVPlayer can direct-stream 4K HEVC Main10 HDR / Dolby
+///   Vision content with multi-channel EAC3 audio. The server only
+///   ever has to remux containers (MKV → fMP4), no re-encoding.
 ///
-/// Codec notes:
-/// - AV1: NO Apple TV (as of tvOS 26 / 2026) has hardware AV1 decode.
-///   AV1 is always transcoded to HEVC server-side.
-/// - DTS / DTS-HD / TrueHD: AVPlayer can't decode these — transcoded
-///   to EAC3 (Atmos-capable) or AC3 server-side.
-/// - HEVC 10-bit / HDR10 / Dolby Vision: direct play, AVPlayer hands
-///   them to the system compositor with the right metadata.
+/// - `conservativeSDRProfile`: SDR display, or HDR display with Match
+///   Dynamic Range off (Apple TV stays in SDR mode). The server has
+///   to tone-map HDR → SDR, downscale 4K → 1080p, and re-encode to
+///   H.264 (much faster to encode than HEVC, makes the difference
+///   between "real-time" and "infinite buffering").
+@MainActor
 enum DirectPlayProfile {
 
-    static func avPlayerProfile() -> [String: Any] {
+    /// Picks the right profile based on the runtime display capabilities.
+    static func current() -> [String: Any] {
+        let useHDR = DisplayCapabilities.supportsHDR
+        #if DEBUG
+        print("[Profile] Display: \(DisplayCapabilities.summary) → using \(useHDR ? "HDR" : "SDR") profile")
+        #endif
+        return useHDR ? permissiveHDRProfile() : conservativeSDRProfile()
+    }
+
+    // MARK: - HDR-capable display
+
+    /// Profile for HDR-capable Apple TV setups (HDR display + Match
+    /// Dynamic Range on). Permissive: AVPlayer handles HEVC Main10,
+    /// HDR10, Dolby Vision, EAC3 multi-channel natively. Server only
+    /// has to remux containers — no re-encoding, no tone-mapping.
+    static func permissiveHDRProfile() -> [String: Any] {
         [
-            // Hard-cap streaming bitrate so the server-side transcoder
-            // doesn't try to re-encode 4K HDR @ 200 Mbit/s in real time —
-            // that needs hardware encode (NVENC / QuickSync / VideoToolbox)
-            // and falls way behind without it, leaving the HLS manifest
-            // empty and AVPlayer hanging on initial load.
-            //
-            // 25 Mbit/s is plenty for 1080p HEVC SDR and is realistic for
-            // any modest server CPU. Direct-play files (where the server
-            // only remuxes containers) ignore this anyway — it only kicks
-            // in when an actual transcode happens.
+            "MaxStreamingBitrate": 200_000_000,
+            "MaxStaticBitrate": 200_000_000,
+            "MusicStreamingTranscodingBitrate": 384_000,
+
+            "DirectPlayProfiles": [
+                [
+                    "Container": "mp4,m4v,mov",
+                    "Type": "Video",
+                    "VideoCodec": "h264,hevc",
+                    "AudioCodec": "aac,ac3,eac3,alac,flac,opus,mp3",
+                ],
+                [
+                    "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus",
+                    "Type": "Audio",
+                ],
+            ] as [[String: Any]],
+
+            // For non-direct-play sources (mostly MKV), Jellyfin will
+            // remux to fMP4 over HTTP. Stream copy, no re-encoding.
+            "TranscodingProfiles": [
+                [
+                    "Type": "Video",
+                    "Container": "mp4",
+                    "Protocol": "hls",
+                    "VideoCodec": "h264,hevc",
+                    "AudioCodec": "aac,ac3,eac3",
+                    "Context": "Streaming",
+                    "MinSegments": 1,
+                    "BreakOnNonKeyFrames": true,
+                ],
+                [
+                    "Type": "Audio",
+                    "Container": "mp3",
+                    "Protocol": "http",
+                    "AudioCodec": "mp3",
+                    "Context": "Streaming",
+                ],
+            ] as [[String: Any]],
+
+            "ContainerProfiles": [] as [Any],
+            "CodecProfiles": [] as [[String: Any]],
+            "SubtitleProfiles": Self.subtitleProfiles,
+        ]
+    }
+
+    // MARK: - SDR display fallback
+
+    /// Profile for SDR displays (or HDR displays with Match Dynamic
+    /// Range off). Forces the server to:
+    /// - tone-map HDR → SDR (via Jellyfin's tone-mapping pipeline)
+    /// - downscale 4K → 1080p
+    /// - re-encode to H.264 (NOT HEVC — H.264 encoding is 5–10x
+    ///   faster, the difference between real-time and the encoder
+    ///   falling behind)
+    /// - downmix multi-channel audio to stereo AC3
+    static func conservativeSDRProfile() -> [String: Any] {
+        [
+            // Bitrate cap: realistic for 1080p H.264, gives the encoder
+            // headroom but doesn't ask for impossible throughput.
             "MaxStreamingBitrate": 25_000_000,
             "MaxStaticBitrate": 200_000_000,
             "MusicStreamingTranscodingBitrate": 384_000,
 
-            // ─── DirectPlay: containers AVPlayer can demux natively ───
-            // Conservative codec list. HEVC Main10 (10-bit / HDR) and EAC3
-            // multi-channel are intentionally excluded — see CodecProfiles
-            // below — because Jellyfin's HLS remuxer produces manifests
-            // for those that AVPlayer's HLS reader hangs on.
             "DirectPlayProfiles": [
                 [
                     "Container": "mp4,m4v,mov",
@@ -57,16 +111,14 @@ enum DirectPlayProfile {
                 ],
             ] as [[String: Any]],
 
-            // ─── Transcoding fallback: target HLS + fragmented MP4 ───
-            // Jellyfin uses this when DirectPlay doesn't match. For MKV
-            // containers with already-supported codecs, Jellyfin will
-            // pick "remux" (Container=mp4, no codec change) automatically.
+            // H.264 only as the transcode target — much faster than HEVC
+            // to encode in real time on a CPU without hardware encoder.
             "TranscodingProfiles": [
                 [
                     "Type": "Video",
                     "Container": "mp4",
                     "Protocol": "hls",
-                    "VideoCodec": "h264,hevc",
+                    "VideoCodec": "h264",
                     "AudioCodec": "aac,ac3",
                     "Context": "Streaming",
                     "MinSegments": 1,
@@ -81,32 +133,10 @@ enum DirectPlayProfile {
                 ],
             ] as [[String: Any]],
 
-            // ─── Container profiles: empty, no special remux rules ───
             "ContainerProfiles": [] as [Any],
 
-            // ─── Codec-level constraints ───
-            // Force the server to deliver SDR + 8-bit + stereo. The Apple
-            // TV system setting "Match Dynamic Range" is OFF in our use
-            // case, which means the Apple TV stays in SDR mode and would
-            // have to client-side tone-map any incoming HDR stream — and
-            // AVPlayer's HLS reader hangs on HEVC Main10 / HDR streams in
-            // fragmented MP4 segments when that happens. Forcing the
-            // server to do HDR→SDR tone mapping (via Jellyfin's HDR
-            // tone-mapping pipeline) gives us a clean SDR stream that
-            // AVPlayer plays reliably.
-            //
-            // The four constraints together:
-            //   1. VideoRangeType = SDR        — explicit "no HDR / DV"
-            //   2. VideoBitDepth ≤ 8           — forces 8-bit even if the
-            //                                    source is 10-bit Main10
-            //   3. VideoProfile = main         — HEVC profile cap
-            //   4. AudioChannels ≤ 2           — downmix multi-channel
-            //                                    (also avoids EAC3 Atmos
-            //                                    HLS-remux issues)
-            //
-            // Trade-off: HDR is downgraded to SDR, Dolby Atmos to stereo.
-            // Phase 2 will graduate this to a runtime decision based on
-            // actual display + audio receiver capabilities.
+            // Force SDR + 8-bit + Main + stereo + 1080p. Anything in
+            // the source that violates these triggers a real transcode.
             "CodecProfiles": [
                 [
                     "Type": "Video",
@@ -161,13 +191,6 @@ enum DirectPlayProfile {
                         ],
                     ],
                 ],
-                // Resolution cap: forces 4K sources to downscale to 1080p
-                // when the server has to transcode (e.g. 4K HDR sources
-                // hitting our SDR constraint). Real-time 4K HEVC encode
-                // requires GPU-accelerated encoding which most servers
-                // don't have, so the HLS manifest fills slowly and
-                // AVPlayer hangs. 1080p HEVC encode is realistic on a
-                // modest CPU. Direct-play files are unaffected.
                 [
                     "Type": "Video",
                     "Conditions": [
@@ -187,22 +210,22 @@ enum DirectPlayProfile {
                 ],
             ] as [[String: Any]],
 
-            // ─── Subtitles ───
-            // External WebVTT works directly with AVPlayer / HLS.
-            // Image-based subs (PGS, VobSub) and bitmap formats need
-            // burn-in. Jellyfin handles the conversion.
-            "SubtitleProfiles": [
-                ["Format": "vtt", "Method": "External"],
-                ["Format": "webvtt", "Method": "External"],
-                ["Format": "srt", "Method": "External"],
-                ["Format": "subrip", "Method": "External"],
-                ["Format": "ass", "Method": "Encode"],
-                ["Format": "ssa", "Method": "Encode"],
-                ["Format": "pgssub", "Method": "Encode"],
-                ["Format": "pgs", "Method": "Encode"],
-                ["Format": "dvdsub", "Method": "Encode"],
-                ["Format": "dvbsub", "Method": "Encode"],
-            ] as [[String: Any]],
+            "SubtitleProfiles": Self.subtitleProfiles,
         ]
     }
+
+    // MARK: - Subtitles (shared)
+
+    private static let subtitleProfiles: [[String: Any]] = [
+        ["Format": "vtt", "Method": "External"],
+        ["Format": "webvtt", "Method": "External"],
+        ["Format": "srt", "Method": "External"],
+        ["Format": "subrip", "Method": "External"],
+        ["Format": "ass", "Method": "Encode"],
+        ["Format": "ssa", "Method": "Encode"],
+        ["Format": "pgssub", "Method": "Encode"],
+        ["Format": "pgs", "Method": "Encode"],
+        ["Format": "dvdsub", "Method": "Encode"],
+        ["Format": "dvbsub", "Method": "Encode"],
+    ]
 }
