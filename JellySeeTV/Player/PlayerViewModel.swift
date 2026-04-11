@@ -103,7 +103,22 @@ final class PlayerViewModel {
                 nil
             }
 
-            try await engine.load(url: url, startPosition: startPos)
+            // HDR detection from Jellyfin's media stream metadata. The
+            // server already knows the source range — we don't have to
+            // wait for AVPlayer to parse the HLS manifest (which is
+            // exactly the operation that hangs on HDR streams). Possible
+            // VideoRangeType values from Jellyfin: SDR, HDR, HDR10, DOVI,
+            // HLG. Anything other than SDR triggers our HDR handling.
+            let videoStream = source.mediaStreams?.first { $0.type == .video }
+            let isHDR: Bool = {
+                let range = videoStream?.videoRangeType ?? videoStream?.videoRange ?? "SDR"
+                return range.uppercased() != "SDR"
+            }()
+            #if DEBUG
+            print("[PlayerViewModel] Source range: \(videoStream?.videoRangeType ?? videoStream?.videoRange ?? "unknown") → isHDR=\(isHDR)")
+            #endif
+
+            try await engine.load(url: url, startPosition: startPos, isHDR: isHDR)
 
             startStateObserver()
             await reportStart()
