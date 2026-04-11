@@ -55,13 +55,31 @@ final class HDRToneMappingCompositor: NSObject, AVVideoCompositing {
 
     // MARK: - AVVideoCompositing required properties
 
-    /// We accept 10-bit YCbCr 4:2:0 biplanar pixel buffers from AVFoundation.
-    /// Both video-range and full-range variants — AVPlayer hands us
-    /// whatever the source decoder produced.
+    /// We accept 10-bit YCbCr 4:2:0 biplanar pixel buffers from AVFoundation
+    /// in every flavor we know AVPlayer can hand us:
+    ///
+    /// - Standard biplanar:
+    ///     420YpCbCr10BiPlanarVideoRange / FullRange ('x420' / 'xf20')
+    /// - Lossless packed (default on A14+ / Apple TV 4K Gen 2+):
+    ///     Lossless_420YpCbCr10PackedBiPlanarVideoRange / FullRange
+    ///       ('&8v0' / '&8f0')
+    /// - Lossy packed (compressed pipeline):
+    ///     Lossy_420YpCbCr10PackedBiPlanarVideoRange / FullRange
+    ///       ('-xv0' / '-xf0')
+    ///
+    /// If we don't list the format AVPlayer's HEVC decoder is producing,
+    /// AVFoundation tries to convert it into one of our listed formats and
+    /// can fail with kFigSampleBufferProcessorError_FormatNotSupported
+    /// (Fig -12710), which is exactly what was happening on Apple TV 4K
+    /// Gen 3.
     let sourcePixelBufferAttributes: [String: any Sendable]? = [
         kCVPixelBufferPixelFormatTypeKey as String: [
+            // Standard biplanar 10-bit
             Int(kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange),
             Int(kCVPixelFormatType_420YpCbCr10BiPlanarFullRange),
+            // Lossless packed 10-bit (Apple TV 4K Gen 2+ HEVC HW decoder default).
+            // Only the video-range variant exists in the SDK as of tvOS 26.
+            Int(kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange),
         ],
         kCVPixelBufferMetalCompatibilityKey as String: true,
         kCVPixelBufferIOSurfacePropertiesKey as String: [String: Sendable](),
@@ -177,17 +195,45 @@ final class HDRToneMappingCompositor: NSObject, AVVideoCompositing {
 
     // MARK: - Per-frame processing
 
+    /// Set to true after we've logged the first frame's pixel-format details,
+    /// so we don't spam the log every frame.
+    private var hasLoggedFirstFrame = false
+
     private func process(request: AVAsynchronousVideoCompositionRequest) {
         // 1. Pull source frame
         guard let trackID = request.sourceTrackIDs.first?.int32Value,
               let sourceBuffer = request.sourceFrame(byTrackID: trackID) else {
+            #if DEBUG
+            print("[HDRTM] FAIL: no source frame (sourceTrackIDs=\(request.sourceTrackIDs))")
+            #endif
             request.finish(with: HDRToneMappingError.noSourceFrame)
             return
         }
 
+        // First-frame diagnostic dump
+        #if DEBUG
+        if !hasLoggedFirstFrame {
+            hasLoggedFirstFrame = true
+            let format = CVPixelBufferGetPixelFormatType(sourceBuffer)
+            let width = CVPixelBufferGetWidth(sourceBuffer)
+            let height = CVPixelBufferGetHeight(sourceBuffer)
+            let planeCount = CVPixelBufferGetPlaneCount(sourceBuffer)
+            print("[HDRTM] First source frame: \(width)x\(height), planes=\(planeCount), format=\(fourCCString(format))")
+            if let attachments = CVBufferCopyAttachments(sourceBuffer, .shouldPropagate) as? [CFString: Any] {
+                let transfer = attachments[kCVImageBufferTransferFunctionKey] as? String ?? "?"
+                let primaries = attachments[kCVImageBufferColorPrimariesKey] as? String ?? "?"
+                let matrix = attachments[kCVImageBufferYCbCrMatrixKey] as? String ?? "?"
+                print("[HDRTM]   transfer=\(transfer), primaries=\(primaries), matrix=\(matrix)")
+            }
+        }
+        #endif
+
         // 2. Pull destination buffer from the render context
         guard let context = self.renderContext,
               let destBuffer = context.newPixelBuffer() else {
+            #if DEBUG
+            print("[HDRTM] FAIL: no destination buffer (renderContext=\(self.renderContext != nil))")
+            #endif
             request.finish(with: HDRToneMappingError.noDestinationBuffer)
             return
         }
@@ -207,6 +253,9 @@ final class HDRToneMappingCompositor: NSObject, AVVideoCompositing {
         let cbcrIn = makeMetalTexture(
             from: sourceBuffer, plane: 1, format: .rg16Unorm, cache: inputTextureCache
         ) else {
+            #if DEBUG
+            print("[HDRTM] FAIL: source texture creation (format=\(fourCCString(CVPixelBufferGetPixelFormatType(sourceBuffer))))")
+            #endif
             request.finish(with: HDRToneMappingError.textureCreationFailed)
             return
         }
@@ -218,6 +267,9 @@ final class HDRToneMappingCompositor: NSObject, AVVideoCompositing {
         let cbcrOut = makeMetalTexture(
             from: destBuffer, plane: 1, format: .rg8Unorm, cache: outputTextureCache
         ) else {
+            #if DEBUG
+            print("[HDRTM] FAIL: destination texture creation (format=\(fourCCString(CVPixelBufferGetPixelFormatType(destBuffer))))")
+            #endif
             request.finish(with: HDRToneMappingError.textureCreationFailed)
             return
         }
@@ -321,6 +373,19 @@ final class HDRToneMappingCompositor: NSObject, AVVideoCompositing {
         let attachments = CVBufferCopyAttachments(buffer, .shouldPropagate) as? [CFString: Any]
         let transfer = attachments?[kCVImageBufferTransferFunctionKey] as? String
         return transfer == (kCVImageBufferTransferFunction_ITU_R_2100_HLG as String)
+    }
+
+    /// Convert a CoreVideo OSType pixel format to a 4-char ASCII string for
+    /// debug logging. e.g. 0x78343230 → "x420".
+    private func fourCCString(_ code: OSType) -> String {
+        let bytes: [UInt8] = [
+            UInt8((code >> 24) & 0xFF),
+            UInt8((code >> 16) & 0xFF),
+            UInt8((code >> 8) & 0xFF),
+            UInt8(code & 0xFF),
+        ]
+        let str = String(bytes: bytes, encoding: .ascii) ?? "????"
+        return "\(str) (0x\(String(code, radix: 16)))"
     }
 }
 
