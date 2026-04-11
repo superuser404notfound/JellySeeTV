@@ -150,22 +150,31 @@ final class AVPlayerEngine {
         playerItem = item
 
         if isHDR {
-            // Strategy C-2: hand HDR frames through Core Image's built-in
-            // HDR→SDR tone mapper. AVMutableVideoComposition's
-            // applyingCIFiltersWithHandler API gives us each frame as a
-            // CIImage with full HDR awareness; CIToneMapHeadroom is
-            // Apple's built-in HDR→SDR tone mapper. The whole pipeline
-            // runs on the GPU, no Metal compute shader of our own needed.
-            //
-            // We also disable per-frame HDR display metadata so that the
-            // AVPlayer presentation path doesn't try to do its own Dolby
-            // Vision RPU processing on top — that's the operation that
-            // hangs.
-            item.appliesPerFrameHDRDisplayMetadata = false
-            item.videoComposition = makeHDRToneMappingComposition(for: asset)
-            #if DEBUG
-            print("[AVPlayer] HDR source — installing CIToneMapHeadroom video composition")
-            #endif
+            // Display-aware HDR handling:
+            // - HDR-capable display + Match Dynamic Range on → AVPlayer's
+            //   native HDR direct play. No compositor, no tone mapping,
+            //   pixel-perfect HDR10 / Dolby Vision.
+            // - SDR display, OR HDR display with Match Dynamic Range off
+            //   → install our Metal HDR→SDR compositor (BT.2390 in PQ
+            //   space) so the broken AVPlayer EDR display path is
+            //   bypassed entirely.
+            if DisplayCapabilities.supportsHDR {
+                #if DEBUG
+                print("[AVPlayer] HDR source + HDR display → native HDR direct play")
+                #endif
+                // Default appliesPerFrameHDRDisplayMetadata = true is correct
+                // for native DV / HDR10 on an HDR-capable system.
+            } else {
+                #if DEBUG
+                print("[AVPlayer] HDR source + SDR display → installing Metal HDR→SDR compositor (BT.2390)")
+                #endif
+                // Disable per-frame DV RPU processing — that's the operation
+                // that hangs the AVPlayer pipeline. Without it, AVFoundation
+                // hands us the HDR10 base layer (PQ encoded) which our Metal
+                // compositor can tone-map.
+                item.appliesPerFrameHDRDisplayMetadata = false
+                item.videoComposition = makeHDRToSDRComposition()
+            }
         }
 
         // Observe item status — fires when ready to play or fails
@@ -333,34 +342,30 @@ final class AVPlayerEngine {
         }
     }
 
-    // MARK: - HDR Tone Mapping (Core Image)
+    // MARK: - HDR → SDR (Metal compute shader compositor)
 
-    /// Build a video composition that runs every frame through Apple's
-    /// built-in HDR→SDR tone mapper (`CIToneMapHeadroom`). This uses the
-    /// `applyingCIFiltersWithHandler` API path of AVMutableVideoComposition,
-    /// which means:
+    /// Build a video composition that runs every HDR frame through our
+    /// custom Metal compositor (`HDRToneMappingCompositor`). The compositor
+    /// dispatches a compute kernel that performs ITU-R BT.2390-3 tone
+    /// mapping in PQ space, plus the BT.2020 → BT.709 color gamut
+    /// conversion and the YCbCr 10-bit → 8-bit re-quantization.
     ///
-    /// - We get every frame as a `CIImage` with full HDR awareness (the
-    ///   image's color space + transfer function are preserved).
-    /// - The actual rendering uses Apple's built-in compositor + Core
-    ///   Image's GPU pipeline — no custom Metal shader, no custom
-    ///   AVVideoCompositing class.
-    /// - `CIToneMapHeadroom` is Apple's purpose-built HDR→SDR tone mapper.
-    ///   `inputTargetHeadroom = 1.0` means "map down to a display with
-    ///   no extra brightness above SDR white".
-    nonisolated private func makeHDRToneMappingComposition(for asset: AVAsset) -> AVMutableVideoComposition {
-        return AVMutableVideoComposition(
-            asset: asset,
-            applyingCIFiltersWithHandler: { request in
-                let source = request.sourceImage
-                let filter = CIFilter(name: "CIToneMapHeadroom")
-                filter?.setValue(source, forKey: kCIInputImageKey)
-                // 1.0 = SDR target (no headroom above 100 nits white)
-                filter?.setValue(1.0, forKey: "inputTargetHeadroom")
-                let output = filter?.outputImage ?? source
-                request.finish(with: output, context: nil)
-            }
-        )
+    /// We don't await `asset.loadTracks(...)` here (the operation that
+    /// hangs on HDR HLS streams in Apple's native pipeline) — instead we
+    /// build the composition with sane 4K defaults. AVFoundation will
+    /// adjust the render context to the actual track size once the
+    /// manifest loads, and the compute kernel uses the texture's own
+    /// dimensions, not these defaults.
+    private func makeHDRToSDRComposition() -> AVMutableVideoComposition {
+        let composition = AVMutableVideoComposition()
+        composition.customVideoCompositorClass = HDRToneMappingCompositor.self
+        composition.renderSize = CGSize(width: 3840, height: 2160)
+        composition.frameDuration = CMTime(value: 1, timescale: 30)
+        // Output color space marker — BT.709 SDR
+        composition.colorPrimaries = AVVideoColorPrimaries_ITU_R_709_2
+        composition.colorTransferFunction = AVVideoTransferFunction_ITU_R_709_2
+        composition.colorYCbCrMatrix = AVVideoYCbCrMatrix_ITU_R_709_2
+        return composition
     }
 
     // MARK: - Track List
