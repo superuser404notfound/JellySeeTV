@@ -140,30 +140,37 @@ final class MetalHDRRenderer {
     // MARK: - Lifecycle
 
     /// Attach the renderer to a player item. Sets up an
-    /// `AVPlayerItemVideoOutput` that requests linear-light RGBA16Float
-    /// pixel buffers (Apple's pixel transfer session does the HEVC Main10
-    /// / DV decode + initial color conversion for us), and starts a
-    /// CADisplayLink that polls for new frames at the display refresh
-    /// rate.
+    /// `AVPlayerItemVideoOutput` that requests **8-bit BT.709 SDR BGRA**
+    /// pixel buffers — Apple's pixel transfer session does the heavy
+    /// lifting for us:
+    ///
+    /// - HDR sources (HEVC Main10 / Dolby Vision PQ / HLG) → Apple
+    ///   tone-maps internally to SDR
+    /// - SDR sources → pass through unchanged
+    /// - All decoded YCbCr formats → converted to BGRA
+    ///
+    /// We then just sample + render the frame as-is. No custom tone
+    /// mapping in our shader, no color space conversion, no round-trips.
+    /// This both fixes the SDR overexposure bug (the linear-extended-2020
+    /// path was scaling values weirdly) and uses Apple's battle-tested
+    /// HDR→SDR converter for HDR sources.
     func attach(to playerItem: AVPlayerItem) {
         // Tear down any previous attachment first
         detach()
 
         self.playerItem = playerItem
 
-        // Output settings — request linear extended Rec.2020 RGBA16Float.
-        // The pixel transfer session reads whatever the source decoder
-        // produces (10-bit YCbCr biplanar / lossless packed / etc) and
-        // converts to this format for us.
+        // Request fully-converted 8-bit BT.709 SDR BGRA pixel buffers.
+        // Apple's pixel transfer session handles HDR→SDR tone mapping,
+        // YCbCr→RGB, color space conversion, the lot.
         let colorProperties: [String: Any] = [
-            AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_2020,
-            AVVideoTransferFunctionKey: AVVideoTransferFunction_Linear,
-            AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_2020,
+            AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
+            AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
+            AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2,
         ]
         let outputSettings: [String: Any] = [
-            AVVideoAllowWideColorKey: true,
             AVVideoColorPropertiesKey: colorProperties,
-            kCVPixelBufferPixelFormatTypeKey as String: NSNumber(value: kCVPixelFormatType_64RGBAHalf),
+            kCVPixelBufferPixelFormatTypeKey as String: NSNumber(value: kCVPixelFormatType_32BGRA),
             kCVPixelBufferMetalCompatibilityKey as String: true,
         ]
 
@@ -227,14 +234,15 @@ final class MetalHDRRenderer {
         let width = CVPixelBufferGetWidth(pixelBuffer)
         let height = CVPixelBufferGetHeight(pixelBuffer)
 
-        // Wrap as Metal texture (zero-copy, IOSurface-backed)
+        // Wrap the (already SDR-converted) BGRA pixel buffer as a Metal
+        // texture. Zero-copy via IOSurface.
         var cvTexture: CVMetalTexture?
         let status = CVMetalTextureCacheCreateTextureFromImage(
             kCFAllocatorDefault,
             textureCache,
             pixelBuffer,
             nil,
-            .rgba16Float,
+            .bgra8Unorm,
             width,
             height,
             0,
@@ -277,11 +285,6 @@ final class MetalHDRRenderer {
         encoder.setViewport(viewport)
 
         encoder.setFragmentTexture(sourceTexture, index: 0)
-        var uniforms = ToneMapFragmentUniforms(
-            hdrPeakNits: 1000.0,
-            sdrPeakNits: 100.0
-        )
-        encoder.setFragmentBytes(&uniforms, length: MemoryLayout<ToneMapFragmentUniforms>.size, index: 0)
 
         // Single full-screen triangle = 3 vertices, no vertex buffer needed
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
@@ -331,9 +334,3 @@ final class MetalHDRRenderer {
     }
 }
 
-// MARK: - Uniforms
-
-private struct ToneMapFragmentUniforms {
-    var hdrPeakNits: Float
-    var sdrPeakNits: Float
-}
