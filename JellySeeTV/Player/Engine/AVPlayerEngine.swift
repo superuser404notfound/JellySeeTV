@@ -143,6 +143,16 @@ final class AVPlayerEngine {
         let item = AVPlayerItem(asset: asset)
         playerItem = item
 
+        // If the source is HDR, install our HDR passthrough compositor.
+        // The presence of an AVVideoComposition with a custom compositor
+        // routes frame production through AVFoundation's offline tone-
+        // mapping path (HDR → SDR happens via the framework, not via
+        // AVPlayer's EDR display pipeline that hangs on 4K HEVC Main10
+        // in HLS-fMP4). See HDRPassthroughCompositor.swift.
+        Task { @MainActor [weak self] in
+            await self?.attachHDRCompositorIfNeeded(item: item)
+        }
+
         // Observe item status — fires when ready to play or fails
         statusObserver = item.observe(\.status, options: [.new, .initial]) { [weak self] item, _ in
             guard let self else { return }
@@ -306,6 +316,73 @@ final class AVPlayerEngine {
         @unknown default:
             break
         }
+    }
+
+    // MARK: - HDR Compositor
+
+    /// Detect if the item's video track is HDR (HDR10 PQ, HLG, or
+    /// Dolby Vision). If so, install the HDR passthrough compositor
+    /// so AVFoundation tone-maps frames to SDR via its offline path
+    /// instead of the broken EDR-display path.
+    ///
+    /// Runs entirely on the main actor (the engine's actor) so we
+    /// don't have to send AVAsset across actor boundaries — AVAsset
+    /// isn't Sendable in Swift 6.
+    private func attachHDRCompositorIfNeeded(item: AVPlayerItem) async {
+        let asset = item.asset
+        guard let videoTrack = try? await asset.loadTracks(withMediaType: .video).first else {
+            return
+        }
+        guard let formatDescriptions = try? await videoTrack.load(.formatDescriptions),
+              let formatDesc = formatDescriptions.first else {
+            return
+        }
+
+        // HDR detection via the format description's transfer function.
+        let extensions = CMFormatDescriptionGetExtensions(formatDesc) as? [CFString: Any] ?? [:]
+        let transfer = extensions[kCMFormatDescriptionExtension_TransferFunction] as? String
+        let isHDR = transfer == (kCVImageBufferTransferFunction_SMPTE_ST_2084_PQ as String)
+                 || transfer == (kCVImageBufferTransferFunction_ITU_R_2100_HLG as String)
+
+        #if DEBUG
+        print("[AVPlayer] Source HDR detection: transfer=\(transfer ?? "nil") → \(isHDR ? "HDR, installing passthrough compositor" : "SDR, no compositor")")
+        #endif
+
+        guard isHDR else { return }
+
+        // Build the video composition by hand instead of using
+        // AVMutableVideoComposition.videoComposition(withPropertiesOf:),
+        // because that static factory wants AVAsset across an actor
+        // boundary and AVAsset isn't Sendable. We pull the props we
+        // need (size, frame duration, duration) directly off the
+        // already-loaded videoTrack and the item.
+        let naturalSize = (try? await videoTrack.load(.naturalSize)) ?? CGSize(width: 1920, height: 1080)
+        let nominalFrameRate = (try? await videoTrack.load(.nominalFrameRate)) ?? 30
+        let assetDuration = (try? await asset.load(.duration)) ?? CMTime(seconds: 0, preferredTimescale: 600)
+
+        let composition = AVMutableVideoComposition()
+        composition.customVideoCompositorClass = HDRPassthroughCompositor.self
+        composition.renderSize = naturalSize
+        composition.frameDuration = CMTime(
+            value: 1,
+            timescale: nominalFrameRate > 0 ? CMTimeScale(nominalFrameRate.rounded()) : 30
+        )
+
+        // Mark the composition output as Rec. 709 SDR so AVFoundation
+        // performs the HDR→SDR conversion before handing frames to the
+        // compositor.
+        composition.colorPrimaries = AVVideoColorPrimaries_ITU_R_709_2
+        composition.colorTransferFunction = AVVideoTransferFunction_ITU_R_709_2
+        composition.colorYCbCrMatrix = AVVideoYCbCrMatrix_ITU_R_709_2
+
+        // Single instruction covering the whole asset.
+        let instruction = AVMutableVideoCompositionInstruction()
+        instruction.timeRange = CMTimeRange(start: .zero, duration: assetDuration)
+        let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        instruction.layerInstructions = [layerInstruction]
+        composition.instructions = [instruction]
+
+        item.videoComposition = composition
     }
 
     // MARK: - Track List
