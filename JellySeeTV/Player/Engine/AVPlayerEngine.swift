@@ -149,16 +149,19 @@ final class AVPlayerEngine {
         let item = AVPlayerItem(asset: asset)
         playerItem = item
 
-        // If the source is HDR, install the HDR passthrough compositor
-        // *before* play(). This routes frame production through
-        // AVFoundation's offline HDR→SDR path instead of AVPlayer's EDR
-        // display pipeline (which hangs on 4K HEVC Main10 in HLS-fMP4).
-        // See HDRPassthroughCompositor.swift for the why.
         if isHDR {
+            // Tell AVFoundation to ignore per-frame HDR display metadata.
+            // By default it tries to apply Dolby Vision RPU metadata at
+            // present time, which hangs the AVPlayer pipeline on Apple TV
+            // when Match Dynamic Range is off (the EDR tone-mapping path
+            // can't handle it). With this off, the DV stream is treated
+            // as plain HDR10 / HEVC and AVPlayer's standard tone-mapping
+            // takes over — which works because it doesn't touch the
+            // broken DV path.
+            item.appliesPerFrameHDRDisplayMetadata = false
             #if DEBUG
-            print("[AVPlayer] HDR source — installing passthrough compositor")
+            print("[AVPlayer] HDR source — disabling per-frame HDR display metadata")
             #endif
-            item.videoComposition = makeHDRPassthroughComposition()
         }
 
         // Observe item status — fires when ready to play or fails
@@ -324,35 +327,6 @@ final class AVPlayerEngine {
         @unknown default:
             break
         }
-    }
-
-    // MARK: - HDR Compositor
-
-    /// Build a generic AVMutableVideoComposition that routes every frame
-    /// through `HDRPassthroughCompositor`. We don't know the source
-    /// resolution or frame rate at this point (would have to await
-    /// asset.loadTracks which is exactly the operation that hangs on HDR
-    /// streams), so we use sane 4K-tier defaults — AVPlayer overrides
-    /// renderSize from the actual track once the manifest loads.
-    ///
-    /// We deliberately do NOT add `instructions` here. A compositor-only
-    /// composition (no instructions, no layer instructions) makes
-    /// AVFoundation use the implicit "pass through the source track"
-    /// instruction, which is exactly what we want — and avoids needing
-    /// to know the asset duration up front.
-    private func makeHDRPassthroughComposition() -> AVMutableVideoComposition {
-        let composition = AVMutableVideoComposition()
-        composition.customVideoCompositorClass = HDRPassthroughCompositor.self
-        composition.renderSize = CGSize(width: 3840, height: 2160)
-        composition.frameDuration = CMTime(value: 1, timescale: 30)
-        // Mark the output color space as Rec. 709 SDR so the framework
-        // tone-maps HDR sources to SDR before handing frames to the
-        // compositor (works because supportsHDRSourceFrames defaults
-        // to false on our compositor — see WWDC20 10009).
-        composition.colorPrimaries = AVVideoColorPrimaries_ITU_R_709_2
-        composition.colorTransferFunction = AVVideoTransferFunction_ITU_R_709_2
-        composition.colorYCbCrMatrix = AVVideoYCbCrMatrix_ITU_R_709_2
-        return composition
     }
 
     // MARK: - Track List
