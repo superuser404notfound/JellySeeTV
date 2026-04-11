@@ -345,17 +345,13 @@ final class AVPlayerEngine {
     // MARK: - HDR → SDR (Metal compute shader compositor)
 
     /// Build a video composition that runs every HDR frame through our
-    /// custom Metal compositor (`HDRToneMappingCompositor`). The compositor
-    /// dispatches a compute kernel that performs ITU-R BT.2390-3 tone
-    /// mapping in PQ space, plus the BT.2020 → BT.709 color gamut
-    /// conversion and the YCbCr 10-bit → 8-bit re-quantization.
+    /// custom Metal compositor (`HDRToneMappingCompositor`).
     ///
-    /// We don't await `asset.loadTracks(...)` here (the operation that
-    /// hangs on HDR HLS streams in Apple's native pipeline) — instead we
-    /// build the composition with sane 4K defaults. AVFoundation will
-    /// adjust the render context to the actual track size once the
-    /// manifest loads, and the compute kernel uses the texture's own
-    /// dimensions, not these defaults.
+    /// We don't await `asset.loadTracks(...)` here — that's the call that
+    /// hangs on HDR HLS streams. We build the composition with sane
+    /// defaults and a single open-ended instruction that covers the
+    /// entire (unknown) asset duration. AVFoundation does the
+    /// per-frame routing.
     private func makeHDRToSDRComposition() -> AVMutableVideoComposition {
         let composition = AVMutableVideoComposition()
         composition.customVideoCompositorClass = HDRToneMappingCompositor.self
@@ -365,6 +361,19 @@ final class AVPlayerEngine {
         composition.colorPrimaries = AVVideoColorPrimaries_ITU_R_709_2
         composition.colorTransferFunction = AVVideoTransferFunction_ITU_R_709_2
         composition.colorYCbCrMatrix = AVVideoYCbCrMatrix_ITU_R_709_2
+
+        // A custom video compositor needs at least one instruction
+        // covering the asset's time range, otherwise AVFoundation
+        // rejects the composition with Fig -12710 (FormatNotSupported)
+        // before the first frame ever reaches us. Use a positive-infinity
+        // duration so we don't have to load the asset duration up front.
+        let instruction = AVMutableVideoCompositionInstruction()
+        instruction.timeRange = CMTimeRange(
+            start: .zero,
+            duration: CMTime(value: .max, timescale: 30000)
+        )
+        instruction.enablePostProcessing = true
+        composition.instructions = [instruction]
         return composition
     }
 
