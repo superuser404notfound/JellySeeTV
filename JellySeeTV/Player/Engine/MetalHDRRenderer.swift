@@ -160,16 +160,12 @@ final class MetalHDRRenderer {
 
         self.playerItem = playerItem
 
-        // Request fully-converted 8-bit BT.709 SDR BGRA pixel buffers.
-        // Apple's pixel transfer session handles HDR→SDR tone mapping,
-        // YCbCr→RGB, color space conversion, the lot.
-        let colorProperties: [String: Any] = [
-            AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
-            AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
-            AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2,
-        ]
+        // Minimal output settings — only request a pixel format.
+        // Don't specify color properties at all; let AVPlayer choose the
+        // color space that best matches the source. The pixel transfer
+        // session will still convert YCbCr / packed / lossless formats
+        // to BGRA for us.
         let outputSettings: [String: Any] = [
-            AVVideoColorPropertiesKey: colorProperties,
             kCVPixelBufferPixelFormatTypeKey as String: NSNumber(value: kCVPixelFormatType_32BGRA),
             kCVPixelBufferMetalCompatibilityKey as String: true,
         ]

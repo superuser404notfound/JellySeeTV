@@ -164,17 +164,15 @@ final class AVPlayerEngine {
         let item = AVPlayerItem(asset: asset)
         playerItem = item
 
-        // Disable per-frame HDR display metadata for HDR sources. Without
-        // this, AVPlayer tries to apply Dolby Vision RPU metadata at
-        // present time — which on Apple TV with Match Dynamic Range off
-        // hangs the entire item. Our Metal renderer does its own
-        // tone-mapping anyway, so we don't need DV per-frame data.
+        // Note: previously set `appliesPerFrameHDRDisplayMetadata = false`
+        // for HDR sources, but it doesn't help (the player item still
+        // hangs at the HLS-fetch stage, before the per-frame HDR pipeline
+        // is even reached). We let the default kick in.
+        #if DEBUG
         if isHDR {
-            item.appliesPerFrameHDRDisplayMetadata = false
-            #if DEBUG
-            print("[AVPlayer] HDR source — disabling per-frame HDR display metadata; tone-mapping via Metal renderer")
-            #endif
+            print("[AVPlayer] HDR source — letting default HDR pipeline run; relying on AVPlayerItemVideoOutput for SDR delivery")
         }
+        #endif
 
         // Wire the renderer to the new player item. This installs the
         // AVPlayerItemVideoOutput and starts the CADisplayLink-driven
