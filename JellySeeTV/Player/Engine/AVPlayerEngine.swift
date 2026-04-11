@@ -58,9 +58,15 @@ final class AVPlayerEngine {
     var currentAudioTrackIndex: Int = -1
     var currentSubtitleTrackIndex: Int = -1
 
-    /// The underlying AVPlayer. Handed to AVPlayerViewController via
-    /// NativeVideoPlayerView.
+    /// The underlying AVPlayer.
     let player = AVPlayer()
+
+    /// The Metal HDR renderer that owns the CAMetalLayer all video frames
+    /// are presented through. Pulls each frame from `playerItem` via
+    /// `AVPlayerItemVideoOutput`, runs BT.2390 tone mapping in a Metal
+    /// fragment shader, and presents directly to the layer's drawable.
+    /// We hand this to MetalVideoView so it can be hosted in SwiftUI.
+    let renderer = MetalHDRRenderer()
 
     // MARK: - Private
 
@@ -107,12 +113,10 @@ final class AVPlayerEngine {
     // MARK: - Public API
 
     /// Load a media URL. Replaces any current playback.
-    /// `isHDR` should be true if the source video is HDR10/HLG/DV — caller
-    /// reads that from Jellyfin's media stream metadata. We use it to
-    /// install the HDR passthrough compositor *before* `play()`, so the
-    /// frame production path is wired correctly from the very first frame
-    /// instead of trying to attach it asynchronously after the broken HLS
-    /// pipeline already wedged.
+    /// `isHDR` parameter is currently informational only — the renderer
+    /// always pulls frames as linear extended Rec.2020 RGBA16Float and
+    /// the fragment shader tone-maps them to BT.709 SDR. (Future: skip
+    /// the tone-map when `isHDR == false` *and* we're on an HDR display.)
     func load(url: URL, startPosition: Double? = nil, isHDR: Bool = false) async throws {
         state = .loading
         currentTime = 0
@@ -149,33 +153,23 @@ final class AVPlayerEngine {
         let item = AVPlayerItem(asset: asset)
         playerItem = item
 
+        // Disable per-frame HDR display metadata for HDR sources. Without
+        // this, AVPlayer tries to apply Dolby Vision RPU metadata at
+        // present time — which on Apple TV with Match Dynamic Range off
+        // hangs the entire item. Our Metal renderer does its own
+        // tone-mapping anyway, so we don't need DV per-frame data.
         if isHDR {
-            // Display-aware HDR handling:
-            // - HDR-capable display + Match Dynamic Range on → AVPlayer's
-            //   native HDR direct play. No compositor, no tone mapping,
-            //   pixel-perfect HDR10 / Dolby Vision.
-            // - SDR display, OR HDR display with Match Dynamic Range off
-            //   → install our Metal HDR→SDR compositor (BT.2390 in PQ
-            //   space) so the broken AVPlayer EDR display path is
-            //   bypassed entirely.
-            if DisplayCapabilities.supportsHDR {
-                #if DEBUG
-                print("[AVPlayer] HDR source + HDR display → native HDR direct play")
-                #endif
-                // Default appliesPerFrameHDRDisplayMetadata = true is correct
-                // for native DV / HDR10 on an HDR-capable system.
-            } else {
-                #if DEBUG
-                print("[AVPlayer] HDR source + SDR display → installing Metal HDR→SDR compositor (BT.2390)")
-                #endif
-                // Disable per-frame DV RPU processing — that's the operation
-                // that hangs the AVPlayer pipeline. Without it, AVFoundation
-                // hands us the HDR10 base layer (PQ encoded) which our Metal
-                // compositor can tone-map.
-                item.appliesPerFrameHDRDisplayMetadata = false
-                item.videoComposition = makeHDRToSDRComposition()
-            }
+            item.appliesPerFrameHDRDisplayMetadata = false
+            #if DEBUG
+            print("[AVPlayer] HDR source — disabling per-frame HDR display metadata; tone-mapping via Metal renderer")
+            #endif
         }
+
+        // Wire the renderer to the new player item. This installs the
+        // AVPlayerItemVideoOutput and starts the CADisplayLink-driven
+        // render loop. From this point on, every frame goes through our
+        // Metal pipeline before being presented.
+        renderer.attach(to: item)
 
         // Observe item status — fires when ready to play or fails
         statusObserver = item.observe(\.status, options: [.new, .initial]) { [weak self] item, _ in
@@ -244,6 +238,10 @@ final class AVPlayerEngine {
     }
 
     func stop() {
+        // Detach the renderer first so the CADisplayLink stops driving
+        // it before the player item disappears
+        renderer.detach()
+
         player.pause()
         player.replaceCurrentItem(with: nil)
         state = .idle
@@ -340,41 +338,6 @@ final class AVPlayerEngine {
         @unknown default:
             break
         }
-    }
-
-    // MARK: - HDR → SDR (Metal compute shader compositor)
-
-    /// Build a video composition that runs every HDR frame through our
-    /// custom Metal compositor (`HDRToneMappingCompositor`).
-    ///
-    /// We don't await `asset.loadTracks(...)` here — that's the call that
-    /// hangs on HDR HLS streams. We build the composition with sane
-    /// defaults and a single open-ended instruction that covers the
-    /// entire (unknown) asset duration. AVFoundation does the
-    /// per-frame routing.
-    private func makeHDRToSDRComposition() -> AVMutableVideoComposition {
-        let composition = AVMutableVideoComposition()
-        composition.customVideoCompositorClass = HDRToneMappingCompositor.self
-        composition.renderSize = CGSize(width: 3840, height: 2160)
-        composition.frameDuration = CMTime(value: 1, timescale: 30)
-        // Output color space marker — BT.709 SDR
-        composition.colorPrimaries = AVVideoColorPrimaries_ITU_R_709_2
-        composition.colorTransferFunction = AVVideoTransferFunction_ITU_R_709_2
-        composition.colorYCbCrMatrix = AVVideoYCbCrMatrix_ITU_R_709_2
-
-        // A custom video compositor needs at least one instruction
-        // covering the asset's time range, otherwise AVFoundation
-        // rejects the composition with Fig -12710 (FormatNotSupported)
-        // before the first frame ever reaches us. Use a positive-infinity
-        // duration so we don't have to load the asset duration up front.
-        let instruction = AVMutableVideoCompositionInstruction()
-        instruction.timeRange = CMTimeRange(
-            start: .zero,
-            duration: CMTime(value: .max, timescale: 30000)
-        )
-        instruction.enablePostProcessing = true
-        composition.instructions = [instruction]
-        return composition
     }
 
     // MARK: - Track List
