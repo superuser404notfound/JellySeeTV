@@ -89,16 +89,27 @@ final class AVPlayerEngine {
             #endif
         }
 
-        // Periodic time observer drives currentTime / progress updates.
+        // Periodic time observer drives currentTime / duration / progress
+        // updates. Closure is delivered to main queue; we hop to MainActor.
         let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         timeObserverToken = player.addPeriodicTimeObserver(
             forInterval: interval,
             queue: .main
         ) { [weak self] time in
             guard let self else { return }
-            // The closure is delivered to .main; hop to MainActor explicitly.
             MainActor.assumeIsolated {
                 self.currentTime = time.seconds.isFinite ? time.seconds : 0
+
+                // Pull duration here too — for HLS streams it's often
+                // not available at the moment readyToPlay first fires,
+                // so we keep retrying until it's known.
+                if self.duration <= 0, let item = self.player.currentItem {
+                    let dur = item.duration.seconds
+                    if dur.isFinite, dur > 0 {
+                        self.duration = dur
+                    }
+                }
+
                 if self.duration > 0 {
                     self.progress = Float(self.currentTime / self.duration)
                 }
@@ -289,13 +300,16 @@ final class AVPlayerEngine {
             if dur.isFinite, dur > 0 {
                 duration = dur
             }
-            // Apply pending start position
+            // Apply pending start position. Only clear it after the seek
+            // actually completes — otherwise a race between readyToPlay
+            // firing and the seek finishing could leave us at t=0.
             if let start = pendingStartPosition, start > 0 {
                 let time = CMTime(seconds: start, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-                Task {
-                    await player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
+                    await self.player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+                    self.pendingStartPosition = nil
                 }
-                pendingStartPosition = nil
             }
             Task {
                 await fetchTrackList(item: item)

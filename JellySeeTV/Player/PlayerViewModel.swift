@@ -305,8 +305,12 @@ final class PlayerViewModel {
                     let remaining = dur - cur
                     remainingTime = remaining > 0 ? "-\(formatSeconds(remaining))" : "-00:00"
                     progress = dur > 0 ? Float(cur / dur) : 0
-                    if dur > 0, totalTime == "00:00" {
-                        totalTime = formatSeconds(dur)
+                    // Refresh totalTime whenever the engine knows the
+                    // duration — for HLS streams that's not always at
+                    // the first readyToPlay event.
+                    let formattedDur = dur > 0 ? formatSeconds(dur) : "00:00"
+                    if totalTime != formattedDur {
+                        totalTime = formattedDur
                     }
                 }
 

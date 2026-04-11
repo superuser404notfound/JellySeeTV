@@ -65,9 +65,16 @@ final class MetalHDRRenderer {
     private weak var playerItem: AVPlayerItem?
     private var videoOutput: AVPlayerItemVideoOutput?
     private var displayLink: CADisplayLink?
-    /// Strong-held CVMetalTexture so the underlying CVPixelBuffer doesn't
-    /// get recycled before the GPU is done with it.
-    private var lastCVTexture: CVMetalTexture?
+
+    /// Limits the number of GPU command buffers we can have in-flight at
+    /// once. Standard triple-buffering — if the GPU falls behind, we drop
+    /// frames instead of letting the queue grow unbounded.
+    private let inflightSemaphore = DispatchSemaphore(value: 3)
+
+    /// True after we've rendered the first frame successfully — used to
+    /// log a one-shot diagnostic, and to know when the layer's drawable
+    /// has actually shown content.
+    private var hasRenderedFirstFrame = false
 
     // MARK: - Init
 
@@ -186,11 +193,15 @@ final class MetalHDRRenderer {
         }
         videoOutput = nil
         playerItem = nil
-        lastCVTexture = nil
+        hasRenderedFirstFrame = false
     }
 
-    // MARK: - Display link
+    // MARK: - Display link / render
 
+    /// CADisplayLink callback. Runs on the main thread (we added the link
+    /// to `.main`). Pulls the latest pixel buffer + encodes the render
+    /// pass synchronously — Metal command buffer encoding is sub-millisecond
+    /// even for 4K, the actual GPU work runs async.
     @objc private func displayLinkDidFire(_ link: CADisplayLink) {
         guard let output = videoOutput else { return }
 
@@ -202,10 +213,15 @@ final class MetalHDRRenderer {
         guard output.hasNewPixelBuffer(forItemTime: itemTime) else { return }
         guard let pixelBuffer = output.copyPixelBuffer(forItemTime: itemTime, itemTimeForDisplay: nil) else { return }
 
+        // Triple-buffer guard: if the GPU is more than 3 frames behind,
+        // drop this frame instead of growing the command queue.
+        // `.now()` timeout = no wait; it just probes the semaphore.
+        if inflightSemaphore.wait(timeout: .now()) == .timedOut {
+            return
+        }
+
         render(pixelBuffer: pixelBuffer)
     }
-
-    // MARK: - Render
 
     private func render(pixelBuffer: CVPixelBuffer) {
         let width = CVPixelBufferGetWidth(pixelBuffer)
@@ -224,23 +240,21 @@ final class MetalHDRRenderer {
             0,
             &cvTexture
         )
-        guard status == kCVReturnSuccess, let cv = cvTexture, let sourceTexture = CVMetalTextureGetTexture(cv) else {
+        guard status == kCVReturnSuccess,
+              let cv = cvTexture,
+              let sourceTexture = CVMetalTextureGetTexture(cv) else {
             #if DEBUG
             print("[MetalHDR] CVMetalTextureCacheCreateTextureFromImage failed: \(status)")
             #endif
+            inflightSemaphore.signal()
             return
         }
 
-        // Hold the CVMetalTexture strong until the GPU is done with the
-        // underlying buffer. Apple's docs are explicit about this.
-        self.lastCVTexture = cv
+        guard let drawable = metalLayer.nextDrawable() else {
+            inflightSemaphore.signal()
+            return
+        }
 
-        // Update the layer's drawable size to match the host view if needed
-        // (handled by MetalVideoView's layout, but we keep aspect-correct
-        // viewports inside the render pass)
-        guard let drawable = metalLayer.nextDrawable() else { return }
-
-        // Build a render pass that targets the drawable
         let passDescriptor = MTLRenderPassDescriptor()
         passDescriptor.colorAttachments[0].texture = drawable.texture
         passDescriptor.colorAttachments[0].loadAction = .clear
@@ -249,13 +263,14 @@ final class MetalHDRRenderer {
 
         guard let cmdBuffer = commandQueue.makeCommandBuffer(),
               let encoder = cmdBuffer.makeRenderCommandEncoder(descriptor: passDescriptor) else {
+            inflightSemaphore.signal()
             return
         }
 
         encoder.setRenderPipelineState(pipelineState)
 
         // Aspect-correct viewport: fit source into drawable, letterbox elsewhere
-        let viewport = aspectFitViewport(
+        let viewport = Self.aspectFitViewport(
             source: CGSize(width: width, height: height),
             drawable: CGSize(width: drawable.texture.width, height: drawable.texture.height)
         )
@@ -272,14 +287,29 @@ final class MetalHDRRenderer {
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         encoder.endEncoding()
 
+        // Hold the CVMetalTexture strong until the GPU is done with the
+        // underlying CVPixelBuffer. Capturing it in the closure does that;
+        // releasing the in-flight slot lets the next frame queue up.
+        cmdBuffer.addCompletedHandler { [inflightSemaphore] _ in
+            _ = cv  // intentional capture — hold strong until GPU finishes
+            inflightSemaphore.signal()
+        }
+
         cmdBuffer.present(drawable)
         cmdBuffer.commit()
+
+        if !hasRenderedFirstFrame {
+            hasRenderedFirstFrame = true
+            #if DEBUG
+            print("[MetalHDR] First frame rendered: \(width)x\(height) → drawable \(drawable.texture.width)x\(drawable.texture.height)")
+            #endif
+        }
     }
 
     /// Compute a centered aspect-fit MTLViewport for the given source size
     /// inside the given drawable size. Letterbox / pillarbox happens
     /// outside the viewport (the clear color fills it).
-    private func aspectFitViewport(source: CGSize, drawable: CGSize) -> MTLViewport {
+    private static func aspectFitViewport(source: CGSize, drawable: CGSize) -> MTLViewport {
         guard source.width > 0, source.height > 0, drawable.width > 0, drawable.height > 0 else {
             return MTLViewport(originX: 0, originY: 0, width: drawable.width, height: drawable.height, znear: 0, zfar: 1)
         }
