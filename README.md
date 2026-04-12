@@ -2,8 +2,8 @@
 
 A native Jellyfin client for Apple TV, built with SwiftUI and [SteelPlayer](https://github.com/superuser404notfound/SteelPlayer).
 
-[![Platform](https://img.shields.io/badge/platform-tvOS%2016%2B-black)]()
-[![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)]()
+[![Platform](https://img.shields.io/badge/platform-tvOS%2026%2B-black)]()
+[![Swift](https://img.shields.io/badge/Swift-6.0%2B-orange)]()
 
 ## About
 
@@ -78,7 +78,8 @@ JellySeeTV
 ### Requirements
 
 - Xcode 26+
-- tvOS 16.0+ deployment target
+- tvOS 26+ deployment target
+- Swift 6.0+
 - Apple TV 4K (for testing)
 - A Jellyfin server on your network
 
