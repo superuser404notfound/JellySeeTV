@@ -38,6 +38,7 @@ final class PlayerViewModel {
     private var hasStartedPlaying = false
     private var mediaSourceID: String = ""
     private var playSessionID: String?
+    private var activePlayMethod: PlayMethod = .directPlay
 
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
         self.item = item
@@ -71,29 +72,36 @@ final class PlayerViewModel {
             }
             mediaSourceID = source.id
 
-            // Build URL — prefer transcodingUrl (HLS remux), else direct stream
+            // Build URL — prefer direct play/stream (single file) over transcoding.
+            // SteelPlayer's AVIO context handles HTTP progressive downloads but
+            // cannot handle HLS playlists.
             let url: URL
-            if let transcodePath = source.transcodingUrl, !transcodePath.isEmpty {
-                guard let transcodeURL = playbackService.buildTranscodeURL(relativePath: transcodePath) else {
-                    throw PlayerEngineError.noURL
-                }
-                url = transcodeURL
-                #if DEBUG
-                print("[PlayerViewModel] Using transcoded HLS path")
-                #endif
-            } else {
+            if source.supportsDirectPlay == true || source.supportsDirectStream == true {
+                let isDirectPlay = source.supportsDirectPlay == true
                 guard let directURL = playbackService.buildStreamURL(
                     itemID: item.id,
                     mediaSourceID: source.id,
                     container: source.container,
-                    isStatic: true
+                    isStatic: isDirectPlay
                 ) else {
                     throw PlayerEngineError.noURL
                 }
                 url = directURL
+                activePlayMethod = isDirectPlay ? .directPlay : .directStream
                 #if DEBUG
-                print("[PlayerViewModel] Using direct stream")
+                print("[PlayerViewModel] Using direct \(isDirectPlay ? "play" : "stream")")
                 #endif
+            } else if let transcodePath = source.transcodingUrl, !transcodePath.isEmpty {
+                guard let transcodeURL = playbackService.buildTranscodeURL(relativePath: transcodePath) else {
+                    throw PlayerEngineError.noURL
+                }
+                url = transcodeURL
+                activePlayMethod = .transcode
+                #if DEBUG
+                print("[PlayerViewModel] Using transcoded stream")
+                #endif
+            } else {
+                throw PlayerEngineError.noURL
             }
 
             // Start position
@@ -311,7 +319,7 @@ final class PlayerViewModel {
             playSessionId: playSessionID,
             positionTicks: currentPositionTicks,
             canSeek: true,
-            playMethod: PlayMethod.directPlay.rawValue,
+            playMethod: activePlayMethod.rawValue,
             audioStreamIndex: nil,
             subtitleStreamIndex: nil
         )
@@ -326,7 +334,7 @@ final class PlayerViewModel {
             positionTicks: currentPositionTicks,
             isPaused: player.state == .paused,
             canSeek: true,
-            playMethod: PlayMethod.directPlay.rawValue,
+            playMethod: activePlayMethod.rawValue,
             audioStreamIndex: nil,
             subtitleStreamIndex: nil
         )

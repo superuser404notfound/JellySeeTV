@@ -1,20 +1,19 @@
 import Foundation
 
-/// Jellyfin device profile for AVPlayer (AVFoundation) on Apple TV.
+/// Jellyfin device profile for SteelPlayer (FFmpeg + Metal) on Apple TV.
 ///
-/// We have two flavors and pick one at runtime based on the connected
-/// display's actual capabilities (see `DisplayCapabilities`):
+/// SteelPlayer demuxes MKV/MP4/AVI/TS natively via FFmpeg, so we can
+/// direct-play far more containers than AVPlayer. This drastically
+/// reduces server-side transcoding — the server only needs to re-encode
+/// when the actual codec is unsupported (e.g. MPEG-2, VC-1, DTS audio).
 ///
-/// - `permissiveHDRProfile`: HDR-capable display with Match Dynamic
-///   Range on. AVPlayer can direct-stream 4K HEVC Main10 HDR / Dolby
-///   Vision content with multi-channel EAC3 audio. The server only
-///   ever has to remux containers (MKV → fMP4), no re-encoding.
+/// Two flavors based on display capabilities (see `DisplayCapabilities`):
 ///
-/// - `conservativeSDRProfile`: SDR display, or HDR display with Match
-///   Dynamic Range off (Apple TV stays in SDR mode). The server has
-///   to tone-map HDR → SDR, downscale 4K → 1080p, and re-encode to
-///   H.264 (much faster to encode than HEVC, makes the difference
-///   between "real-time" and "infinite buffering").
+/// - `permissiveHDRProfile`: HDR-capable display. Direct-play 4K HEVC
+///   Main10 HDR / Dolby Vision with multi-channel EAC3. No re-encoding.
+///
+/// - `conservativeSDRProfile`: SDR display. HDR tone mapping is handled
+///   client-side by the Metal shader (Phase 4), no server re-encoding.
 @MainActor
 enum DirectPlayProfile {
 
@@ -39,31 +38,32 @@ enum DirectPlayProfile {
             "MaxStaticBitrate": 200_000_000,
             "MusicStreamingTranscodingBitrate": 384_000,
 
+            // SteelPlayer (FFmpeg) handles these containers natively.
             "DirectPlayProfiles": [
                 [
-                    "Container": "mp4,m4v,mov",
+                    "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
                     "Type": "Video",
-                    "VideoCodec": "h264,hevc",
-                    "AudioCodec": "aac,ac3,eac3,alac,flac,opus,mp3",
+                    "VideoCodec": "h264,hevc,vp8,vp9,av1",
+                    "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,dca,pcm_s16le,pcm_s24le,pcm_f32le",
                 ],
                 [
-                    "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus",
+                    "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus,ogg",
                     "Type": "Audio",
                 ],
             ] as [[String: Any]],
 
-            // For non-direct-play sources (mostly MKV), Jellyfin will
-            // remux to fMP4 over HTTP. Stream copy, no re-encoding.
+            // Fallback: progressive MP4 over HTTP (not HLS!). SteelPlayer
+            // uses a custom AVIO context with URLSession for HTTP streams,
+            // which doesn't support HLS playlists. HTTP progressive download
+            // works perfectly with our read-ahead buffer.
             "TranscodingProfiles": [
                 [
                     "Type": "Video",
                     "Container": "mp4",
-                    "Protocol": "hls",
+                    "Protocol": "http",
                     "VideoCodec": "h264,hevc",
                     "AudioCodec": "aac,ac3,eac3",
                     "Context": "Streaming",
-                    "MinSegments": 1,
-                    "BreakOnNonKeyFrames": true,
                 ],
                 [
                     "Type": "Audio",
