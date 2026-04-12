@@ -1,13 +1,9 @@
 import Foundation
 import Observation
+import SteelPlayer
 
-/// ViewModel that bridges the AVPlayer engine with Jellyfin session
-/// reporting and our custom tvOS-style player UI.
-///
-/// Owns the entire player UI state because we no longer use
-/// AVPlayerViewController — the Metal HDR renderer renders the video into
-/// a CAMetalLayer, and we lay our own SwiftUI controls (TransportBar,
-/// scrubbing, etc.) on top.
+/// ViewModel that bridges SteelPlayer with Jellyfin session reporting
+/// and our custom tvOS-style player UI.
 @Observable
 @MainActor
 final class PlayerViewModel {
@@ -24,14 +20,12 @@ final class PlayerViewModel {
     var isScrubbing = false
     var scrubProgress: Float = 0
     var scrubTime: String = "00:00"
-    /// True if the user actually moved the scrub position (not just touched briefly)
     var didMoveScrub = false
-    /// Progress shown on the bar: scrub position during scrub, live position otherwise
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
     private var scrubStartTime: Double = 0
 
     let item: JellyfinItem
-    let engine = AVPlayerEngine()
+    let player = SteelPlayer()
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String
@@ -60,7 +54,6 @@ final class PlayerViewModel {
         errorMessage = nil
 
         do {
-            // Get playback info (cached or fresh)
             let info: PlaybackInfoResponse
             if let cached = cachedPlaybackInfo {
                 info = cached
@@ -78,18 +71,7 @@ final class PlayerViewModel {
             }
             mediaSourceID = source.id
 
-            // Pick the right URL based on what Jellyfin offered for this
-            // source. The server already evaluated our DeviceProfile and
-            // decided whether direct play, container remux (DirectStream),
-            // or full transcode is needed.
-            //
-            // - If TranscodingUrl is set, the server has prepared an HLS
-            //   playlist for us (typically /videos/<id>/main.m3u8). This
-            //   handles MKV→fMP4 remuxing and any codec transcoding the
-            //   source needs. AVPlayer can play HLS natively.
-            // - Otherwise the source is direct-playable as-is, so we hit
-            //   /Videos/<id>/stream.<container>?Static=true and AVPlayer
-            //   reads the file straight from the server.
+            // Build URL — prefer transcodingUrl (HLS remux), else direct stream
             let url: URL
             if let transcodePath = source.transcodingUrl, !transcodePath.isEmpty {
                 guard let transcodeURL = playbackService.buildTranscodeURL(relativePath: transcodePath) else {
@@ -122,22 +104,13 @@ final class PlayerViewModel {
                 nil
             }
 
-            // HDR detection from Jellyfin's media stream metadata. The
-            // server already knows the source range — we don't have to
-            // wait for AVPlayer to parse the HLS manifest (which is
-            // exactly the operation that hangs on HDR streams). Possible
-            // VideoRangeType values from Jellyfin: SDR, HDR, HDR10, DOVI,
-            // HLG. Anything other than SDR triggers our HDR handling.
-            let videoStream = source.mediaStreams?.first { $0.type == .video }
-            let isHDR: Bool = {
-                let range = videoStream?.videoRangeType ?? videoStream?.videoRange ?? "SDR"
-                return range.uppercased() != "SDR"
-            }()
-            #if DEBUG
-            print("[PlayerViewModel] Source range: \(videoStream?.videoRangeType ?? videoStream?.videoRange ?? "unknown") → isHDR=\(isHDR)")
-            #endif
+            // Load with SteelPlayer — this opens the demuxer, starts
+            // the decoder, and begins the render loop.
+            try await player.load(url: url, startPosition: startPos)
 
-            try await engine.load(url: url, startPosition: startPos, isHDR: isHDR)
+            totalTime = formatSeconds(effectiveDuration)
+            isLoading = false
+            isPlaying = true
 
             startStateObserver()
             await reportStart()
@@ -153,40 +126,39 @@ final class PlayerViewModel {
         stopProgressReporting()
         stateObserver?.cancel()
         await reportStop()
-        engine.stop()
+        player.stop()
     }
 
     // MARK: - Controls
 
     func togglePlayPause() {
-        engine.togglePlayPause()
+        player.togglePlayPause()
         showControls = true
         scheduleControlsHide()
     }
 
     func seekForward() {
-        Task { await engine.seek(to: engine.currentTime + 10) }
+        Task { await player.seek(to: player.currentTime + 10) }
         showControlsTemporarily()
     }
 
     func seekBackward() {
-        Task { await engine.seek(to: engine.currentTime - 10) }
+        Task { await player.seek(to: player.currentTime - 10) }
         showControlsTemporarily()
     }
 
     func selectAudioTrack(id: Int) {
-        Task { await engine.selectAudioTrack(index: id) }
+        player.selectAudioTrack(index: id)
     }
 
     func selectSubtitleTrack(id: Int) {
-        Task { await engine.selectSubtitleTrack(index: id) }
+        player.selectSubtitleTrack(index: id)
     }
 
     // MARK: - Scrubbing
 
-    /// Effective duration: prefer engine, fall back to Jellyfin's runTimeTicks.
     var effectiveDuration: Double {
-        if engine.duration > 0 { return engine.duration }
+        if player.duration > 0 { return player.duration }
         if let ticks = item.runTimeTicks, ticks > 0 {
             return Double(ticks) / 10_000_000
         }
@@ -197,7 +169,7 @@ final class PlayerViewModel {
         guard effectiveDuration > 0 else { return }
         isScrubbing = true
         didMoveScrub = false
-        scrubStartTime = engine.currentTime
+        scrubStartTime = player.currentTime
         scrubProgress = Float(scrubStartTime / effectiveDuration)
         scrubTime = formatSeconds(scrubStartTime)
         showControls = true
@@ -207,7 +179,6 @@ final class PlayerViewModel {
     func updateScrub(normalizedDelta: CGFloat) {
         let dur = effectiveDuration
         guard isScrubbing, dur > 0 else { return }
-        // Map full touch surface swipe to ~30% of duration for natural feel
         let timeDelta = Double(normalizedDelta) * dur * 0.3
         let targetTime = max(0, min(dur, scrubStartTime + timeDelta))
         scrubProgress = Float(targetTime / dur)
@@ -217,15 +188,12 @@ final class PlayerViewModel {
         }
     }
 
-    /// Re-baseline so the next pan starts from the *current* scrub position
-    /// instead of always from the engine's playback position.
     func continueScrub() {
         guard isScrubbing else {
             beginScrub()
             return
         }
-        let dur = effectiveDuration
-        scrubStartTime = Double(scrubProgress) * dur
+        scrubStartTime = Double(scrubProgress) * effectiveDuration
     }
 
     func commitScrub() {
@@ -237,7 +205,7 @@ final class PlayerViewModel {
         let targetTime = Double(scrubProgress) * dur
         isScrubbing = false
         Task {
-            await engine.seek(to: targetTime)
+            await player.seek(to: targetTime)
             scheduleControlsHide()
         }
     }
@@ -253,17 +221,13 @@ final class PlayerViewModel {
         scheduleControlsHide()
     }
 
-    /// Native tvOS player click behavior:
-    /// - Closed overlay → open it (no playback change)
-    /// - Open overlay + playing → pause
-    /// - Open overlay + paused → resume
     func handleClick() {
         if !showControls {
             showControls = true
             scheduleControlsHide()
             return
         }
-        engine.togglePlayPause()
+        player.togglePlayPause()
         showControls = true
         scheduleControlsHide()
     }
@@ -295,26 +259,20 @@ final class PlayerViewModel {
                 try? await Task.sleep(for: .milliseconds(250))
                 guard !Task.isCancelled else { return }
 
-                // Update displayed time / progress from the engine, but
-                // don't overwrite during scrub (the scrub state owns the
-                // displayed values until commit).
                 if !isScrubbing {
                     let dur = effectiveDuration
-                    let cur = engine.currentTime
+                    let cur = player.currentTime
                     currentTime = formatSeconds(cur)
                     let remaining = dur - cur
                     remainingTime = remaining > 0 ? "-\(formatSeconds(remaining))" : "-00:00"
                     progress = dur > 0 ? Float(cur / dur) : 0
-                    // Refresh totalTime whenever the engine knows the
-                    // duration — for HLS streams that's not always at
-                    // the first readyToPlay event.
                     let formattedDur = dur > 0 ? formatSeconds(dur) : "00:00"
                     if totalTime != formattedDur {
                         totalTime = formattedDur
                     }
                 }
 
-                switch engine.state {
+                switch player.state {
                 case .playing:
                     hasStartedPlaying = true
                     isLoading = false
@@ -341,7 +299,7 @@ final class PlayerViewModel {
     // MARK: - Jellyfin Session Reporting
 
     private var currentPositionTicks: Int64 {
-        Int64(engine.currentTime * 10_000_000)
+        Int64(player.currentTime * 10_000_000)
     }
 
     private func reportStart() async {
@@ -366,7 +324,7 @@ final class PlayerViewModel {
             mediaSourceId: mediaSourceID,
             playSessionId: playSessionID,
             positionTicks: currentPositionTicks,
-            isPaused: engine.state == .paused,
+            isPaused: player.state == .paused,
             canSeek: true,
             playMethod: PlayMethod.directPlay.rawValue,
             audioStreamIndex: nil,

@@ -2,16 +2,12 @@ import SwiftUI
 import UIKit
 import QuartzCore
 
-/// SwiftUI wrapper around a UIView that hosts a `CAMetalLayer`. The
-/// MetalHDRRenderer owns the layer; we just attach it to the view
-/// hierarchy and keep its `drawableSize` in sync with the view bounds.
-struct MetalVideoView: UIViewRepresentable {
+/// UIViewRepresentable that hosts SteelPlayer's CAMetalLayer.
+struct SteelPlayerVideoView: UIViewRepresentable {
     let metalLayer: CAMetalLayer
 
     func makeUIView(context: Context) -> MetalLayerHostView {
-        let view = MetalLayerHostView(metalLayer: metalLayer)
-        view.backgroundColor = .black
-        return view
+        MetalLayerHostView(metalLayer: metalLayer)
     }
 
     func updateUIView(_ uiView: MetalLayerHostView, context: Context) {
@@ -19,9 +15,8 @@ struct MetalVideoView: UIViewRepresentable {
     }
 }
 
-/// UIView that hosts a CAMetalLayer as a sublayer. Keeps the layer's
-/// frame and `drawableSize` in sync with the view's bounds (drawableSize
-/// has to be specified in pixels, not points).
+/// UIView that hosts a CAMetalLayer and keeps its frame + drawableSize
+/// synchronized with the view bounds.
 final class MetalLayerHostView: UIView {
     private let metalLayer: CAMetalLayer
 
@@ -32,15 +27,13 @@ final class MetalLayerHostView: UIView {
         backgroundColor = .black
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) not implemented") }
+    required init?(coder: NSCoder) { fatalError() }
 
     override func layoutSubviews() {
         super.layoutSubviews()
         refreshDrawableSize()
     }
 
-    /// Update the metal layer's frame + drawableSize. Drawable size must
-    /// be in pixels, so we multiply by the screen's contentsScale.
     func refreshDrawableSize() {
         guard bounds.width > 0, bounds.height > 0 else { return }
         CATransaction.begin()

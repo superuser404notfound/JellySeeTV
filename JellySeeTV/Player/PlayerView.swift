@@ -1,4 +1,5 @@
 import SwiftUI
+import SteelPlayer
 
 struct PlayerView: View {
     @Environment(\.scenePhase) private var scenePhase
@@ -23,14 +24,12 @@ struct PlayerView: View {
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
-                // Metal-rendered video layer (HDR sources are tone-mapped on
-                // the GPU via BT.2390-3 in our fragment shader; SDR sources
-                // pass through unchanged).
-                MetalVideoView(metalLayer: viewModel.engine.renderer.metalLayer)
+                // SteelPlayer's Metal layer — video rendered via custom
+                // FFmpeg + VideoToolbox + Metal pipeline
+                SteelPlayerVideoView(metalLayer: viewModel.player.metalLayer)
                     .ignoresSafeArea()
 
-                // Single Siri Remote handler — captures touch surface taps,
-                // pan gestures, click, play/pause, menu, arrow keys
+                // Siri Remote handler
                 RemoteTapHandler(
                     onTap: {
                         if viewModel.isScrubbing && viewModel.didMoveScrub {
@@ -75,7 +74,6 @@ struct PlayerView: View {
                 )
                 .ignoresSafeArea()
 
-                // Loading overlay only shown until first frame
                 if viewModel.isLoading {
                     Color.black
                         .ignoresSafeArea()
@@ -83,7 +81,6 @@ struct PlayerView: View {
                         .transition(.opacity)
                 }
 
-                // Transport overlay — title at top, scrubber + times at bottom
                 if viewModel.showControls && !viewModel.isLoading {
                     gradientOverlays
                         .transition(.opacity)
@@ -114,20 +111,15 @@ struct PlayerView: View {
             await viewModel.startPlayback()
         }
         .onChange(of: scenePhase) { _, newPhase in
-            // Pause when going to background to avoid GPU wedging
             if newPhase == .background || newPhase == .inactive {
-                viewModel.engine.pause()
+                viewModel.player.pause()
             }
         }
         .onDisappear {
-            // Cut audio + video synchronously the moment the view leaves
-            // the hierarchy, so audio doesn't bleed into the menu screen.
-            viewModel.engine.stop()
+            viewModel.player.stop()
             Task { await viewModel.stopPlayback() }
         }
     }
-
-    // MARK: - Gradient Overlays
 
     private var gradientOverlays: some View {
         ZStack {
@@ -156,17 +148,13 @@ struct PlayerView: View {
         .allowsHitTesting(false)
     }
 
-    // MARK: - Dismiss
-
     private func dismissPlayer() {
-        viewModel.engine.stop()
+        viewModel.player.stop()
         Task {
             await viewModel.stopPlayback()
             onDismiss()
         }
     }
-
-    // MARK: - Error
 
     private func errorView(_ message: String) -> some View {
         VStack(spacing: 16) {
@@ -183,5 +171,3 @@ struct PlayerView: View {
         .background(.black)
     }
 }
-
-// PlayerTitleOverlay lives in TransportBar.swift

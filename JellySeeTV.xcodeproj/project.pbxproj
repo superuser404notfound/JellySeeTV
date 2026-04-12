@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AA000001STEELPLAYER /* SteelPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = AA000002STEELPLAYER /* SteelPlayer */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		9DD9136D2F8645860078D0BE /* JellySeeTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JellySeeTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA000001STEELPLAYER /* SteelPlayer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +120,7 @@
 			mainGroup = 9DD913642F8645860078D0BE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				AA000003STEELPLAYER /* XCLocalSwiftPackageReference "../SteelPlayer" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9DD9136E2F8645860078D0BE /* Products */;
@@ -208,6 +214,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TVOS_DEPLOYMENT_TARGET = 26.4;
+				DISABLE_DIAMOND_PROBLEM_DIAGNOSTIC = YES;
 			};
 			name = Debug;
 		};
@@ -264,6 +271,7 @@
 				SDKROOT = appletvos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				TVOS_DEPLOYMENT_TARGET = 26.4;
+				DISABLE_DIAMOND_PROBLEM_DIAGNOSTIC = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -352,6 +360,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		AA000003STEELPLAYER /* XCLocalSwiftPackageReference "../SteelPlayer" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../SteelPlayer;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA000002STEELPLAYER /* SteelPlayer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SteelPlayer;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9DD913652F8645860078D0BE /* Project object */;
 }
