@@ -85,7 +85,9 @@ struct SeriesDetailView: View {
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
-                    cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
+                    // Only use cached info if it was prefetched for THIS episode.
+                    // The cache might be for a different episode (e.g. next-up vs user-selected).
+                    cachedPlaybackInfo: (viewModel?.currentEpisodeID == ep.id) ? viewModel?.cachedPlaybackInfo : nil,
                     onDismiss: { showPlayer = false }
                 )
                 .transition(.opacity)
