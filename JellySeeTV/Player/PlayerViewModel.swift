@@ -25,7 +25,7 @@ final class PlayerViewModel {
     private var scrubStartTime: Double = 0
 
     let item: JellyfinItem
-    let player = SteelPlayer()
+    let player = try! SteelPlayer()  // Metal is guaranteed on Apple TV
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String
