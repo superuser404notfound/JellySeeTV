@@ -102,32 +102,29 @@ enum DirectPlayProfile {
             "MaxStaticBitrate": 200_000_000,
             "MusicStreamingTranscodingBitrate": 384_000,
 
+            // SteelPlayer (FFmpeg) handles these containers natively.
             "DirectPlayProfiles": [
                 [
-                    "Container": "mp4,m4v,mov",
+                    "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
                     "Type": "Video",
-                    "VideoCodec": "h264,hevc",
-                    "AudioCodec": "aac,ac3,eac3,alac,flac,opus,mp3",
+                    "VideoCodec": "h264,hevc,vp8,vp9,av1",
+                    "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,dca,pcm_s16le,pcm_s24le,pcm_f32le",
                 ],
                 [
-                    "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus",
+                    "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus,ogg",
                     "Type": "Audio",
                 ],
             ] as [[String: Any]],
 
-            // h264,hevc + ac3,eac3 → Jellyfin can stream-copy almost
-            // every source we care about, only the container changes.
-            // No re-encoding, no server CPU load.
+            // Fallback: progressive MP4 over HTTP (not HLS!).
             "TranscodingProfiles": [
                 [
                     "Type": "Video",
                     "Container": "mp4",
-                    "Protocol": "hls",
+                    "Protocol": "http",
                     "VideoCodec": "h264,hevc",
                     "AudioCodec": "aac,ac3,eac3",
                     "Context": "Streaming",
-                    "MinSegments": 1,
-                    "BreakOnNonKeyFrames": true,
                 ],
                 [
                     "Type": "Audio",
@@ -139,11 +136,6 @@ enum DirectPlayProfile {
             ] as [[String: Any]],
 
             "ContainerProfiles": [] as [Any],
-            // No codec constraints in this profile. We deliberately do
-            // NOT ask the server to tone-map HDR→SDR or downscale 4K —
-            // both of those force a full re-encode that the server can't
-            // do in real time without hardware acceleration. HDR sources
-            // will be handled by the custom Metal compositor instead.
             "CodecProfiles": [] as [[String: Any]],
             "SubtitleProfiles": Self.subtitleProfiles,
         ]
