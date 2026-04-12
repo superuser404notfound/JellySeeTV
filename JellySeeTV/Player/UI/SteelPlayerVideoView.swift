@@ -2,28 +2,28 @@ import SwiftUI
 import UIKit
 import QuartzCore
 
-/// UIViewRepresentable that hosts SteelPlayer's CAMetalLayer.
+/// UIViewRepresentable that hosts SteelPlayer's video layer.
 struct SteelPlayerVideoView: UIViewRepresentable {
-    let metalLayer: CAMetalLayer
+    let videoLayer: CALayer
 
-    func makeUIView(context: Context) -> MetalLayerHostView {
-        MetalLayerHostView(metalLayer: metalLayer)
+    func makeUIView(context: Context) -> VideoLayerHostView {
+        VideoLayerHostView(videoLayer: videoLayer)
     }
 
-    func updateUIView(_ uiView: MetalLayerHostView, context: Context) {
-        uiView.refreshDrawableSize()
+    func updateUIView(_ uiView: VideoLayerHostView, context: Context) {
+        uiView.refreshLayout()
     }
 }
 
-/// UIView that hosts a CAMetalLayer and keeps its frame + drawableSize
+/// UIView that hosts the video layer and keeps its frame
 /// synchronized with the view bounds.
-final class MetalLayerHostView: UIView {
-    private let metalLayer: CAMetalLayer
+final class VideoLayerHostView: UIView {
+    private let videoLayer: CALayer
 
-    init(metalLayer: CAMetalLayer) {
-        self.metalLayer = metalLayer
+    init(videoLayer: CALayer) {
+        self.videoLayer = videoLayer
         super.init(frame: .zero)
-        layer.addSublayer(metalLayer)
+        layer.addSublayer(videoLayer)
         backgroundColor = .black
     }
 
@@ -31,20 +31,14 @@ final class MetalLayerHostView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        refreshDrawableSize()
+        refreshLayout()
     }
 
-    func refreshDrawableSize() {
+    func refreshLayout() {
         guard bounds.width > 0, bounds.height > 0 else { return }
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        metalLayer.frame = bounds
-        let scale = window?.screen.scale ?? UIScreen.main.scale
-        metalLayer.contentsScale = scale
-        metalLayer.drawableSize = CGSize(
-            width: bounds.width * scale,
-            height: bounds.height * scale
-        )
+        videoLayer.frame = bounds
         CATransaction.commit()
     }
 

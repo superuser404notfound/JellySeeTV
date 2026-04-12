@@ -24,9 +24,9 @@ struct PlayerView: View {
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
-                // SteelPlayer's Metal layer — video rendered via custom
-                // FFmpeg + VideoToolbox + Metal pipeline
-                SteelPlayerVideoView(metalLayer: viewModel.player.metalLayer)
+                // SteelPlayer's video layer — AVSampleBufferDisplayLayer
+                // for optimal frame pacing and A/V sync
+                SteelPlayerVideoView(videoLayer: viewModel.player.videoLayer)
                     .ignoresSafeArea()
 
                 // Siri Remote handler
