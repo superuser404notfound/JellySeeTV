@@ -33,6 +33,12 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
         let body: [String: Any] = ["DeviceProfile": deviceProfile]
         let bodyData = try JSONSerialization.data(withJSONObject: body)
 
+        #if DEBUG
+        if let dp = (deviceProfile["DirectPlayProfiles"] as? [[String: Any]])?.first {
+            print("[PlaybackInfo] DirectPlay containers: \(dp["Container"] ?? "none")")
+        }
+        #endif
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = bodyData
@@ -61,6 +67,20 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
             #endif
             throw APIError.httpError(statusCode: httpResponse.statusCode, data: data)
         }
+
+        #if DEBUG
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let sources = json["MediaSources"] as? [[String: Any]],
+           let first = sources.first {
+            print("[PlaybackInfo] Response container=\(first["Container"] ?? "nil"), directPlay=\(first["SupportsDirectPlay"] ?? "nil"), directStream=\(first["SupportsDirectStream"] ?? "nil")")
+            if let reason = first["TranscodingUrl"] as? String, reason.contains("TranscodeReasons") {
+                if let range = reason.range(of: "TranscodeReasons=") {
+                    let reasons = reason[range.upperBound...]
+                    print("[PlaybackInfo] TranscodeReasons: \(reasons.prefix(100))")
+                }
+            }
+        }
+        #endif
 
         let decoder = JSONDecoder()
         return try decoder.decode(PlaybackInfoResponse.self, from: data)

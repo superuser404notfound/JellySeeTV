@@ -72,6 +72,13 @@ final class PlayerViewModel {
             }
             mediaSourceID = source.id
 
+            #if DEBUG
+            print("[PlayerViewModel] Source: container=\(source.container ?? "nil"), directPlay=\(source.supportsDirectPlay ?? false), directStream=\(source.supportsDirectStream ?? false), transcoding=\(source.supportsTranscoding ?? false)")
+            if let tURL = source.transcodingUrl {
+                print("[PlayerViewModel] TranscodingURL: \(tURL.prefix(120))...")
+            }
+            #endif
+
             // Build URL — prefer direct play/stream (single file) over transcoding.
             // SteelPlayer's AVIO context handles HTTP progressive downloads but
             // cannot handle HLS playlists.
