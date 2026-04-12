@@ -55,8 +55,11 @@ final class PlayerViewModel {
         errorMessage = nil
 
         do {
+            // Use cached info only if it has valid media sources.
+            // Stale/wrong caches (e.g. from a Series instead of Episode)
+            // will have empty mediaSources — fall through to a fresh request.
             let info: PlaybackInfoResponse
-            if let cached = cachedPlaybackInfo {
+            if let cached = cachedPlaybackInfo, !cached.mediaSources.isEmpty {
                 info = cached
             } else {
                 info = try await playbackService.getPlaybackInfo(

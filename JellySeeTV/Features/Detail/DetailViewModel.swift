@@ -48,8 +48,11 @@ final class DetailViewModel {
             // Keep existing item data
         }
 
-        // Pre-fetch playback info in background so play starts instantly
-        prefetchPlaybackInfo(for: item.id)
+        // Pre-fetch playback info for movies (series prefetch happens
+        // in loadSeasons() after the target episode is determined)
+        if item.type != .series {
+            prefetchPlaybackInfo(for: item.id)
+        }
 
         // Load similar items
         do {
@@ -106,9 +109,10 @@ final class DetailViewModel {
                 await loadEpisodes(seasonID: seasonToLoad)
                 currentEpisodeID = targetEpisodeID
 
-                // Pre-fetch playback info for the target episode
-                if let epID = targetEpisodeID {
-                    prefetchPlaybackInfo(for: epID)
+                // Pre-fetch playback info for the target episode (or first episode)
+                let prefetchID = targetEpisodeID ?? episodes.first?.id
+                if let prefetchID {
+                    prefetchPlaybackInfo(for: prefetchID)
                 }
             }
         } catch {
