@@ -176,8 +176,9 @@ final class PlayerHostController: UIViewController {
 
     @objc private func leftPressed() {
         if viewModel.isDropdownOpen { return }
-        if viewModel.showControls && viewModel.controlsFocus == .subtitleButton {
-            if !viewModel.player.audioTracks.isEmpty {
+        if viewModel.showControls && viewModel.controlsFocus != .progressBar {
+            // On a track button — navigate between buttons (or do nothing if leftmost)
+            if viewModel.controlsFocus == .subtitleButton && !viewModel.player.audioTracks.isEmpty {
                 viewModel.controlsFocus = .audioButton
             }
         } else {
@@ -187,8 +188,9 @@ final class PlayerHostController: UIViewController {
 
     @objc private func rightPressed() {
         if viewModel.isDropdownOpen { return }
-        if viewModel.showControls && viewModel.controlsFocus == .audioButton {
-            if !viewModel.player.subtitleTracks.isEmpty {
+        if viewModel.showControls && viewModel.controlsFocus != .progressBar {
+            // On a track button — navigate between buttons (or do nothing if rightmost)
+            if viewModel.controlsFocus == .audioButton && !viewModel.player.subtitleTracks.isEmpty {
                 viewModel.controlsFocus = .subtitleButton
             }
         } else {
@@ -329,7 +331,7 @@ private struct PlayerOverlayView: View {
             if !viewModel.subtitleCues.isEmpty {
                 SubtitleOverlayView(
                     cues: viewModel.subtitleCues,
-                    currentTime: viewModel.player.currentTime
+                    currentTime: viewModel.playbackTime
                 )
             }
 

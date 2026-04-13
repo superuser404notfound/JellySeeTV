@@ -25,6 +25,9 @@ final class PlayerViewModel {
     var remainingTime: String = "-00:00"
     var progress: Float = 0
 
+    // Playback time (raw seconds, tracked by @Observable for subtitle sync)
+    var playbackTime: Double = 0
+
     // Scrubbing
     var isScrubbing = false
     var scrubProgress: Float = 0
@@ -210,7 +213,9 @@ final class PlayerViewModel {
         player.$currentTime
             .receive(on: DispatchQueue.main)
             .sink { [weak self] time in
-                guard let self, !self.isScrubbing else { return }
+                guard let self else { return }
+                self.playbackTime = time
+                guard !self.isScrubbing else { return }
                 let dur = self.effectiveDuration
                 self.currentTime = self.formatSeconds(time)
                 let remaining = dur - time
