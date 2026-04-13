@@ -83,7 +83,7 @@ struct TransportBar: View {
                         }
                     }
                 } label: {
-                    Label("Audio", systemImage: "speaker.wave.2")
+                    Label(String(localized: "player.audio", defaultValue: "Audio"), systemImage: "speaker.wave.2")
                         .font(.callout)
                         .foregroundStyle(.white.opacity(0.8))
                 }
