@@ -21,8 +21,8 @@ struct MovieDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .overlay {
-            if showPlayer, let userID = appState.activeUser?.id {
+        .fullScreenCover(isPresented: $showPlayer) {
+            if let userID = appState.activeUser?.id {
                 PlayerView(
                     item: viewModel?.item ?? item,
                     startFromBeginning: playFromBeginning,
@@ -31,11 +31,9 @@ struct MovieDetailView: View {
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
                     onDismiss: { showPlayer = false }
                 )
-                .transition(.opacity)
                 .ignoresSafeArea()
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: showPlayer)
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
         }

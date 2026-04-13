@@ -78,23 +78,19 @@ struct SeriesDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .overlay {
-            if showPlayer, let ep = playItem, let userID = appState.activeUser?.id {
+        .fullScreenCover(isPresented: $showPlayer) {
+            if let ep = playItem, let userID = appState.activeUser?.id {
                 PlayerView(
                     item: ep,
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
-                    // Only use cached info if it was prefetched for THIS episode.
-                    // The cache might be for a different episode (e.g. next-up vs user-selected).
                     cachedPlaybackInfo: (viewModel?.currentEpisodeID == ep.id) ? viewModel?.cachedPlaybackInfo : nil,
                     onDismiss: { showPlayer = false }
                 )
-                .transition(.opacity)
                 .ignoresSafeArea()
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: showPlayer)
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
         }
