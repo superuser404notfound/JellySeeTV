@@ -296,7 +296,10 @@ final class PlayerViewModel {
     // MARK: - Custom Controls Navigation
 
     func navigateUp() {
-        guard showControls else { return }
+        if !showControls {
+            showControlsTemporarily()
+            return
+        }
         let hasAudio = !player.audioTracks.isEmpty
         let hasSubs = !player.subtitleTracks.isEmpty
 

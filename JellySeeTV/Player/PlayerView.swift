@@ -52,11 +52,14 @@ struct PlayerView: View {
                 )
                 .ignoresSafeArea()
 
-                // Loading overlay
+                // Loading overlay — focusable(false) prevents ProgressView
+                // from stealing focus from RemoteTapHandler on tvOS.
                 if viewModel.isLoading {
                     Color.black
                         .ignoresSafeArea()
-                        .overlay(ProgressView())
+                        .overlay(ProgressView().focusable(false))
+                        .focusable(false)
+                        .allowsHitTesting(false)
                         .transition(.opacity)
                 }
 
