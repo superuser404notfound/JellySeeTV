@@ -137,8 +137,10 @@ struct PlayerView: View {
     // MARK: - Remote Input Handlers (state-aware)
 
     private func handleTap() {
-        // Track button activation always takes priority — prevents
-        // accidental seek commit when isScrubbing lingered after navigation.
+        #if DEBUG
+        print("[Player] handleTap: showControls=\(viewModel.showControls), focus=\(viewModel.controlsFocus), scrubbing=\(viewModel.isScrubbing)")
+        #endif
+        // Track button activation always takes priority
         if viewModel.showControls && viewModel.controlsFocus != .progressBar {
             viewModel.activateControlsFocus()
         } else if viewModel.isScrubbing {
@@ -151,18 +153,18 @@ struct PlayerView: View {
     }
 
     private func handleMenu() {
+        #if DEBUG
+        print("[Player] handleMenu: showControls=\(viewModel.showControls), focus=\(viewModel.controlsFocus), scrubbing=\(viewModel.isScrubbing)")
+        #endif
         if viewModel.isScrubbing {
             viewModel.cancelScrub()
         } else if viewModel.showControls {
             if viewModel.controlsFocus != .progressBar {
-                // On a track button → go back to progress bar
                 viewModel.controlsFocus = .progressBar
             } else {
-                // On progress bar → hide controls
                 viewModel.showControls = false
             }
         } else {
-            // Controls hidden → dismiss player
             dismissPlayer()
         }
     }
