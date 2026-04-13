@@ -20,9 +20,8 @@ final class PlayerViewModel {
     var isScrubbing = false
     var scrubProgress: Float = 0
     var scrubTime: String = "00:00"
-    var didMoveScrub = false
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
-    private var scrubStartTime: Double = 0
+    private var scrubStartProgress: Float = 0
 
     let item: JellyfinItem
     let player = try! SteelPlayer()  // Metal is guaranteed on Apple TV
@@ -227,37 +226,25 @@ final class PlayerViewModel {
         return 0
     }
 
-    func beginScrub() {
-        guard effectiveDuration > 0 else { return }
-        isScrubbing = true
-        didMoveScrub = false
-        scrubStartTime = player.currentTime
-        scrubProgress = Float(scrubStartTime / effectiveDuration)
-        scrubTime = formatSeconds(scrubStartTime)
-        showControls = true
-        controlsTimer?.cancel()
-    }
-
-    func updateScrub(normalizedDelta: CGFloat) {
+    /// Start or update scrubbing with a normalized pan delta (-1.0 to 1.0).
+    func scrub(delta: CGFloat) {
         let dur = effectiveDuration
-        guard isScrubbing, dur > 0 else { return }
-        let timeDelta = Double(normalizedDelta) * dur * 0.3
-        let targetTime = max(0, min(dur, scrubStartTime + timeDelta))
-        scrubProgress = Float(targetTime / dur)
-        scrubTime = formatSeconds(targetTime)
-        if abs(targetTime - scrubStartTime) > 1.0 {
-            didMoveScrub = true
+        guard dur > 0 else { return }
+
+        if !isScrubbing {
+            isScrubbing = true
+            scrubStartProgress = progress
+            showControls = true
+            controlsTimer?.cancel()
         }
+
+        // Map pan delta to progress (full swipe = 30% of duration)
+        let newProgress = max(0, min(1, scrubStartProgress + Float(delta) * 0.3))
+        scrubProgress = newProgress
+        scrubTime = formatSeconds(Double(newProgress) * dur)
     }
 
-    func continueScrub() {
-        guard isScrubbing else {
-            beginScrub()
-            return
-        }
-        scrubStartTime = Double(scrubProgress) * effectiveDuration
-    }
-
+    /// Commit the scrub — seek to the scrubbed position.
     func commitScrub() {
         let dur = effectiveDuration
         guard isScrubbing, dur > 0 else {
@@ -266,15 +253,17 @@ final class PlayerViewModel {
         }
         let targetTime = Double(scrubProgress) * dur
         isScrubbing = false
+        // Update scrub start for potential next gesture
+        scrubStartProgress = scrubProgress
         Task {
             await player.seek(to: targetTime)
             scheduleControlsHide()
         }
     }
 
+    /// Cancel scrubbing without seeking.
     func cancelScrub() {
         isScrubbing = false
-        didMoveScrub = false
         scheduleControlsHide()
     }
 

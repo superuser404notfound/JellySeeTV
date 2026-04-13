@@ -1,9 +1,14 @@
 import SwiftUI
 
-/// UIViewRepresentable that captures ALL Siri Remote input for the player.
-/// SwiftUI command modifiers don't fire when focus is on a UIKit view, so we
-/// handle every press type here and forward via callbacks.
+/// UIViewRepresentable that captures Siri Remote input for the player.
+///
+/// On tvOS, SwiftUI command modifiers don't fire reliably when focus is on
+/// a UIKit view, so we handle all press types and touchpad gestures here.
+///
+/// The `isActive` flag controls whether this view grabs focus. Set to false
+/// when showing overlays (track selection) so SwiftUI buttons can receive focus.
 struct RemoteTapHandler: UIViewRepresentable {
+    var isActive: Bool = true
     var onTap: () -> Void
     var onPlayPause: () -> Void
     var onMenu: () -> Void
@@ -25,6 +30,13 @@ struct RemoteTapHandler: UIViewRepresentable {
 
     func updateUIView(_ uiView: RemoteInputView, context: Context) {
         applyCallbacks(to: uiView)
+        uiView.isInputActive = isActive
+
+        if isActive {
+            // Reclaim focus when re-activated
+            uiView.setNeedsFocusUpdate()
+            uiView.updateFocusIfNeeded()
+        }
     }
 
     private func applyCallbacks(to view: RemoteInputView) {
@@ -38,7 +50,7 @@ struct RemoteTapHandler: UIViewRepresentable {
     }
 }
 
-/// UIView that grabs focus and handles all Siri Remote presses + touch surface pan.
+/// UIView that handles all Siri Remote presses + touchpad pan gestures.
 class RemoteInputView: UIView {
     var onTap: (() -> Void)?
     var onPlayPause: (() -> Void)?
@@ -48,25 +60,31 @@ class RemoteInputView: UIView {
     var onPanChanged: ((CGFloat) -> Void)?
     var onPanEnded: (() -> Void)?
 
-    override var canBecomeFocused: Bool { true }
+    /// When false, this view releases focus so SwiftUI views can receive it.
+    var isInputActive = true
+
+    override var canBecomeFocused: Bool { isInputActive }
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
-        guard window != nil else { return }
+        guard window != nil, isInputActive else { return }
         DispatchQueue.main.async { [weak self] in
             self?.setNeedsFocusUpdate()
             self?.updateFocusIfNeeded()
         }
     }
 
-    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [self] }
+    override var preferredFocusEnvironments: [any UIFocusEnvironment] {
+        isInputActive ? [self] : []
+    }
+
+    // MARK: - Press Handling
 
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        // Claim known presses so they don't propagate as system back/etc
         var consumed = false
         for press in presses {
             switch press.type {
-            case .select, .playPause, .menu, .leftArrow, .rightArrow, .upArrow, .downArrow:
+            case .select, .playPause, .menu, .leftArrow, .rightArrow:
                 consumed = true
             default:
                 break
@@ -82,33 +100,18 @@ class RemoteInputView: UIView {
         for press in presses {
             switch press.type {
             case .select:
-                #if DEBUG
-                print("[RemoteInputView] SELECT → tap")
-                #endif
                 onTap?()
                 consumed = true
             case .playPause:
-                #if DEBUG
-                print("[RemoteInputView] PLAY/PAUSE")
-                #endif
                 onPlayPause?()
                 consumed = true
             case .menu:
-                #if DEBUG
-                print("[RemoteInputView] MENU")
-                #endif
                 onMenu?()
                 consumed = true
             case .leftArrow:
-                #if DEBUG
-                print("[RemoteInputView] LEFT")
-                #endif
                 onLeft?()
                 consumed = true
             case .rightArrow:
-                #if DEBUG
-                print("[RemoteInputView] RIGHT")
-                #endif
                 onRight?()
                 consumed = true
             default:
@@ -120,26 +123,15 @@ class RemoteInputView: UIView {
         }
     }
 
+    // MARK: - Pan (Touchpad Scrubbing)
+
     @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
-        case .began:
-            #if DEBUG
-            print("[RemoteInputView] Pan began")
-            #endif
         case .changed:
-            let translation = gesture.translation(in: self)
-            let normalized = translation.x / 1920.0
-            #if DEBUG
-            // Only log occasional updates to avoid spam
-            if Int.random(in: 0..<20) == 0 {
-                print("[RemoteInputView] Pan changed: \(String(format: "%.3f", normalized))")
-            }
-            #endif
+            let width = max(bounds.width, 1)
+            let normalized = gesture.translation(in: self).x / width
             onPanChanged?(normalized)
         case .ended, .cancelled:
-            #if DEBUG
-            print("[RemoteInputView] Pan ended")
-            #endif
             onPanEnded?()
         default:
             break

@@ -1,8 +1,8 @@
 import SwiftUI
 import SteelPlayer
 
-/// Track selection menu — shown when the user taps the track button
-/// in the transport bar. Lists available audio and subtitle tracks.
+/// Track selection menu — audio and subtitle track picker.
+/// Shown as an overlay at the bottom of the player.
 struct TrackSelectionView: View {
     let audioTracks: [TrackInfo]
     let subtitleTracks: [TrackInfo]
@@ -13,82 +13,93 @@ struct TrackSelectionView: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        HStack(alignment: .top, spacing: 40) {
-            // Audio tracks
-            if !audioTracks.isEmpty {
-                audioTrackList
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(alignment: .top, spacing: 40) {
+                if !audioTracks.isEmpty {
+                    audioTrackList
+                }
+                subtitleTrackList
             }
-
-            // Subtitle tracks
-            subtitleTrackList
+            .padding(40)
         }
-        .padding(40)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
         .padding(.horizontal, 80)
-        .padding(.bottom, 180)
+        .padding(.bottom, 120)
+        .onExitCommand { onDismiss() }
     }
 
+    // MARK: - Audio Tracks
+
     private var audioTrackList: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(String(localized: "player.audio", defaultValue: "Audio"), systemImage: "speaker.wave.2")
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Audio", systemImage: "speaker.wave.2")
                 .font(.headline)
                 .foregroundStyle(.secondary)
                 .padding(.bottom, 4)
+                .focusable(false)
 
             ForEach(audioTracks) { track in
-                trackButton(
+                trackRow(
                     name: track.name,
                     detail: track.codec,
                     isSelected: track.id == selectedAudioIndex
                 ) {
                     onSelectAudio(track.id)
+                    onDismiss()
                 }
             }
         }
-        .frame(minWidth: 250, alignment: .leading)
+        .frame(minWidth: 280, alignment: .leading)
     }
 
-    private var subtitleTrackList: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(String(localized: "player.subtitles", defaultValue: "Untertitel"), systemImage: "captions.bubble")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-                .padding(.bottom, 4)
+    // MARK: - Subtitle Tracks
 
-            trackButton(
+    private var subtitleTrackList: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(
+                String(localized: "player.subtitles", defaultValue: "Untertitel"),
+                systemImage: "captions.bubble"
+            )
+            .font(.headline)
+            .foregroundStyle(.secondary)
+            .padding(.bottom, 4)
+            .focusable(false)
+
+            trackRow(
                 name: String(localized: "player.subtitles.off", defaultValue: "Aus"),
                 detail: nil,
                 isSelected: selectedSubtitleIndex == nil
             ) {
                 onSelectSubtitle(nil)
+                onDismiss()
             }
 
             ForEach(subtitleTracks) { track in
-                trackButton(
+                trackRow(
                     name: track.name,
                     detail: track.codec,
                     isSelected: track.id == selectedSubtitleIndex
                 ) {
                     onSelectSubtitle(track.id)
+                    onDismiss()
                 }
             }
         }
-        .frame(minWidth: 250, alignment: .leading)
+        .frame(minWidth: 280, alignment: .leading)
     }
 
-    private func trackButton(
+    // MARK: - Track Row
+
+    private func trackRow(
         name: String,
         detail: String?,
         isSelected: Bool,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: {
-            action()
-            onDismiss()
-        }) {
+        Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? .white : .secondary)
+                    .foregroundStyle(isSelected ? .white : .white.opacity(0.4))
                     .font(.title3)
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -96,19 +107,18 @@ struct TrackSelectionView: View {
                         .foregroundStyle(.white)
                         .lineLimit(1)
 
-                    if let detail, !isSelected || name != detail {
+                    if let detail {
                         Text(detail)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white.opacity(0.5))
                     }
                 }
 
                 Spacer()
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .contentShape(Rectangle())
+            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.card)
     }
 }
