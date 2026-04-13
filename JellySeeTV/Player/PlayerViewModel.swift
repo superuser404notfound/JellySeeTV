@@ -206,6 +206,9 @@ final class PlayerViewModel {
                     self.isPlaying = false
                 case .idle:
                     self.isPlaying = false
+                    #if DEBUG
+                    print("[NextEpisode] State=idle, hasStarted=\(self.hasStartedPlaying), nextEp=\(self.nextEpisode?.name ?? "nil")")
+                    #endif
                     if self.hasStartedPlaying, self.nextEpisode != nil {
                         self.showNextEpisodePrompt()
                     }
@@ -226,6 +229,14 @@ final class PlayerViewModel {
                 guard let self else { return }
                 self.playbackTime = time
                 self.checkForNextEpisode()
+                // Show next episode overlay when <15s remain
+                if self.nextEpisode != nil && !self.showNextEpisodeOverlay {
+                    let dur = self.effectiveDuration
+                    let remaining = dur - time
+                    if dur > 0 && remaining < 15 && remaining > 0 {
+                        self.showNextEpisodePrompt()
+                    }
+                }
                 guard !self.isScrubbing else { return }
                 let dur = self.effectiveDuration
                 self.currentTime = self.formatSeconds(time)
@@ -401,11 +412,15 @@ final class PlayerViewModel {
         let dur = effectiveDuration
         let remaining = dur - playbackTime
         guard dur > 0, remaining < 30, remaining > 0,
-              !hasFetchedNextEpisode,
-              item.seriesId != nil,
-              item.type == .episode else { return }
+              !hasFetchedNextEpisode else { return }
+
+        // Fetch for any item with a seriesId (episodes)
+        guard item.seriesId != nil else { return }
 
         hasFetchedNextEpisode = true
+        #if DEBUG
+        print("[NextEpisode] Triggering fetch: remaining=\(String(format: "%.0f", remaining))s, type=\(item.type), seriesId=\(item.seriesId ?? "nil")")
+        #endif
         Task { await fetchNextEpisode() }
     }
 
@@ -428,6 +443,9 @@ final class PlayerViewModel {
 
     func showNextEpisodePrompt() {
         guard nextEpisode != nil, !showNextEpisodeOverlay else { return }
+        #if DEBUG
+        print("[NextEpisode] Showing overlay, countdown starts")
+        #endif
         showNextEpisodeOverlay = true
         nextEpisodeCountdown = 10
         startNextEpisodeCountdown()
