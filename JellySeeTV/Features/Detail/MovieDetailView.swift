@@ -22,7 +22,7 @@ struct MovieDetailView: View {
         }
         .ignoresSafeArea()
         .overlay {
-            if let userID = appState.activeUser?.id {
+            if showPlayer, let userID = appState.activeUser?.id {
                 PlayerLauncher(
                     isPresented: $showPlayer,
                     item: viewModel?.item ?? item,
@@ -31,6 +31,7 @@ struct MovieDetailView: View {
                     userID: userID,
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo
                 )
+                .allowsHitTesting(false)
             }
         }
         .navigationDestination(item: $navigateToItem) { item in

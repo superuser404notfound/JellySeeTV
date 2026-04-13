@@ -460,7 +460,12 @@ final class PlayerViewModel {
                 nextEpisodeCountdown -= 1
             }
             guard !Task.isCancelled else { return }
-            await playNextEpisode()
+            // Launch in a NEW task — if we called playNextEpisode() directly,
+            // cancelling nextEpisodeTimer would cancel the playback startup
+            // (CancellationError in player.load → "abgebrochen").
+            Task { @MainActor [weak self] in
+                await self?.playNextEpisode()
+            }
         }
     }
 

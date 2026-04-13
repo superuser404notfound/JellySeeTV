@@ -417,7 +417,9 @@ private struct PlayerOverlayView: View {
                     .monospacedDigit()
                     .contentTransition(.numericText())
                 }
-                .padding(28)
+                .frame(minWidth: 400)
+                .padding(.horizontal, 36)
+                .padding(.vertical, 28)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                 .padding(.trailing, 80)
                 .padding(.bottom, 140)

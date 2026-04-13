@@ -79,7 +79,7 @@ struct SeriesDetailView: View {
         }
         .ignoresSafeArea()
         .overlay {
-            if let ep = playItem, let userID = appState.activeUser?.id {
+            if showPlayer, let ep = playItem, let userID = appState.activeUser?.id {
                 PlayerLauncher(
                     isPresented: $showPlayer,
                     item: ep,
@@ -88,6 +88,7 @@ struct SeriesDetailView: View {
                     userID: userID,
                     cachedPlaybackInfo: (viewModel?.currentEpisodeID == ep.id) ? viewModel?.cachedPlaybackInfo : nil
                 )
+                .allowsHitTesting(false)
             }
         }
         .navigationDestination(item: $navigateToItem) { item in
