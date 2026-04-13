@@ -44,12 +44,15 @@ struct PlayerLauncher: UIViewControllerRepresentable {
             host.present(player, animated: false)
         } else if !isPresented, host.presentedViewController != nil {
             host.dismiss(animated: false) {
-                // Restore tvOS focus after UIKit modal dismiss —
-                // the focus engine doesn't auto-restore when dismissing
-                // a UIKit modal presented from a SwiftUI overlay.
-                DispatchQueue.main.async {
-                    host.view.window?.rootViewController?.setNeedsFocusUpdate()
-                    host.view.window?.rootViewController?.updateFocusIfNeeded()
+                // Restore tvOS focus after UIKit modal dismiss.
+                // Walk up from the host to find the topmost VC that
+                // contains the SwiftUI detail view, then ask it to
+                // re-evaluate focus for its entire hierarchy.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                          let window = scene.windows.first(where: { $0.isKeyWindow }) else { return }
+                    window.rootViewController?.setNeedsFocusUpdate()
+                    window.rootViewController?.updateFocusIfNeeded()
                 }
             }
         }
