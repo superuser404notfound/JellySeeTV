@@ -58,14 +58,21 @@ final class PlayerViewModel {
     var activeAudioIndex: Int?
     var activeSubtitleIndex: Int?
 
+    // Next episode
+    var nextEpisode: JellyfinItem?
+    var showNextEpisodeOverlay = false
+    var nextEpisodeCountdown = 10
+    private var nextEpisodeTimer: Task<Void, Never>?
+    private var hasFetchedNextEpisode = false
+
     // MARK: - Dependencies
 
-    let item: JellyfinItem
+    var item: JellyfinItem
     let player = try! SteelPlayer()
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String
-    private let startFromBeginning: Bool
+    private var startFromBeginning: Bool
     private var cachedPlaybackInfo: PlaybackInfoResponse?
 
     // MARK: - Private State
@@ -199,6 +206,9 @@ final class PlayerViewModel {
                     self.isPlaying = false
                 case .idle:
                     self.isPlaying = false
+                    if self.hasStartedPlaying, self.nextEpisode != nil {
+                        self.showNextEpisodePrompt()
+                    }
                 case .loading:
                     if !self.hasStartedPlaying { self.isLoading = true }
                 case .seeking:
@@ -215,6 +225,7 @@ final class PlayerViewModel {
             .sink { [weak self] time in
                 guard let self else { return }
                 self.playbackTime = time
+                self.checkForNextEpisode()
                 guard !self.isScrubbing else { return }
                 let dur = self.effectiveDuration
                 self.currentTime = self.formatSeconds(time)
@@ -382,6 +393,95 @@ final class PlayerViewModel {
         showControls = false
         controlsFocus = .progressBar
         trackDropdown = .none
+    }
+
+    // MARK: - Next Episode
+
+    func checkForNextEpisode() {
+        let dur = effectiveDuration
+        let remaining = dur - playbackTime
+        guard dur > 0, remaining < 30, remaining > 0,
+              !hasFetchedNextEpisode,
+              item.seriesId != nil,
+              item.type == .episode else { return }
+
+        hasFetchedNextEpisode = true
+        Task { await fetchNextEpisode() }
+    }
+
+    private func fetchNextEpisode() async {
+        guard let seriesID = item.seriesId else { return }
+        do {
+            let next = try await playbackService.getNextEpisode(seriesID: seriesID, userID: userID)
+            if let next, next.id != item.id {
+                nextEpisode = next
+                #if DEBUG
+                print("[NextEpisode] Found: \(next.name) (S\(next.parentIndexNumber ?? 0)E\(next.indexNumber ?? 0))")
+                #endif
+            }
+        } catch {
+            #if DEBUG
+            print("[NextEpisode] Fetch failed: \(error)")
+            #endif
+        }
+    }
+
+    func showNextEpisodePrompt() {
+        guard nextEpisode != nil, !showNextEpisodeOverlay else { return }
+        showNextEpisodeOverlay = true
+        nextEpisodeCountdown = 10
+        startNextEpisodeCountdown()
+    }
+
+    private func startNextEpisodeCountdown() {
+        nextEpisodeTimer?.cancel()
+        nextEpisodeTimer = Task {
+            while nextEpisodeCountdown > 0, !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
+                nextEpisodeCountdown -= 1
+            }
+            guard !Task.isCancelled else { return }
+            await playNextEpisode()
+        }
+    }
+
+    func playNextEpisode() async {
+        guard let next = nextEpisode else { return }
+        nextEpisodeTimer?.cancel()
+        showNextEpisodeOverlay = false
+
+        // Stop current
+        stopProgressReporting()
+        cancellables.removeAll()
+        await reportStop()
+        player.stop()
+
+        // Reset state
+        item = next
+        startFromBeginning = true
+        cachedPlaybackInfo = nil
+        subtitleCues = []
+        activeSubtitleIndex = nil
+        activeAudioIndex = nil
+        nextEpisode = nil
+        hasFetchedNextEpisode = false
+        hasReportedStart = false
+        hasStartedPlaying = false
+        showControls = false
+        isScrubbing = false
+        controlsFocus = .progressBar
+        trackDropdown = .none
+        progress = 0
+        playbackTime = 0
+
+        // Start new
+        await startPlayback()
+    }
+
+    func cancelNextEpisode() {
+        nextEpisodeTimer?.cancel()
+        showNextEpisodeOverlay = false
     }
 
     func scheduleControlsHide() {

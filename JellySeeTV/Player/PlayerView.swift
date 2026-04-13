@@ -135,10 +135,13 @@ final class PlayerHostController: UIViewController {
     // MARK: - Press Handlers (state machine)
 
     @objc private func selectPressed() {
+        if viewModel.showNextEpisodeOverlay {
+            Task { await viewModel.playNextEpisode() }
+            return
+        }
         if viewModel.isDropdownOpen {
             confirmDropdownSelection()
         } else if viewModel.showControls && viewModel.controlsFocus != .progressBar {
-            // Track button — always open dropdown, even if scrub is pending
             switch viewModel.controlsFocus {
             case .audioButton: openAudioDropdown()
             case .subtitleButton: openSubtitleDropdown()
@@ -158,6 +161,10 @@ final class PlayerHostController: UIViewController {
     }
 
     @objc private func menuPressed() {
+        if viewModel.showNextEpisodeOverlay {
+            viewModel.cancelNextEpisode()
+            return
+        }
         if viewModel.isDropdownOpen {
             viewModel.trackDropdown = .none
             viewModel.scheduleControlsHide()
@@ -357,9 +364,57 @@ private struct PlayerOverlayView: View {
             if viewModel.showControls && !viewModel.isLoading && viewModel.errorMessage == nil {
                 controlsOverlay
             }
+
+            // Next episode overlay
+            if viewModel.showNextEpisodeOverlay, let next = viewModel.nextEpisode {
+                nextEpisodeOverlay(next)
+            }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
+        .animation(.easeInOut(duration: 0.3), value: viewModel.showNextEpisodeOverlay)
+    }
+
+    private func nextEpisodeOverlay(_ episode: JellyfinItem) -> some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
+                        .font(.headline)
+                        .foregroundStyle(.white.opacity(0.6))
+
+                    if let seriesName = episode.seriesName {
+                        Text(seriesName)
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                    }
+
+                    HStack(spacing: 4) {
+                        if let s = episode.parentIndexNumber, let e = episode.indexNumber {
+                            Text("S\(s)E\(e)")
+                                .foregroundStyle(.white.opacity(0.6))
+                        }
+                        Text(episode.name)
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                    .font(.body)
+
+                    Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.5))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                }
+                .padding(28)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .padding(.trailing, 80)
+                .padding(.bottom, 140)
+            }
+        }
+        .transition(.move(edge: .trailing).combined(with: .opacity))
     }
 
     private var controlsOverlay: some View {
