@@ -78,7 +78,7 @@ struct SeriesDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .background {
+        .overlay {
             if let ep = playItem, let userID = appState.activeUser?.id {
                 PlayerLauncher(
                     isPresented: $showPlayer,

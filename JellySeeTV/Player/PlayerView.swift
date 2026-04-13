@@ -25,7 +25,7 @@ struct PlayerLauncher: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ host: UIViewController, context: Context) {
-        if isPresented && host.presentedViewController == nil {
+        if isPresented && host.presentedViewController == nil && host.view.window != nil {
             let vm = PlayerViewModel(
                 item: item,
                 startFromBeginning: startFromBeginning,
@@ -58,6 +58,8 @@ struct PlayerLauncher: UIViewControllerRepresentable {
 final class PlayerHostController: UIViewController {
     private let viewModel: PlayerViewModel
     private let onDismiss: () -> Void
+
+    private var hasLaunched = false
 
     init(viewModel: PlayerViewModel, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
@@ -104,7 +106,14 @@ final class PlayerHostController: UIViewController {
             self, selector: #selector(appWillResignActive),
             name: UIApplication.willResignActiveNotification, object: nil
         )
+    }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Start playback only after the VC is visible — prevents
+        // background playback if present() failed.
+        guard !hasLaunched else { return }
+        hasLaunched = true
         Task { await viewModel.startPlayback() }
     }
 

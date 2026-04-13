@@ -21,7 +21,7 @@ struct MovieDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .background {
+        .overlay {
             if let userID = appState.activeUser?.id {
                 PlayerLauncher(
                     isPresented: $showPlayer,
