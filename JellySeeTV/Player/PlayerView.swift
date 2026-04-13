@@ -62,6 +62,10 @@ final class PlayerHostController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
 
+        // Prevent tvOS from dismissing the fullScreenCover on Menu press —
+        // we handle Menu ourselves in pressesEnded.
+        isModalInPresentation = true
+
         // Video layer — added directly, no UIViewRepresentable wrapper needed
         let videoLayer = viewModel.player.videoLayer
         view.layer.addSublayer(videoLayer)
