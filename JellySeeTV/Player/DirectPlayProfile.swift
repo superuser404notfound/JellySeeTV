@@ -43,7 +43,7 @@ enum DirectPlayProfile {
                 [
                     "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
                     "Type": "Video",
-                    "VideoCodec": "h264,hevc",
+                    "VideoCodec": "h264,hevc,av1",
                     "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,dca,pcm_s16le,pcm_s24le,pcm_f32le",
                 ],
                 [
@@ -61,7 +61,7 @@ enum DirectPlayProfile {
                     "Type": "Video",
                     "Container": "mp4",
                     "Protocol": "http",
-                    "VideoCodec": "h264,hevc",
+                    "VideoCodec": "h264,hevc,av1",
                     "AudioCodec": "aac,ac3,eac3",
                     "Context": "Streaming",
                 ],
@@ -107,7 +107,7 @@ enum DirectPlayProfile {
                 [
                     "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
                     "Type": "Video",
-                    "VideoCodec": "h264,hevc",
+                    "VideoCodec": "h264,hevc,av1",
                     "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,dca,pcm_s16le,pcm_s24le,pcm_f32le",
                 ],
                 [
@@ -122,7 +122,7 @@ enum DirectPlayProfile {
                     "Type": "Video",
                     "Container": "mp4",
                     "Protocol": "http",
-                    "VideoCodec": "h264,hevc",
+                    "VideoCodec": "h264,hevc,av1",
                     "AudioCodec": "aac,ac3,eac3",
                     "Context": "Streaming",
                 ],
