@@ -132,16 +132,22 @@ final class PlayerHostController: UIViewController {
         viewModel.player.pause()
     }
 
-    // MARK: - Press Handlers
+    // MARK: - Press Handlers (state machine)
 
     @objc private func selectPressed() {
-        #if DEBUG
-        print("[Player] select: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
-        #endif
-        if viewModel.isScrubbing {
+        if viewModel.isDropdownOpen {
+            confirmDropdownSelection()
+        } else if viewModel.isScrubbing {
             viewModel.commitScrub()
         } else if viewModel.showControls {
-            viewModel.togglePlayPause()
+            switch viewModel.controlsFocus {
+            case .progressBar:
+                viewModel.togglePlayPause()
+            case .audioButton:
+                openAudioDropdown()
+            case .subtitleButton:
+                openSubtitleDropdown()
+            }
         } else {
             viewModel.showControlsTemporarily()
         }
@@ -152,115 +158,141 @@ final class PlayerHostController: UIViewController {
     }
 
     @objc private func menuPressed() {
-        #if DEBUG
-        print("[Player] menu: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
-        #endif
-        if viewModel.isScrubbing {
+        if viewModel.isDropdownOpen {
+            viewModel.trackDropdown = .none
+            viewModel.scheduleControlsHide()
+        } else if viewModel.isScrubbing {
             viewModel.cancelScrub()
         } else if viewModel.showControls {
-            viewModel.hideControls()
+            if viewModel.controlsFocus != .progressBar {
+                viewModel.controlsFocus = .progressBar
+            } else {
+                viewModel.hideControls()
+            }
         } else {
             dismissPlayer()
         }
     }
 
     @objc private func leftPressed() {
-        viewModel.seekJump(seconds: -10)
+        if viewModel.isDropdownOpen { return }
+        if viewModel.showControls && viewModel.controlsFocus == .subtitleButton {
+            if !viewModel.player.audioTracks.isEmpty {
+                viewModel.controlsFocus = .audioButton
+            }
+        } else {
+            viewModel.seekJump(seconds: -10)
+        }
     }
 
     @objc private func rightPressed() {
-        viewModel.seekJump(seconds: 10)
+        if viewModel.isDropdownOpen { return }
+        if viewModel.showControls && viewModel.controlsFocus == .audioButton {
+            if !viewModel.player.subtitleTracks.isEmpty {
+                viewModel.controlsFocus = .subtitleButton
+            }
+        } else {
+            viewModel.seekJump(seconds: 10)
+        }
     }
 
     @objc private func upPressed() {
-        if viewModel.showControls {
-            showTrackPicker()
+        if viewModel.isDropdownOpen {
+            moveDropdownHighlight(by: -1)
+        } else if viewModel.showControls {
+            switch viewModel.controlsFocus {
+            case .progressBar:
+                if viewModel.isScrubbing { viewModel.cancelScrub() }
+                let hasAudio = !viewModel.player.audioTracks.isEmpty
+                let hasSubs = !viewModel.player.subtitleTracks.isEmpty
+                if hasAudio { viewModel.controlsFocus = .audioButton }
+                else if hasSubs { viewModel.controlsFocus = .subtitleButton }
+            case .audioButton, .subtitleButton:
+                break
+            }
         } else {
             viewModel.showControlsTemporarily()
         }
     }
 
     @objc private func downPressed() {
-        viewModel.showControlsTemporarily()
+        if viewModel.isDropdownOpen {
+            moveDropdownHighlight(by: 1)
+        } else if viewModel.showControls {
+            if viewModel.controlsFocus != .progressBar {
+                viewModel.controlsFocus = .progressBar
+            } else {
+                viewModel.hideControls()
+            }
+        } else {
+            viewModel.showControlsTemporarily()
+        }
     }
 
-    // MARK: - Track Picker (UIAlertController)
+    // MARK: - Dropdown Logic
 
-    private func showTrackPicker() {
-        let audioTracks = viewModel.player.audioTracks
-        let subtitleTracks = viewModel.player.subtitleTracks
-        guard !audioTracks.isEmpty || !subtitleTracks.isEmpty else { return }
-
-        // Cancel auto-hide while picker is open
+    private func openAudioDropdown() {
+        let tracks = viewModel.player.audioTracks
+        guard !tracks.isEmpty else { return }
         viewModel.controlsTimer?.cancel()
+        let currentIdx = tracks.firstIndex(where: { $0.id == viewModel.activeAudioIndex }) ?? 0
+        viewModel.trackDropdown = .audio(highlighted: currentIdx)
+    }
 
-        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    private func openSubtitleDropdown() {
+        viewModel.controlsTimer?.cancel()
+        // Items: Off (index 0), then each subtitle track (index 1...)
+        let currentIdx: Int
+        if let activeId = viewModel.activeSubtitleIndex,
+           let trackIdx = viewModel.player.subtitleTracks.firstIndex(where: { $0.id == activeId }) {
+            currentIdx = trackIdx + 1
+        } else {
+            currentIdx = 0
+        }
+        viewModel.trackDropdown = .subtitle(highlighted: currentIdx)
+    }
 
-        // Audio section
-        for track in audioTracks {
-            let isActive = track.id == viewModel.activeAudioIndex
-            let action = UIAlertAction(
-                title: track.name,
-                style: .default
-            ) { [weak self] _ in
-                self?.viewModel.selectAudioTrack(id: track.id)
-                self?.viewModel.scheduleControlsHide()
+    private func moveDropdownHighlight(by offset: Int) {
+        switch viewModel.trackDropdown {
+        case .audio(let idx):
+            let count = viewModel.player.audioTracks.count
+            guard count > 0 else { return }
+            let newIdx = max(0, min(count - 1, idx + offset))
+            viewModel.trackDropdown = .audio(highlighted: newIdx)
+        case .subtitle(let idx):
+            let count = viewModel.player.subtitleTracks.count + 1 // +1 for "Off"
+            guard count > 0 else { return }
+            let newIdx = max(0, min(count - 1, idx + offset))
+            viewModel.trackDropdown = .subtitle(highlighted: newIdx)
+        case .none:
+            break
+        }
+    }
+
+    private func confirmDropdownSelection() {
+        switch viewModel.trackDropdown {
+        case .audio(let idx):
+            let tracks = viewModel.player.audioTracks
+            if idx < tracks.count {
+                viewModel.selectAudioTrack(id: tracks[idx].id)
             }
-            action.setValue(
-                UIImage(systemName: isActive ? "speaker.wave.2.fill" : "speaker.wave.2"),
-                forKey: "image"
-            )
-            if isActive { action.setValue(true, forKey: "checked") }
-            alert.addAction(action)
-        }
-
-        // Separator — subtitle header
-        if !audioTracks.isEmpty && !subtitleTracks.isEmpty {
-            let header = UIAlertAction(
-                title: String(localized: "player.subtitles", defaultValue: "Subtitles"),
-                style: .default,
-                handler: { _ in }
-            )
-            header.isEnabled = false
-            alert.addAction(header)
-        }
-
-        // Subtitle: Off
-        let offAction = UIAlertAction(
-            title: String(localized: "player.subtitles.off", defaultValue: "Off"),
-            style: .default
-        ) { [weak self] _ in
-            self?.viewModel.selectSubtitleTrack(id: nil)
-            self?.viewModel.scheduleControlsHide()
-        }
-        if viewModel.activeSubtitleIndex == nil {
-            offAction.setValue(true, forKey: "checked")
-        }
-        alert.addAction(offAction)
-
-        // Subtitle tracks
-        for track in subtitleTracks {
-            let isActive = track.id == viewModel.activeSubtitleIndex
-            let action = UIAlertAction(
-                title: track.name,
-                style: .default
-            ) { [weak self] _ in
-                self?.viewModel.selectSubtitleTrack(id: track.id)
-                self?.viewModel.scheduleControlsHide()
+            viewModel.trackDropdown = .none
+            viewModel.scheduleControlsHide()
+        case .subtitle(let idx):
+            if idx == 0 {
+                viewModel.selectSubtitleTrack(id: nil)
+            } else {
+                let tracks = viewModel.player.subtitleTracks
+                let trackIdx = idx - 1
+                if trackIdx < tracks.count {
+                    viewModel.selectSubtitleTrack(id: tracks[trackIdx].id)
+                }
             }
-            if isActive { action.setValue(true, forKey: "checked") }
-            alert.addAction(action)
+            viewModel.trackDropdown = .none
+            viewModel.scheduleControlsHide()
+        case .none:
+            break
         }
-
-        // Cancel
-        alert.addAction(UIAlertAction(
-            title: String(localized: "player.trackpicker.cancel", defaultValue: "Cancel"),
-            style: .cancel
-        ) { [weak self] _ in
-            self?.viewModel.scheduleControlsHide()
-        })
-
-        present(alert, animated: true)
     }
 
     private func dismissPlayer() {
@@ -366,7 +398,9 @@ private struct PlayerOverlayView: View {
                     audioTracks: viewModel.player.audioTracks,
                     subtitleTracks: viewModel.player.subtitleTracks,
                     activeAudioIndex: viewModel.activeAudioIndex,
-                    activeSubtitleIndex: viewModel.activeSubtitleIndex
+                    activeSubtitleIndex: viewModel.activeSubtitleIndex,
+                    controlsFocus: viewModel.controlsFocus,
+                    trackDropdown: viewModel.trackDropdown
                 )
             }
         }

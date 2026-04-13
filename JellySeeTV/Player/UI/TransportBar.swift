@@ -2,11 +2,16 @@ import SwiftUI
 import SteelPlayer
 
 /// Native tvOS-style transport bar with progress bar, time labels,
-/// and track info display.
+/// and track selection buttons with dropdown menus.
 ///
-/// Layout:
+/// Layout (dropdown open):
 /// ```
-///                              [Audio] [Subs]
+///                    ┌──────────────┐
+///                    │ English  ✓   │
+///                    │ German       │
+///                    │ Japanese     │
+///                    └──────────────┘
+///                         [Audio ▲]  [Subs]
 /// ═══════════════════●══════════════════════
 /// 00:12:34                        -01:23:45
 /// ```
@@ -20,10 +25,12 @@ struct TransportBar: View {
     let subtitleTracks: [TrackInfo]
     let activeAudioIndex: Int?
     let activeSubtitleIndex: Int?
+    let controlsFocus: PlayerViewModel.ControlsFocus
+    let trackDropdown: PlayerViewModel.TrackDropdown
 
     var body: some View {
         VStack(spacing: 10) {
-            // Scrub time preview (large, centered)
+            // Scrub time preview
             if isScrubbing {
                 Text(scrubTime)
                     .font(.system(size: 56, weight: .medium))
@@ -33,11 +40,33 @@ struct TransportBar: View {
                     .padding(.bottom, 16)
             }
 
-            // Track labels — right-aligned, above progress bar (display only)
+            // Track buttons with dropdown
             if !audioTracks.isEmpty || !subtitleTracks.isEmpty {
-                HStack {
+                HStack(alignment: .bottom, spacing: 16) {
                     Spacer()
-                    trackLabels
+
+                    if !audioTracks.isEmpty {
+                        trackButton(
+                            label: audioTracks.first(where: { $0.id == activeAudioIndex })?.name
+                                ?? String(localized: "player.audio", defaultValue: "Audio"),
+                            icon: "speaker.wave.2",
+                            isFocused: controlsFocus == .audioButton,
+                            dropdown: audioDropdownItems,
+                            isOpen: isAudioDropdownOpen
+                        )
+                    }
+
+                    if !subtitleTracks.isEmpty {
+                        trackButton(
+                            label: activeSubtitleIndex.flatMap { idx in
+                                subtitleTracks.first(where: { $0.id == idx })?.name
+                            } ?? String(localized: "player.subtitles.off", defaultValue: "Off"),
+                            icon: "captions.bubble",
+                            isFocused: controlsFocus == .subtitleButton,
+                            dropdown: subtitleDropdownItems,
+                            isOpen: isSubtitleDropdownOpen
+                        )
+                    }
                 }
                 .padding(.bottom, 4)
             }
@@ -65,28 +94,94 @@ struct TransportBar: View {
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
         .animation(.easeInOut(duration: 0.2), value: isScrubbing)
+        .animation(.easeInOut(duration: 0.15), value: controlsFocus)
+        .animation(.easeInOut(duration: 0.15), value: trackDropdown)
     }
 
-    // MARK: - Track Labels (display only)
+    // MARK: - Dropdown State
 
-    private var trackLabels: some View {
-        HStack(spacing: 16) {
-            if !audioTracks.isEmpty {
-                let activeName = audioTracks.first(where: { $0.id == activeAudioIndex })?.name
-                    ?? String(localized: "player.audio", defaultValue: "Audio")
-                Label(activeName, systemImage: "speaker.wave.2")
-                    .font(.callout)
-                    .foregroundStyle(.white.opacity(0.6))
+    private var isAudioDropdownOpen: Bool {
+        if case .audio = trackDropdown { return true }
+        return false
+    }
+
+    private var isSubtitleDropdownOpen: Bool {
+        if case .subtitle = trackDropdown { return true }
+        return false
+    }
+
+    private var audioDropdownItems: [DropdownItem] {
+        guard case .audio(let highlighted) = trackDropdown else { return [] }
+        return audioTracks.enumerated().map { idx, track in
+            DropdownItem(
+                title: track.name,
+                isActive: track.id == activeAudioIndex,
+                isHighlighted: idx == highlighted
+            )
+        }
+    }
+
+    private var subtitleDropdownItems: [DropdownItem] {
+        guard case .subtitle(let highlighted) = trackDropdown else { return [] }
+        var items: [DropdownItem] = [
+            DropdownItem(
+                title: String(localized: "player.subtitles.off", defaultValue: "Off"),
+                isActive: activeSubtitleIndex == nil,
+                isHighlighted: highlighted == 0
+            )
+        ]
+        items += subtitleTracks.enumerated().map { idx, track in
+            DropdownItem(
+                title: track.name,
+                isActive: track.id == activeSubtitleIndex,
+                isHighlighted: idx + 1 == highlighted
+            )
+        }
+        return items
+    }
+
+    // MARK: - Track Button + Dropdown
+
+    private func trackButton(label: String, icon: String, isFocused: Bool, dropdown: [DropdownItem], isOpen: Bool) -> some View {
+        VStack(spacing: 6) {
+            // Dropdown menu (opens upward)
+            if isOpen {
+                VStack(spacing: 0) {
+                    ForEach(Array(dropdown.enumerated()), id: \.offset) { _, item in
+                        HStack {
+                            Text(item.title)
+                                .font(.callout)
+                                .lineLimit(1)
+                            Spacer()
+                            if item.isActive {
+                                Image(systemName: "checkmark")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(item.isHighlighted ? Color.white.opacity(0.25) : Color.clear)
+                        .foregroundStyle(item.isHighlighted ? .white : .white.opacity(0.8))
+                    }
+                }
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .frame(minWidth: 200)
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
 
-            if !subtitleTracks.isEmpty {
-                let activeName = activeSubtitleIndex.flatMap { idx in
-                    subtitleTracks.first(where: { $0.id == idx })?.name
-                } ?? String(localized: "player.subtitles.off", defaultValue: "Off")
-                Label(activeName, systemImage: "captions.bubble")
-                    .font(.callout)
-                    .foregroundStyle(.white.opacity(0.6))
-            }
+            // Button label
+            Label(label, systemImage: icon)
+                .font(.callout)
+                .foregroundStyle(isFocused ? .white : .white.opacity(0.6))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isFocused ? .white.opacity(0.2) : .clear)
+                )
+                .scaleEffect(isFocused ? 1.05 : 1.0)
         }
     }
 
@@ -96,8 +191,9 @@ struct TransportBar: View {
         GeometryReader { geo in
             let width = geo.size.width
             let knobX = max(0, min(width, width * CGFloat(progress)))
-            let trackHeight: CGFloat = isScrubbing ? 10 : 6
-            let knobSize: CGFloat = isScrubbing ? 22 : 14
+            let active = isScrubbing || controlsFocus == .progressBar
+            let trackHeight: CGFloat = active ? 10 : 6
+            let knobSize: CGFloat = active ? 22 : 14
 
             ZStack(alignment: .leading) {
                 Capsule()
@@ -114,10 +210,18 @@ struct TransportBar: View {
                     .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
                     .offset(x: knobX - knobSize / 2)
             }
-            .animation(.easeInOut(duration: 0.2), value: isScrubbing)
+            .animation(.easeInOut(duration: 0.2), value: active)
         }
         .frame(height: 22)
     }
+}
+
+// MARK: - Dropdown Item
+
+private struct DropdownItem {
+    let title: String
+    let isActive: Bool
+    let isHighlighted: Bool
 }
 
 // MARK: - Title Overlay

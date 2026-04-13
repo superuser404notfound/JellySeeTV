@@ -32,6 +32,24 @@ final class PlayerViewModel {
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
     private var scrubStartProgress: Float = 0
 
+    // Custom focus for transport bar navigation
+    var controlsFocus: ControlsFocus = .progressBar
+    var trackDropdown: TrackDropdown = .none
+
+    enum ControlsFocus: Hashable {
+        case progressBar
+        case audioButton
+        case subtitleButton
+    }
+
+    enum TrackDropdown: Equatable {
+        case none
+        case audio(highlighted: Int)   // index into player.audioTracks
+        case subtitle(highlighted: Int) // index into subtitle items (0=Off, 1..=tracks)
+    }
+
+    var isDropdownOpen: Bool { trackDropdown != .none }
+
     // Tracks
     var subtitleCues: [SubtitleCue] = []
     var activeAudioIndex: Int?
@@ -337,6 +355,8 @@ final class PlayerViewModel {
 
     func hideControls() {
         showControls = false
+        controlsFocus = .progressBar
+        trackDropdown = .none
     }
 
     func scheduleControlsHide() {
