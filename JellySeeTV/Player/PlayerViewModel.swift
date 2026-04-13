@@ -8,9 +8,6 @@ import SteelPlayer
 ///
 /// Uses Combine subscriptions to observe SteelPlayer's @Published
 /// properties instead of polling timers — eliminates AttributeGraph cycles.
-///
-/// Implements a custom focus system for transport bar navigation since
-/// UIKit (RemoteTapHandler) and SwiftUI focus systems conflict on tvOS.
 @Observable
 @MainActor
 final class PlayerViewModel {
@@ -34,19 +31,6 @@ final class PlayerViewModel {
     var scrubTime: String = "00:00"
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
     private var scrubStartProgress: Float = 0
-
-    // Custom focus for transport bar navigation (avoids UIKit/SwiftUI focus conflict)
-    var controlsFocus: ControlsFocus = .progressBar
-
-    enum ControlsFocus: Hashable {
-        case progressBar
-        case audioButton
-        case subtitleButton
-    }
-
-    // Track selection dialogs
-    var showAudioPicker = false
-    var showSubtitlePicker = false
 
     // Subtitles
     var subtitleCues: [SubtitleCue] = []
@@ -241,7 +225,6 @@ final class PlayerViewModel {
             scrubProgress = progress
         }
 
-        // Show full controls UI during seek preview
         showControls = true
         controlsTimer?.cancel()
 
@@ -293,91 +276,6 @@ final class PlayerViewModel {
         }
     }
 
-    // MARK: - Custom Controls Navigation
-
-    func navigateUp() {
-        if !showControls {
-            showControlsTemporarily()
-            return
-        }
-        let hasAudio = !player.audioTracks.isEmpty
-        let hasSubs = !player.subtitleTracks.isEmpty
-
-        switch controlsFocus {
-        case .progressBar:
-            // Cancel any active scrub when leaving progress bar —
-            // otherwise isScrubbing stays true and Select on a track
-            // button would commitScrub() instead of opening the picker.
-            if isScrubbing { cancelScrub() }
-            if hasAudio { controlsFocus = .audioButton }
-            else if hasSubs { controlsFocus = .subtitleButton }
-        case .audioButton, .subtitleButton:
-            break
-        }
-    }
-
-    func navigateDown() {
-        guard showControls else { return }
-        switch controlsFocus {
-        case .audioButton, .subtitleButton:
-            controlsFocus = .progressBar
-        case .progressBar:
-            break
-        }
-    }
-
-    func navigateLeftInControls() {
-        switch controlsFocus {
-        case .subtitleButton:
-            if !player.audioTracks.isEmpty {
-                controlsFocus = .audioButton
-            }
-        default:
-            break
-        }
-    }
-
-    func navigateRightInControls() {
-        switch controlsFocus {
-        case .audioButton:
-            controlsFocus = .subtitleButton
-        default:
-            break
-        }
-    }
-
-    func activateControlsFocus() {
-        // Cancel auto-hide timer — dialog is about to open and will
-        // take focus. Without this, the timer fires during the dialog
-        // and hides controls, causing Menu to dismiss the player.
-        controlsTimer?.cancel()
-        switch controlsFocus {
-        case .progressBar:
-            break
-        case .audioButton:
-            showAudioPicker = true
-        case .subtitleButton:
-            showSubtitlePicker = true
-        }
-    }
-
-    func showControlsTemporarily() {
-        showControls = true
-        controlsFocus = .progressBar
-        scheduleControlsHide()
-    }
-
-    /// Called when a track picker dialog is dismissed — restart the
-    /// auto-hide timer that was paused when the dialog opened.
-    func trackPickerDismissed() {
-        scheduleControlsHide()
-    }
-
-    func hideControls() {
-        showControls = false
-        controlsFocus = .progressBar
-    }
-
     // MARK: - Scrubbing
 
     var effectiveDuration: Double {
@@ -426,6 +324,15 @@ final class PlayerViewModel {
     func cancelScrub() {
         isScrubbing = false
         scheduleControlsHide()
+    }
+
+    func showControlsTemporarily() {
+        showControls = true
+        scheduleControlsHide()
+    }
+
+    func hideControls() {
+        showControls = false
     }
 
     private func scheduleControlsHide() {

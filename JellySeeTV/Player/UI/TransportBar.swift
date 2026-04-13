@@ -2,10 +2,7 @@ import SwiftUI
 import SteelPlayer
 
 /// Native tvOS-style transport bar with progress bar, time labels,
-/// and track selection buttons above the bar on the right.
-///
-/// Uses a custom focus system managed by PlayerViewModel (not SwiftUI
-/// @FocusState) to avoid UIKit/SwiftUI focus conflicts.
+/// and track info display.
 ///
 /// Layout:
 /// ```
@@ -22,11 +19,10 @@ struct TransportBar: View {
     let audioTracks: [TrackInfo]
     let subtitleTracks: [TrackInfo]
     let activeSubtitleIndex: Int?
-    let controlsFocus: PlayerViewModel.ControlsFocus
 
     var body: some View {
         VStack(spacing: 10) {
-            // Scrub time preview (large, centered, only during scrub)
+            // Scrub time preview (large, centered)
             if isScrubbing {
                 Text(scrubTime)
                     .font(.system(size: 56, weight: .medium))
@@ -36,11 +32,11 @@ struct TransportBar: View {
                     .padding(.bottom, 16)
             }
 
-            // Track buttons — right-aligned, above progress bar
+            // Track labels — right-aligned, above progress bar (display only)
             if !audioTracks.isEmpty || !subtitleTracks.isEmpty {
                 HStack {
                     Spacer()
-                    trackButtons
+                    trackLabels
                 }
                 .padding(.bottom, 4)
             }
@@ -68,40 +64,25 @@ struct TransportBar: View {
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
         .animation(.easeInOut(duration: 0.2), value: isScrubbing)
-        .animation(.easeInOut(duration: 0.2), value: controlsFocus)
     }
 
-    // MARK: - Track Buttons
+    // MARK: - Track Labels (display only)
 
-    private var trackButtons: some View {
+    private var trackLabels: some View {
         HStack(spacing: 16) {
             if !audioTracks.isEmpty {
-                trackLabel(
-                    title: String(localized: "player.audio", defaultValue: "Audio"),
-                    icon: "speaker.wave.2",
-                    isFocused: controlsFocus == .audioButton
-                )
+                Label(String(localized: "player.audio", defaultValue: "Audio"), systemImage: "speaker.wave.2")
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.6))
             }
 
-            trackLabel(
-                title: String(localized: "player.subtitles", defaultValue: "Subtitles"),
-                icon: "captions.bubble",
-                isFocused: controlsFocus == .subtitleButton
+            Label(
+                String(localized: "player.subtitles", defaultValue: "Subtitles"),
+                systemImage: "captions.bubble"
             )
-        }
-    }
-
-    private func trackLabel(title: String, icon: String, isFocused: Bool) -> some View {
-        Label(title, systemImage: icon)
             .font(.callout)
-            .foregroundStyle(isFocused ? .white : .white.opacity(0.6))
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(isFocused ? .white.opacity(0.2) : .clear)
-            )
-            .scaleEffect(isFocused ? 1.05 : 1.0)
+            .foregroundStyle(.white.opacity(0.6))
+        }
     }
 
     // MARK: - Progress Bar
@@ -110,29 +91,25 @@ struct TransportBar: View {
         GeometryReader { geo in
             let width = geo.size.width
             let knobX = max(0, min(width, width * CGFloat(progress)))
-            let active = isScrubbing || controlsFocus == .progressBar
-            let trackHeight: CGFloat = active ? 10 : 6
-            let knobSize: CGFloat = active ? 22 : 14
+            let trackHeight: CGFloat = isScrubbing ? 10 : 6
+            let knobSize: CGFloat = isScrubbing ? 22 : 14
 
             ZStack(alignment: .leading) {
-                // Background track
                 Capsule()
                     .fill(.white.opacity(0.2))
                     .frame(height: trackHeight)
 
-                // Filled track
                 Capsule()
                     .fill(.white)
                     .frame(width: knobX, height: trackHeight)
 
-                // Playhead knob
                 Circle()
                     .fill(.white)
                     .frame(width: knobSize, height: knobSize)
                     .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
                     .offset(x: knobX - knobSize / 2)
             }
-            .animation(.easeInOut(duration: 0.2), value: active)
+            .animation(.easeInOut(duration: 0.2), value: isScrubbing)
         }
         .frame(height: 22)
     }

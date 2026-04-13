@@ -24,11 +24,9 @@ struct PlayerView: View {
             if let error = viewModel.errorMessage {
                 errorView(error)
             } else {
-                // Video layer
                 SteelPlayerVideoView(videoLayer: viewModel.player.videoLayer)
                     .ignoresSafeArea()
 
-                // Subtitle overlay
                 if !viewModel.subtitleCues.isEmpty {
                     SubtitleOverlayView(
                         cues: viewModel.subtitleCues,
@@ -36,28 +34,24 @@ struct PlayerView: View {
                     )
                 }
 
-                // Remote input — ALWAYS active, callbacks are state-aware.
-                // No .onExitCommand / .onPlayPauseCommand — they conflict
-                // with UIKit focus on tvOS.
                 RemoteTapHandler(
                     onTap: handleTap,
                     onPlayPause: { viewModel.togglePlayPause() },
                     onMenu: handleMenu,
-                    onLeft: handleLeft,
-                    onRight: handleRight,
-                    onUp: { viewModel.navigateUp() },
-                    onDown: handleDown,
+                    onLeft: { viewModel.seekJump(seconds: -10) },
+                    onRight: { viewModel.seekJump(seconds: 10) },
+                    onUp: { viewModel.showControlsTemporarily() },
+                    onDown: { viewModel.showControlsTemporarily() },
                     onPanChanged: { delta in viewModel.scrub(delta: delta) },
                     onPanEnded: { viewModel.scrubPanEnded() }
                 )
                 .ignoresSafeArea()
 
-                // Loading overlay — focusable(false) prevents ProgressView
-                // from stealing focus from RemoteTapHandler on tvOS.
+                // Loading overlay
                 if viewModel.isLoading {
                     Color.black
                         .ignoresSafeArea()
-                        .overlay(ProgressView().focusable(false))
+                        .overlay(ProgressView())
                         .focusable(false)
                         .allowsHitTesting(false)
                         .transition(.opacity)
@@ -71,33 +65,6 @@ struct PlayerView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
-        // Track selection dialogs — presented modally, handle their own focus.
-        // Auto-hide timer is paused while dialog is open (see activateControlsFocus).
-        .confirmationDialog(
-            String(localized: "player.audio", defaultValue: "Audio"),
-            isPresented: $viewModel.showAudioPicker
-        ) {
-            ForEach(viewModel.player.audioTracks) { track in
-                Button(track.name) { viewModel.selectAudioTrack(id: track.id) }
-            }
-        }
-        .confirmationDialog(
-            String(localized: "player.subtitles", defaultValue: "Subtitles"),
-            isPresented: $viewModel.showSubtitlePicker
-        ) {
-            Button(String(localized: "player.subtitles.off", defaultValue: "Off")) {
-                viewModel.selectSubtitleTrack(id: nil)
-            }
-            ForEach(viewModel.player.subtitleTracks) { track in
-                Button(track.name) { viewModel.selectSubtitleTrack(id: track.id) }
-            }
-        }
-        .onChange(of: viewModel.showAudioPicker) { _, isPresented in
-            if !isPresented { viewModel.trackPickerDismissed() }
-        }
-        .onChange(of: viewModel.showSubtitlePicker) { _, isPresented in
-            if !isPresented { viewModel.trackPickerDismissed() }
-        }
         .task {
             await viewModel.startPlayback()
         }
@@ -133,24 +100,20 @@ struct PlayerView: View {
                     scrubTime: viewModel.scrubTime,
                     audioTracks: viewModel.player.audioTracks,
                     subtitleTracks: viewModel.player.subtitleTracks,
-                    activeSubtitleIndex: viewModel.activeSubtitleIndex,
-                    controlsFocus: viewModel.controlsFocus
+                    activeSubtitleIndex: viewModel.activeSubtitleIndex
                 )
             }
         }
         .transition(.opacity)
     }
 
-    // MARK: - Remote Input Handlers (state-aware)
+    // MARK: - Remote Input Handlers
 
     private func handleTap() {
         #if DEBUG
-        print("[Player] handleTap: showControls=\(viewModel.showControls), focus=\(viewModel.controlsFocus), scrubbing=\(viewModel.isScrubbing)")
+        print("[Player] handleTap: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
         #endif
-        // Track button activation always takes priority
-        if viewModel.showControls && viewModel.controlsFocus != .progressBar {
-            viewModel.activateControlsFocus()
-        } else if viewModel.isScrubbing {
+        if viewModel.isScrubbing {
             viewModel.commitScrub()
         } else if viewModel.showControls {
             viewModel.togglePlayPause()
@@ -161,40 +124,14 @@ struct PlayerView: View {
 
     private func handleMenu() {
         #if DEBUG
-        print("[Player] handleMenu: showControls=\(viewModel.showControls), focus=\(viewModel.controlsFocus), scrubbing=\(viewModel.isScrubbing)")
+        print("[Player] handleMenu: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
         #endif
         if viewModel.isScrubbing {
             viewModel.cancelScrub()
         } else if viewModel.showControls {
-            if viewModel.controlsFocus != .progressBar {
-                viewModel.controlsFocus = .progressBar
-            } else {
-                viewModel.hideControls()
-            }
+            viewModel.hideControls()
         } else {
             dismissPlayer()
-        }
-    }
-
-    private func handleLeft() {
-        if viewModel.showControls && viewModel.controlsFocus != .progressBar {
-            viewModel.navigateLeftInControls()
-        } else {
-            viewModel.seekJump(seconds: -10)
-        }
-    }
-
-    private func handleRight() {
-        if viewModel.showControls && viewModel.controlsFocus != .progressBar {
-            viewModel.navigateRightInControls()
-        } else {
-            viewModel.seekJump(seconds: 10)
-        }
-    }
-
-    private func handleDown() {
-        if viewModel.showControls {
-            viewModel.navigateDown()
         }
     }
 
