@@ -170,7 +170,7 @@ struct TransportBar: View {
                 }
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .frame(minWidth: 200)
+                .fixedSize(horizontal: true, vertical: true)
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
 
