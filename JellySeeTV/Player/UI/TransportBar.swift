@@ -18,6 +18,7 @@ struct TransportBar: View {
     let scrubTime: String
     let audioTracks: [TrackInfo]
     let subtitleTracks: [TrackInfo]
+    let activeAudioIndex: Int?
     let activeSubtitleIndex: Int?
 
     var body: some View {
@@ -71,17 +72,21 @@ struct TransportBar: View {
     private var trackLabels: some View {
         HStack(spacing: 16) {
             if !audioTracks.isEmpty {
-                Label(String(localized: "player.audio", defaultValue: "Audio"), systemImage: "speaker.wave.2")
+                let activeName = audioTracks.first(where: { $0.id == activeAudioIndex })?.name
+                    ?? String(localized: "player.audio", defaultValue: "Audio")
+                Label(activeName, systemImage: "speaker.wave.2")
                     .font(.callout)
                     .foregroundStyle(.white.opacity(0.6))
             }
 
-            Label(
-                String(localized: "player.subtitles", defaultValue: "Subtitles"),
-                systemImage: "captions.bubble"
-            )
-            .font(.callout)
-            .foregroundStyle(.white.opacity(0.6))
+            if !subtitleTracks.isEmpty {
+                let activeName = activeSubtitleIndex.flatMap { idx in
+                    subtitleTracks.first(where: { $0.id == idx })?.name
+                } ?? String(localized: "player.subtitles.off", defaultValue: "Off")
+                Label(activeName, systemImage: "captions.bubble")
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.6))
+            }
         }
     }
 

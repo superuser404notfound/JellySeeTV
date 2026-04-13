@@ -173,11 +173,94 @@ final class PlayerHostController: UIViewController {
     }
 
     @objc private func upPressed() {
-        viewModel.showControlsTemporarily()
+        if viewModel.showControls {
+            showTrackPicker()
+        } else {
+            viewModel.showControlsTemporarily()
+        }
     }
 
     @objc private func downPressed() {
         viewModel.showControlsTemporarily()
+    }
+
+    // MARK: - Track Picker (UIAlertController)
+
+    private func showTrackPicker() {
+        let audioTracks = viewModel.player.audioTracks
+        let subtitleTracks = viewModel.player.subtitleTracks
+        guard !audioTracks.isEmpty || !subtitleTracks.isEmpty else { return }
+
+        // Cancel auto-hide while picker is open
+        viewModel.controlsTimer?.cancel()
+
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        // Audio section
+        for track in audioTracks {
+            let isActive = track.id == viewModel.activeAudioIndex
+            let action = UIAlertAction(
+                title: track.name,
+                style: .default
+            ) { [weak self] _ in
+                self?.viewModel.selectAudioTrack(id: track.id)
+                self?.viewModel.scheduleControlsHide()
+            }
+            action.setValue(
+                UIImage(systemName: isActive ? "speaker.wave.2.fill" : "speaker.wave.2"),
+                forKey: "image"
+            )
+            if isActive { action.setValue(true, forKey: "checked") }
+            alert.addAction(action)
+        }
+
+        // Separator — subtitle header
+        if !audioTracks.isEmpty && !subtitleTracks.isEmpty {
+            let header = UIAlertAction(
+                title: String(localized: "player.subtitles", defaultValue: "Subtitles"),
+                style: .default,
+                handler: { _ in }
+            )
+            header.isEnabled = false
+            alert.addAction(header)
+        }
+
+        // Subtitle: Off
+        let offAction = UIAlertAction(
+            title: String(localized: "player.subtitles.off", defaultValue: "Off"),
+            style: .default
+        ) { [weak self] _ in
+            self?.viewModel.selectSubtitleTrack(id: nil)
+            self?.viewModel.scheduleControlsHide()
+        }
+        if viewModel.activeSubtitleIndex == nil {
+            offAction.setValue(true, forKey: "checked")
+        }
+        alert.addAction(offAction)
+
+        // Subtitle tracks
+        for track in subtitleTracks {
+            let isActive = track.id == viewModel.activeSubtitleIndex
+            let action = UIAlertAction(
+                title: track.name,
+                style: .default
+            ) { [weak self] _ in
+                self?.viewModel.selectSubtitleTrack(id: track.id)
+                self?.viewModel.scheduleControlsHide()
+            }
+            if isActive { action.setValue(true, forKey: "checked") }
+            alert.addAction(action)
+        }
+
+        // Cancel
+        alert.addAction(UIAlertAction(
+            title: String(localized: "player.trackpicker.cancel", defaultValue: "Cancel"),
+            style: .cancel
+        ) { [weak self] _ in
+            self?.viewModel.scheduleControlsHide()
+        })
+
+        present(alert, animated: true)
     }
 
     private func dismissPlayer() {
@@ -282,6 +365,7 @@ private struct PlayerOverlayView: View {
                     scrubTime: viewModel.scrubTime,
                     audioTracks: viewModel.player.audioTracks,
                     subtitleTracks: viewModel.player.subtitleTracks,
+                    activeAudioIndex: viewModel.activeAudioIndex,
                     activeSubtitleIndex: viewModel.activeSubtitleIndex
                 )
             }

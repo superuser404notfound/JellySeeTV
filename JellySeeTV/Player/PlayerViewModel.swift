@@ -32,8 +32,9 @@ final class PlayerViewModel {
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
     private var scrubStartProgress: Float = 0
 
-    // Subtitles
+    // Tracks
     var subtitleCues: [SubtitleCue] = []
+    var activeAudioIndex: Int?
     var activeSubtitleIndex: Int?
 
     // MARK: - Dependencies
@@ -50,7 +51,7 @@ final class PlayerViewModel {
 
     private var cancellables = Set<AnyCancellable>()
     private var progressTimer: Task<Void, Never>?
-    private var controlsTimer: Task<Void, Never>?
+    var controlsTimer: Task<Void, Never>?
     private var hasReportedStart = false
     private var hasStartedPlaying = false
     private var mediaSourceID: String = ""
@@ -138,6 +139,8 @@ final class PlayerViewModel {
             try await player.load(url: url, startPosition: startPos)
 
             totalTime = formatSeconds(effectiveDuration)
+            activeAudioIndex = player.audioTracks.first(where: { $0.isDefault })?.id
+                ?? player.audioTracks.first?.id
             isLoading = false
             isPlaying = true
 
@@ -234,6 +237,7 @@ final class PlayerViewModel {
     }
 
     func selectAudioTrack(id: Int) {
+        activeAudioIndex = id
         player.selectAudioTrack(index: id)
     }
 
@@ -335,7 +339,7 @@ final class PlayerViewModel {
         showControls = false
     }
 
-    private func scheduleControlsHide() {
+    func scheduleControlsHide() {
         controlsTimer?.cancel()
         guard isPlaying else { return }
         controlsTimer = Task {
