@@ -46,8 +46,8 @@ struct PlayerView: View {
                     onRight: handleRight,
                     onPanChanged: { delta in viewModel.scrub(delta: delta) },
                     onPanEnded: {
-                        // After pan ends, wait for confirm click
-                        // (don't auto-commit — user confirms with select)
+                        // Update scrub start so next swipe continues from here
+                        viewModel.scrubPanEnded()
                     }
                 )
                 .ignoresSafeArea()

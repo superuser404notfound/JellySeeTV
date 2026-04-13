@@ -70,9 +70,6 @@ struct TransportBar: View {
 
     // MARK: - Track Buttons
 
-    @State private var showAudioMenu = false
-    @State private var showSubtitleMenu = false
-
     private var trackButtons: some View {
         HStack(spacing: 16) {
             if !audioTracks.isEmpty {

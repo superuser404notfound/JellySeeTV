@@ -254,6 +254,14 @@ final class PlayerViewModel {
         scrubTime = formatSeconds(Double(newProgress) * dur)
     }
 
+    /// Called when pan gesture ends — update start position so the next
+    /// swipe continues from where the user left off, not from the beginning.
+    func scrubPanEnded() {
+        if isScrubbing {
+            scrubStartProgress = scrubProgress
+        }
+    }
+
     /// Commit the scrub — seek to the scrubbed position.
     func commitScrub() {
         let dur = effectiveDuration
@@ -263,8 +271,6 @@ final class PlayerViewModel {
         }
         let targetTime = Double(scrubProgress) * dur
         isScrubbing = false
-        // Update scrub start for potential next gesture
-        scrubStartProgress = scrubProgress
         Task {
             await player.seek(to: targetTime)
             scheduleControlsHide()
