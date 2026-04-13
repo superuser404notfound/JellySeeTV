@@ -26,6 +26,9 @@ struct PlayerView: View {
     var body: some View {
         PlayerHostRepresentable(viewModel: viewModel)
             .ignoresSafeArea()
+            // Block system Menu-dismiss when controls are visible or scrubbing.
+            // When controls are hidden, Menu flows through to system → dismiss.
+            .interactiveDismissDisabled(viewModel.showControls || viewModel.isScrubbing)
             .onExitCommand {
                 handleMenu()
             }
