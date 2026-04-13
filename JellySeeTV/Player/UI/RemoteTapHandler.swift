@@ -2,12 +2,13 @@ import SwiftUI
 
 /// UIViewRepresentable that captures all Siri Remote input for the player.
 ///
-/// Uses TWO mechanisms for maximum reliability:
-/// 1. UITapGestureRecognizer with allowedPressTypes (focus-independent)
-/// 2. pressesBegan/pressesEnded as fallback (focus-dependent)
+/// Press gesture recognizers are attached to the UIWindow (not the view)
+/// because tvOS only delivers press events to the focused view, and
+/// UIHostingController doesn't reliably propagate focus to
+/// UIViewRepresentable subviews. The window always receives events.
 ///
-/// Gesture recognizers should fire first. If they don't (e.g. before
-/// the view has focus), pressesBegan catches it once focus is acquired.
+/// Pan gesture stays on the view — indirect touchpad touches work
+/// without focus (proven by scrubbing always working).
 struct RemoteTapHandler: UIViewRepresentable {
     var onTap: () -> Void
     var onPlayPause: () -> Void
@@ -22,7 +23,6 @@ struct RemoteTapHandler: UIViewRepresentable {
     func makeUIView(context: Context) -> RemoteInputView {
         let view = RemoteInputView()
         applyCallbacks(to: view)
-        view.setupGestureRecognizers()
         return view
     }
 
@@ -44,6 +44,9 @@ struct RemoteTapHandler: UIViewRepresentable {
 }
 
 /// UIView that handles all Siri Remote input.
+///
+/// Press gesture recognizers are on the window (focus-independent).
+/// Pan gesture recognizer is on this view (touchpad works without focus).
 class RemoteInputView: UIView {
     var onTap: (() -> Void)?
     var onPlayPause: (() -> Void)?
@@ -55,163 +58,99 @@ class RemoteInputView: UIView {
     var onPanChanged: ((CGFloat) -> Void)?
     var onPanEnded: (() -> Void)?
 
-    override var canBecomeFocused: Bool { true }
-    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [self] }
-
-    override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
-        #if DEBUG
-        if context.nextFocusedView === self {
-            print("[Remote] ✓ Gained focus")
-        } else if context.previouslyFocusedView === self {
-            print("[Remote] ✗ Lost focus")
-        }
-        #endif
-    }
+    /// Gesture recognizers added to the window — must be cleaned up on removal.
+    private var windowGestures: [UIGestureRecognizer] = []
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
+
+        // Clean up old window gestures
+        for gr in windowGestures {
+            gr.view?.removeGestureRecognizer(gr)
+        }
+        windowGestures.removeAll()
+
+        guard let window else { return }
+
         #if DEBUG
-        print("[Remote] didMoveToWindow, window=\(window != nil), frame=\(frame)")
+        print("[Remote] didMoveToWindow, frame=\(frame)")
         #endif
+
+        // Press gesture recognizers on the WINDOW — window receives press
+        // events regardless of which view has focus. This bypasses the
+        // UIHostingController focus propagation issue entirely.
+        windowGestures.append(addWindowPress(window, .select, #selector(gestureSelect)))
+        windowGestures.append(addWindowPress(window, .playPause, #selector(gesturePlayPause)))
+        windowGestures.append(addWindowPress(window, .menu, #selector(gestureMenu)))
+        windowGestures.append(addWindowPress(window, .leftArrow, #selector(gestureLeft)))
+        windowGestures.append(addWindowPress(window, .rightArrow, #selector(gestureRight)))
+        windowGestures.append(addWindowPress(window, .upArrow, #selector(gestureUp)))
+        windowGestures.append(addWindowPress(window, .downArrow, #selector(gestureDown)))
+
+        // Pan gesture on THIS view — indirect touchpad touches work without focus
+        if gestureRecognizers?.isEmpty ?? true {
+            let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+            pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
+            addGestureRecognizer(pan)
+        }
     }
 
-    // MARK: - Gesture Recognizer Setup (focus-independent)
-
-    func setupGestureRecognizers() {
-        addPressGesture(.select, action: #selector(gestureSelect))
-        addPressGesture(.playPause, action: #selector(gesturePlayPause))
-        addPressGesture(.menu, action: #selector(gestureMenu))
-        addPressGesture(.leftArrow, action: #selector(gestureLeft))
-        addPressGesture(.rightArrow, action: #selector(gestureRight))
-        addPressGesture(.upArrow, action: #selector(gestureUp))
-        addPressGesture(.downArrow, action: #selector(gestureDown))
-
-        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
-        addGestureRecognizer(pan)
-    }
-
-    private func addPressGesture(_ pressType: UIPress.PressType, action: Selector) {
+    private func addWindowPress(_ window: UIWindow, _ type: UIPress.PressType, _ action: Selector) -> UIGestureRecognizer {
         let tap = UITapGestureRecognizer(target: self, action: action)
-        tap.allowedPressTypes = [NSNumber(value: pressType.rawValue)]
-        addGestureRecognizer(tap)
+        tap.allowedPressTypes = [NSNumber(value: type.rawValue)]
+        window.addGestureRecognizer(tap)
+        return tap
     }
 
-    // MARK: - Gesture Handlers
+    deinit {
+        for gr in windowGestures {
+            gr.view?.removeGestureRecognizer(gr)
+        }
+    }
+
+    // MARK: - Press Handlers
 
     @objc private func gestureSelect() {
         #if DEBUG
-        print("[Remote] GR: select")
+        print("[Remote] select")
         #endif
         onTap?()
     }
     @objc private func gesturePlayPause() {
         #if DEBUG
-        print("[Remote] GR: playPause")
+        print("[Remote] playPause")
         #endif
         onPlayPause?()
     }
     @objc private func gestureMenu() {
         #if DEBUG
-        print("[Remote] GR: menu")
+        print("[Remote] menu")
         #endif
         onMenu?()
     }
     @objc private func gestureLeft() {
         #if DEBUG
-        print("[Remote] GR: left")
+        print("[Remote] left")
         #endif
         onLeft?()
     }
     @objc private func gestureRight() {
         #if DEBUG
-        print("[Remote] GR: right")
+        print("[Remote] right")
         #endif
         onRight?()
     }
     @objc private func gestureUp() {
         #if DEBUG
-        print("[Remote] GR: up")
+        print("[Remote] up")
         #endif
         onUp?()
     }
     @objc private func gestureDown() {
         #if DEBUG
-        print("[Remote] GR: down")
+        print("[Remote] down")
         #endif
         onDown?()
-    }
-
-    // MARK: - Press Handling (fallback, requires focus)
-
-    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        var consumed = false
-        for press in presses {
-            switch press.type {
-            case .select, .playPause, .menu, .leftArrow, .rightArrow, .upArrow, .downArrow:
-                consumed = true
-            default:
-                break
-            }
-        }
-        if !consumed {
-            super.pressesBegan(presses, with: event)
-        }
-    }
-
-    override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        var consumed = false
-        for press in presses {
-            switch press.type {
-            case .select:
-                #if DEBUG
-                print("[Remote] PE: select")
-                #endif
-                onTap?()
-                consumed = true
-            case .playPause:
-                #if DEBUG
-                print("[Remote] PE: playPause")
-                #endif
-                onPlayPause?()
-                consumed = true
-            case .menu:
-                #if DEBUG
-                print("[Remote] PE: menu")
-                #endif
-                onMenu?()
-                consumed = true
-            case .leftArrow:
-                #if DEBUG
-                print("[Remote] PE: left")
-                #endif
-                onLeft?()
-                consumed = true
-            case .rightArrow:
-                #if DEBUG
-                print("[Remote] PE: right")
-                #endif
-                onRight?()
-                consumed = true
-            case .upArrow:
-                #if DEBUG
-                print("[Remote] PE: up")
-                #endif
-                onUp?()
-                consumed = true
-            case .downArrow:
-                #if DEBUG
-                print("[Remote] PE: down")
-                #endif
-                onDown?()
-                consumed = true
-            default:
-                break
-            }
-        }
-        if !consumed {
-            super.pressesEnded(presses, with: event)
-        }
     }
 
     // MARK: - Pan (Touchpad Scrubbing)
