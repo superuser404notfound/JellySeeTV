@@ -32,9 +32,7 @@ struct RemoteTapHandler: UIViewRepresentable {
 
     func updateUIView(_ uiView: RemoteInputView, context: Context) {
         applyCallbacks(to: uiView)
-        // Reclaim focus via the parent view controller — calling on the
-        // view itself doesn't work reliably in a SwiftUI hosting hierarchy.
-        uiView.reclaimFocus()
+        uiView.claimInput()
     }
 
     private func applyCallbacks(to view: RemoteInputView) {
@@ -62,7 +60,9 @@ class RemoteInputView: UIView {
     var onPanChanged: ((CGFloat) -> Void)?
     var onPanEnded: (() -> Void)?
 
+    override var canBecomeFirstResponder: Bool { true }
     override var canBecomeFocused: Bool { true }
+    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [self] }
 
     // Suppress default focus animation to avoid _UIReplicantView warnings
     // inside UIHostingController's view hierarchy.
@@ -73,33 +73,20 @@ class RemoteInputView: UIView {
     override func didMoveToWindow() {
         super.didMoveToWindow()
         guard window != nil else { return }
-        reclaimFocus()
+        claimInput()
     }
 
-    /// Request focus via the nearest view controller in the responder chain.
-    /// Calling setNeedsFocusUpdate on the view itself doesn't work reliably
-    /// inside SwiftUI's UIHostingController hierarchy.
-    func reclaimFocus() {
-        guard !isFocused, window != nil else { return }
+    /// Claim input by becoming first responder. On tvOS, first responder
+    /// and focus are coupled — becomeFirstResponder() also acquires focus.
+    /// This is more reliable than setNeedsFocusUpdate() inside SwiftUI's
+    /// UIHostingController hierarchy, which doesn't propagate focus to
+    /// UIViewRepresentable subviews.
+    func claimInput() {
+        guard !isFirstResponder, window != nil else { return }
         DispatchQueue.main.async { [weak self] in
-            guard let self, !self.isFocused else { return }
-            if let vc = self.nearestViewController() {
-                vc.setNeedsFocusUpdate()
-                vc.updateFocusIfNeeded()
-            }
+            self?.becomeFirstResponder()
         }
     }
-
-    private func nearestViewController() -> UIViewController? {
-        var responder: UIResponder? = self
-        while let next = responder?.next {
-            if let vc = next as? UIViewController { return vc }
-            responder = next
-        }
-        return nil
-    }
-
-    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [self] }
 
     // MARK: - Press Handling
 
