@@ -8,6 +8,7 @@ struct MovieDetailView: View {
     @State private var navigateToItem: JellyfinItem?
     @State private var showPlayer = false
     @State private var playFromBeginning = false
+    @FocusState private var playButtonFocused: Bool
 
     let item: JellyfinItem
 
@@ -32,7 +33,13 @@ struct MovieDetailView: View {
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo
                 )
                 .allowsHitTesting(false)
-                .frame(width: 0, height: 0)
+            }
+        }
+        .onChange(of: showPlayer) { _, isPlaying in
+            if !isPlaying {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    playButtonFocused = true
+                }
             }
         }
         .navigationDestination(item: $navigateToItem) { item in
@@ -135,6 +142,7 @@ struct MovieDetailView: View {
                         showPlayer = true
                     }
                 )
+                .focused($playButtonFocused)
 
                 if hasProgress(vm: vm) {
                     GlassActionButton(

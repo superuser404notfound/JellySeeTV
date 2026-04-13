@@ -91,11 +91,20 @@ struct SeriesDetailView: View {
                     }
                 )
                 .allowsHitTesting(false)
-                .frame(width: 0, height: 0)
             }
         }
         .onChange(of: showPlayer) { _, isPlaying in
-            if !isPlaying { playItem = nil }
+            if !isPlaying {
+                // Restore focus to the episode that was just played.
+                // focusedEpisodeID is already bound to episode cards via
+                // .focused($focusedEpisodeID, equals: episode.id)
+                if let ep = playItem {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        focusedEpisodeID = ep.id
+                    }
+                }
+                playItem = nil
+            }
         }
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
