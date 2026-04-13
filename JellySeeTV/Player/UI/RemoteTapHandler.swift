@@ -2,12 +2,11 @@ import SwiftUI
 
 /// UIViewRepresentable that captures all Siri Remote input for the player.
 ///
-/// On tvOS, SwiftUI command modifiers (.onExitCommand, .onPlayPauseCommand)
-/// conflict with UIKit focus when both systems are used simultaneously.
-/// This handler captures ALL remote input via UIKit, avoiding focus issues.
-///
-/// Always active — callbacks are state-aware and decide behavior based on
-/// player state (controls hidden/visible, scrubbing, etc).
+/// Uses UITapGestureRecognizer with allowedPressTypes instead of
+/// pressesBegan/pressesEnded. Gesture recognizers operate BEFORE the
+/// tvOS focus engine — they fire without the view needing focus.
+/// This fixes the "double-click required" issue where the first press
+/// was consumed by the focus system instead of triggering the action.
 struct RemoteTapHandler: UIViewRepresentable {
     var onTap: () -> Void
     var onPlayPause: () -> Void
@@ -22,17 +21,12 @@ struct RemoteTapHandler: UIViewRepresentable {
     func makeUIView(context: Context) -> RemoteInputView {
         let view = RemoteInputView()
         applyCallbacks(to: view)
-
-        let pan = UIPanGestureRecognizer(target: view, action: #selector(RemoteInputView.handlePan(_:)))
-        pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
-        view.addGestureRecognizer(pan)
-
+        view.setupGestureRecognizers()
         return view
     }
 
     func updateUIView(_ uiView: RemoteInputView, context: Context) {
         applyCallbacks(to: uiView)
-        uiView.claimInput()
     }
 
     private func applyCallbacks(to view: RemoteInputView) {
@@ -48,7 +42,12 @@ struct RemoteTapHandler: UIViewRepresentable {
     }
 }
 
-/// UIView that handles all Siri Remote presses + touchpad pan gestures.
+/// UIView that handles all Siri Remote input via gesture recognizers.
+///
+/// Gesture recognizers fire independently of the tvOS focus system —
+/// no need for the view to be focused or first responder. This is the
+/// same mechanism that makes UIPanGestureRecognizer work for touchpad
+/// scrubbing without focus.
 class RemoteInputView: UIView {
     var onTap: (() -> Void)?
     var onPlayPause: (() -> Void)?
@@ -60,88 +59,49 @@ class RemoteInputView: UIView {
     var onPanChanged: ((CGFloat) -> Void)?
     var onPanEnded: (() -> Void)?
 
-    override var canBecomeFirstResponder: Bool { true }
+    /// Prevent tvOS focus engine from interfering — this view handles
+    /// input via gesture recognizers, not through the responder chain.
     override var canBecomeFocused: Bool { true }
-    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [self] }
 
-    // Suppress default focus animation to avoid _UIReplicantView warnings
-    // inside UIHostingController's view hierarchy.
     override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
-        // No visual feedback — this view is an invisible input handler
+        // No visual focus effect — invisible input handler
     }
 
-    override func didMoveToWindow() {
-        super.didMoveToWindow()
-        guard window != nil else { return }
-        claimInput()
+    // MARK: - Gesture Recognizer Setup
+
+    func setupGestureRecognizers() {
+        addPressGesture(.select, action: #selector(handleSelect))
+        addPressGesture(.playPause, action: #selector(handlePlayPause))
+        addPressGesture(.menu, action: #selector(handleMenu))
+        addPressGesture(.leftArrow, action: #selector(handleLeftArrow))
+        addPressGesture(.rightArrow, action: #selector(handleRightArrow))
+        addPressGesture(.upArrow, action: #selector(handleUpArrow))
+        addPressGesture(.downArrow, action: #selector(handleDownArrow))
+
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
+        addGestureRecognizer(pan)
     }
 
-    /// Claim input by becoming first responder. On tvOS, first responder
-    /// and focus are coupled — becomeFirstResponder() also acquires focus.
-    /// This is more reliable than setNeedsFocusUpdate() inside SwiftUI's
-    /// UIHostingController hierarchy, which doesn't propagate focus to
-    /// UIViewRepresentable subviews.
-    func claimInput() {
-        guard !isFirstResponder, window != nil else { return }
-        DispatchQueue.main.async { [weak self] in
-            self?.becomeFirstResponder()
-        }
+    private func addPressGesture(_ pressType: UIPress.PressType, action: Selector) {
+        let tap = UITapGestureRecognizer(target: self, action: action)
+        tap.allowedPressTypes = [NSNumber(value: pressType.rawValue)]
+        addGestureRecognizer(tap)
     }
 
-    // MARK: - Press Handling
+    // MARK: - Press Handlers
 
-    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        var consumed = false
-        for press in presses {
-            switch press.type {
-            case .select, .playPause, .menu, .leftArrow, .rightArrow, .upArrow, .downArrow:
-                consumed = true
-            default:
-                break
-            }
-        }
-        if !consumed {
-            super.pressesBegan(presses, with: event)
-        }
-    }
-
-    override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        var consumed = false
-        for press in presses {
-            switch press.type {
-            case .select:
-                onTap?()
-                consumed = true
-            case .playPause:
-                onPlayPause?()
-                consumed = true
-            case .menu:
-                onMenu?()
-                consumed = true
-            case .leftArrow:
-                onLeft?()
-                consumed = true
-            case .rightArrow:
-                onRight?()
-                consumed = true
-            case .upArrow:
-                onUp?()
-                consumed = true
-            case .downArrow:
-                onDown?()
-                consumed = true
-            default:
-                break
-            }
-        }
-        if !consumed {
-            super.pressesEnded(presses, with: event)
-        }
-    }
+    @objc private func handleSelect() { onTap?() }
+    @objc private func handlePlayPause() { onPlayPause?() }
+    @objc private func handleMenu() { onMenu?() }
+    @objc private func handleLeftArrow() { onLeft?() }
+    @objc private func handleRightArrow() { onRight?() }
+    @objc private func handleUpArrow() { onUp?() }
+    @objc private func handleDownArrow() { onDown?() }
 
     // MARK: - Pan (Touchpad Scrubbing)
 
-    @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
         case .changed:
             let width = max(bounds.width, 1)
