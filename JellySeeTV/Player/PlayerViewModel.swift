@@ -305,6 +305,10 @@ final class PlayerViewModel {
 
         switch controlsFocus {
         case .progressBar:
+            // Cancel any active scrub when leaving progress bar —
+            // otherwise isScrubbing stays true and Select on a track
+            // button would commitScrub() instead of opening the picker.
+            if isScrubbing { cancelScrub() }
             if hasAudio { controlsFocus = .audioButton }
             else if hasSubs { controlsFocus = .subtitleButton }
         case .audioButton, .subtitleButton:

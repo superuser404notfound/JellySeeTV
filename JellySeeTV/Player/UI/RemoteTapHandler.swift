@@ -32,6 +32,13 @@ struct RemoteTapHandler: UIViewRepresentable {
 
     func updateUIView(_ uiView: RemoteInputView, context: Context) {
         applyCallbacks(to: uiView)
+        // Reclaim focus after view hierarchy changes (e.g. loading overlay
+        // removed). Async ensures SwiftUI has finished its layout pass.
+        // No-op if already focused.
+        DispatchQueue.main.async {
+            uiView.setNeedsFocusUpdate()
+            uiView.updateFocusIfNeeded()
+        }
     }
 
     private func applyCallbacks(to view: RemoteInputView) {
