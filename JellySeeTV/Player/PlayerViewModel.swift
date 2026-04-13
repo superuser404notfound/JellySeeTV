@@ -8,6 +8,9 @@ import SteelPlayer
 ///
 /// Uses Combine subscriptions to observe SteelPlayer's @Published
 /// properties instead of polling timers — eliminates AttributeGraph cycles.
+///
+/// Implements a custom focus system for transport bar navigation since
+/// UIKit (RemoteTapHandler) and SwiftUI focus systems conflict on tvOS.
 @Observable
 @MainActor
 final class PlayerViewModel {
@@ -31,6 +34,19 @@ final class PlayerViewModel {
     var scrubTime: String = "00:00"
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
     private var scrubStartProgress: Float = 0
+
+    // Custom focus for transport bar navigation (avoids UIKit/SwiftUI focus conflict)
+    var controlsFocus: ControlsFocus = .progressBar
+
+    enum ControlsFocus: Hashable {
+        case progressBar
+        case audioButton
+        case subtitleButton
+    }
+
+    // Track selection dialogs
+    var showAudioPicker = false
+    var showSubtitlePicker = false
 
     // Subtitles
     var subtitleCues: [SubtitleCue] = []
@@ -225,6 +241,10 @@ final class PlayerViewModel {
             scrubProgress = progress
         }
 
+        // Show full controls UI during seek preview
+        showControls = true
+        controlsTimer?.cancel()
+
         let jumpProgress = Float(seconds / dur)
         scrubProgress = max(0, min(1, scrubProgress + jumpProgress))
         scrubTime = formatSeconds(Double(scrubProgress) * dur)
@@ -273,6 +293,69 @@ final class PlayerViewModel {
         }
     }
 
+    // MARK: - Custom Controls Navigation
+
+    func navigateUp() {
+        guard showControls else { return }
+        let hasAudio = !player.audioTracks.isEmpty
+        let hasSubs = !player.subtitleTracks.isEmpty
+
+        switch controlsFocus {
+        case .progressBar:
+            if hasAudio { controlsFocus = .audioButton }
+            else if hasSubs { controlsFocus = .subtitleButton }
+        case .audioButton, .subtitleButton:
+            break
+        }
+    }
+
+    func navigateDown() {
+        guard showControls else { return }
+        switch controlsFocus {
+        case .audioButton, .subtitleButton:
+            controlsFocus = .progressBar
+        case .progressBar:
+            break
+        }
+    }
+
+    func navigateLeftInControls() {
+        switch controlsFocus {
+        case .subtitleButton:
+            if !player.audioTracks.isEmpty {
+                controlsFocus = .audioButton
+            }
+        default:
+            break
+        }
+    }
+
+    func navigateRightInControls() {
+        switch controlsFocus {
+        case .audioButton:
+            controlsFocus = .subtitleButton
+        default:
+            break
+        }
+    }
+
+    func activateControlsFocus() {
+        switch controlsFocus {
+        case .progressBar:
+            break
+        case .audioButton:
+            showAudioPicker = true
+        case .subtitleButton:
+            showSubtitlePicker = true
+        }
+    }
+
+    func showControlsTemporarily() {
+        showControls = true
+        controlsFocus = .progressBar
+        scheduleControlsHide()
+    }
+
     // MARK: - Scrubbing
 
     var effectiveDuration: Double {
@@ -313,20 +396,13 @@ final class PlayerViewModel {
         let targetTime = Double(scrubProgress) * dur
         isScrubbing = false
         Task {
-            do {
-                await player.seek(to: targetTime)
-            }
+            await player.seek(to: targetTime)
             scheduleControlsHide()
         }
     }
 
     func cancelScrub() {
         isScrubbing = false
-        scheduleControlsHide()
-    }
-
-    func showControlsTemporarily() {
-        showControls = true
         scheduleControlsHide()
     }
 

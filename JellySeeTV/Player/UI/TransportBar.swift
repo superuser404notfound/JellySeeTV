@@ -1,8 +1,11 @@
 import SwiftUI
 import SteelPlayer
 
-/// Native tvOS-style transport bar with focusable progress bar,
-/// time labels, and track selection menus.
+/// Native tvOS-style transport bar with progress bar, time labels,
+/// and track selection buttons above the bar on the right.
+///
+/// Uses a custom focus system managed by PlayerViewModel (not SwiftUI
+/// @FocusState) to avoid UIKit/SwiftUI focus conflicts.
 ///
 /// Layout:
 /// ```
@@ -10,10 +13,6 @@ import SteelPlayer
 /// ═══════════════════●══════════════════════
 /// 00:12:34                        -01:23:45
 /// ```
-///
-/// When controls are visible, the progress bar receives default focus.
-/// Left/Right arrows trigger seek jumps, Select confirms scrub or
-/// toggles play/pause.
 struct TransportBar: View {
     let progress: Float
     let currentTime: String
@@ -23,20 +22,11 @@ struct TransportBar: View {
     let audioTracks: [TrackInfo]
     let subtitleTracks: [TrackInfo]
     let activeSubtitleIndex: Int?
-    let onSelectAudio: (Int) -> Void
-    let onSelectSubtitle: (Int?) -> Void
-    let onSeekJump: (Double) -> Void
-    let onProgressSelect: () -> Void
-
-    @FocusState private var focusedElement: Element?
-
-    private enum Element: Hashable {
-        case progressBar
-    }
+    let controlsFocus: PlayerViewModel.ControlsFocus
 
     var body: some View {
         VStack(spacing: 10) {
-            // Scrub time preview
+            // Scrub time preview (large, centered, only during scrub)
             if isScrubbing {
                 Text(scrubTime)
                     .font(.system(size: 56, weight: .medium))
@@ -55,19 +45,8 @@ struct TransportBar: View {
                 .padding(.bottom, 4)
             }
 
-            // Focusable progress bar
-            Button(action: onProgressSelect) {
-                progressBar
-            }
-            .buttonStyle(.plain)
-            .focused($focusedElement, equals: .progressBar)
-            .onMoveCommand { direction in
-                switch direction {
-                case .left: onSeekJump(-10)
-                case .right: onSeekJump(10)
-                default: break
-                }
-            }
+            // Progress bar
+            progressBar
 
             // Time labels
             HStack {
@@ -89,7 +68,7 @@ struct TransportBar: View {
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
         .animation(.easeInOut(duration: 0.2), value: isScrubbing)
-        .defaultFocus($focusedElement, .progressBar)
+        .animation(.easeInOut(duration: 0.2), value: controlsFocus)
     }
 
     // MARK: - Track Buttons
@@ -97,45 +76,32 @@ struct TransportBar: View {
     private var trackButtons: some View {
         HStack(spacing: 16) {
             if !audioTracks.isEmpty {
-                Menu {
-                    ForEach(audioTracks) { track in
-                        Button(action: { onSelectAudio(track.id) }) {
-                            Label(track.name, systemImage: "speaker.wave.2")
-                        }
-                    }
-                } label: {
-                    Label(String(localized: "player.audio", defaultValue: "Audio"), systemImage: "speaker.wave.2")
-                        .font(.callout)
-                        .foregroundStyle(.white.opacity(0.8))
-                }
-                .buttonStyle(.plain)
+                trackLabel(
+                    title: String(localized: "player.audio", defaultValue: "Audio"),
+                    icon: "speaker.wave.2",
+                    isFocused: controlsFocus == .audioButton
+                )
             }
 
-            Menu {
-                Button(action: { onSelectSubtitle(nil) }) {
-                    Label(
-                        String(localized: "player.subtitles.off", defaultValue: "Off"),
-                        systemImage: activeSubtitleIndex == nil ? "checkmark" : "circle"
-                    )
-                }
-                ForEach(subtitleTracks) { track in
-                    Button(action: { onSelectSubtitle(track.id) }) {
-                        Label(
-                            track.name,
-                            systemImage: track.id == activeSubtitleIndex ? "checkmark" : "circle"
-                        )
-                    }
-                }
-            } label: {
-                Label(
-                    String(localized: "player.subtitles", defaultValue: "Subtitles"),
-                    systemImage: "captions.bubble"
-                )
-                .font(.callout)
-                .foregroundStyle(.white.opacity(0.8))
-            }
-            .buttonStyle(.plain)
+            trackLabel(
+                title: String(localized: "player.subtitles", defaultValue: "Subtitles"),
+                icon: "captions.bubble",
+                isFocused: controlsFocus == .subtitleButton
+            )
         }
+    }
+
+    private func trackLabel(title: String, icon: String, isFocused: Bool) -> some View {
+        Label(title, systemImage: icon)
+            .font(.callout)
+            .foregroundStyle(isFocused ? .white : .white.opacity(0.6))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isFocused ? .white.opacity(0.2) : .clear)
+            )
+            .scaleEffect(isFocused ? 1.05 : 1.0)
     }
 
     // MARK: - Progress Bar
@@ -144,7 +110,7 @@ struct TransportBar: View {
         GeometryReader { geo in
             let width = geo.size.width
             let knobX = max(0, min(width, width * CGFloat(progress)))
-            let active = isScrubbing || focusedElement == .progressBar
+            let active = isScrubbing || controlsFocus == .progressBar
             let trackHeight: CGFloat = active ? 10 : 6
             let knobSize: CGFloat = active ? 22 : 14
 

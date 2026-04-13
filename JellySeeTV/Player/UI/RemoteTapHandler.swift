@@ -1,19 +1,21 @@
 import SwiftUI
 
-/// UIViewRepresentable that captures Siri Remote input for the player.
+/// UIViewRepresentable that captures all Siri Remote input for the player.
 ///
-/// On tvOS, SwiftUI command modifiers don't fire reliably when focus is on
-/// a UIKit view, so we handle all press types and touchpad gestures here.
+/// On tvOS, SwiftUI command modifiers (.onExitCommand, .onPlayPauseCommand)
+/// conflict with UIKit focus when both systems are used simultaneously.
+/// This handler captures ALL remote input via UIKit, avoiding focus issues.
 ///
-/// The `isActive` flag controls whether this view grabs focus. Set to false
-/// when showing overlays (track selection) so SwiftUI buttons can receive focus.
+/// Always active — callbacks are state-aware and decide behavior based on
+/// player state (controls hidden/visible, scrubbing, etc).
 struct RemoteTapHandler: UIViewRepresentable {
-    var isActive: Bool = true
     var onTap: () -> Void
     var onPlayPause: () -> Void
     var onMenu: () -> Void
     var onLeft: () -> Void
     var onRight: () -> Void
+    var onUp: (() -> Void)?
+    var onDown: (() -> Void)?
     var onPanChanged: ((CGFloat) -> Void)?
     var onPanEnded: (() -> Void)?
 
@@ -30,13 +32,6 @@ struct RemoteTapHandler: UIViewRepresentable {
 
     func updateUIView(_ uiView: RemoteInputView, context: Context) {
         applyCallbacks(to: uiView)
-        uiView.isInputActive = isActive
-
-        if isActive {
-            // Reclaim focus when re-activated
-            uiView.setNeedsFocusUpdate()
-            uiView.updateFocusIfNeeded()
-        }
     }
 
     private func applyCallbacks(to view: RemoteInputView) {
@@ -45,6 +40,8 @@ struct RemoteTapHandler: UIViewRepresentable {
         view.onMenu = onMenu
         view.onLeft = onLeft
         view.onRight = onRight
+        view.onUp = onUp
+        view.onDown = onDown
         view.onPanChanged = onPanChanged
         view.onPanEnded = onPanEnded
     }
@@ -57,26 +54,23 @@ class RemoteInputView: UIView {
     var onMenu: (() -> Void)?
     var onLeft: (() -> Void)?
     var onRight: (() -> Void)?
+    var onUp: (() -> Void)?
+    var onDown: (() -> Void)?
     var onPanChanged: ((CGFloat) -> Void)?
     var onPanEnded: (() -> Void)?
 
-    /// When false, this view releases focus so SwiftUI views can receive it.
-    var isInputActive = true
-
-    override var canBecomeFocused: Bool { isInputActive }
+    override var canBecomeFocused: Bool { true }
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
-        guard window != nil, isInputActive else { return }
+        guard window != nil else { return }
         DispatchQueue.main.async { [weak self] in
             self?.setNeedsFocusUpdate()
             self?.updateFocusIfNeeded()
         }
     }
 
-    override var preferredFocusEnvironments: [any UIFocusEnvironment] {
-        isInputActive ? [self] : []
-    }
+    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [self] }
 
     // MARK: - Press Handling
 
@@ -84,7 +78,7 @@ class RemoteInputView: UIView {
         var consumed = false
         for press in presses {
             switch press.type {
-            case .select, .playPause, .menu, .leftArrow, .rightArrow:
+            case .select, .playPause, .menu, .leftArrow, .rightArrow, .upArrow, .downArrow:
                 consumed = true
             default:
                 break
@@ -113,6 +107,12 @@ class RemoteInputView: UIView {
                 consumed = true
             case .rightArrow:
                 onRight?()
+                consumed = true
+            case .upArrow:
+                onUp?()
+                consumed = true
+            case .downArrow:
+                onDown?()
                 consumed = true
             default:
                 break
