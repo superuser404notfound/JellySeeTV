@@ -62,10 +62,6 @@ final class PlayerHostController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
 
-        // Prevent tvOS from dismissing the fullScreenCover on Menu press —
-        // we handle Menu ourselves in pressesEnded.
-        isModalInPresentation = true
-
         // Video layer — added directly, no UIViewRepresentable wrapper needed
         let videoLayer = viewModel.player.videoLayer
         view.layer.addSublayer(videoLayer)
@@ -94,6 +90,27 @@ final class PlayerHostController: UIViewController {
 
         // Start playback
         Task { await viewModel.startPlayback() }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // fullScreenCover wraps us in a UIHostingController. We need
+        // isModalInPresentation on THAT VC to prevent tvOS from
+        // auto-dismissing the modal on Menu press.
+        var vc: UIViewController? = self
+        while vc != nil {
+            vc?.isModalInPresentation = true
+            vc = vc?.parent
+        }
+        #if DEBUG
+        print("[Player] viewDidAppear, parent chain: ", terminator: "")
+        var dbg: UIViewController? = self
+        while dbg != nil {
+            print("\(type(of: dbg!)) → ", terminator: "")
+            dbg = dbg?.parent
+        }
+        print("nil")
+        #endif
     }
 
     override func viewDidLayoutSubviews() {
@@ -172,6 +189,9 @@ final class PlayerHostController: UIViewController {
     }
 
     private func handleMenu() {
+        #if DEBUG
+        print("[Player] handleMenu: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
+        #endif
         if viewModel.isScrubbing {
             viewModel.cancelScrub()
         } else if viewModel.showControls {
