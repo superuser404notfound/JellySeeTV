@@ -1,93 +1,67 @@
 import SwiftUI
 import SteelPlayer
 
-// MARK: - SwiftUI Wrapper (owns ViewModel + handles Menu)
+// MARK: - Player Launcher (UIKit modal presentation)
 
-/// SwiftUI wrapper that:
-/// 1. Owns the PlayerViewModel (shared with the UIViewController)
-/// 2. Handles Menu via .onExitCommand (tvOS intercepts Menu at the
-///    presentation level — pressesBegan on a child VC never receives it)
-/// 3. Contains the UIViewControllerRepresentable for the actual player
-struct PlayerView: View {
-    @State private var viewModel: PlayerViewModel
-    let onDismiss: () -> Void
+/// Presents PlayerHostController as a UIKit modal (NOT SwiftUI fullScreenCover).
+///
+/// On tvOS, SwiftUI's fullScreenCover intercepts the Menu button at the
+/// presentation level — pressesBegan, .onExitCommand, and gesture recognizers
+/// on child VCs never receive it. UIKit modals don't have this problem:
+/// UITapGestureRecognizer for .menu on the presented VC's view works.
+struct PlayerLauncher: UIViewControllerRepresentable {
+    @Binding var isPresented: Bool
+    let item: JellyfinItem
+    let startFromBeginning: Bool
+    let playbackService: JellyfinPlaybackServiceProtocol
+    let userID: String
+    var cachedPlaybackInfo: PlaybackInfoResponse?
 
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, onDismiss: @escaping () -> Void) {
-        _viewModel = State(initialValue: PlayerViewModel(
-            item: item,
-            startFromBeginning: startFromBeginning,
-            playbackService: playbackService,
-            userID: userID,
-            cachedPlaybackInfo: cachedPlaybackInfo
-        ))
-        self.onDismiss = onDismiss
+    func makeUIViewController(context: Context) -> UIViewController {
+        let vc = UIViewController()
+        vc.view.backgroundColor = .clear
+        vc.view.isUserInteractionEnabled = false
+        return vc
     }
 
-    var body: some View {
-        PlayerHostRepresentable(viewModel: viewModel)
-            .ignoresSafeArea()
-            // Block system Menu-dismiss when controls are visible or scrubbing.
-            // When controls are hidden, Menu flows through to system → dismiss.
-            .interactiveDismissDisabled(viewModel.showControls || viewModel.isScrubbing)
-            .onExitCommand {
-                handleMenu()
-            }
-    }
-
-    private func handleMenu() {
-        #if DEBUG
-        print("[Player] handleMenu: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
-        #endif
-        if viewModel.isScrubbing {
-            viewModel.cancelScrub()
-        } else if viewModel.showControls {
-            viewModel.hideControls()
-        } else {
-            viewModel.player.stop()
-            Task {
-                await viewModel.stopPlayback()
-                onDismiss()
-            }
+    func updateUIViewController(_ host: UIViewController, context: Context) {
+        if isPresented && host.presentedViewController == nil {
+            let vm = PlayerViewModel(
+                item: item,
+                startFromBeginning: startFromBeginning,
+                playbackService: playbackService,
+                userID: userID,
+                cachedPlaybackInfo: cachedPlaybackInfo
+            )
+            let player = PlayerHostController(viewModel: vm, onDismiss: {
+                host.dismiss(animated: false) {
+                    isPresented = false
+                }
+            })
+            player.modalPresentationStyle = .fullScreen
+            host.present(player, animated: false)
+        } else if !isPresented, host.presentedViewController != nil {
+            host.dismiss(animated: false)
         }
     }
 }
 
-// MARK: - UIViewControllerRepresentable
-
-/// Bridges PlayerHostController into SwiftUI. The VC handles Select,
-/// Arrows, Play/Pause, and Touchpad via pressesBegan/pressesEnded.
-/// Menu is handled by the SwiftUI wrapper's .onExitCommand.
-private struct PlayerHostRepresentable: UIViewControllerRepresentable {
-    let viewModel: PlayerViewModel
-
-    func makeUIViewController(context: Context) -> PlayerHostController {
-        PlayerHostController(viewModel: viewModel)
-    }
-
-    func updateUIViewController(_ vc: PlayerHostController, context: Context) {}
-}
-
 // MARK: - Player View Controller
 
-/// Full-screen video player controller.
+/// Full-screen video player that handles ALL Siri Remote input.
 ///
-/// Handles all Siri Remote input EXCEPT Menu (which tvOS intercepts
-/// at the presentation level — handled by SwiftUI .onExitCommand).
-///
-/// Architecture:
-/// ```
-/// PlayerHostController (UIViewController)
-/// ├── videoLayer (CALayer, direct sublayer)
-/// ├── UIHostingController (child VC, display-only SwiftUI overlays)
-/// │   └── PlayerOverlayView
-/// └── UIPanGestureRecognizer (touchpad scrubbing)
-/// ```
+/// Presented via UIKit `present(_:animated:)` — NOT SwiftUI fullScreenCover.
+/// This is critical: UIKit modals allow UITapGestureRecognizer to intercept
+/// the Menu button, while SwiftUI fullScreenCover steals it at the
+/// presentation level.
 @MainActor
 final class PlayerHostController: UIViewController {
     private let viewModel: PlayerViewModel
+    private let onDismiss: () -> Void
 
-    init(viewModel: PlayerViewModel) {
+    init(viewModel: PlayerViewModel, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
+        self.onDismiss = onDismiss
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -111,6 +85,15 @@ final class PlayerHostController: UIViewController {
         hosting.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         hosting.didMove(toParent: self)
 
+        // Gesture recognizers for ALL buttons including Menu
+        addPressGesture(.select, action: #selector(selectPressed))
+        addPressGesture(.playPause, action: #selector(playPausePressed))
+        addPressGesture(.menu, action: #selector(menuPressed))
+        addPressGesture(.leftArrow, action: #selector(leftPressed))
+        addPressGesture(.rightArrow, action: #selector(rightPressed))
+        addPressGesture(.upArrow, action: #selector(upPressed))
+        addPressGesture(.downArrow, action: #selector(downPressed))
+
         // Touchpad pan gesture
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
@@ -123,6 +106,12 @@ final class PlayerHostController: UIViewController {
         )
 
         Task { await viewModel.startPlayback() }
+    }
+
+    private func addPressGesture(_ type: UIPress.PressType, action: Selector) {
+        let tap = UITapGestureRecognizer(target: self, action: action)
+        tap.allowedPressTypes = [NSNumber(value: type.rawValue)]
+        view.addGestureRecognizer(tap)
     }
 
     override func viewDidLayoutSubviews() {
@@ -143,53 +132,11 @@ final class PlayerHostController: UIViewController {
         viewModel.player.pause()
     }
 
-    // MARK: - Press Handling (Select, Arrows, Play/Pause — NOT Menu)
+    // MARK: - Press Handlers
 
-    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        var consumed = false
-        for press in presses {
-            switch press.type {
-            case .select, .playPause,
-                 .leftArrow, .rightArrow, .upArrow, .downArrow:
-                consumed = true
-            default:
-                break
-            }
-        }
-        if !consumed { super.pressesBegan(presses, with: event) }
-    }
-
-    override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        var consumed = false
-        for press in presses {
-            switch press.type {
-            case .select:
-                handleTap()
-                consumed = true
-            case .playPause:
-                viewModel.togglePlayPause()
-                consumed = true
-            case .leftArrow:
-                viewModel.seekJump(seconds: -10)
-                consumed = true
-            case .rightArrow:
-                viewModel.seekJump(seconds: 10)
-                consumed = true
-            case .upArrow, .downArrow:
-                viewModel.showControlsTemporarily()
-                consumed = true
-            default:
-                break
-            }
-        }
-        if !consumed { super.pressesEnded(presses, with: event) }
-    }
-
-    // MARK: - Input Logic
-
-    private func handleTap() {
+    @objc private func selectPressed() {
         #if DEBUG
-        print("[Player] handleTap: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
+        print("[Player] select: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
         #endif
         if viewModel.isScrubbing {
             viewModel.commitScrub()
@@ -197,6 +144,47 @@ final class PlayerHostController: UIViewController {
             viewModel.togglePlayPause()
         } else {
             viewModel.showControlsTemporarily()
+        }
+    }
+
+    @objc private func playPausePressed() {
+        viewModel.togglePlayPause()
+    }
+
+    @objc private func menuPressed() {
+        #if DEBUG
+        print("[Player] menu: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
+        #endif
+        if viewModel.isScrubbing {
+            viewModel.cancelScrub()
+        } else if viewModel.showControls {
+            viewModel.hideControls()
+        } else {
+            dismissPlayer()
+        }
+    }
+
+    @objc private func leftPressed() {
+        viewModel.seekJump(seconds: -10)
+    }
+
+    @objc private func rightPressed() {
+        viewModel.seekJump(seconds: 10)
+    }
+
+    @objc private func upPressed() {
+        viewModel.showControlsTemporarily()
+    }
+
+    @objc private func downPressed() {
+        viewModel.showControlsTemporarily()
+    }
+
+    private func dismissPlayer() {
+        viewModel.player.stop()
+        Task {
+            await viewModel.stopPlayback()
+            onDismiss()
         }
     }
 

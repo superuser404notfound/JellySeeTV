@@ -78,17 +78,16 @@ struct SeriesDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .fullScreenCover(isPresented: $showPlayer) {
+        .background {
             if let ep = playItem, let userID = appState.activeUser?.id {
-                PlayerView(
+                PlayerLauncher(
+                    isPresented: $showPlayer,
                     item: ep,
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
-                    cachedPlaybackInfo: (viewModel?.currentEpisodeID == ep.id) ? viewModel?.cachedPlaybackInfo : nil,
-                    onDismiss: { showPlayer = false }
+                    cachedPlaybackInfo: (viewModel?.currentEpisodeID == ep.id) ? viewModel?.cachedPlaybackInfo : nil
                 )
-                .ignoresSafeArea()
             }
         }
         .navigationDestination(item: $navigateToItem) { item in

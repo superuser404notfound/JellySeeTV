@@ -21,17 +21,16 @@ struct MovieDetailView: View {
             }
         }
         .ignoresSafeArea()
-        .fullScreenCover(isPresented: $showPlayer) {
+        .background {
             if let userID = appState.activeUser?.id {
-                PlayerView(
+                PlayerLauncher(
+                    isPresented: $showPlayer,
                     item: viewModel?.item ?? item,
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
-                    cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
-                    onDismiss: { showPlayer = false }
+                    cachedPlaybackInfo: viewModel?.cachedPlaybackInfo
                 )
-                .ignoresSafeArea()
             }
         }
         .navigationDestination(item: $navigateToItem) { item in
