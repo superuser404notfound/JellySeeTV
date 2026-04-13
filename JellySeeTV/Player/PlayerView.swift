@@ -1,28 +1,64 @@
 import SwiftUI
 import SteelPlayer
 
-// MARK: - SwiftUI Bridge
+// MARK: - SwiftUI Wrapper (owns ViewModel + handles Menu)
 
-/// UIViewControllerRepresentable that wraps PlayerHostController.
-/// The UIViewController handles ALL Siri Remote input via pressesBegan/
-/// pressesEnded — no focus issues, no gesture recognizer routing issues.
-struct PlayerView: UIViewControllerRepresentable {
-    let item: JellyfinItem
-    let startFromBeginning: Bool
-    let playbackService: JellyfinPlaybackServiceProtocol
-    let userID: String
-    var cachedPlaybackInfo: PlaybackInfoResponse?
+/// SwiftUI wrapper that:
+/// 1. Owns the PlayerViewModel (shared with the UIViewController)
+/// 2. Handles Menu via .onExitCommand (tvOS intercepts Menu at the
+///    presentation level — pressesBegan on a child VC never receives it)
+/// 3. Contains the UIViewControllerRepresentable for the actual player
+struct PlayerView: View {
+    @State private var viewModel: PlayerViewModel
     let onDismiss: () -> Void
 
-    func makeUIViewController(context: Context) -> PlayerHostController {
-        let vm = PlayerViewModel(
+    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, onDismiss: @escaping () -> Void) {
+        _viewModel = State(initialValue: PlayerViewModel(
             item: item,
             startFromBeginning: startFromBeginning,
             playbackService: playbackService,
             userID: userID,
             cachedPlaybackInfo: cachedPlaybackInfo
-        )
-        return PlayerHostController(viewModel: vm, onDismiss: onDismiss)
+        ))
+        self.onDismiss = onDismiss
+    }
+
+    var body: some View {
+        PlayerHostRepresentable(viewModel: viewModel)
+            .ignoresSafeArea()
+            .onExitCommand {
+                handleMenu()
+            }
+    }
+
+    private func handleMenu() {
+        #if DEBUG
+        print("[Player] handleMenu: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
+        #endif
+        if viewModel.isScrubbing {
+            viewModel.cancelScrub()
+        } else if viewModel.showControls {
+            viewModel.hideControls()
+        } else {
+            viewModel.player.stop()
+            Task {
+                await viewModel.stopPlayback()
+                onDismiss()
+            }
+        }
+    }
+}
+
+// MARK: - UIViewControllerRepresentable
+
+/// Bridges PlayerHostController into SwiftUI. The VC handles Select,
+/// Arrows, Play/Pause, and Touchpad via pressesBegan/pressesEnded.
+/// Menu is handled by the SwiftUI wrapper's .onExitCommand.
+private struct PlayerHostRepresentable: UIViewControllerRepresentable {
+    let viewModel: PlayerViewModel
+
+    func makeUIViewController(context: Context) -> PlayerHostController {
+        PlayerHostController(viewModel: viewModel)
     }
 
     func updateUIViewController(_ vc: PlayerHostController, context: Context) {}
@@ -30,29 +66,25 @@ struct PlayerView: UIViewControllerRepresentable {
 
 // MARK: - Player View Controller
 
-/// Full-screen video player controller that captures ALL Siri Remote input.
+/// Full-screen video player controller.
+///
+/// Handles all Siri Remote input EXCEPT Menu (which tvOS intercepts
+/// at the presentation level — handled by SwiftUI .onExitCommand).
 ///
 /// Architecture:
 /// ```
 /// PlayerHostController (UIViewController)
 /// ├── videoLayer (CALayer, direct sublayer)
-/// ├── UIHostingController (child VC, SwiftUI overlays)
-/// │   └── PlayerOverlayView (display-only, allowsHitTesting=false)
-/// │       ├── SubtitleOverlayView
-/// │       ├── Loading spinner
-/// │       └── Controls (gradients, title, TransportBar)
+/// ├── UIHostingController (child VC, display-only SwiftUI overlays)
+/// │   └── PlayerOverlayView
 /// └── UIPanGestureRecognizer (touchpad scrubbing)
 /// ```
-///
-/// Press events flow directly to this VC — no focus system involved.
 @MainActor
 final class PlayerHostController: UIViewController {
     private let viewModel: PlayerViewModel
-    private let onDismiss: () -> Void
 
-    init(viewModel: PlayerViewModel, onDismiss: @escaping () -> Void) {
+    init(viewModel: PlayerViewModel) {
         self.viewModel = viewModel
-        self.onDismiss = onDismiss
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -62,11 +94,10 @@ final class PlayerHostController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
 
-        // Video layer — added directly, no UIViewRepresentable wrapper needed
-        let videoLayer = viewModel.player.videoLayer
-        view.layer.addSublayer(videoLayer)
+        // Video layer
+        view.layer.addSublayer(viewModel.player.videoLayer)
 
-        // SwiftUI overlays (subtitles, loading, controls) — display only
+        // SwiftUI overlays (display-only)
         let overlay = PlayerOverlayView(viewModel: viewModel)
         let hosting = UIHostingController(rootView: overlay)
         hosting.view.backgroundColor = .clear
@@ -77,40 +108,18 @@ final class PlayerHostController: UIViewController {
         hosting.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         hosting.didMove(toParent: self)
 
-        // Touchpad pan gesture for scrubbing
+        // Touchpad pan gesture
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
         view.addGestureRecognizer(pan)
 
-        // Background/inactive → pause
+        // Background → pause
         NotificationCenter.default.addObserver(
             self, selector: #selector(appWillResignActive),
             name: UIApplication.willResignActiveNotification, object: nil
         )
 
-        // Start playback
         Task { await viewModel.startPlayback() }
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        // fullScreenCover wraps us in a UIHostingController. We need
-        // isModalInPresentation on THAT VC to prevent tvOS from
-        // auto-dismissing the modal on Menu press.
-        var vc: UIViewController? = self
-        while vc != nil {
-            vc?.isModalInPresentation = true
-            vc = vc?.parent
-        }
-        #if DEBUG
-        print("[Player] viewDidAppear, parent chain: ", terminator: "")
-        var dbg: UIViewController? = self
-        while dbg != nil {
-            print("\(type(of: dbg!)) → ", terminator: "")
-            dbg = dbg?.parent
-        }
-        print("nil")
-        #endif
     }
 
     override func viewDidLayoutSubviews() {
@@ -131,13 +140,13 @@ final class PlayerHostController: UIViewController {
         viewModel.player.pause()
     }
 
-    // MARK: - Press Handling
+    // MARK: - Press Handling (Select, Arrows, Play/Pause — NOT Menu)
 
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         var consumed = false
         for press in presses {
             switch press.type {
-            case .select, .playPause, .menu,
+            case .select, .playPause,
                  .leftArrow, .rightArrow, .upArrow, .downArrow:
                 consumed = true
             default:
@@ -156,9 +165,6 @@ final class PlayerHostController: UIViewController {
                 consumed = true
             case .playPause:
                 viewModel.togglePlayPause()
-                consumed = true
-            case .menu:
-                handleMenu()
                 consumed = true
             case .leftArrow:
                 viewModel.seekJump(seconds: -10)
@@ -179,33 +185,15 @@ final class PlayerHostController: UIViewController {
     // MARK: - Input Logic
 
     private func handleTap() {
+        #if DEBUG
+        print("[Player] handleTap: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
+        #endif
         if viewModel.isScrubbing {
             viewModel.commitScrub()
         } else if viewModel.showControls {
             viewModel.togglePlayPause()
         } else {
             viewModel.showControlsTemporarily()
-        }
-    }
-
-    private func handleMenu() {
-        #if DEBUG
-        print("[Player] handleMenu: showControls=\(viewModel.showControls), scrubbing=\(viewModel.isScrubbing)")
-        #endif
-        if viewModel.isScrubbing {
-            viewModel.cancelScrub()
-        } else if viewModel.showControls {
-            viewModel.hideControls()
-        } else {
-            dismissPlayer()
-        }
-    }
-
-    private func dismissPlayer() {
-        viewModel.player.stop()
-        Task {
-            await viewModel.stopPlayback()
-            onDismiss()
         }
     }
 
@@ -227,15 +215,11 @@ final class PlayerHostController: UIViewController {
 
 // MARK: - Overlay View (display-only SwiftUI)
 
-/// All visual overlays rendered by SwiftUI. This view has
-/// `isUserInteractionEnabled = false` on its hosting controller —
-/// purely display, no focus or input handling.
 private struct PlayerOverlayView: View {
     let viewModel: PlayerViewModel
 
     var body: some View {
         ZStack {
-            // Subtitles
             if !viewModel.subtitleCues.isEmpty {
                 SubtitleOverlayView(
                     cues: viewModel.subtitleCues,
@@ -243,7 +227,6 @@ private struct PlayerOverlayView: View {
                 )
             }
 
-            // Loading
             if viewModel.isLoading {
                 Color.black
                     .ignoresSafeArea()
@@ -251,7 +234,6 @@ private struct PlayerOverlayView: View {
                     .transition(.opacity)
             }
 
-            // Error
             if let error = viewModel.errorMessage {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle")
@@ -264,7 +246,6 @@ private struct PlayerOverlayView: View {
                 .background(.black)
             }
 
-            // Controls
             if viewModel.showControls && !viewModel.isLoading && viewModel.errorMessage == nil {
                 controlsOverlay
             }
@@ -275,7 +256,6 @@ private struct PlayerOverlayView: View {
 
     private var controlsOverlay: some View {
         ZStack {
-            // Bottom gradient
             VStack {
                 Spacer()
                 LinearGradient(
@@ -286,7 +266,6 @@ private struct PlayerOverlayView: View {
             }
             .ignoresSafeArea()
 
-            // Top gradient
             VStack {
                 LinearGradient(
                     colors: [.black.opacity(0.7), .clear],
@@ -297,13 +276,11 @@ private struct PlayerOverlayView: View {
             }
             .ignoresSafeArea()
 
-            // Title
             VStack {
                 PlayerTitleOverlay(item: viewModel.item)
                 Spacer()
             }
 
-            // Transport bar
             VStack {
                 Spacer()
                 TransportBar(
