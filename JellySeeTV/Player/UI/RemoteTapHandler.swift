@@ -32,13 +32,9 @@ struct RemoteTapHandler: UIViewRepresentable {
 
     func updateUIView(_ uiView: RemoteInputView, context: Context) {
         applyCallbacks(to: uiView)
-        // Reclaim focus after view hierarchy changes (e.g. loading overlay
-        // removed). Async ensures SwiftUI has finished its layout pass.
-        // No-op if already focused.
-        DispatchQueue.main.async {
-            uiView.setNeedsFocusUpdate()
-            uiView.updateFocusIfNeeded()
-        }
+        // Reclaim focus via the parent view controller — calling on the
+        // view itself doesn't work reliably in a SwiftUI hosting hierarchy.
+        uiView.reclaimFocus()
     }
 
     private func applyCallbacks(to view: RemoteInputView) {
@@ -68,13 +64,48 @@ class RemoteInputView: UIView {
 
     override var canBecomeFocused: Bool { true }
 
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        // Transparent — no visual focus effect needed for an invisible input handler.
+        // Prevents _UIReplicantView from being created inside UIHostingController.
+        clipsToBounds = true
+        alpha = 0.01
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    // Suppress default focus animation to avoid _UIReplicantView warnings
+    override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
+        // No visual feedback — this view is invisible
+    }
+
     override func didMoveToWindow() {
         super.didMoveToWindow()
         guard window != nil else { return }
+        reclaimFocus()
+    }
+
+    /// Request focus via the nearest view controller in the responder chain.
+    /// Calling setNeedsFocusUpdate on the view itself doesn't work reliably
+    /// inside SwiftUI's UIHostingController hierarchy.
+    func reclaimFocus() {
+        guard !isFocused, window != nil else { return }
         DispatchQueue.main.async { [weak self] in
-            self?.setNeedsFocusUpdate()
-            self?.updateFocusIfNeeded()
+            guard let self, !self.isFocused else { return }
+            if let vc = self.nearestViewController() {
+                vc.setNeedsFocusUpdate()
+                vc.updateFocusIfNeeded()
+            }
         }
+    }
+
+    private func nearestViewController() -> UIViewController? {
+        var responder: UIResponder? = self
+        while let next = responder?.next {
+            if let vc = next as? UIViewController { return vc }
+            responder = next
+        }
+        return nil
     }
 
     override var preferredFocusEnvironments: [any UIFocusEnvironment] { [self] }
