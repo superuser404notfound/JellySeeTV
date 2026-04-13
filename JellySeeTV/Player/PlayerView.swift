@@ -17,14 +17,11 @@ struct PlayerLauncher: UIViewControllerRepresentable {
     let userID: String
     var cachedPlaybackInfo: PlaybackInfoResponse?
 
-    func makeUIViewController(context: Context) -> UIViewController {
-        let vc = UIViewController()
-        vc.view.backgroundColor = .clear
-        vc.view.isUserInteractionEnabled = false
-        return vc
+    func makeUIViewController(context: Context) -> PlayerLauncherHostVC {
+        PlayerLauncherHostVC()
     }
 
-    func updateUIViewController(_ host: UIViewController, context: Context) {
+    func updateUIViewController(_ host: PlayerLauncherHostVC, context: Context) {
         if isPresented, let item, host.presentedViewController == nil {
             // Host VC is always in the window (no conditional overlay).
             // Present immediately — no window check needed.
@@ -43,19 +40,26 @@ struct PlayerLauncher: UIViewControllerRepresentable {
             player.modalPresentationStyle = .fullScreen
             host.present(player, animated: false)
         } else if !isPresented, host.presentedViewController != nil {
-            host.dismiss(animated: false) {
-                // Restore tvOS focus after UIKit modal dismiss.
-                // Walk up from the host to find the topmost VC that
-                // contains the SwiftUI detail view, then ask it to
-                // re-evaluate focus for its entire hierarchy.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                          let window = scene.windows.first(where: { $0.isKeyWindow }) else { return }
-                    window.rootViewController?.setNeedsFocusUpdate()
-                    window.rootViewController?.updateFocusIfNeeded()
-                }
-            }
+            host.dismiss(animated: false)
         }
+    }
+}
+
+/// Invisible host VC for PlayerLauncher. After the player modal is
+/// dismissed, tvOS asks this VC for preferred focus — we redirect
+/// to the parent (SwiftUI's UIHostingController) so focus returns
+/// to the detail view's elements instead of getting lost.
+final class PlayerLauncherHostVC: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = false
+    }
+
+    override var preferredFocusEnvironments: [UIFocusEnvironment] {
+        // After modal dismiss, redirect focus to parent VC (SwiftUI)
+        if let parent { return [parent] }
+        return []
     }
 }
 
