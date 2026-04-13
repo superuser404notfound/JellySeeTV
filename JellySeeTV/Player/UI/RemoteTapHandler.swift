@@ -64,19 +64,10 @@ class RemoteInputView: UIView {
 
     override var canBecomeFocused: Bool { true }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        // Transparent — no visual focus effect needed for an invisible input handler.
-        // Prevents _UIReplicantView from being created inside UIHostingController.
-        clipsToBounds = true
-        alpha = 0.01
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-
     // Suppress default focus animation to avoid _UIReplicantView warnings
+    // inside UIHostingController's view hierarchy.
     override func didUpdateFocus(in context: UIFocusUpdateContext, with coordinator: UIFocusAnimationCoordinator) {
-        // No visual feedback — this view is invisible
+        // No visual feedback — this view is an invisible input handler
     }
 
     override func didMoveToWindow() {
