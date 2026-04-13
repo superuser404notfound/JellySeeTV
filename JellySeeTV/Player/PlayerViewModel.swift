@@ -40,6 +40,11 @@ final class PlayerViewModel {
     private var playSessionID: String?
     private var activePlayMethod: PlayMethod = .directPlay
 
+    // Subtitle state
+    var subtitleCues: [SubtitleCue] = []
+    var activeSubtitleIndex: Int?
+    private var subtitleStreams: [MediaStream] = []
+
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
         self.item = item
         self.startFromBeginning = startFromBeginning
@@ -84,6 +89,9 @@ final class PlayerViewModel {
 
             // Build URL — prefer direct play/stream (single file) over transcoding.
             // SteelPlayer's AVIO context handles HTTP progressive downloads but
+            // Store subtitle streams for later loading
+            subtitleStreams = source.mediaStreams?.filter { $0.type == .subtitle } ?? []
+
             // cannot handle HLS playlists.
             let url: URL
             if source.supportsDirectPlay == true || source.supportsDirectStream == true {
@@ -169,8 +177,44 @@ final class PlayerViewModel {
         player.selectAudioTrack(index: id)
     }
 
-    func selectSubtitleTrack(id: Int) {
-        player.selectSubtitleTrack(index: id)
+    func selectSubtitleTrack(id: Int?) {
+        if let id {
+            activeSubtitleIndex = id
+            Task { await loadSubtitles(streamIndex: id) }
+        } else {
+            activeSubtitleIndex = nil
+            subtitleCues = []
+        }
+    }
+
+    private func loadSubtitles(streamIndex: Int) async {
+        // Find the subtitle stream info to determine format
+        let format: String
+        if let stream = subtitleStreams.first(where: { $0.index == streamIndex }) {
+            format = stream.codec ?? "srt"
+        } else {
+            format = "srt"
+        }
+
+        guard let url = playbackService.buildSubtitleURL(
+            itemID: item.id,
+            mediaSourceID: mediaSourceID,
+            streamIndex: streamIndex,
+            format: format
+        ) else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let content = String(data: data, encoding: .utf8) else { return }
+            subtitleCues = SRTParser.parse(content)
+            #if DEBUG
+            print("[Subtitles] Loaded \(subtitleCues.count) cues for stream \(streamIndex)")
+            #endif
+        } catch {
+            #if DEBUG
+            print("[Subtitles] Failed to load: \(error)")
+            #endif
+        }
     }
 
     // MARK: - Scrubbing

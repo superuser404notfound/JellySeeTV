@@ -6,6 +6,7 @@ protocol JellyfinPlaybackServiceProtocol: Sendable {
     func reportPlaybackProgress(_ report: PlaybackProgressReport) async throws
     func reportPlaybackStopped(_ report: PlaybackStopReport) async throws
     func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL?
+    func buildSubtitleURL(itemID: String, mediaSourceID: String, streamIndex: Int, format: String) -> URL?
     func buildTranscodeURL(relativePath: String) -> URL?
 }
 
@@ -116,6 +117,15 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
             queryItems.append(URLQueryItem(name: "Static", value: "true"))
         }
         components?.queryItems = queryItems
+        return components?.url
+    }
+
+    func buildSubtitleURL(itemID: String, mediaSourceID: String, streamIndex: Int, format: String) -> URL? {
+        guard let baseURL = client.baseURL else { return nil }
+        let fmt = (format == "subrip") ? "srt" : format
+        let path = "/Videos/\(itemID)/\(mediaSourceID)/Subtitles/\(streamIndex)/0/Stream.\(fmt)"
+        var components = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: true)
+        components?.queryItems = [URLQueryItem(name: "api_key", value: client.accessToken)]
         return components?.url
     }
 

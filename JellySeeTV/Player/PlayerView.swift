@@ -30,6 +30,14 @@ struct PlayerView: View {
                 SteelPlayerVideoView(videoLayer: viewModel.player.videoLayer)
                     .ignoresSafeArea()
 
+                // Subtitle overlay
+                if !viewModel.subtitleCues.isEmpty {
+                    SubtitleOverlayView(
+                        cues: viewModel.subtitleCues,
+                        currentTime: viewModel.player.currentTime
+                    )
+                }
+
                 // Siri Remote handler
                 RemoteTapHandler(
                     onTap: {
@@ -115,16 +123,13 @@ struct PlayerView: View {
                             TrackSelectionView(
                                 audioTracks: viewModel.player.audioTracks,
                                 subtitleTracks: viewModel.player.subtitleTracks,
-                                selectedAudioIndex: nil, // TODO: track active selection
-                                selectedSubtitleIndex: nil,
+                                selectedAudioIndex: nil,
+                                selectedSubtitleIndex: viewModel.activeSubtitleIndex,
                                 onSelectAudio: { id in
                                     viewModel.selectAudioTrack(id: id)
                                 },
                                 onSelectSubtitle: { id in
-                                    if let id {
-                                        viewModel.selectSubtitleTrack(id: id)
-                                    }
-                                    // TODO: subtitle off
+                                    viewModel.selectSubtitleTrack(id: id)
                                 },
                                 onDismiss: { showTrackSelection = false }
                             )
