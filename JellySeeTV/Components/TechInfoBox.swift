@@ -111,7 +111,7 @@ struct TechInfoBox: View {
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                         if sub.isForced == true {
-                            Text("F")
+                            Text(String(localized: "tech.subtitles.forced", defaultValue: "F"))
                                 .font(.system(size: 9, weight: .bold))
                                 .padding(.horizontal, 4)
                                 .padding(.vertical, 1)
@@ -127,8 +127,8 @@ struct TechInfoBox: View {
 
     private func channelLayout(_ channels: Int) -> String {
         switch channels {
-        case 1: "Mono"
-        case 2: "Stereo"
+        case 1: String(localized: "tech.channels.mono", defaultValue: "Mono")
+        case 2: String(localized: "tech.channels.stereo", defaultValue: "Stereo")
         case 6: "5.1"
         case 8: "7.1"
         default: "\(channels)ch"

@@ -93,7 +93,7 @@ struct TransportBar: View {
             Menu {
                 Button(action: { onSelectSubtitle(nil) }) {
                     Label(
-                        String(localized: "player.subtitles.off", defaultValue: "Aus"),
+                        String(localized: "player.subtitles.off", defaultValue: "Off"),
                         systemImage: activeSubtitleIndex == nil ? "checkmark" : "circle"
                     )
                 }
@@ -107,7 +107,7 @@ struct TransportBar: View {
                 }
             } label: {
                 Label(
-                    String(localized: "player.subtitles", defaultValue: "Untertitel"),
+                    String(localized: "player.subtitles", defaultValue: "Subtitles"),
                     systemImage: "captions.bubble"
                 )
                 .font(.callout)

@@ -216,7 +216,7 @@ struct PlayerView: View {
             Text(message)
                 .foregroundStyle(.secondary)
             Button { onDismiss() } label: {
-                Text(String(localized: "home.retry", defaultValue: "Erneut versuchen"))
+                Text(String(localized: "home.retry", defaultValue: "Try Again"))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

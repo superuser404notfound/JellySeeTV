@@ -8,9 +8,12 @@ extension Int64 {
         let minutes = (totalSeconds % 3600) / 60
 
         if hours > 0 {
-            return "\(hours)h \(minutes)m"
+            let h = String(localized: "duration.hours.short", defaultValue: "h")
+            let m = String(localized: "duration.minutes.short", defaultValue: "m")
+            return "\(hours)\(h) \(minutes)\(m)"
         }
-        return "\(minutes)m"
+        let m = String(localized: "duration.minutes.short", defaultValue: "m")
+        return "\(minutes)\(m)"
     }
 
     /// Convert Jellyfin ticks to TimeInterval (seconds)
