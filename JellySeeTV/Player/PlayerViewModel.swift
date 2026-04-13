@@ -347,6 +347,10 @@ final class PlayerViewModel {
     }
 
     func activateControlsFocus() {
+        // Cancel auto-hide timer — dialog is about to open and will
+        // take focus. Without this, the timer fires during the dialog
+        // and hides controls, causing Menu to dismiss the player.
+        controlsTimer?.cancel()
         switch controlsFocus {
         case .progressBar:
             break
@@ -361,6 +365,17 @@ final class PlayerViewModel {
         showControls = true
         controlsFocus = .progressBar
         scheduleControlsHide()
+    }
+
+    /// Called when a track picker dialog is dismissed — restart the
+    /// auto-hide timer that was paused when the dialog opened.
+    func trackPickerDismissed() {
+        scheduleControlsHide()
+    }
+
+    func hideControls() {
+        showControls = false
+        controlsFocus = .progressBar
     }
 
     // MARK: - Scrubbing
@@ -419,7 +434,7 @@ final class PlayerViewModel {
         controlsTimer = Task {
             try? await Task.sleep(for: .seconds(5))
             guard !Task.isCancelled else { return }
-            showControls = false
+            hideControls()
         }
     }
 

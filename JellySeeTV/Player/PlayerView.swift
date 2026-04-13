@@ -71,7 +71,8 @@ struct PlayerView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
-        // Track selection dialogs — presented modally, handle their own focus
+        // Track selection dialogs — presented modally, handle their own focus.
+        // Auto-hide timer is paused while dialog is open (see activateControlsFocus).
         .confirmationDialog(
             String(localized: "player.audio", defaultValue: "Audio"),
             isPresented: $viewModel.showAudioPicker
@@ -90,6 +91,12 @@ struct PlayerView: View {
             ForEach(viewModel.player.subtitleTracks) { track in
                 Button(track.name) { viewModel.selectSubtitleTrack(id: track.id) }
             }
+        }
+        .onChange(of: viewModel.showAudioPicker) { _, isPresented in
+            if !isPresented { viewModel.trackPickerDismissed() }
+        }
+        .onChange(of: viewModel.showSubtitlePicker) { _, isPresented in
+            if !isPresented { viewModel.trackPickerDismissed() }
         }
         .task {
             await viewModel.startPlayback()
@@ -162,7 +169,7 @@ struct PlayerView: View {
             if viewModel.controlsFocus != .progressBar {
                 viewModel.controlsFocus = .progressBar
             } else {
-                viewModel.showControls = false
+                viewModel.hideControls()
             }
         } else {
             dismissPlayer()
