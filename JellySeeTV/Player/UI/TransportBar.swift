@@ -46,8 +46,9 @@ struct TransportBar: View {
                     Spacer()
 
                     if !audioTracks.isEmpty {
+                        let activeTrack = audioTracks.first(where: { $0.id == activeAudioIndex })
                         trackButton(
-                            label: audioTracks.first(where: { $0.id == activeAudioIndex })?.name
+                            label: activeTrack.map { TrackDisplayFormatter.shortName(for: $0) }
                                 ?? String(localized: "player.audio", defaultValue: "Audio"),
                             icon: "speaker.wave.2",
                             isFocused: controlsFocus == .audioButton,
@@ -57,10 +58,12 @@ struct TransportBar: View {
                     }
 
                     if !subtitleTracks.isEmpty {
+                        let activeTrack = activeSubtitleIndex.flatMap { idx in
+                            subtitleTracks.first(where: { $0.id == idx })
+                        }
                         trackButton(
-                            label: activeSubtitleIndex.flatMap { idx in
-                                subtitleTracks.first(where: { $0.id == idx })?.name
-                            } ?? String(localized: "player.subtitles.off", defaultValue: "Off"),
+                            label: activeTrack.map { TrackDisplayFormatter.shortName(for: $0) }
+                                ?? String(localized: "player.subtitles.off", defaultValue: "Off"),
                             icon: "captions.bubble",
                             isFocused: controlsFocus == .subtitleButton,
                             dropdown: subtitleDropdownItems,
@@ -114,7 +117,7 @@ struct TransportBar: View {
         guard case .audio(let highlighted) = trackDropdown else { return [] }
         return audioTracks.enumerated().map { idx, track in
             DropdownItem(
-                title: track.name,
+                title: TrackDisplayFormatter.audioDisplayName(for: track),
                 isActive: track.id == activeAudioIndex,
                 isHighlighted: idx == highlighted
             )
@@ -132,7 +135,7 @@ struct TransportBar: View {
         ]
         items += subtitleTracks.enumerated().map { idx, track in
             DropdownItem(
-                title: track.name,
+                title: TrackDisplayFormatter.subtitleDisplayName(for: track),
                 isActive: track.id == activeSubtitleIndex,
                 isHighlighted: idx + 1 == highlighted
             )
