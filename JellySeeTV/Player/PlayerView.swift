@@ -384,9 +384,30 @@ private struct PlayerOverlayView: View {
             }
             .ignoresSafeArea()
 
+            // Title — top left
             VStack {
-                PlayerTitleOverlay(item: viewModel.item)
+                HStack {
+                    PlayerTitleOverlay(item: viewModel.item)
+                    Spacer()
+                }
                 Spacer()
+            }
+
+            // Episode overview — center, subtle
+            if let overview = viewModel.item.overview, !overview.isEmpty {
+                VStack {
+                    Spacer()
+                    Text(overview)
+                        .font(.body)
+                        .foregroundStyle(.white.opacity(0.7))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(4)
+                        .frame(maxWidth: 800)
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 20)
+                        .background(.black.opacity(0.3), in: RoundedRectangle(cornerRadius: 12))
+                    Spacer()
+                }
             }
 
             VStack {

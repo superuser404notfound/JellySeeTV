@@ -267,10 +267,16 @@ final class PlayerViewModel {
     func selectSubtitleTrack(id: Int?) {
         if let id {
             activeSubtitleIndex = id
+            #if DEBUG
+            print("[Subtitles] Selected track index \(id)")
+            #endif
             Task { await loadSubtitles(streamIndex: id) }
         } else {
             activeSubtitleIndex = nil
             subtitleCues = []
+            #if DEBUG
+            print("[Subtitles] Disabled")
+            #endif
         }
     }
 
@@ -278,8 +284,17 @@ final class PlayerViewModel {
         let format: String
         if let stream = subtitleStreams.first(where: { $0.index == streamIndex }) {
             format = stream.codec ?? "srt"
+            #if DEBUG
+            print("[Subtitles] Found stream: index=\(stream.index), codec=\(stream.codec ?? "nil"), isExternal=\(stream.isExternal ?? false)")
+            #endif
         } else {
             format = "srt"
+            #if DEBUG
+            print("[Subtitles] Stream \(streamIndex) not found in subtitleStreams (count=\(subtitleStreams.count))")
+            for s in subtitleStreams {
+                print("[Subtitles]   jellyfin index=\(s.index ?? -1), codec=\(s.codec ?? "nil")")
+            }
+            #endif
         }
 
         guard let url = playbackService.buildSubtitleURL(
@@ -287,7 +302,15 @@ final class PlayerViewModel {
             mediaSourceID: mediaSourceID,
             streamIndex: streamIndex,
             format: format
-        ) else { return }
+        ) else {
+            #if DEBUG
+            print("[Subtitles] Failed to build URL")
+            #endif
+            return
+        }
+        #if DEBUG
+        print("[Subtitles] Fetching: \(url.absoluteString.prefix(120))...")
+        #endif
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
