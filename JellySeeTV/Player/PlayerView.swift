@@ -137,17 +137,17 @@ final class PlayerHostController: UIViewController {
     @objc private func selectPressed() {
         if viewModel.isDropdownOpen {
             confirmDropdownSelection()
+        } else if viewModel.showControls && viewModel.controlsFocus != .progressBar {
+            // Track button — always open dropdown, even if scrub is pending
+            switch viewModel.controlsFocus {
+            case .audioButton: openAudioDropdown()
+            case .subtitleButton: openSubtitleDropdown()
+            default: break
+            }
         } else if viewModel.isScrubbing {
             viewModel.commitScrub()
         } else if viewModel.showControls {
-            switch viewModel.controlsFocus {
-            case .progressBar:
-                viewModel.togglePlayPause()
-            case .audioButton:
-                openAudioDropdown()
-            case .subtitleButton:
-                openSubtitleDropdown()
-            }
+            viewModel.togglePlayPause()
         } else {
             viewModel.showControlsTemporarily()
         }
@@ -204,7 +204,7 @@ final class PlayerHostController: UIViewController {
         } else if viewModel.showControls {
             switch viewModel.controlsFocus {
             case .progressBar:
-                if viewModel.isScrubbing { viewModel.commitScrub() }
+                // Preserve scrub state — user can confirm/cancel when returning
                 let hasAudio = !viewModel.player.audioTracks.isEmpty
                 let hasSubs = !viewModel.player.subtitleTracks.isEmpty
                 if hasAudio { viewModel.controlsFocus = .audioButton }
@@ -384,25 +384,11 @@ private struct PlayerOverlayView: View {
             }
             .ignoresSafeArea()
 
-            // Top bar: title left, overview right
+            // Title — top left
             VStack {
-                HStack(alignment: .top, spacing: 40) {
+                HStack {
                     PlayerTitleOverlay(item: viewModel.item)
-
-                    if let overview = viewModel.item.overview, !overview.isEmpty {
-                        Text(overview)
-                            .font(.callout)
-                            .foregroundStyle(.white.opacity(0.6))
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(4)
-                            .frame(maxWidth: 600, alignment: .leading)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 14)
-                            .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
-                            .padding(.top, 60)
-                    }
-
-                    Spacer(minLength: 0)
+                    Spacer()
                 }
                 Spacer()
             }
