@@ -36,19 +36,17 @@ struct PlayerView: View {
                     )
                 }
 
-                // Remote input (always active — handles both hidden and visible modes)
+                // Remote input — only active when controls are hidden.
+                // When controls are visible, SwiftUI focus system handles input.
                 RemoteTapHandler(
-                    isActive: true,
+                    isActive: !viewModel.showControls,
                     onTap: handleTap,
                     onPlayPause: { viewModel.togglePlayPause() },
                     onMenu: handleMenu,
-                    onLeft: handleLeft,
-                    onRight: handleRight,
+                    onLeft: { viewModel.seekJump(seconds: -10) },
+                    onRight: { viewModel.seekJump(seconds: 10) },
                     onPanChanged: { delta in viewModel.scrub(delta: delta) },
-                    onPanEnded: {
-                        // Update scrub start so next swipe continues from here
-                        viewModel.scrubPanEnded()
-                    }
+                    onPanEnded: { viewModel.scrubPanEnded() }
                 )
                 .ignoresSafeArea()
 
@@ -65,7 +63,7 @@ struct PlayerView: View {
                     scrubPreview
                 }
 
-                // Controls overlay (full UI)
+                // Controls overlay (full UI — SwiftUI focus active)
                 if viewModel.showControls && !viewModel.isLoading {
                     controlsOverlay
                 }
@@ -73,6 +71,15 @@ struct PlayerView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
+        // SwiftUI commands — fire when a SwiftUI view has focus (controls visible)
+        .onPlayPauseCommand { viewModel.togglePlayPause() }
+        .onExitCommand {
+            if viewModel.isScrubbing {
+                viewModel.cancelScrub()
+            } else if viewModel.showControls {
+                viewModel.showControls = false
+            }
+        }
         .task {
             await viewModel.startPlayback()
         }
@@ -126,29 +133,23 @@ struct PlayerView: View {
                     scrubTime: viewModel.scrubTime,
                     audioTracks: viewModel.player.audioTracks,
                     subtitleTracks: viewModel.player.subtitleTracks,
+                    activeSubtitleIndex: viewModel.activeSubtitleIndex,
                     onSelectAudio: { id in viewModel.selectAudioTrack(id: id) },
                     onSelectSubtitle: { id in viewModel.selectSubtitleTrack(id: id) },
-                    activeSubtitleIndex: viewModel.activeSubtitleIndex
+                    onSeekJump: { seconds in viewModel.seekJump(seconds: seconds) },
+                    onProgressSelect: handleProgressSelect
                 )
             }
         }
         .transition(.opacity)
     }
 
-    // MARK: - Remote Input Handlers
+    // MARK: - Remote Input Handlers (controls hidden)
 
     private func handleTap() {
         if viewModel.isScrubbing {
-            // Confirm pending scrub/seek
             viewModel.commitScrub()
-            return
-        }
-
-        if viewModel.showControls {
-            // UI visible → toggle play/pause
-            viewModel.togglePlayPause()
         } else {
-            // UI hidden → show controls
             viewModel.showControlsTemporarily()
         }
     }
@@ -156,19 +157,19 @@ struct PlayerView: View {
     private func handleMenu() {
         if viewModel.isScrubbing {
             viewModel.cancelScrub()
-        } else if viewModel.showControls {
-            viewModel.showControls = false
         } else {
             dismissPlayer()
         }
     }
 
-    private func handleLeft() {
-        viewModel.seekJump(seconds: -10)
-    }
+    // MARK: - Progress Bar Handler (controls visible)
 
-    private func handleRight() {
-        viewModel.seekJump(seconds: 10)
+    private func handleProgressSelect() {
+        if viewModel.isScrubbing {
+            viewModel.commitScrub()
+        } else {
+            viewModel.togglePlayPause()
+        }
     }
 
     // MARK: - Helpers

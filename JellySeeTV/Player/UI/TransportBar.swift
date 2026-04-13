@@ -1,8 +1,8 @@
 import SwiftUI
 import SteelPlayer
 
-/// Native tvOS-style transport bar with progress bar, time labels,
-/// and track selection buttons above the bar on the right.
+/// Native tvOS-style transport bar with focusable progress bar,
+/// time labels, and track selection menus.
 ///
 /// Layout:
 /// ```
@@ -10,6 +10,10 @@ import SteelPlayer
 /// ═══════════════════●══════════════════════
 /// 00:12:34                        -01:23:45
 /// ```
+///
+/// When controls are visible, the progress bar receives default focus.
+/// Left/Right arrows trigger seek jumps, Select confirms scrub or
+/// toggles play/pause.
 struct TransportBar: View {
     let progress: Float
     let currentTime: String
@@ -18,13 +22,21 @@ struct TransportBar: View {
     let scrubTime: String
     let audioTracks: [TrackInfo]
     let subtitleTracks: [TrackInfo]
+    let activeSubtitleIndex: Int?
     let onSelectAudio: (Int) -> Void
     let onSelectSubtitle: (Int?) -> Void
-    let activeSubtitleIndex: Int?
+    let onSeekJump: (Double) -> Void
+    let onProgressSelect: () -> Void
+
+    @FocusState private var focusedElement: Element?
+
+    private enum Element: Hashable {
+        case progressBar
+    }
 
     var body: some View {
         VStack(spacing: 10) {
-            // Scrub time preview (large, centered, only during scrub)
+            // Scrub time preview
             if isScrubbing {
                 Text(scrubTime)
                     .font(.system(size: 56, weight: .medium))
@@ -43,8 +55,19 @@ struct TransportBar: View {
                 .padding(.bottom, 4)
             }
 
-            // Progress bar
-            progressBar
+            // Focusable progress bar
+            Button(action: onProgressSelect) {
+                progressBar
+            }
+            .buttonStyle(.plain)
+            .focused($focusedElement, equals: .progressBar)
+            .onMoveCommand { direction in
+                switch direction {
+                case .left: onSeekJump(-10)
+                case .right: onSeekJump(10)
+                default: break
+                }
+            }
 
             // Time labels
             HStack {
@@ -66,6 +89,7 @@ struct TransportBar: View {
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
         .animation(.easeInOut(duration: 0.2), value: isScrubbing)
+        .defaultFocus($focusedElement, .progressBar)
     }
 
     // MARK: - Track Buttons
@@ -120,8 +144,9 @@ struct TransportBar: View {
         GeometryReader { geo in
             let width = geo.size.width
             let knobX = max(0, min(width, width * CGFloat(progress)))
-            let trackHeight: CGFloat = isScrubbing ? 10 : 6
-            let knobSize: CGFloat = isScrubbing ? 22 : 14
+            let active = isScrubbing || focusedElement == .progressBar
+            let trackHeight: CGFloat = active ? 10 : 6
+            let knobSize: CGFloat = active ? 22 : 14
 
             ZStack(alignment: .leading) {
                 // Background track
@@ -141,7 +166,7 @@ struct TransportBar: View {
                     .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
                     .offset(x: knobX - knobSize / 2)
             }
-            .animation(.easeInOut(duration: 0.2), value: isScrubbing)
+            .animation(.easeInOut(duration: 0.2), value: active)
         }
         .frame(height: 22)
     }

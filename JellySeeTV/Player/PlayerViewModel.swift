@@ -1,47 +1,61 @@
 import Foundation
+import Combine
 import Observation
 import SteelPlayer
 
 /// ViewModel that bridges SteelPlayer with Jellyfin session reporting
 /// and our custom tvOS-style player UI.
+///
+/// Uses Combine subscriptions to observe SteelPlayer's @Published
+/// properties instead of polling timers — eliminates AttributeGraph cycles.
 @Observable
 @MainActor
 final class PlayerViewModel {
+
+    // MARK: - UI State
+
     var isLoading = true
     var errorMessage: String?
     var isPlaying = false
     var showControls = false
+
+    // Time display
     var currentTime: String = "00:00"
     var totalTime: String = "00:00"
     var remainingTime: String = "-00:00"
     var progress: Float = 0
 
-    // Scrubbing state
+    // Scrubbing
     var isScrubbing = false
     var scrubProgress: Float = 0
     var scrubTime: String = "00:00"
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
     private var scrubStartProgress: Float = 0
 
+    // Subtitles
+    var subtitleCues: [SubtitleCue] = []
+    var activeSubtitleIndex: Int?
+
+    // MARK: - Dependencies
+
     let item: JellyfinItem
-    let player = try! SteelPlayer()  // Metal is guaranteed on Apple TV
+    let player = try! SteelPlayer()
 
     private let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String
     private let startFromBeginning: Bool
     private var cachedPlaybackInfo: PlaybackInfoResponse?
+
+    // MARK: - Private State
+
+    private var cancellables = Set<AnyCancellable>()
     private var progressTimer: Task<Void, Never>?
     private var controlsTimer: Task<Void, Never>?
-    private var stateObserver: Task<Void, Never>?
     private var hasReportedStart = false
     private var hasStartedPlaying = false
     private var mediaSourceID: String = ""
     private var playSessionID: String?
     private var activePlayMethod: PlayMethod = .directPlay
-
-    // Subtitle state
-    var subtitleCues: [SubtitleCue] = []
-    var activeSubtitleIndex: Int?
     private var subtitleStreams: [MediaStream] = []
 
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
@@ -59,9 +73,6 @@ final class PlayerViewModel {
         errorMessage = nil
 
         do {
-            // Use cached info only if it has valid media sources.
-            // Stale/wrong caches (e.g. from a Series instead of Episode)
-            // will have empty mediaSources — fall through to a fresh request.
             let info: PlaybackInfoResponse
             if let cached = cachedPlaybackInfo, !cached.mediaSources.isEmpty {
                 info = cached
@@ -86,12 +97,8 @@ final class PlayerViewModel {
             }
             #endif
 
-            // Build URL — prefer direct play/stream (single file) over transcoding.
-            // SteelPlayer's AVIO context handles HTTP progressive downloads but
-            // Store subtitle streams for later loading
             subtitleStreams = source.mediaStreams?.filter { $0.type == .subtitle } ?? []
 
-            // cannot handle HLS playlists.
             let url: URL
             if source.supportsDirectPlay == true || source.supportsDirectStream == true {
                 let isDirectPlay = source.supportsDirectPlay == true
@@ -121,7 +128,6 @@ final class PlayerViewModel {
                 throw PlayerEngineError.noURL
             }
 
-            // Start position
             let startPos: Double? = if !startFromBeginning,
                 let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
                 ticks.ticksToSeconds
@@ -129,15 +135,13 @@ final class PlayerViewModel {
                 nil
             }
 
-            // Load with SteelPlayer — this opens the demuxer, starts
-            // the decoder, and begins the render loop.
             try await player.load(url: url, startPosition: startPos)
 
             totalTime = formatSeconds(effectiveDuration)
             isLoading = false
             isPlaying = true
 
-            startStateObserver()
+            startObserving()
             await reportStart()
             startProgressReporting()
 
@@ -149,9 +153,58 @@ final class PlayerViewModel {
 
     func stopPlayback() async {
         stopProgressReporting()
-        stateObserver?.cancel()
+        cancellables.removeAll()
         await reportStop()
         player.stop()
+    }
+
+    // MARK: - State Observation (Combine)
+
+    private func startObserving() {
+        player.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self else { return }
+                switch state {
+                case .playing:
+                    self.hasStartedPlaying = true
+                    self.isLoading = false
+                    self.isPlaying = true
+                case .paused:
+                    self.isLoading = false
+                    self.isPlaying = false
+                case .idle:
+                    self.isPlaying = false
+                case .loading:
+                    if !self.hasStartedPlaying { self.isLoading = true }
+                case .seeking:
+                    break
+                case .error(let msg):
+                    self.errorMessage = msg
+                    self.isLoading = false
+                }
+            }
+            .store(in: &cancellables)
+
+        player.$currentTime
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] time in
+                guard let self, !self.isScrubbing else { return }
+                let dur = self.effectiveDuration
+                self.currentTime = self.formatSeconds(time)
+                let remaining = dur - time
+                self.remainingTime = remaining > 0 ? "-\(self.formatSeconds(remaining))" : "-00:00"
+                self.progress = dur > 0 ? Float(time / dur) : 0
+            }
+            .store(in: &cancellables)
+
+        player.$duration
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] dur in
+                guard let self else { return }
+                self.totalTime = dur > 0 ? self.formatSeconds(dur) : "00:00"
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Controls
@@ -162,24 +215,19 @@ final class PlayerViewModel {
         scheduleControlsHide()
     }
 
-    /// Jump forward/backward with preview — doesn't seek until confirmed.
-    /// Multiple jumps accumulate (e.g. 3x right = +30s preview).
     func seekJump(seconds: Double) {
         let dur = effectiveDuration
         guard dur > 0 else { return }
 
         if !isScrubbing {
-            // Start a pending seek from current position
             isScrubbing = true
             scrubStartProgress = progress
             scrubProgress = progress
         }
 
-        // Accumulate jump
         let jumpProgress = Float(seconds / dur)
-        let newProgress = max(0, min(1, scrubProgress + jumpProgress))
-        scrubProgress = newProgress
-        scrubTime = formatSeconds(Double(newProgress) * dur)
+        scrubProgress = max(0, min(1, scrubProgress + jumpProgress))
+        scrubTime = formatSeconds(Double(scrubProgress) * dur)
     }
 
     func selectAudioTrack(id: Int) {
@@ -197,7 +245,6 @@ final class PlayerViewModel {
     }
 
     private func loadSubtitles(streamIndex: Int) async {
-        // Find the subtitle stream info to determine format
         let format: String
         if let stream = subtitleStreams.first(where: { $0.index == streamIndex }) {
             format = stream.codec ?? "srt"
@@ -236,7 +283,6 @@ final class PlayerViewModel {
         return 0
     }
 
-    /// Start or update scrubbing with a normalized pan delta (-1.0 to 1.0).
     func scrub(delta: CGFloat) {
         let dur = effectiveDuration
         guard dur > 0 else { return }
@@ -248,21 +294,16 @@ final class PlayerViewModel {
             controlsTimer?.cancel()
         }
 
-        // Map pan delta to progress (full swipe = 30% of duration)
-        let newProgress = max(0, min(1, scrubStartProgress + Float(delta) * 0.3))
-        scrubProgress = newProgress
-        scrubTime = formatSeconds(Double(newProgress) * dur)
+        scrubProgress = max(0, min(1, scrubStartProgress + Float(delta) * 0.3))
+        scrubTime = formatSeconds(Double(scrubProgress) * dur)
     }
 
-    /// Called when pan gesture ends — update start position so the next
-    /// swipe continues from where the user left off, not from the beginning.
     func scrubPanEnded() {
         if isScrubbing {
             scrubStartProgress = scrubProgress
         }
     }
 
-    /// Commit the scrub — seek to the scrubbed position.
     func commitScrub() {
         let dur = effectiveDuration
         guard isScrubbing, dur > 0 else {
@@ -272,29 +313,19 @@ final class PlayerViewModel {
         let targetTime = Double(scrubProgress) * dur
         isScrubbing = false
         Task {
-            await player.seek(to: targetTime)
+            do {
+                await player.seek(to: targetTime)
+            }
             scheduleControlsHide()
         }
     }
 
-    /// Cancel scrubbing without seeking.
     func cancelScrub() {
         isScrubbing = false
         scheduleControlsHide()
     }
 
     func showControlsTemporarily() {
-        showControls = true
-        scheduleControlsHide()
-    }
-
-    func handleClick() {
-        if !showControls {
-            showControls = true
-            scheduleControlsHide()
-            return
-        }
-        player.togglePlayPause()
         showControls = true
         scheduleControlsHide()
     }
@@ -316,51 +347,6 @@ final class PlayerViewModel {
         let s = total % 60
         if h > 0 { return String(format: "%d:%02d:%02d", h, m, s) }
         return String(format: "%02d:%02d", m, s)
-    }
-
-    // MARK: - State Observer
-
-    private func startStateObserver() {
-        stateObserver = Task {
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(250))
-                guard !Task.isCancelled else { return }
-
-                if !isScrubbing {
-                    let dur = effectiveDuration
-                    let cur = player.currentTime
-                    currentTime = formatSeconds(cur)
-                    let remaining = dur - cur
-                    remainingTime = remaining > 0 ? "-\(formatSeconds(remaining))" : "-00:00"
-                    progress = dur > 0 ? Float(cur / dur) : 0
-                    let formattedDur = dur > 0 ? formatSeconds(dur) : "00:00"
-                    if totalTime != formattedDur {
-                        totalTime = formattedDur
-                    }
-                }
-
-                switch player.state {
-                case .playing:
-                    hasStartedPlaying = true
-                    isLoading = false
-                    isPlaying = true
-                case .paused:
-                    isLoading = false
-                    isPlaying = false
-                case .idle:
-                    isPlaying = false
-                case .loading:
-                    if !hasStartedPlaying {
-                        isLoading = true
-                    }
-                case .seeking:
-                    break
-                case .error(let msg):
-                    errorMessage = msg
-                    isLoading = false
-                }
-            }
-        }
     }
 
     // MARK: - Jellyfin Session Reporting
