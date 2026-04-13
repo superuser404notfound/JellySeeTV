@@ -143,16 +143,20 @@ enum DirectPlayProfile {
 
     // MARK: - Subtitles (shared)
 
+    /// All subtitle formats delivered externally — we fetch them as SRT
+    /// via the Jellyfin subtitle API (server converts any format to SRT).
+    /// This prevents Jellyfin from transcoding the entire video stream
+    /// just because a subtitle codec is "unsupported".
     private static let subtitleProfiles: [[String: Any]] = [
         ["Format": "vtt", "Method": "External"],
         ["Format": "webvtt", "Method": "External"],
         ["Format": "srt", "Method": "External"],
         ["Format": "subrip", "Method": "External"],
-        ["Format": "ass", "Method": "Encode"],
-        ["Format": "ssa", "Method": "Encode"],
-        ["Format": "pgssub", "Method": "Encode"],
-        ["Format": "pgs", "Method": "Encode"],
-        ["Format": "dvdsub", "Method": "Encode"],
-        ["Format": "dvbsub", "Method": "Encode"],
+        ["Format": "ass", "Method": "External"],
+        ["Format": "ssa", "Method": "External"],
+        ["Format": "pgssub", "Method": "External"],
+        ["Format": "pgs", "Method": "External"],
+        ["Format": "dvdsub", "Method": "External"],
+        ["Format": "dvbsub", "Method": "External"],
     ]
 }
