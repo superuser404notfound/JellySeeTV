@@ -1,15 +1,26 @@
 import SwiftUI
+import SteelPlayer
 
 /// Native tvOS-style transport bar with progress bar, time labels,
-/// and a track selection button (audio/subtitles) on the right.
+/// and track selection buttons above the bar on the right.
+///
+/// Layout:
+/// ```
+///                              [Audio] [Subs]
+/// ═══════════════════●══════════════════════
+/// 00:12:34                        -01:23:45
+/// ```
 struct TransportBar: View {
     let progress: Float
     let currentTime: String
     let remainingTime: String
     let isScrubbing: Bool
     let scrubTime: String
-    let hasTrackOptions: Bool
-    let onTrackButtonTapped: () -> Void
+    let audioTracks: [TrackInfo]
+    let subtitleTracks: [TrackInfo]
+    let onSelectAudio: (Int) -> Void
+    let onSelectSubtitle: (Int?) -> Void
+    let activeSubtitleIndex: Int?
 
     var body: some View {
         VStack(spacing: 10) {
@@ -23,10 +34,19 @@ struct TransportBar: View {
                     .padding(.bottom, 16)
             }
 
+            // Track buttons — right-aligned, above progress bar
+            if !audioTracks.isEmpty || !subtitleTracks.isEmpty {
+                HStack {
+                    Spacer()
+                    trackButtons
+                }
+                .padding(.bottom, 4)
+            }
+
             // Progress bar
             progressBar
 
-            // Time labels + track button
+            // Time labels
             HStack {
                 Text(currentTime)
                     .font(.callout)
@@ -35,15 +55,6 @@ struct TransportBar: View {
                     .foregroundStyle(.white.opacity(0.7))
 
                 Spacer()
-
-                if hasTrackOptions {
-                    Button(action: onTrackButtonTapped) {
-                        Image(systemName: "captions.bubble")
-                            .font(.title3)
-                            .foregroundStyle(.white.opacity(0.8))
-                    }
-                    .buttonStyle(.plain)
-                }
 
                 Text(remainingTime)
                     .font(.callout)
@@ -55,6 +66,55 @@ struct TransportBar: View {
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
         .animation(.easeInOut(duration: 0.2), value: isScrubbing)
+    }
+
+    // MARK: - Track Buttons
+
+    @State private var showAudioMenu = false
+    @State private var showSubtitleMenu = false
+
+    private var trackButtons: some View {
+        HStack(spacing: 16) {
+            if !audioTracks.isEmpty {
+                Menu {
+                    ForEach(audioTracks) { track in
+                        Button(action: { onSelectAudio(track.id) }) {
+                            Label(track.name, systemImage: "speaker.wave.2")
+                        }
+                    }
+                } label: {
+                    Label("Audio", systemImage: "speaker.wave.2")
+                        .font(.callout)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                .buttonStyle(.plain)
+            }
+
+            Menu {
+                Button(action: { onSelectSubtitle(nil) }) {
+                    Label(
+                        String(localized: "player.subtitles.off", defaultValue: "Aus"),
+                        systemImage: activeSubtitleIndex == nil ? "checkmark" : "circle"
+                    )
+                }
+                ForEach(subtitleTracks) { track in
+                    Button(action: { onSelectSubtitle(track.id) }) {
+                        Label(
+                            track.name,
+                            systemImage: track.id == activeSubtitleIndex ? "checkmark" : "circle"
+                        )
+                    }
+                }
+            } label: {
+                Label(
+                    String(localized: "player.subtitles", defaultValue: "Untertitel"),
+                    systemImage: "captions.bubble"
+                )
+                .font(.callout)
+                .foregroundStyle(.white.opacity(0.8))
+            }
+            .buttonStyle(.plain)
+        }
     }
 
     // MARK: - Progress Bar
@@ -92,7 +152,6 @@ struct TransportBar: View {
 
 // MARK: - Title Overlay
 
-/// Title overlay at the top of the player when transport is visible.
 struct PlayerTitleOverlay: View {
     let item: JellyfinItem
 

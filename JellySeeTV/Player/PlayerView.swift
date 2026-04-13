@@ -4,7 +4,6 @@ import SteelPlayer
 struct PlayerView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var viewModel: PlayerViewModel
-    @State private var showTrackSelection = false
     let onDismiss: () -> Void
 
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, onDismiss: @escaping () -> Void) {
@@ -37,17 +36,19 @@ struct PlayerView: View {
                     )
                 }
 
-                // Remote input — disabled when track selection is open
-                // so SwiftUI buttons can receive focus
+                // Remote input (always active — handles both hidden and visible modes)
                 RemoteTapHandler(
-                    isActive: !showTrackSelection,
+                    isActive: true,
                     onTap: handleTap,
                     onPlayPause: { viewModel.togglePlayPause() },
                     onMenu: handleMenu,
-                    onLeft: { viewModel.seekBackward() },
-                    onRight: { viewModel.seekForward() },
+                    onLeft: handleLeft,
+                    onRight: handleRight,
                     onPanChanged: { delta in viewModel.scrub(delta: delta) },
-                    onPanEnded: { viewModel.commitScrub() }
+                    onPanEnded: {
+                        // After pan ends, wait for confirm click
+                        // (don't auto-commit — user confirms with select)
+                    }
                 )
                 .ignoresSafeArea()
 
@@ -59,20 +60,19 @@ struct PlayerView: View {
                         .transition(.opacity)
                 }
 
-                // Controls overlay
-                if viewModel.showControls && !viewModel.isLoading {
-                    controlsOverlay
+                // Scrub preview (shown when scrubbing with UI hidden)
+                if viewModel.isScrubbing && !viewModel.showControls {
+                    scrubPreview
                 }
 
-                // Track selection overlay
-                if showTrackSelection {
-                    trackSelectionOverlay
+                // Controls overlay (full UI)
+                if viewModel.showControls && !viewModel.isLoading {
+                    controlsOverlay
                 }
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
-        .animation(.easeInOut(duration: 0.2), value: showTrackSelection)
         .task {
             await viewModel.startPlayback()
         }
@@ -87,20 +87,35 @@ struct PlayerView: View {
         }
     }
 
+    // MARK: - Scrub Preview (UI hidden)
+
+    private var scrubPreview: some View {
+        VStack {
+            Spacer()
+            Text(viewModel.scrubTime)
+                .font(.system(size: 56, weight: .medium))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 16)
+                .background(.black.opacity(0.6), in: RoundedRectangle(cornerRadius: 12))
+                .padding(.bottom, 120)
+        }
+        .transition(.opacity)
+        .animation(.easeInOut(duration: 0.2), value: viewModel.isScrubbing)
+    }
+
     // MARK: - Controls Overlay
 
     private var controlsOverlay: some View {
         ZStack {
-            // Gradient overlays
             gradientOverlays
 
-            // Title at top
             VStack {
                 PlayerTitleOverlay(item: viewModel.item)
                 Spacer()
             }
 
-            // Transport bar at bottom
             VStack {
                 Spacer()
                 TransportBar(
@@ -109,33 +124,11 @@ struct PlayerView: View {
                     remainingTime: viewModel.remainingTime,
                     isScrubbing: viewModel.isScrubbing,
                     scrubTime: viewModel.scrubTime,
-                    hasTrackOptions: !viewModel.player.audioTracks.isEmpty || !viewModel.player.subtitleTracks.isEmpty,
-                    onTrackButtonTapped: { showTrackSelection = true }
-                )
-            }
-        }
-        .transition(.opacity)
-    }
-
-    // MARK: - Track Selection Overlay
-
-    private var trackSelectionOverlay: some View {
-        ZStack {
-            // Dim background
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-                .onTapGesture { showTrackSelection = false }
-
-            VStack {
-                Spacer()
-                TrackSelectionView(
                     audioTracks: viewModel.player.audioTracks,
                     subtitleTracks: viewModel.player.subtitleTracks,
-                    selectedAudioIndex: nil,
-                    selectedSubtitleIndex: viewModel.activeSubtitleIndex,
                     onSelectAudio: { id in viewModel.selectAudioTrack(id: id) },
                     onSelectSubtitle: { id in viewModel.selectSubtitleTrack(id: id) },
-                    onDismiss: { showTrackSelection = false }
+                    activeSubtitleIndex: viewModel.activeSubtitleIndex
                 )
             }
         }
@@ -145,27 +138,37 @@ struct PlayerView: View {
     // MARK: - Remote Input Handlers
 
     private func handleTap() {
-        if showTrackSelection {
-            showTrackSelection = false
-            return
-        }
         if viewModel.isScrubbing {
+            // Confirm pending scrub/seek
             viewModel.commitScrub()
             return
         }
-        viewModel.handleClick()
+
+        if viewModel.showControls {
+            // UI visible → toggle play/pause
+            viewModel.togglePlayPause()
+        } else {
+            // UI hidden → show controls
+            viewModel.showControlsTemporarily()
+        }
     }
 
     private func handleMenu() {
-        if showTrackSelection {
-            showTrackSelection = false
-        } else if viewModel.isScrubbing {
+        if viewModel.isScrubbing {
             viewModel.cancelScrub()
         } else if viewModel.showControls {
             viewModel.showControls = false
         } else {
             dismissPlayer()
         }
+    }
+
+    private func handleLeft() {
+        viewModel.seekJump(seconds: -10)
+    }
+
+    private func handleRight() {
+        viewModel.seekJump(seconds: 10)
     }
 
     // MARK: - Helpers

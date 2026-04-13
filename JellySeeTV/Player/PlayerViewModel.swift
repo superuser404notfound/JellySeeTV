@@ -162,14 +162,24 @@ final class PlayerViewModel {
         scheduleControlsHide()
     }
 
-    func seekForward() {
-        Task { await player.seek(to: player.currentTime + 10) }
-        showControlsTemporarily()
-    }
+    /// Jump forward/backward with preview — doesn't seek until confirmed.
+    /// Multiple jumps accumulate (e.g. 3x right = +30s preview).
+    func seekJump(seconds: Double) {
+        let dur = effectiveDuration
+        guard dur > 0 else { return }
 
-    func seekBackward() {
-        Task { await player.seek(to: player.currentTime - 10) }
-        showControlsTemporarily()
+        if !isScrubbing {
+            // Start a pending seek from current position
+            isScrubbing = true
+            scrubStartProgress = progress
+            scrubProgress = progress
+        }
+
+        // Accumulate jump
+        let jumpProgress = Float(seconds / dur)
+        let newProgress = max(0, min(1, scrubProgress + jumpProgress))
+        scrubProgress = newProgress
+        scrubTime = formatSeconds(Double(newProgress) * dur)
     }
 
     func selectAudioTrack(id: Int) {
