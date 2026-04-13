@@ -356,6 +356,11 @@ final class PlayerViewModel {
             return
         }
         let targetTime = Double(scrubProgress) * dur
+        // Set progress to scrub position BEFORE clearing isScrubbing.
+        // Without this, displayedProgress snaps from scrubProgress back
+        // to the old progress value for a brief moment before the seek
+        // completes and Combine updates it.
+        progress = scrubProgress
         isScrubbing = false
         Task {
             await player.seek(to: targetTime)

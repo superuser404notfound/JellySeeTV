@@ -384,32 +384,27 @@ private struct PlayerOverlayView: View {
             }
             .ignoresSafeArea()
 
-            // Title — top left
+            // Top bar: title left, overview right
             VStack {
-                HStack {
+                HStack(alignment: .top, spacing: 40) {
                     PlayerTitleOverlay(item: viewModel.item)
-                    Spacer()
+
+                    if let overview = viewModel.item.overview, !overview.isEmpty {
+                        Text(overview)
+                            .font(.callout)
+                            .foregroundStyle(.white.opacity(0.6))
+                            .multilineTextAlignment(.leading)
+                            .lineLimit(4)
+                            .frame(maxWidth: 600, alignment: .leading)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 14)
+                            .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                            .padding(.top, 60)
+                    }
+
+                    Spacer(minLength: 0)
                 }
                 Spacer()
-            }
-
-            // Episode overview — top area, subtle
-            if let overview = viewModel.item.overview, !overview.isEmpty {
-                VStack {
-                    Spacer()
-                        .frame(height: 140)
-                    Text(overview)
-                        .font(.body)
-                        .foregroundStyle(.white.opacity(0.65))
-                        .multilineTextAlignment(.center)
-                        .lineLimit(5)
-                        .frame(maxWidth: 1200)
-                        .padding(.horizontal, 48)
-                        .padding(.vertical, 24)
-                        .background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
-                    Spacer()
-                }
-                .padding(.horizontal, 80)
             }
 
             VStack {
