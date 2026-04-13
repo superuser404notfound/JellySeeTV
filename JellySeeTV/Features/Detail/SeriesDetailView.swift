@@ -95,15 +95,7 @@ struct SeriesDetailView: View {
             }
         }
         .onChange(of: showPlayer) { _, isPlaying in
-            if !isPlaying {
-                // Player dismissed — reset playItem so the same episode
-                // can be selected again, and restore focus to the detail view.
-                playItem = nil
-                // Trigger focus restore by toggling a dummy focus update
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    UIApplication.shared.sendAction(#selector(UIResponder.becomeFirstResponder), to: nil, from: nil, for: nil)
-                }
-            }
+            if !isPlaying { playItem = nil }
         }
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)

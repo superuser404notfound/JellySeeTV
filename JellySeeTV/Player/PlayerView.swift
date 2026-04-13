@@ -43,7 +43,15 @@ struct PlayerLauncher: UIViewControllerRepresentable {
             player.modalPresentationStyle = .fullScreen
             host.present(player, animated: false)
         } else if !isPresented, host.presentedViewController != nil {
-            host.dismiss(animated: false)
+            host.dismiss(animated: false) {
+                // Restore tvOS focus after UIKit modal dismiss —
+                // the focus engine doesn't auto-restore when dismissing
+                // a UIKit modal presented from a SwiftUI overlay.
+                DispatchQueue.main.async {
+                    host.view.window?.rootViewController?.setNeedsFocusUpdate()
+                    host.view.window?.rootViewController?.updateFocusIfNeeded()
+                }
+            }
         }
     }
 }

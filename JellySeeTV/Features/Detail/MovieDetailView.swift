@@ -35,13 +35,6 @@ struct MovieDetailView: View {
                 .frame(width: 0, height: 0)
             }
         }
-        .onChange(of: showPlayer) { _, isPlaying in
-            if !isPlaying {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    UIApplication.shared.sendAction(#selector(UIResponder.becomeFirstResponder), to: nil, from: nil, for: nil)
-                }
-            }
-        }
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
         }
