@@ -204,7 +204,7 @@ final class PlayerHostController: UIViewController {
         } else if viewModel.showControls {
             switch viewModel.controlsFocus {
             case .progressBar:
-                if viewModel.isScrubbing { viewModel.cancelScrub() }
+                if viewModel.isScrubbing { viewModel.commitScrub() }
                 let hasAudio = !viewModel.player.audioTracks.isEmpty
                 let hasSubs = !viewModel.player.subtitleTracks.isEmpty
                 if hasAudio { viewModel.controlsFocus = .audioButton }
@@ -393,21 +393,23 @@ private struct PlayerOverlayView: View {
                 Spacer()
             }
 
-            // Episode overview — center, subtle
+            // Episode overview — top area, subtle
             if let overview = viewModel.item.overview, !overview.isEmpty {
                 VStack {
                     Spacer()
+                        .frame(height: 140)
                     Text(overview)
                         .font(.body)
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.65))
                         .multilineTextAlignment(.center)
-                        .lineLimit(4)
-                        .frame(maxWidth: 800)
-                        .padding(.horizontal, 40)
-                        .padding(.vertical, 20)
-                        .background(.black.opacity(0.3), in: RoundedRectangle(cornerRadius: 12))
+                        .lineLimit(5)
+                        .frame(maxWidth: 1200)
+                        .padding(.horizontal, 48)
+                        .padding(.vertical, 24)
+                        .background(.black.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
                     Spacer()
                 }
+                .padding(.horizontal, 80)
             }
 
             VStack {

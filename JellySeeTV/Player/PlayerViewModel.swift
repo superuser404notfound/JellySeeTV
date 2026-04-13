@@ -281,21 +281,13 @@ final class PlayerViewModel {
     }
 
     private func loadSubtitles(streamIndex: Int) async {
-        let format: String
+        // Always request SRT — Jellyfin converts ASS/PGS/VTT server-side.
+        let format = "srt"
+        #if DEBUG
         if let stream = subtitleStreams.first(where: { $0.index == streamIndex }) {
-            format = stream.codec ?? "srt"
-            #if DEBUG
-            print("[Subtitles] Found stream: index=\(stream.index), codec=\(stream.codec ?? "nil"), isExternal=\(stream.isExternal ?? false)")
-            #endif
-        } else {
-            format = "srt"
-            #if DEBUG
-            print("[Subtitles] Stream \(streamIndex) not found in subtitleStreams (count=\(subtitleStreams.count))")
-            for s in subtitleStreams {
-                print("[Subtitles]   jellyfin index=\(s.index ?? -1), codec=\(s.codec ?? "nil")")
-            }
-            #endif
+            print("[Subtitles] Stream \(streamIndex): source codec=\(stream.codec ?? "nil"), requesting as srt")
         }
+        #endif
 
         guard let url = playbackService.buildSubtitleURL(
             itemID: item.id,
