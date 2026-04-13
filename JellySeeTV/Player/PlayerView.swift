@@ -4,6 +4,7 @@ import SteelPlayer
 struct PlayerView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var viewModel: PlayerViewModel
+    @State private var showTrackSelection = false
     let onDismiss: () -> Void
 
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil, onDismiss: @escaping () -> Void) {
@@ -98,10 +99,38 @@ struct PlayerView: View {
                             currentTime: viewModel.currentTime,
                             remainingTime: viewModel.remainingTime,
                             isScrubbing: viewModel.isScrubbing,
-                            scrubTime: viewModel.scrubTime
+                            scrubTime: viewModel.scrubTime,
+                            hasTrackOptions: !viewModel.player.audioTracks.isEmpty || !viewModel.player.subtitleTracks.isEmpty,
+                            onTrackButtonTapped: {
+                                showTrackSelection.toggle()
+                            }
                         )
                     }
                     .transition(.opacity)
+
+                    // Track selection overlay
+                    if showTrackSelection {
+                        VStack {
+                            Spacer()
+                            TrackSelectionView(
+                                audioTracks: viewModel.player.audioTracks,
+                                subtitleTracks: viewModel.player.subtitleTracks,
+                                selectedAudioIndex: nil, // TODO: track active selection
+                                selectedSubtitleIndex: nil,
+                                onSelectAudio: { id in
+                                    viewModel.selectAudioTrack(id: id)
+                                },
+                                onSelectSubtitle: { id in
+                                    if let id {
+                                        viewModel.selectSubtitleTrack(id: id)
+                                    }
+                                    // TODO: subtitle off
+                                },
+                                onDismiss: { showTrackSelection = false }
+                            )
+                        }
+                        .transition(.opacity)
+                    }
                 }
             }
         }

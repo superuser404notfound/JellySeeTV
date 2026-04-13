@@ -1,13 +1,15 @@
 import SwiftUI
 
-/// Native tvOS-style transport bar — progress bar + time labels only.
-/// All controls via Siri Remote gestures (no on-screen buttons).
+/// Native tvOS-style transport bar with progress bar, time labels,
+/// and a track selection button (audio/subtitles) on the right.
 struct TransportBar: View {
     let progress: Float
     let currentTime: String
     let remainingTime: String
     let isScrubbing: Bool
     let scrubTime: String
+    let hasTrackOptions: Bool
+    let onTrackButtonTapped: () -> Void
 
     var body: some View {
         VStack(spacing: 10) {
@@ -24,7 +26,7 @@ struct TransportBar: View {
             // Progress bar
             progressBar
 
-            // Time labels
+            // Time labels + track button
             HStack {
                 Text(currentTime)
                     .font(.callout)
@@ -33,6 +35,15 @@ struct TransportBar: View {
                     .foregroundStyle(.white.opacity(0.7))
 
                 Spacer()
+
+                if hasTrackOptions {
+                    Button(action: onTrackButtonTapped) {
+                        Image(systemName: "captions.bubble")
+                            .font(.title3)
+                            .foregroundStyle(.white.opacity(0.8))
+                    }
+                    .buttonStyle(.plain)
+                }
 
                 Text(remainingTime)
                     .font(.callout)
