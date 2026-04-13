@@ -35,6 +35,11 @@ struct PlayerLauncher: UIViewControllerRepresentable {
             let player = PlayerHostController(viewModel: vm, onDismiss: {
                 host.dismiss(animated: false) {
                     isPresented = false
+                    // After the modal is fully removed, kick the focus
+                    // engine so it walks preferredFocusEnvironments up
+                    // to the SwiftUI hosting controller.
+                    host.setNeedsFocusUpdate()
+                    host.updateFocusIfNeeded()
                 }
             })
             player.modalPresentationStyle = .fullScreen
@@ -53,11 +58,18 @@ final class PlayerLauncherHostVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
-        view.isUserInteractionEnabled = false
+        // Do NOT set isUserInteractionEnabled = false here.
+        // The focus engine skips VCs whose view has user interaction
+        // disabled, which prevents focus restoration after modal dismiss.
+
+        // Tell the focus engine to consult preferredFocusEnvironments
+        // instead of trying to restore focus to a (nonexistent) child.
+        restoresFocusAfterTransition = false
     }
 
     override var preferredFocusEnvironments: [UIFocusEnvironment] {
-        // After modal dismiss, redirect focus to parent VC (SwiftUI)
+        // After modal dismiss, redirect focus to parent VC (SwiftUI's
+        // UIHostingController) so focus returns to the detail view.
         if let parent { return [parent] }
         return []
     }
