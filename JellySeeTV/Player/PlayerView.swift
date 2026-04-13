@@ -34,18 +34,31 @@ struct PlayerView: View {
                     )
                 }
 
-                RemoteTapHandler(
-                    onTap: handleTap,
-                    onPlayPause: { viewModel.togglePlayPause() },
-                    onMenu: handleMenu,
-                    onLeft: { viewModel.seekJump(seconds: -10) },
-                    onRight: { viewModel.seekJump(seconds: 10) },
-                    onUp: { viewModel.showControlsTemporarily() },
-                    onDown: { viewModel.showControlsTemporarily() },
+                // Touchpad pan gesture (UIKit — works without focus)
+                PanGestureView(
                     onPanChanged: { delta in viewModel.scrub(delta: delta) },
                     onPanEnded: { viewModel.scrubPanEnded() }
                 )
                 .ignoresSafeArea()
+
+                // Invisible focusable target — receives Select press via Button action,
+                // arrow keys via .onMoveCommand. SwiftUI gives this focus by default
+                // since no other focusable view exists in the player hierarchy.
+                Button(action: { handleTap() }) {
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .ignoresSafeArea()
+                .onMoveCommand { direction in
+                    switch direction {
+                    case .left: viewModel.seekJump(seconds: -10)
+                    case .right: viewModel.seekJump(seconds: 10)
+                    case .up, .down: viewModel.showControlsTemporarily()
+                    @unknown default: break
+                    }
+                }
 
                 // Loading overlay
                 if viewModel.isLoading {
@@ -65,6 +78,9 @@ struct PlayerView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
+        // SwiftUI commands — work on the focused Button
+        .onPlayPauseCommand { viewModel.togglePlayPause() }
+        .onExitCommand { handleMenu() }
         .task {
             await viewModel.startPlayback()
         }
@@ -105,9 +121,10 @@ struct PlayerView: View {
             }
         }
         .transition(.opacity)
+        .allowsHitTesting(false)
     }
 
-    // MARK: - Remote Input Handlers
+    // MARK: - Input Handlers
 
     private func handleTap() {
         #if DEBUG

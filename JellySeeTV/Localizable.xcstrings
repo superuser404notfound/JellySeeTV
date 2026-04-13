@@ -5526,6 +5526,7 @@
       }
     },
     "player.subtitles.off" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
