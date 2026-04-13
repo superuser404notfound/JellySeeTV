@@ -92,6 +92,17 @@ struct SeriesDetailView: View {
                 .frame(width: 0, height: 0)
             }
         }
+        .onChange(of: showPlayer) { _, isPlaying in
+            if !isPlaying {
+                // Player dismissed — reset playItem so the same episode
+                // can be selected again, and restore focus to the detail view.
+                playItem = nil
+                // Trigger focus restore by toggling a dummy focus update
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    UIApplication.shared.sendAction(#selector(UIResponder.becomeFirstResponder), to: nil, from: nil, for: nil)
+                }
+            }
+        }
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
         }
@@ -181,6 +192,7 @@ struct SeriesDetailView: View {
                     action: {
                         let ep = selectedEpisode ?? vm.episodes.first(where: { $0.id == vm.currentEpisodeID }) ?? vm.episodes.first
                         if let ep {
+                            playItem = nil
                             playItem = ep
                             playFromBeginning = false
                             showPlayer = true
@@ -269,6 +281,7 @@ struct SeriesDetailView: View {
                         LazyHStack(spacing: 24) {
                             ForEach(vm.episodes) { episode in
                                 Button {
+                                    playItem = nil
                                     playItem = episode
                                     playFromBeginning = false
                                     showPlayer = true
