@@ -25,7 +25,7 @@ struct MovieDetailView: View {
             if let userID = appState.activeUser?.id {
                 PlayerLauncher(
                     isPresented: $showPlayer,
-                    item: viewModel?.item ?? item,
+                    item: showPlayer ? (viewModel?.item ?? item) : nil,
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,

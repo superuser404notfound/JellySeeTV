@@ -79,14 +79,16 @@ struct SeriesDetailView: View {
         }
         .ignoresSafeArea()
         .overlay {
-            if let ep = playItem, let userID = appState.activeUser?.id {
+            if let userID = appState.activeUser?.id {
                 PlayerLauncher(
                     isPresented: $showPlayer,
-                    item: ep,
+                    item: playItem,
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
-                    cachedPlaybackInfo: (viewModel?.currentEpisodeID == ep.id) ? viewModel?.cachedPlaybackInfo : nil
+                    cachedPlaybackInfo: playItem.flatMap { ep in
+                        (viewModel?.currentEpisodeID == ep.id) ? viewModel?.cachedPlaybackInfo : nil
+                    }
                 )
                 .allowsHitTesting(false)
                 .frame(width: 0, height: 0)
@@ -192,7 +194,6 @@ struct SeriesDetailView: View {
                     action: {
                         let ep = selectedEpisode ?? vm.episodes.first(where: { $0.id == vm.currentEpisodeID }) ?? vm.episodes.first
                         if let ep {
-                            playItem = nil
                             playItem = ep
                             playFromBeginning = false
                             showPlayer = true
@@ -281,7 +282,6 @@ struct SeriesDetailView: View {
                         LazyHStack(spacing: 24) {
                             ForEach(vm.episodes) { episode in
                                 Button {
-                                    playItem = nil
                                     playItem = episode
                                     playFromBeginning = false
                                     showPlayer = true

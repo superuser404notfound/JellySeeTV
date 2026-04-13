@@ -11,7 +11,7 @@ import SteelPlayer
 /// UITapGestureRecognizer for .menu on the presented VC's view works.
 struct PlayerLauncher: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
-    let item: JellyfinItem
+    let item: JellyfinItem?
     let startFromBeginning: Bool
     let playbackService: JellyfinPlaybackServiceProtocol
     let userID: String
@@ -25,7 +25,9 @@ struct PlayerLauncher: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ host: UIViewController, context: Context) {
-        if isPresented && host.presentedViewController == nil && host.view.window != nil {
+        if isPresented, let item, host.presentedViewController == nil {
+            // Host VC is always in the window (no conditional overlay).
+            // Present immediately — no window check needed.
             let vm = PlayerViewModel(
                 item: item,
                 startFromBeginning: startFromBeginning,
