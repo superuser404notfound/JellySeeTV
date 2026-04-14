@@ -415,7 +415,7 @@ private struct PlayerOverlayView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
                             .font(.headline)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.white.opacity(0.85))
 
                         if let seriesName = episode.seriesName {
                             Text(seriesName)
@@ -427,16 +427,16 @@ private struct PlayerOverlayView: View {
                         HStack(spacing: 4) {
                             if let s = episode.parentIndexNumber, let e = episode.indexNumber {
                                 Text("S\(s)E\(e)")
-                                    .foregroundStyle(.white.opacity(0.6))
+                                    .foregroundStyle(.white.opacity(0.85))
                             }
                             Text(episode.name)
-                                .foregroundStyle(.white.opacity(0.8))
+                                .foregroundStyle(.white)
                         }
                         .font(.body)
 
                         Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
                             .font(.callout)
-                            .foregroundStyle(.white.opacity(0.5))
+                            .foregroundStyle(.white.opacity(0.75))
                             .monospacedDigit()
                             .contentTransition(.numericText())
                     }
@@ -444,7 +444,7 @@ private struct PlayerOverlayView: View {
                     .padding(.horizontal, 36)
                     .padding(.vertical, 28)
                 }
-                .frame(width: 480, height: 180)
+                .frame(width: 480, height: 270) // 16:9
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .padding(.trailing, 80)
