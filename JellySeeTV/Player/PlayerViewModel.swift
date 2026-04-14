@@ -8,6 +8,11 @@ import SteelPlayer
 ///
 /// Uses Combine subscriptions to observe SteelPlayer's @Published
 /// properties instead of polling timers — eliminates AttributeGraph cycles.
+///
+/// Split into extensions:
+/// - `PlayerViewModel+Scrubbing.swift` — pan/arrow scrubbing
+/// - `PlayerViewModel+NextEpisode.swift` — auto-play next episode
+/// - `PlayerViewModel+SessionReporting.swift` — Jellyfin progress reports
 @Observable
 @MainActor
 final class PlayerViewModel {
@@ -33,7 +38,7 @@ final class PlayerViewModel {
     var scrubProgress: Float = 0
     var scrubTime: String = "00:00"
     var displayedProgress: Float { isScrubbing ? scrubProgress : progress }
-    private var scrubStartProgress: Float = 0
+    var scrubStartProgress: Float = 0
 
     // Custom focus for transport bar navigation
     var controlsFocus: ControlsFocus = .progressBar
@@ -62,34 +67,35 @@ final class PlayerViewModel {
     var nextEpisode: JellyfinItem?
     var showNextEpisodeOverlay = false
     var nextEpisodeCountdown = 10
-    private var nextEpisodeTimer: Task<Void, Never>?
-    private var hasFetchedNextEpisode = false
-    private var nextEpisodeCancelled = false
+    var nextEpisodeTimer: Task<Void, Never>?
+    var hasFetchedNextEpisode = false
+    var nextEpisodeCancelled = false
 
     // MARK: - Dependencies
 
     var item: JellyfinItem
-    let player = try! SteelPlayer()
+    let player: SteelPlayer
 
     let playbackService: JellyfinPlaybackServiceProtocol
-    private let userID: String
-    private var startFromBeginning: Bool
-    private var cachedPlaybackInfo: PlaybackInfoResponse?
+    let userID: String
+    var startFromBeginning: Bool
+    var cachedPlaybackInfo: PlaybackInfoResponse?
 
-    // MARK: - Private State
+    // MARK: - Internal State
 
-    private var cancellables = Set<AnyCancellable>()
-    private var progressTimer: Task<Void, Never>?
+    var cancellables = Set<AnyCancellable>()
+    var progressTimer: Task<Void, Never>?
     var controlsTimer: Task<Void, Never>?
-    private var hasReportedStart = false
-    private var hasStartedPlaying = false
-    private var mediaSourceID: String = ""
-    private var playSessionID: String?
-    private var activePlayMethod: PlayMethod = .directPlay
-    private var subtitleStreams: [MediaStream] = []
+    var hasReportedStart = false
+    var hasStartedPlaying = false
+    var mediaSourceID: String = ""
+    var playSessionID: String?
+    var activePlayMethod: PlayMethod = .directPlay
+    var subtitleStreams: [MediaStream] = []
 
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
+    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) throws {
         self.item = item
+        self.player = try SteelPlayer()
         self.startFromBeginning = startFromBeginning
         self.playbackService = playbackService
         self.userID = userID
@@ -351,60 +357,7 @@ final class PlayerViewModel {
         }
     }
 
-    // MARK: - Scrubbing
-
-    var effectiveDuration: Double {
-        if player.duration > 0 { return player.duration }
-        if let ticks = item.runTimeTicks, ticks > 0 {
-            return Double(ticks) / 10_000_000
-        }
-        return 0
-    }
-
-    func scrub(delta: CGFloat) {
-        let dur = effectiveDuration
-        guard dur > 0 else { return }
-
-        if !isScrubbing {
-            isScrubbing = true
-            scrubStartProgress = progress
-            showControls = true
-            controlsTimer?.cancel()
-        }
-
-        scrubProgress = max(0, min(1, scrubStartProgress + Float(delta) * 0.3))
-        scrubTime = formatSeconds(Double(scrubProgress) * dur)
-    }
-
-    func scrubPanEnded() {
-        if isScrubbing {
-            scrubStartProgress = scrubProgress
-        }
-    }
-
-    func commitScrub() {
-        let dur = effectiveDuration
-        guard isScrubbing, dur > 0 else {
-            isScrubbing = false
-            return
-        }
-        let targetTime = Double(scrubProgress) * dur
-        // Set progress to scrub position BEFORE clearing isScrubbing.
-        // Without this, displayedProgress snaps from scrubProgress back
-        // to the old progress value for a brief moment before the seek
-        // completes and Combine updates it.
-        progress = scrubProgress
-        isScrubbing = false
-        Task {
-            await player.seek(to: targetTime)
-            scheduleControlsHide()
-        }
-    }
-
-    func cancelScrub() {
-        isScrubbing = false
-        scheduleControlsHide()
-    }
+    // MARK: - Helpers
 
     func showControlsTemporarily() {
         showControls = true
@@ -417,141 +370,6 @@ final class PlayerViewModel {
         trackDropdown = .none
     }
 
-    // MARK: - Next Episode
-
-    func checkForNextEpisode() {
-        let dur = effectiveDuration
-        let remaining = dur - playbackTime
-        guard dur > 0, remaining < 30, remaining > 0,
-              !hasFetchedNextEpisode else { return }
-
-        guard item.seriesId != nil else {
-            #if DEBUG
-            if !hasFetchedNextEpisode && remaining < 30 && remaining > 0 {
-                print("[NextEpisode] Skipped: seriesId=nil, type=\(item.type)")
-            }
-            #endif
-            return
-        }
-
-        hasFetchedNextEpisode = true
-        #if DEBUG
-        print("[NextEpisode] Triggering fetch: remaining=\(String(format: "%.0f", remaining))s, type=\(item.type), seriesId=\(item.seriesId ?? "nil")")
-        #endif
-        Task { await fetchNextEpisode() }
-    }
-
-    private func fetchNextEpisode() async {
-        guard let seriesID = item.seriesId else { return }
-
-        // Force a progress report so Jellyfin knows we're near the end.
-        // Without this, NextUp returns the current episode because
-        // Jellyfin hasn't marked it as "watched" yet.
-        await reportProgress()
-
-        do {
-            let next = try await playbackService.getNextEpisode(seriesID: seriesID, userID: userID)
-            if let next, next.id != item.id {
-                nextEpisode = next
-                #if DEBUG
-                print("[NextEpisode] Found: \(next.name) (S\(next.parentIndexNumber ?? 0)E\(next.indexNumber ?? 0))")
-                #endif
-                return
-            }
-
-            #if DEBUG
-            if let next { print("[NextEpisode] NextUp returned current episode, trying by index") }
-            else { print("[NextEpisode] NextUp returned nil, trying by index") }
-            #endif
-
-            // NextUp failed (returned current or nil). Try to find
-            // the next episode by index number in the same season.
-            if let seasonID = item.seasonId,
-               let currentIndex = item.indexNumber {
-                let episodes = try await playbackService.getEpisodes(
-                    seriesID: seriesID, seasonID: seasonID, userID: userID
-                )
-                if let nextEp = episodes.first(where: {
-                    ($0.indexNumber ?? 0) == currentIndex + 1
-                }) {
-                    nextEpisode = nextEp
-                    #if DEBUG
-                    print("[NextEpisode] Found by index: \(nextEp.name) (S\(nextEp.parentIndexNumber ?? 0)E\(nextEp.indexNumber ?? 0))")
-                    #endif
-                } else {
-                    #if DEBUG
-                    print("[NextEpisode] No next episode in season")
-                    #endif
-                }
-            }
-        } catch {
-            #if DEBUG
-            print("[NextEpisode] Fetch failed: \(error)")
-            #endif
-        }
-    }
-
-    private func startNextEpisodeCountdown() {
-        #if DEBUG
-        print("[NextEpisode] Countdown starts (10s)")
-        #endif
-        nextEpisodeTimer?.cancel()
-        nextEpisodeTimer = Task {
-            while nextEpisodeCountdown > 0, !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(1))
-                guard !Task.isCancelled else { return }
-                nextEpisodeCountdown -= 1
-            }
-            guard !Task.isCancelled else { return }
-            // Launch in a NEW task — if we called playNextEpisode() directly,
-            // cancelling nextEpisodeTimer would cancel the playback startup
-            // (CancellationError in player.load → "abgebrochen").
-            Task { @MainActor [weak self] in
-                await self?.playNextEpisode()
-            }
-        }
-    }
-
-    func playNextEpisode() async {
-        guard let next = nextEpisode else { return }
-        nextEpisodeTimer?.cancel()
-        showNextEpisodeOverlay = false
-
-        // Stop current
-        stopProgressReporting()
-        cancellables.removeAll()
-        await reportStop()
-        player.stop()
-
-        // Reset state
-        item = next
-        startFromBeginning = true
-        cachedPlaybackInfo = nil
-        subtitleCues = []
-        activeSubtitleIndex = nil
-        activeAudioIndex = nil
-        nextEpisode = nil
-        hasFetchedNextEpisode = false
-        nextEpisodeCancelled = false
-        hasReportedStart = false
-        hasStartedPlaying = false
-        showControls = false
-        isScrubbing = false
-        controlsFocus = .progressBar
-        trackDropdown = .none
-        progress = 0
-        playbackTime = 0
-
-        // Start new
-        await startPlayback()
-    }
-
-    func cancelNextEpisode() {
-        nextEpisodeTimer?.cancel()
-        showNextEpisodeOverlay = false
-        nextEpisodeCancelled = true
-    }
-
     func scheduleControlsHide() {
         controlsTimer?.cancel()
         guard isPlaying else { return }
@@ -562,7 +380,7 @@ final class PlayerViewModel {
         }
     }
 
-    private func formatSeconds(_ seconds: Double) -> String {
+    func formatSeconds(_ seconds: Double) -> String {
         let total = Int(max(0, seconds))
         let h = total / 3600
         let m = (total % 3600) / 60
@@ -570,72 +388,9 @@ final class PlayerViewModel {
         if h > 0 { return String(format: "%d:%02d:%02d", h, m, s) }
         return String(format: "%02d:%02d", m, s)
     }
-
-    // MARK: - Jellyfin Session Reporting
-
-    private var currentPositionTicks: Int64 {
-        Int64(player.currentTime * 10_000_000)
-    }
-
-    private func reportStart() async {
-        guard !hasReportedStart else { return }
-        hasReportedStart = true
-        let report = PlaybackStartReport(
-            itemId: item.id,
-            mediaSourceId: mediaSourceID,
-            playSessionId: playSessionID,
-            positionTicks: currentPositionTicks,
-            canSeek: true,
-            playMethod: activePlayMethod.rawValue,
-            audioStreamIndex: nil,
-            subtitleStreamIndex: nil
-        )
-        try? await playbackService.reportPlaybackStart(report)
-    }
-
-    private func reportProgress() async {
-        let report = PlaybackProgressReport(
-            itemId: item.id,
-            mediaSourceId: mediaSourceID,
-            playSessionId: playSessionID,
-            positionTicks: currentPositionTicks,
-            isPaused: player.state == .paused,
-            canSeek: true,
-            playMethod: activePlayMethod.rawValue,
-            audioStreamIndex: nil,
-            subtitleStreamIndex: nil
-        )
-        try? await playbackService.reportPlaybackProgress(report)
-    }
-
-    private func reportStop() async {
-        let report = PlaybackStopReport(
-            itemId: item.id,
-            mediaSourceId: mediaSourceID,
-            playSessionId: playSessionID,
-            positionTicks: currentPositionTicks
-        )
-        try? await playbackService.reportPlaybackStopped(report)
-    }
-
-    private func startProgressReporting() {
-        progressTimer?.cancel()
-        progressTimer = Task {
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(10))
-                guard !Task.isCancelled else { return }
-                await reportProgress()
-            }
-        }
-    }
-
-    private func stopProgressReporting() {
-        progressTimer?.cancel()
-        progressTimer = nil
-    }
 }
 
-private enum PlayerEngineError: LocalizedError {
+enum PlayerEngineError: LocalizedError {
     case noSource
     case noURL
 

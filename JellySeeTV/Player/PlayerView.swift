@@ -25,13 +25,16 @@ struct PlayerLauncher: UIViewControllerRepresentable {
         if isPresented, let item, host.presentedViewController == nil {
             // Host VC is always in the window (no conditional overlay).
             // Present immediately — no window check needed.
-            let vm = PlayerViewModel(
+            guard let vm = try? PlayerViewModel(
                 item: item,
                 startFromBeginning: startFromBeginning,
                 playbackService: playbackService,
                 userID: userID,
                 cachedPlaybackInfo: cachedPlaybackInfo
-            )
+            ) else {
+                isPresented = false
+                return
+            }
             let player = PlayerHostController(viewModel: vm, onDismiss: {
                 host.dismiss(animated: false) {
                     isPresented = false
