@@ -70,7 +70,7 @@ final class PlayerViewModel {
     var item: JellyfinItem
     let player = try! SteelPlayer()
 
-    private let playbackService: JellyfinPlaybackServiceProtocol
+    let playbackService: JellyfinPlaybackServiceProtocol
     private let userID: String
     private var startFromBeginning: Bool
     private var cachedPlaybackInfo: PlaybackInfoResponse?

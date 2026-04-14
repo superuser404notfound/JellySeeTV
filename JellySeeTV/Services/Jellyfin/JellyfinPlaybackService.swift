@@ -1,6 +1,7 @@
 import Foundation
 
 protocol JellyfinPlaybackServiceProtocol: Sendable {
+    var baseURL: URL? { get }
     func getPlaybackInfo(itemID: String, userID: String, profile: [String: Any]?) async throws -> PlaybackInfoResponse
     func reportPlaybackStart(_ report: PlaybackStartReport) async throws
     func reportPlaybackProgress(_ report: PlaybackProgressReport) async throws
@@ -14,6 +15,8 @@ protocol JellyfinPlaybackServiceProtocol: Sendable {
 
 final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
     let client: JellyfinClient
+
+    var baseURL: URL? { client.baseURL }
 
     init(client: JellyfinClient) {
         self.client = client

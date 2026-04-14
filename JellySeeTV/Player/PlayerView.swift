@@ -398,43 +398,76 @@ private struct PlayerOverlayView: View {
             Spacer()
             HStack {
                 Spacer()
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
-                        .font(.headline)
-                        .foregroundStyle(.white.opacity(0.6))
-
-                    if let seriesName = episode.seriesName {
-                        Text(seriesName)
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.white)
-                    }
-
-                    HStack(spacing: 4) {
-                        if let s = episode.parentIndexNumber, let e = episode.indexNumber {
-                            Text("S\(s)E\(e)")
-                                .foregroundStyle(.white.opacity(0.6))
+                ZStack {
+                    // Episode thumbnail as dimmed background
+                    if let imageURL = episodeThumbnailURL(for: episode) {
+                        AsyncImage(url: imageURL) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Color.clear
                         }
-                        Text(episode.name)
-                            .foregroundStyle(.white.opacity(0.8))
+                        .opacity(0.3)
                     }
-                    .font(.body)
 
-                    Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
-                    .font(.callout)
-                    .foregroundStyle(.white.opacity(0.5))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
+                    // Glass overlay + content
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
+                            .font(.headline)
+                            .foregroundStyle(.white.opacity(0.6))
+
+                        if let seriesName = episode.seriesName {
+                            Text(seriesName)
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.white)
+                        }
+
+                        HStack(spacing: 4) {
+                            if let s = episode.parentIndexNumber, let e = episode.indexNumber {
+                                Text("S\(s)E\(e)")
+                                    .foregroundStyle(.white.opacity(0.6))
+                            }
+                            Text(episode.name)
+                                .foregroundStyle(.white.opacity(0.8))
+                        }
+                        .font(.body)
+
+                        Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
+                            .font(.callout)
+                            .foregroundStyle(.white.opacity(0.5))
+                            .monospacedDigit()
+                            .contentTransition(.numericText())
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 36)
+                    .padding(.vertical, 28)
                 }
-                .frame(minWidth: 400)
-                .padding(.horizontal, 36)
-                .padding(.vertical, 28)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .frame(width: 480, height: 180)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
                 .padding(.trailing, 80)
-                .padding(.bottom, 140)
+                .padding(.bottom, 80)
             }
         }
         .transition(.move(edge: .trailing).combined(with: .opacity))
+    }
+
+    /// Build episode thumbnail URL directly from item data
+    /// (avoids needing JellyfinImageService in the player).
+    private func episodeThumbnailURL(for item: JellyfinItem) -> URL? {
+        guard let baseURL = viewModel.playbackService.baseURL else { return nil }
+        if let tag = item.imageTags?.primary {
+            return URL(string: "\(baseURL)/Items/\(item.id)/Images/Primary?tag=\(tag)&maxWidth=640&quality=80")
+        }
+        if let tags = item.backdropImageTags, let tag = tags.first {
+            return URL(string: "\(baseURL)/Items/\(item.id)/Images/Backdrop?tag=\(tag)&maxWidth=640&quality=80")
+        }
+        if let tags = item.parentBackdropImageTags, let tag = tags.first, let seriesId = item.seriesId {
+            return URL(string: "\(baseURL)/Items/\(seriesId)/Images/Backdrop?tag=\(tag)&maxWidth=640&quality=80")
+        }
+        return nil
     }
 
     private var controlsOverlay: some View {
