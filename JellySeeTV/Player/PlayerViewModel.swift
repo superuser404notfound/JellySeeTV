@@ -213,8 +213,12 @@ final class PlayerViewModel {
                     #if DEBUG
                     print("[NextEpisode] State=idle, hasStarted=\(self.hasStartedPlaying), nextEp=\(self.nextEpisode?.name ?? "nil")")
                     #endif
-                    if self.hasStartedPlaying, self.nextEpisode != nil, !self.nextEpisodeCancelled {
-                        self.startNextEpisodeCountdown()
+                    // If countdown didn't start yet (e.g. very short video),
+                    // auto-play immediately on EOF
+                    if self.hasStartedPlaying, self.nextEpisode != nil, !self.nextEpisodeCancelled, self.nextEpisodeTimer == nil {
+                        Task { @MainActor [weak self] in
+                            await self?.playNextEpisode()
+                        }
                     }
                 case .loading:
                     if !self.hasStartedPlaying { self.isLoading = true }
@@ -233,20 +237,22 @@ final class PlayerViewModel {
                 guard let self else { return }
                 self.playbackTime = time
                 self.checkForNextEpisode()
-                // Show next episode overlay when <30s remain (display only,
-                // auto-play happens on EOF — not on a timer that cuts the episode)
-                if self.nextEpisode != nil && !self.showNextEpisodeOverlay && !self.nextEpisodeCancelled {
-                    let dur = self.effectiveDuration
-                    let remaining = dur - time
-                    if dur > 0 && remaining < 30 && remaining > 0 {
+                let dur = self.effectiveDuration
+                let remaining = dur - time
+                if self.nextEpisode != nil && !self.nextEpisodeCancelled && dur > 0 && remaining > 0 {
+                    // Show overlay at 30s remaining
+                    if !self.showNextEpisodeOverlay && remaining < 30 {
                         self.showNextEpisodeOverlay = true
+                    }
+                    // Start countdown at 10s remaining (plays to the end)
+                    if self.nextEpisodeCountdown == 10 && remaining < 10 && self.nextEpisodeTimer == nil && self.showNextEpisodeOverlay {
+                        self.startNextEpisodeCountdown()
                     }
                 }
                 guard !self.isScrubbing else { return }
-                let dur = self.effectiveDuration
                 self.currentTime = self.formatSeconds(time)
-                let remaining = dur - time
-                self.remainingTime = remaining > 0 ? "-\(self.formatSeconds(remaining))" : "-00:00"
+                let rem = dur - time
+                self.remainingTime = rem > 0 ? "-\(self.formatSeconds(rem))" : "-00:00"
                 self.progress = dur > 0 ? Float(time / dur) : 0
             }
             .store(in: &cancellables)
@@ -486,9 +492,8 @@ final class PlayerViewModel {
     }
 
     private func startNextEpisodeCountdown() {
-        showNextEpisodeOverlay = true
         #if DEBUG
-        print("[NextEpisode] EOF — countdown starts")
+        print("[NextEpisode] Countdown starts (10s)")
         #endif
         nextEpisodeTimer?.cancel()
         nextEpisodeTimer = Task {

@@ -383,8 +383,9 @@ private struct PlayerOverlayView: View {
                 controlsOverlay
             }
 
-            // Next episode overlay
-            if viewModel.showNextEpisodeOverlay, let next = viewModel.nextEpisode {
+            // Next episode overlay — hidden when player controls are visible
+            if viewModel.showNextEpisodeOverlay && !viewModel.showControls,
+               let next = viewModel.nextEpisode {
                 nextEpisodeOverlay(next)
             }
         }
@@ -412,9 +413,9 @@ private struct PlayerOverlayView: View {
                     }
 
                     // Glass overlay + content
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
-                            .font(.headline)
+                            .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.85))
 
                         HStack(spacing: 4) {
@@ -424,23 +425,24 @@ private struct PlayerOverlayView: View {
                             }
                             Text(episode.name)
                                 .foregroundStyle(.white)
+                                .lineLimit(1)
                         }
-                        .font(.title3)
+                        .font(.body)
                         .fontWeight(.semibold)
 
                         if viewModel.nextEpisodeCountdown < 10 {
                             Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
-                                .font(.callout)
+                                .font(.caption)
                                 .foregroundStyle(.white.opacity(0.75))
                                 .monospacedDigit()
                                 .contentTransition(.numericText())
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 36)
-                    .padding(.vertical, 28)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 20)
                 }
-                .frame(width: 480, height: 270) // 16:9
+                .frame(width: 380, height: 214) // 16:9
                 .background(.thinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .padding(.trailing, 80)
