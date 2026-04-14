@@ -441,7 +441,7 @@ private struct PlayerOverlayView: View {
                     .padding(.vertical, 28)
                 }
                 .frame(width: 480, height: 270) // 16:9
-                .background(.ultraThinMaterial)
+                .background(.thinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .padding(.trailing, 80)
                 .padding(.bottom, 80)
