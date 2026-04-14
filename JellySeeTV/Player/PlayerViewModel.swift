@@ -437,10 +437,20 @@ final class PlayerViewModel {
         guard let seriesID = item.seriesId else { return }
         do {
             let next = try await playbackService.getNextEpisode(seriesID: seriesID, userID: userID)
-            if let next, next.id != item.id {
-                nextEpisode = next
+            if let next {
+                if next.id != item.id {
+                    nextEpisode = next
+                    #if DEBUG
+                    print("[NextEpisode] Found: \(next.name) (S\(next.parentIndexNumber ?? 0)E\(next.indexNumber ?? 0))")
+                    #endif
+                } else {
+                    #if DEBUG
+                    print("[NextEpisode] API returned current episode (\(next.name)), skipping")
+                    #endif
+                }
+            } else {
                 #if DEBUG
-                print("[NextEpisode] Found: \(next.name) (S\(next.parentIndexNumber ?? 0)E\(next.indexNumber ?? 0))")
+                print("[NextEpisode] API returned no next episode (last in series?)")
                 #endif
             }
         } catch {
