@@ -64,6 +64,7 @@ final class PlayerViewModel {
     var nextEpisodeCountdown = 10
     private var nextEpisodeTimer: Task<Void, Never>?
     private var hasFetchedNextEpisode = false
+    private var nextEpisodeCancelled = false
 
     // MARK: - Dependencies
 
@@ -212,8 +213,8 @@ final class PlayerViewModel {
                     #if DEBUG
                     print("[NextEpisode] State=idle, hasStarted=\(self.hasStartedPlaying), nextEp=\(self.nextEpisode?.name ?? "nil")")
                     #endif
-                    if self.hasStartedPlaying, self.nextEpisode != nil {
-                        self.showNextEpisodePrompt()
+                    if self.hasStartedPlaying, self.nextEpisode != nil, !self.nextEpisodeCancelled {
+                        self.startNextEpisodeCountdown()
                     }
                 case .loading:
                     if !self.hasStartedPlaying { self.isLoading = true }
@@ -232,12 +233,13 @@ final class PlayerViewModel {
                 guard let self else { return }
                 self.playbackTime = time
                 self.checkForNextEpisode()
-                // Show next episode overlay when <15s remain
-                if self.nextEpisode != nil && !self.showNextEpisodeOverlay {
+                // Show next episode overlay when <30s remain (display only,
+                // auto-play happens on EOF — not on a timer that cuts the episode)
+                if self.nextEpisode != nil && !self.showNextEpisodeOverlay && !self.nextEpisodeCancelled {
                     let dur = self.effectiveDuration
                     let remaining = dur - time
-                    if dur > 0 && remaining < 15 && remaining > 0 {
-                        self.showNextEpisodePrompt()
+                    if dur > 0 && remaining < 30 && remaining > 0 {
+                        self.showNextEpisodeOverlay = true
                     }
                 }
                 guard !self.isScrubbing else { return }
@@ -483,17 +485,11 @@ final class PlayerViewModel {
         }
     }
 
-    func showNextEpisodePrompt() {
-        guard nextEpisode != nil, !showNextEpisodeOverlay else { return }
-        #if DEBUG
-        print("[NextEpisode] Showing overlay, countdown starts")
-        #endif
-        showNextEpisodeOverlay = true
-        nextEpisodeCountdown = 10
-        startNextEpisodeCountdown()
-    }
-
     private func startNextEpisodeCountdown() {
+        showNextEpisodeOverlay = true
+        #if DEBUG
+        print("[NextEpisode] EOF — countdown starts")
+        #endif
         nextEpisodeTimer?.cancel()
         nextEpisodeTimer = Task {
             while nextEpisodeCountdown > 0, !Task.isCancelled {
@@ -531,6 +527,7 @@ final class PlayerViewModel {
         activeAudioIndex = nil
         nextEpisode = nil
         hasFetchedNextEpisode = false
+        nextEpisodeCancelled = false
         hasReportedStart = false
         hasStartedPlaying = false
         showControls = false
@@ -547,6 +544,7 @@ final class PlayerViewModel {
     func cancelNextEpisode() {
         nextEpisodeTimer?.cancel()
         showNextEpisodeOverlay = false
+        nextEpisodeCancelled = true
     }
 
     func scheduleControlsHide() {

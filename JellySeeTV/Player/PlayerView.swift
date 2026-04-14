@@ -417,13 +417,6 @@ private struct PlayerOverlayView: View {
                             .font(.headline)
                             .foregroundStyle(.white.opacity(0.85))
 
-                        if let seriesName = episode.seriesName {
-                            Text(seriesName)
-                                .font(.title3)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(.white)
-                        }
-
                         HStack(spacing: 4) {
                             if let s = episode.parentIndexNumber, let e = episode.indexNumber {
                                 Text("S\(s)E\(e)")
@@ -432,13 +425,16 @@ private struct PlayerOverlayView: View {
                             Text(episode.name)
                                 .foregroundStyle(.white)
                         }
-                        .font(.body)
+                        .font(.title3)
+                        .fontWeight(.semibold)
 
-                        Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
-                            .font(.callout)
-                            .foregroundStyle(.white.opacity(0.75))
-                            .monospacedDigit()
-                            .contentTransition(.numericText())
+                        if viewModel.nextEpisodeCountdown < 10 {
+                            Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
+                                .font(.callout)
+                                .foregroundStyle(.white.opacity(0.75))
+                                .monospacedDigit()
+                                .contentTransition(.numericText())
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 36)
