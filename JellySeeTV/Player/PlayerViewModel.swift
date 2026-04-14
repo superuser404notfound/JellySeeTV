@@ -100,6 +100,9 @@ final class PlayerViewModel {
     func startPlayback() async {
         isLoading = true
         errorMessage = nil
+        #if DEBUG
+        print("[PlayerVM] startPlayback: item=\(item.name), seriesId=\(item.seriesId ?? "nil"), type=\(item.type)")
+        #endif
 
         do {
             let info: PlaybackInfoResponse
@@ -414,8 +417,14 @@ final class PlayerViewModel {
         guard dur > 0, remaining < 30, remaining > 0,
               !hasFetchedNextEpisode else { return }
 
-        // Fetch for any item with a seriesId (episodes)
-        guard item.seriesId != nil else { return }
+        guard item.seriesId != nil else {
+            #if DEBUG
+            if !hasFetchedNextEpisode && remaining < 30 && remaining > 0 {
+                print("[NextEpisode] Skipped: seriesId=nil, type=\(item.type)")
+            }
+            #endif
+            return
+        }
 
         hasFetchedNextEpisode = true
         #if DEBUG
