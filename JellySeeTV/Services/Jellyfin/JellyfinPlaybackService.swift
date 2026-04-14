@@ -6,6 +6,7 @@ protocol JellyfinPlaybackServiceProtocol: Sendable {
     func reportPlaybackProgress(_ report: PlaybackProgressReport) async throws
     func reportPlaybackStopped(_ report: PlaybackStopReport) async throws
     func getNextEpisode(seriesID: String, userID: String) async throws -> JellyfinItem?
+    func getEpisodes(seriesID: String, seasonID: String, userID: String) async throws -> [JellyfinItem]
     func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL?
     func buildSubtitleURL(itemID: String, mediaSourceID: String, streamIndex: Int, format: String) -> URL?
     func buildTranscodeURL(relativePath: String) -> URL?
@@ -112,6 +113,14 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
             responseType: JellyfinItemsResponse.self
         )
         return response.items.first
+    }
+
+    func getEpisodes(seriesID: String, seasonID: String, userID: String) async throws -> [JellyfinItem] {
+        let response: JellyfinItemsResponse = try await client.request(
+            endpoint: JellyfinEndpoint.episodes(seriesID: seriesID, seasonID: seasonID, userID: userID),
+            responseType: JellyfinItemsResponse.self
+        )
+        return response.items
     }
 
     func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL? {

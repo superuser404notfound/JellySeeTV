@@ -435,23 +435,46 @@ final class PlayerViewModel {
 
     private func fetchNextEpisode() async {
         guard let seriesID = item.seriesId else { return }
+
+        // Force a progress report so Jellyfin knows we're near the end.
+        // Without this, NextUp returns the current episode because
+        // Jellyfin hasn't marked it as "watched" yet.
+        await reportProgress()
+
         do {
             let next = try await playbackService.getNextEpisode(seriesID: seriesID, userID: userID)
-            if let next {
-                if next.id != item.id {
-                    nextEpisode = next
+            if let next, next.id != item.id {
+                nextEpisode = next
+                #if DEBUG
+                print("[NextEpisode] Found: \(next.name) (S\(next.parentIndexNumber ?? 0)E\(next.indexNumber ?? 0))")
+                #endif
+                return
+            }
+
+            #if DEBUG
+            if let next { print("[NextEpisode] NextUp returned current episode, trying by index") }
+            else { print("[NextEpisode] NextUp returned nil, trying by index") }
+            #endif
+
+            // NextUp failed (returned current or nil). Try to find
+            // the next episode by index number in the same season.
+            if let seasonID = item.seasonId,
+               let currentIndex = item.indexNumber {
+                let episodes = try await playbackService.getEpisodes(
+                    seriesID: seriesID, seasonID: seasonID, userID: userID
+                )
+                if let nextEp = episodes.first(where: {
+                    ($0.indexNumber ?? 0) == currentIndex + 1
+                }) {
+                    nextEpisode = nextEp
                     #if DEBUG
-                    print("[NextEpisode] Found: \(next.name) (S\(next.parentIndexNumber ?? 0)E\(next.indexNumber ?? 0))")
+                    print("[NextEpisode] Found by index: \(nextEp.name) (S\(nextEp.parentIndexNumber ?? 0)E\(nextEp.indexNumber ?? 0))")
                     #endif
                 } else {
                     #if DEBUG
-                    print("[NextEpisode] API returned current episode (\(next.name)), skipping")
+                    print("[NextEpisode] No next episode in season")
                     #endif
                 }
-            } else {
-                #if DEBUG
-                print("[NextEpisode] API returned no next episode (last in series?)")
-                #endif
             }
         } catch {
             #if DEBUG
