@@ -529,8 +529,7 @@ final class PlayerViewModel {
         guard let window = displayWindow else { return }
         window.avDisplayManager.preferredDisplayCriteria = nil
         #if DEBUG
-        print("[PlayerVM] Display criteria RESET — caller:")
-        Thread.callStackSymbols.prefix(8).forEach { print("  \($0)") }
+        print("[PlayerVM] Display criteria RESET")
         #endif
         #endif
     }
