@@ -462,11 +462,18 @@ final class PlayerViewModel {
     }
 
     #if os(tvOS)
-    /// Safely access avDisplayManager via ObjC runtime — the UIWindow
-    /// category from AVKit isn't always loaded.
+    /// Safely access avDisplayManager via ObjC runtime.
     private func setDisplayCriteria(_ criteria: AVDisplayCriteria?) {
-        // Force-load AVKit framework so the UIWindow+AVDisplayManager category is registered
-        Bundle(identifier: "com.apple.AVKit")?.load()
+        // Force-load AVKit by referencing a class from it.
+        // The UIWindow.avDisplayManager property is an ObjC category
+        // defined in AVKit — it's only available once the framework is loaded.
+        _ = NSClassFromString("AVPlayerViewController")
+        if NSClassFromString("AVPlayerViewController") == nil {
+            // AVKit not available — try loading manually
+            if let path = Bundle.main.privateFrameworksPath {
+                Bundle(path: path + "/AVKit.framework")?.load()
+            }
+        }
 
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = scene.windows.first,
@@ -479,6 +486,10 @@ final class PlayerViewModel {
 
         guard let manager = window.value(forKey: "avDisplayManager") as? NSObject else { return }
         manager.setValue(criteria, forKey: "preferredDisplayCriteria")
+
+        #if DEBUG
+        print("[PlayerVM] AVDisplayManager: set criteria = \(criteria != nil ? "HDR" : "nil")")
+        #endif
     }
     #endif
 }
