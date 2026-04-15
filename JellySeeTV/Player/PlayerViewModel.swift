@@ -224,6 +224,7 @@ final class PlayerViewModel {
                     self.hasStartedPlaying = true
                     self.isLoading = false
                     self.isPlaying = true
+                    if self.showControls { self.scheduleControlsHide() }
                 case .paused:
                     self.isLoading = false
                     self.isPlaying = false
