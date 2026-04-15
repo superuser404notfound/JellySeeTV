@@ -178,12 +178,16 @@ final class PlayerViewModel {
                 nil
             }
 
-            try await player.load(url: url, startPosition: startPos)
+            // Set display criteria BEFORE loading — the TV needs time to switch
+            // to HDR/DV mode before the first frame is decoded. Use Jellyfin's
+            // mediaStreams metadata for detection (available before decode).
+            let detectedFormat = detectVideoFormat(from: source)
+            if detectedFormat != .sdr {
+                applyDisplayCriteria(format: detectedFormat)
+                await waitForDisplayModeSwitch()
+            }
 
-            // Set display criteria IMMEDIATELY after load — before Combine
-            // subscriptions start. This prevents race conditions where the
-            // old demux loop's .idle state resets the criteria.
-            applyDisplayCriteria(format: player.videoFormat)
+            try await player.load(url: url, startPosition: startPos)
 
             totalTime = formatSeconds(effectiveDuration)
             activeAudioIndex = player.audioTracks.first(where: { $0.isDefault })?.id
@@ -396,6 +400,26 @@ final class PlayerViewModel {
         }
     }
 
+    /// Detect video format from Jellyfin MediaSource metadata.
+    /// Available before player.load() — no decode needed.
+    private func detectVideoFormat(from source: PlaybackMediaSource) -> VideoFormat {
+        guard let videoStream = source.mediaStreams?.first(where: { $0.type == .video }) else {
+            return .sdr
+        }
+
+        // videoRangeType is more specific: "DOVI", "HDR10", "HDR10Plus", "HLG"
+        if let rangeType = videoStream.videoRangeType?.uppercased() {
+            if rangeType.contains("DOVI") || rangeType.contains("DOV") { return .dolbyVision }
+            if rangeType.contains("HDR10") { return .hdr10 }
+            if rangeType.contains("HLG") { return .hlg }
+        }
+
+        // Fallback: videoRange is "HDR" or "SDR"
+        if videoStream.videoRange?.uppercased() == "HDR" { return .hdr10 }
+
+        return .sdr
+    }
+
     func formatSeconds(_ seconds: Double) -> String {
         let total = Int(max(0, seconds))
         let h = total / 3600
@@ -405,37 +429,39 @@ final class PlayerViewModel {
         return String(format: "%02d:%02d", m, s)
     }
 
-    // MARK: - Display Mode Switching
+    // MARK: - Display Mode Switching (tvOS)
 
     /// Tell tvOS to switch the TV to HDR/DV/HLG mode via AVDisplayCriteria.
-    /// Without this, the TV stays in SDR and HDR content shows wrong colors.
-    ///
-    /// Uses ObjC runtime to access avDisplayManager safely — the UIWindow
-    /// category from AVKit may not be loaded in all configurations.
-    private func applyDisplayCriteria(format: VideoFormat) {
+    /// Must be called BEFORE playback starts so the TV has time to switch.
+    /// Uses public AVKit API — `UIWindow.avDisplayManager` (tvOS 11.2+).
+    func applyDisplayCriteria(format: VideoFormat, refreshRate: Float = 23.976) {
         #if os(tvOS)
-        guard #available(tvOS 17.0, *), format != .sdr else {
-            // Don't reset here — .sdr fires during load() before format is detected.
-            // Reset only happens in stopPlayback().
+        guard #available(tvOS 17.0, *), format != .sdr else { return }
+
+        guard let window = displayWindow else {
+            #if DEBUG
+            print("[PlayerVM] No window for display criteria")
+            #endif
             return
         }
 
-        let colorPrimaries: CFString
-        let transferFunction: CFString
+        let displayManager = window.avDisplayManager
 
-        switch format {
-        case .dolbyVision, .hdr10:
-            colorPrimaries = kCVImageBufferColorPrimaries_ITU_R_2020
-            transferFunction = kCVImageBufferTransferFunction_SMPTE_ST_2084_PQ
-        case .hlg:
-            colorPrimaries = kCVImageBufferColorPrimaries_ITU_R_2020
-            transferFunction = kCVImageBufferTransferFunction_ITU_R_2100_HLG
-        case .sdr:
+        // Respect user's "Match Content" setting
+        guard displayManager.isDisplayCriteriaMatchingEnabled else {
+            #if DEBUG
+            print("[PlayerVM] Match Content disabled by user")
+            #endif
             return
+        }
+
+        let transferFunction: CFString = switch format {
+        case .hlg: kCVImageBufferTransferFunction_ITU_R_2100_HLG
+        default:   kCVImageBufferTransferFunction_SMPTE_ST_2084_PQ
         }
 
         let extensions: NSDictionary = [
-            kCMFormatDescriptionExtension_ColorPrimaries: colorPrimaries,
+            kCMFormatDescriptionExtension_ColorPrimaries: kCVImageBufferColorPrimaries_ITU_R_2020,
             kCMFormatDescriptionExtension_TransferFunction: transferFunction,
             kCMFormatDescriptionExtension_YCbCrMatrix: kCVImageBufferYCbCrMatrix_ITU_R_2020,
         ]
@@ -444,56 +470,60 @@ final class PlayerViewModel {
         CMVideoFormatDescriptionCreate(
             allocator: kCFAllocatorDefault,
             codecType: kCMVideoCodecType_HEVC,
-            width: 1920, height: 1080,
+            width: 3840, height: 2160,
             extensions: extensions,
             formatDescriptionOut: &formatDesc
         )
         guard let desc = formatDesc else { return }
 
-        let criteria = AVDisplayCriteria(refreshRate: 23.976, formatDescription: desc)
-        setDisplayCriteria(criteria)
+        let criteria = AVDisplayCriteria(refreshRate: refreshRate, formatDescription: desc)
+        displayManager.preferredDisplayCriteria = criteria
 
         #if DEBUG
-        print("[PlayerVM] Display criteria: \(format)")
+        print("[PlayerVM] Display criteria SET: \(format), \(refreshRate) fps")
+        #endif
+        #endif
+    }
+
+    /// Wait for the TV to finish switching display modes before starting playback.
+    func waitForDisplayModeSwitch() async {
+        #if os(tvOS)
+        guard let window = displayWindow else { return }
+        let displayManager = window.avDisplayManager
+        guard displayManager.isDisplayModeSwitchInProgress else { return }
+
+        #if DEBUG
+        print("[PlayerVM] Waiting for display mode switch...")
+        #endif
+
+        // Wait up to 5 seconds for the switch, checking periodically
+        for _ in 0..<50 {
+            try? await Task.sleep(for: .milliseconds(100))
+            if !displayManager.isDisplayModeSwitchInProgress { break }
+        }
+
+        #if DEBUG
+        print("[PlayerVM] Display mode switch completed")
         #endif
         #endif
     }
 
     func resetDisplayCriteria() {
         #if os(tvOS)
-        setDisplayCriteria(nil)
+        guard let window = displayWindow else { return }
+        window.avDisplayManager.preferredDisplayCriteria = nil
+        #if DEBUG
+        print("[PlayerVM] Display criteria RESET")
+        #endif
         #endif
     }
 
     #if os(tvOS)
-    /// Safely access avDisplayManager via ObjC runtime.
-    private func setDisplayCriteria(_ criteria: AVDisplayCriteria?) {
-        // Force-load AVKit by referencing a class from it.
-        // The UIWindow.avDisplayManager property is an ObjC category
-        // defined in AVKit — it's only available once the framework is loaded.
-        _ = NSClassFromString("AVPlayerViewController")
-        if NSClassFromString("AVPlayerViewController") == nil {
-            // AVKit not available — try loading manually
-            if let path = Bundle.main.privateFrameworksPath {
-                Bundle(path: path + "/AVKit.framework")?.load()
-            }
-        }
-
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = scene.windows.first,
-              window.responds(to: NSSelectorFromString("avDisplayManager")) else {
-            #if DEBUG
-            print("[PlayerVM] AVDisplayManager not available")
-            #endif
-            return
-        }
-
-        guard let manager = window.value(forKey: "avDisplayManager") as? NSObject else { return }
-        manager.setValue(criteria, forKey: "preferredDisplayCriteria")
-
-        #if DEBUG
-        print("[PlayerVM] AVDisplayManager: set criteria = \(criteria != nil ? "HDR" : "nil")")
-        #endif
+    private var displayWindow: UIWindow? {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first
     }
     #endif
 }

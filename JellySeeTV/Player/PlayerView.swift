@@ -145,6 +145,10 @@ final class PlayerHostController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        // Only stop playback if the VC is actually being dismissed.
+        // Display mode switches (HDR/SDR) briefly trigger viewWillDisappear
+        // without actually dismissing — don't kill playback for that.
+        guard isBeingDismissed || isMovingFromParent else { return }
         viewModel.player.stop()
         Task { await viewModel.stopPlayback() }
     }
