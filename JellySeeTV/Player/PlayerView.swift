@@ -327,6 +327,7 @@ final class PlayerHostController: UIViewController {
 
     private func dismissPlayer() {
         viewModel.player.stop()
+        viewModel.resetDisplayCriteria()
         Task {
             await viewModel.stopPlayback()
             onDismiss()

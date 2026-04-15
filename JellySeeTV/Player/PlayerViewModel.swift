@@ -180,6 +180,11 @@ final class PlayerViewModel {
 
             try await player.load(url: url, startPosition: startPos)
 
+            // Set display criteria IMMEDIATELY after load — before Combine
+            // subscriptions start. This prevents race conditions where the
+            // old demux loop's .idle state resets the criteria.
+            applyDisplayCriteria(format: player.videoFormat)
+
             totalTime = formatSeconds(effectiveDuration)
             activeAudioIndex = player.audioTracks.first(where: { $0.isDefault })?.id
                 ?? player.audioTracks.first?.id
@@ -201,7 +206,6 @@ final class PlayerViewModel {
         cancellables.removeAll()
         await reportStop()
         player.stop()
-        resetDisplayCriteria()
     }
 
     // MARK: - State Observation (Combine)
@@ -280,7 +284,6 @@ final class PlayerViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] format in
                 self?.videoFormat = format
-                self?.applyDisplayCriteria(format: format)
             }
             .store(in: &cancellables)
     }
