@@ -183,7 +183,16 @@ final class PlayerViewModel {
             // mediaStreams metadata for detection (available before decode).
             let detectedFormat = detectVideoFormat(from: source)
             if detectedFormat != .sdr {
-                applyDisplayCriteria(format: detectedFormat)
+                // If content is DV but TV only supports HDR10, use HDR10 criteria
+                let displayFormat: VideoFormat
+                if detectedFormat == .dolbyVision && !DisplayCapabilities.supportsDolbyVision {
+                    displayFormat = .hdr10
+                } else {
+                    displayFormat = detectedFormat
+                }
+                applyDisplayCriteria(format: displayFormat)
+                // Give the TV time to begin the mode switch, then wait for completion
+                try? await Task.sleep(for: .milliseconds(200))
                 await waitForDisplayModeSwitch()
             }
 
