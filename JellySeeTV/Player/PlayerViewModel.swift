@@ -63,6 +63,9 @@ final class PlayerViewModel {
     var activeAudioIndex: Int?
     var activeSubtitleIndex: Int?
 
+    // Video format (HDR/DV indicator)
+    var videoFormat: VideoFormat = .sdr
+
     // Next episode
     var nextEpisode: JellyfinItem?
     var showNextEpisodeOverlay = false
@@ -268,6 +271,13 @@ final class PlayerViewModel {
             .sink { [weak self] dur in
                 guard let self else { return }
                 self.totalTime = dur > 0 ? self.formatSeconds(dur) : "00:00"
+            }
+            .store(in: &cancellables)
+
+        player.$videoFormat
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] format in
+                self?.videoFormat = format
             }
             .store(in: &cancellables)
     }

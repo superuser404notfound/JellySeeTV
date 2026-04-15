@@ -44,7 +44,7 @@ extension PlayerViewModel {
             }
 
             #if DEBUG
-            if let next { print("[NextEpisode] NextUp returned current episode, trying by index") }
+            if next != nil { print("[NextEpisode] NextUp returned current episode, trying by index") }
             else { print("[NextEpisode] NextUp returned nil, trying by index") }
             #endif
 

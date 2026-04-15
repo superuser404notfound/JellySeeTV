@@ -493,11 +493,16 @@ private struct PlayerOverlayView: View {
             }
             .ignoresSafeArea()
 
-            // Title — top left
+            // Title (top left) + HDR badge (top right)
             VStack {
-                HStack {
+                HStack(alignment: .top) {
                     PlayerTitleOverlay(item: viewModel.item)
                     Spacer()
+                    if viewModel.videoFormat != .sdr {
+                        VideoFormatBadge(format: viewModel.videoFormat)
+                            .padding(.horizontal, 80)
+                            .padding(.top, 68)
+                    }
                 }
                 Spacer()
             }
@@ -520,5 +525,33 @@ private struct PlayerOverlayView: View {
             }
         }
         .transition(.opacity)
+    }
+}
+
+// MARK: - Video Format Badge
+
+private struct VideoFormatBadge: View {
+    let format: VideoFormat
+
+    var body: some View {
+        Text(label)
+            .font(.system(size: 18, weight: .bold, design: .rounded))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .environment(\.colorScheme, .dark)
+            )
+    }
+
+    private var label: String {
+        switch format {
+        case .sdr:          return "SDR"
+        case .hdr10:        return "HDR10"
+        case .dolbyVision:  return "Dolby Vision"
+        case .hlg:          return "HLG"
+        }
     }
 }

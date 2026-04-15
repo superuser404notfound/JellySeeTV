@@ -1,19 +1,19 @@
 import Foundation
 
-/// Jellyfin device profile for SteelPlayer (FFmpeg + Metal) on Apple TV.
+/// Jellyfin device profile for SteelPlayer on Apple TV.
 ///
 /// SteelPlayer demuxes MKV/MP4/AVI/TS natively via FFmpeg, so we can
 /// direct-play far more containers than AVPlayer. This drastically
 /// reduces server-side transcoding — the server only needs to re-encode
-/// when the actual codec is unsupported (e.g. MPEG-2, VC-1, DTS audio).
+/// when the actual codec is unsupported (e.g. MPEG-2, VC-1).
 ///
 /// Two flavors based on display capabilities (see `DisplayCapabilities`):
 ///
 /// - `permissiveHDRProfile`: HDR-capable display. Direct-play 4K HEVC
-///   Main10 HDR / Dolby Vision with multi-channel EAC3. No re-encoding.
+///   Main10 HDR10 / Dolby Vision / HLG with multichannel audio.
 ///
-/// - `conservativeSDRProfile`: SDR display. HDR tone mapping is handled
-///   client-side by the Metal shader (Phase 4), no server re-encoding.
+/// - `conservativeSDRProfile`: SDR display. HDR content is still
+///   direct-played — VideoToolbox handles the conversion.
 @MainActor
 enum DirectPlayProfile {
 
@@ -29,9 +29,9 @@ enum DirectPlayProfile {
     // MARK: - HDR-capable display
 
     /// Profile for HDR-capable Apple TV setups (HDR display + Match
-    /// Dynamic Range on). Permissive: AVPlayer handles HEVC Main10,
-    /// HDR10, Dolby Vision, EAC3 multi-channel natively. Server only
-    /// has to remux containers — no re-encoding, no tone-mapping.
+    /// Dynamic Range on). SteelPlayer handles HEVC Main10, HDR10,
+    /// Dolby Vision (Profile 5/8.1/8.4), HLG, and multichannel audio.
+    /// Server only has to remux containers — no re-encoding.
     static func permissiveHDRProfile() -> [String: Any] {
         [
             "MaxStreamingBitrate": 200_000_000,
@@ -43,7 +43,7 @@ enum DirectPlayProfile {
                 [
                     "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
                     "Type": "Video",
-                    "VideoCodec": "h264,hevc,av1",
+                    "VideoCodec": "h264,hevc,av1,vp9",
                     "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,dca,pcm_s16le,pcm_s24le,pcm_f32le",
                 ],
                 [
@@ -61,7 +61,7 @@ enum DirectPlayProfile {
                     "Type": "Video",
                     "Container": "mp4",
                     "Protocol": "http",
-                    "VideoCodec": "h264,hevc,av1",
+                    "VideoCodec": "h264,hevc,av1,vp9",
                     "AudioCodec": "aac,ac3,eac3",
                     "Context": "Streaming",
                 ],
@@ -86,16 +86,12 @@ enum DirectPlayProfile {
     /// Range off).
     ///
     /// Strategy: maximise direct play and container-remux (DirectStream),
-    /// keep TranscodingProfile permissive (h264,hevc + ac3,eac3) so the
-    /// server can stream-copy compatible codecs in HLS instead of
-    /// re-encoding them. Server-side transcoding is the absolute last
-    /// resort and is only triggered when the source is genuinely
-    /// incompatible (DTS/TrueHD audio, MPEG-2/VC-1 video, etc).
+    /// keep TranscodingProfile permissive so the server can stream-copy
+    /// compatible codecs instead of re-encoding them. Server-side
+    /// transcoding is the absolute last resort.
     ///
-    /// HDR sources are intentionally NOT constrained here. The plan for
-    /// HDR-on-SDR is the custom Metal video compositor (Strategy C in
-    /// the design notes), which client-side tone-maps in a Metal compute
-    /// shader without any server load.
+    /// HDR sources are intentionally NOT constrained here — VideoToolbox
+    /// handles HDR-on-SDR conversion automatically.
     static func conservativeSDRProfile() -> [String: Any] {
         [
             "MaxStreamingBitrate": 200_000_000,
@@ -107,7 +103,7 @@ enum DirectPlayProfile {
                 [
                     "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
                     "Type": "Video",
-                    "VideoCodec": "h264,hevc,av1",
+                    "VideoCodec": "h264,hevc,av1,vp9",
                     "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,dca,pcm_s16le,pcm_s24le,pcm_f32le",
                 ],
                 [
@@ -122,7 +118,7 @@ enum DirectPlayProfile {
                     "Type": "Video",
                     "Container": "mp4",
                     "Protocol": "http",
-                    "VideoCodec": "h264,hevc,av1",
+                    "VideoCodec": "h264,hevc,av1,vp9",
                     "AudioCodec": "aac,ac3,eac3",
                     "Context": "Streaming",
                 ],
