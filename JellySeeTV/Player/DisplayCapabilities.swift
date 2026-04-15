@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import AVFoundation
 
 /// Detects what the connected display can actually handle.
 ///
@@ -24,8 +25,23 @@ enum DisplayCapabilities {
     ///   > 1.0    → HDR-capable display, system willing to switch
     ///              into HDR mode for HDR content (typically 1.4-1.6
     ///              for HDR10, up to 4.0+ for Dolby Vision)
+    /// True if the connected display supports any HDR format.
+    /// Uses AVPlayer.availableHDRModes which reflects the actual
+    /// display capabilities (not just EDR headroom).
     static var supportsHDR: Bool {
-        edrHeadroom > 1.0
+        AVPlayer.availableHDRModes.rawValue != 0
+    }
+
+    static var supportsDolbyVision: Bool {
+        AVPlayer.availableHDRModes.contains(.dolbyVision)
+    }
+
+    static var supportsHDR10: Bool {
+        AVPlayer.availableHDRModes.contains(.hdr10)
+    }
+
+    static var supportsHLG: Bool {
+        AVPlayer.availableHDRModes.contains(.hlg)
     }
 
     /// Display gamut. P3 is wide-gamut and usually goes hand-in-hand with
@@ -53,7 +69,13 @@ enum DisplayCapabilities {
         case .SRGB: gamut = "sRGB"
         default: gamut = "unspecified"
         }
-        return "EDR=\(String(format: "%.2f", edrHeadroom)), gamut=\(gamut), supportsHDR=\(supportsHDR)"
+        let modes = AVPlayer.availableHDRModes
+        var hdrModes: [String] = []
+        if modes.contains(.hdr10) { hdrModes.append("HDR10") }
+        if modes.contains(.dolbyVision) { hdrModes.append("DV") }
+        if modes.contains(.hlg) { hdrModes.append("HLG") }
+        let hdrString = hdrModes.isEmpty ? "none" : hdrModes.joined(separator: "+")
+        return "gamut=\(gamut), HDR=\(hdrString), supportsHDR=\(supportsHDR)"
     }
 
     private static var primaryScreen: UIScreen? {
