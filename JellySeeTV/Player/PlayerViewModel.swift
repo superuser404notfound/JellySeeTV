@@ -412,7 +412,8 @@ final class PlayerViewModel {
     private func applyDisplayCriteria(format: VideoFormat) {
         #if os(tvOS)
         guard #available(tvOS 17.0, *), format != .sdr else {
-            resetDisplayCriteria()
+            // Don't reset here — .sdr fires during load() before format is detected.
+            // Reset only happens in stopPlayback().
             return
         }
 

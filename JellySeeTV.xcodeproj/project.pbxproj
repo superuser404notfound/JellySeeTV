@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9D491D932F8F92E600B3BE42 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D491D922F8F92E500B3BE42 /* AVKit.framework */; };
 		AA000001STEELPLAYER /* SteelPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = AA000002STEELPLAYER /* SteelPlayer */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9D491D922F8F92E500B3BE42 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		9DD9136D2F8645860078D0BE /* JellySeeTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JellySeeTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -27,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D491D932F8F92E600B3BE42 /* AVKit.framework in Frameworks */,
 				AA000001STEELPLAYER /* SteelPlayer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -54,6 +57,7 @@
 		F2FA2CF0B38B315088DC439E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9D491D922F8F92E500B3BE42 /* AVKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
