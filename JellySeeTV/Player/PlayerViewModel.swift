@@ -92,6 +92,9 @@ final class PlayerViewModel {
     var controlsTimer: Task<Void, Never>?
     var hasReportedStart = false
     var hasStartedPlaying = false
+    /// The position we resumed from — used as minimum for progress reports
+    /// to prevent Jellyfin from resetting progress when stopping early.
+    var resumePositionTicks: Int64 = 0
     var mediaSourceID: String = ""
     var playSessionID: String?
     var activePlayMethod: PlayMethod = .directPlay
@@ -171,11 +174,14 @@ final class PlayerViewModel {
                 throw PlayerEngineError.noURL
             }
 
-            let startPos: Double? = if !startFromBeginning,
-                let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
-                ticks.ticksToSeconds
+            let startPos: Double?
+            if !startFromBeginning,
+               let ticks = item.userData?.playbackPositionTicks, ticks > 0 {
+                startPos = ticks.ticksToSeconds
+                resumePositionTicks = ticks
             } else {
-                nil
+                startPos = nil
+                resumePositionTicks = 0
             }
 
             // Set display criteria BEFORE loading — the TV needs time to switch

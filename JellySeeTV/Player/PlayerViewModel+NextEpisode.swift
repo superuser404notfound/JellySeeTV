@@ -125,6 +125,7 @@ extension PlayerViewModel {
         trackDropdown = .none
         progress = 0
         playbackTime = 0
+        resumePositionTicks = 0
 
         // Start new
         await startPlayback()

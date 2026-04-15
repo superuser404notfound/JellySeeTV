@@ -3,8 +3,12 @@ import SteelPlayer
 
 extension PlayerViewModel {
 
+    /// Current position in Jellyfin ticks. Uses the higher of player time
+    /// and resume position to prevent reporting 0 when the player hasn't
+    /// produced time updates yet (causes Jellyfin to reset progress).
     var currentPositionTicks: Int64 {
-        Int64(player.currentTime * 10_000_000)
+        let playerTicks = Int64(player.currentTime * 10_000_000)
+        return max(playerTicks, resumePositionTicks)
     }
 
     func reportStart() async {
