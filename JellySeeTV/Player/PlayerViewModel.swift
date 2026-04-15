@@ -406,6 +406,9 @@ final class PlayerViewModel {
 
     /// Tell tvOS to switch the TV to HDR/DV/HLG mode via AVDisplayCriteria.
     /// Without this, the TV stays in SDR and HDR content shows wrong colors.
+    ///
+    /// Uses ObjC runtime to access avDisplayManager safely — the UIWindow
+    /// category from AVKit may not be loaded in all configurations.
     private func applyDisplayCriteria(format: VideoFormat) {
         #if os(tvOS)
         guard #available(tvOS 17.0, *), format != .sdr else {
@@ -415,7 +418,6 @@ final class PlayerViewModel {
 
         let colorPrimaries: CFString
         let transferFunction: CFString
-        let codecType: CMVideoCodecType = kCMVideoCodecType_HEVC
 
         switch format {
         case .dolbyVision, .hdr10:
@@ -437,33 +439,48 @@ final class PlayerViewModel {
         var formatDesc: CMVideoFormatDescription?
         CMVideoFormatDescriptionCreate(
             allocator: kCFAllocatorDefault,
-            codecType: codecType,
+            codecType: kCMVideoCodecType_HEVC,
             width: 1920, height: 1080,
             extensions: extensions,
             formatDescriptionOut: &formatDesc
         )
         guard let desc = formatDesc else { return }
 
-        let refreshRate = Float(player.duration > 0 ? 23.976 : 24.0)
-        let criteria = AVDisplayCriteria(refreshRate: refreshRate, formatDescription: desc)
-
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = scene.windows.first else { return }
-        window.avDisplayManager.preferredDisplayCriteria = criteria
+        let criteria = AVDisplayCriteria(refreshRate: 23.976, formatDescription: desc)
+        setDisplayCriteria(criteria)
 
         #if DEBUG
-        print("[PlayerVM] Display criteria: \(format), \(refreshRate) fps")
+        print("[PlayerVM] Display criteria: \(format)")
         #endif
         #endif
     }
 
     func resetDisplayCriteria() {
         #if os(tvOS)
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = scene.windows.first else { return }
-        window.avDisplayManager.preferredDisplayCriteria = nil
+        setDisplayCriteria(nil)
         #endif
     }
+
+    #if os(tvOS)
+    /// Safely access avDisplayManager via ObjC runtime — the UIWindow
+    /// category from AVKit isn't always loaded.
+    private func setDisplayCriteria(_ criteria: AVDisplayCriteria?) {
+        // Force-load AVKit framework so the UIWindow+AVDisplayManager category is registered
+        Bundle(identifier: "com.apple.AVKit")?.load()
+
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = scene.windows.first,
+              window.responds(to: NSSelectorFromString("avDisplayManager")) else {
+            #if DEBUG
+            print("[PlayerVM] AVDisplayManager not available")
+            #endif
+            return
+        }
+
+        guard let manager = window.value(forKey: "avDisplayManager") as? NSObject else { return }
+        manager.setValue(criteria, forKey: "preferredDisplayCriteria")
+    }
+    #endif
 }
 
 enum PlayerEngineError: LocalizedError {
