@@ -147,30 +147,41 @@ struct TransportBar: View {
 
     private func trackButton(label: String, icon: String, isFocused: Bool, dropdown: [DropdownItem], isOpen: Bool) -> some View {
         VStack(spacing: 6) {
-            // Dropdown menu (opens upward)
+            // Dropdown menu (opens upward, scrollable if many items)
             if isOpen {
-                VStack(spacing: 0) {
-                    ForEach(Array(dropdown.enumerated()), id: \.offset) { _, item in
-                        HStack {
-                            Text(item.title)
-                                .font(.callout)
-                                .lineLimit(1)
-                            Spacer()
-                            if item.isActive {
-                                Image(systemName: "checkmark")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            ForEach(Array(dropdown.enumerated()), id: \.offset) { idx, item in
+                                HStack {
+                                    Text(item.title)
+                                        .font(.callout)
+                                        .lineLimit(1)
+                                    Spacer()
+                                    if item.isActive {
+                                        Image(systemName: "checkmark")
+                                            .font(.caption)
+                                            .fontWeight(.bold)
+                                    }
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                                .background(item.isHighlighted ? Color.white.opacity(0.25) : Color.clear)
+                                .foregroundStyle(item.isHighlighted ? .white : .white.opacity(0.8))
+                                .id(idx)
                             }
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(item.isHighlighted ? Color.white.opacity(0.25) : Color.clear)
-                        .foregroundStyle(item.isHighlighted ? .white : .white.opacity(0.8))
+                    }
+                    .onChange(of: dropdown.firstIndex(where: { $0.isHighlighted })) { _, highlighted in
+                        if let highlighted {
+                            withAnimation { proxy.scrollTo(highlighted, anchor: .center) }
+                        }
                     }
                 }
+                .frame(maxHeight: 400)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .fixedSize(horizontal: true, vertical: true)
+                .fixedSize(horizontal: true, vertical: false)
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
 
