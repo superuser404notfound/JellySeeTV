@@ -2,6 +2,7 @@ import Foundation
 import Combine
 import Observation
 import SteelPlayer
+import AVKit
 
 /// ViewModel that bridges SteelPlayer with Jellyfin session reporting
 /// and our custom tvOS-style player UI.
@@ -200,6 +201,7 @@ final class PlayerViewModel {
         cancellables.removeAll()
         await reportStop()
         player.stop()
+        resetDisplayCriteria()
     }
 
     // MARK: - State Observation (Combine)
@@ -278,6 +280,7 @@ final class PlayerViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] format in
                 self?.videoFormat = format
+                self?.applyDisplayCriteria(format: format)
             }
             .store(in: &cancellables)
     }
@@ -397,6 +400,69 @@ final class PlayerViewModel {
         let s = total % 60
         if h > 0 { return String(format: "%d:%02d:%02d", h, m, s) }
         return String(format: "%02d:%02d", m, s)
+    }
+
+    // MARK: - Display Mode Switching
+
+    /// Tell tvOS to switch the TV to HDR/DV/HLG mode via AVDisplayCriteria.
+    /// Without this, the TV stays in SDR and HDR content shows wrong colors.
+    private func applyDisplayCriteria(format: VideoFormat) {
+        #if os(tvOS)
+        guard #available(tvOS 17.0, *), format != .sdr else {
+            resetDisplayCriteria()
+            return
+        }
+
+        let colorPrimaries: CFString
+        let transferFunction: CFString
+        let codecType: CMVideoCodecType = kCMVideoCodecType_HEVC
+
+        switch format {
+        case .dolbyVision, .hdr10:
+            colorPrimaries = kCVImageBufferColorPrimaries_ITU_R_2020
+            transferFunction = kCVImageBufferTransferFunction_SMPTE_ST_2084_PQ
+        case .hlg:
+            colorPrimaries = kCVImageBufferColorPrimaries_ITU_R_2020
+            transferFunction = kCVImageBufferTransferFunction_ITU_R_2100_HLG
+        case .sdr:
+            return
+        }
+
+        let extensions: NSDictionary = [
+            kCMFormatDescriptionExtension_ColorPrimaries: colorPrimaries,
+            kCMFormatDescriptionExtension_TransferFunction: transferFunction,
+            kCMFormatDescriptionExtension_YCbCrMatrix: kCVImageBufferYCbCrMatrix_ITU_R_2020,
+        ]
+
+        var formatDesc: CMVideoFormatDescription?
+        CMVideoFormatDescriptionCreate(
+            allocator: kCFAllocatorDefault,
+            codecType: codecType,
+            width: 1920, height: 1080,
+            extensions: extensions,
+            formatDescriptionOut: &formatDesc
+        )
+        guard let desc = formatDesc else { return }
+
+        let refreshRate = Float(player.duration > 0 ? 23.976 : 24.0)
+        let criteria = AVDisplayCriteria(refreshRate: refreshRate, formatDescription: desc)
+
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = scene.windows.first else { return }
+        window.avDisplayManager.preferredDisplayCriteria = criteria
+
+        #if DEBUG
+        print("[PlayerVM] Display criteria: \(format), \(refreshRate) fps")
+        #endif
+        #endif
+    }
+
+    func resetDisplayCriteria() {
+        #if os(tvOS)
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = scene.windows.first else { return }
+        window.avDisplayManager.preferredDisplayCriteria = nil
+        #endif
     }
 }
 
