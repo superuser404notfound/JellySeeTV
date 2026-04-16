@@ -202,6 +202,23 @@ final class PlayerViewModel {
                 await waitForDisplayModeSwitch()
             }
 
+            // Check if the default audio track is EAC3 (potential Dolby Atmos).
+            // If so, build a separate audio URL for AVPlayer passthrough.
+            let audioStreams = source.mediaStreams?.filter { $0.type == .audio } ?? []
+            let defaultAudio = audioStreams.first(where: { $0.isDefault == true }) ?? audioStreams.first
+            if let audio = defaultAudio, audio.codec?.lowercased() == "eac3" {
+                player.externalAudioURL = playbackService.buildAudioStreamURL(
+                    itemID: item.id,
+                    mediaSourceID: source.id,
+                    audioStreamIndex: audio.index
+                )
+                #if DEBUG
+                print("[PlayerVM] EAC3 detected → external audio URL for Atmos passthrough (index=\(audio.index))")
+                #endif
+            } else {
+                player.externalAudioURL = nil
+            }
+
             try await player.load(url: url, startPosition: startPos)
 
             totalTime = formatSeconds(effectiveDuration)

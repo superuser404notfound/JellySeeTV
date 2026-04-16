@@ -9,6 +9,7 @@ protocol JellyfinPlaybackServiceProtocol: Sendable {
     func getNextEpisode(seriesID: String, userID: String) async throws -> JellyfinItem?
     func getEpisodes(seriesID: String, seasonID: String, userID: String) async throws -> [JellyfinItem]
     func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL?
+    func buildAudioStreamURL(itemID: String, mediaSourceID: String, audioStreamIndex: Int) -> URL?
     func buildSubtitleURL(itemID: String, mediaSourceID: String, streamIndex: Int, format: String) -> URL?
     func buildTranscodeURL(relativePath: String) -> URL?
 }
@@ -147,6 +148,26 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
         let path = "/Videos/\(itemID)/\(mediaSourceID)/Subtitles/\(streamIndex)/0/Stream.\(fmt)"
         var components = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: true)
         components?.queryItems = [URLQueryItem(name: "api_key", value: client.accessToken)]
+        return components?.url
+    }
+
+    /// Build a URL for an audio-only stream from Jellyfin.
+    /// Used for EAC3 Dolby Atmos passthrough via AVPlayer.
+    /// Jellyfin serves the audio track in an MP4 container (no transcoding).
+    func buildAudioStreamURL(itemID: String, mediaSourceID: String, audioStreamIndex: Int) -> URL? {
+        guard let baseURL = client.baseURL else { return nil }
+        var components = URLComponents(
+            url: baseURL.appendingPathComponent("/Audio/\(itemID)/universal"),
+            resolvingAgainstBaseURL: true
+        )
+        components?.queryItems = [
+            URLQueryItem(name: "MediaSourceId", value: mediaSourceID),
+            URLQueryItem(name: "AudioStreamIndex", value: String(audioStreamIndex)),
+            URLQueryItem(name: "Container", value: "mp4"),
+            URLQueryItem(name: "AudioCodec", value: "eac3"),
+            URLQueryItem(name: "Static", value: "true"),
+            URLQueryItem(name: "api_key", value: client.accessToken),
+        ]
         return components?.url
     }
 
