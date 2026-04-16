@@ -151,21 +151,19 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
         return components?.url
     }
 
-    /// Build a URL for an audio-only stream from Jellyfin.
-    /// Used for EAC3 Dolby Atmos passthrough via AVPlayer.
-    /// Jellyfin serves the audio track in an MP4 container (no transcoding).
+    /// Build a URL for Dolby Atmos audio passthrough via AVPlayer.
+    /// Uses the regular video stream endpoint with MP4 container — Jellyfin
+    /// remuxes MKV→MP4 on the fly (DirectStream, no transcoding).
+    /// AVPlayer plays the full stream but we only use its audio output.
     func buildAudioStreamURL(itemID: String, mediaSourceID: String, audioStreamIndex: Int) -> URL? {
         guard let baseURL = client.baseURL else { return nil }
         var components = URLComponents(
-            url: baseURL.appendingPathComponent("/Audio/\(itemID)/universal"),
+            url: baseURL.appendingPathComponent("/Videos/\(itemID)/stream.mp4"),
             resolvingAgainstBaseURL: true
         )
         components?.queryItems = [
             URLQueryItem(name: "MediaSourceId", value: mediaSourceID),
             URLQueryItem(name: "AudioStreamIndex", value: String(audioStreamIndex)),
-            URLQueryItem(name: "Container", value: "mp4"),
-            URLQueryItem(name: "AudioCodec", value: "eac3"),
-            URLQueryItem(name: "Static", value: "true"),
             URLQueryItem(name: "api_key", value: client.accessToken),
         ]
         return components?.url
