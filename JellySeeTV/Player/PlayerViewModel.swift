@@ -203,17 +203,18 @@ final class PlayerViewModel {
             }
 
             // Check if the default audio track is EAC3 (potential Dolby Atmos).
-            // If so, use Jellyfin's transcoding URL (HLS) for AVPlayer audio.
-            // Direct stream URLs (MP4/TS) fail because AVPlayer can't handle
-            // DV HEVC video in those containers. HLS is guaranteed compatible.
+            // If so, build an HLS URL for AVPlayer audio passthrough.
+            // AVPlayer handles EAC3+JOC → tvOS wraps as Dolby MAT 2.0 → Atmos.
             let audioStreams = source.mediaStreams?.filter { $0.type == .audio } ?? []
             let defaultAudio = audioStreams.first(where: { $0.isDefault == true }) ?? audioStreams.first
-            if let audio = defaultAudio, audio.codec?.lowercased() == "eac3",
-               let transcodePath = source.transcodingUrl, !transcodePath.isEmpty {
-                player.externalAudioURL = playbackService.buildTranscodeURL(relativePath: transcodePath)
+            if let audio = defaultAudio, audio.codec?.lowercased() == "eac3" {
+                player.externalAudioURL = playbackService.buildAudioStreamURL(
+                    itemID: item.id,
+                    mediaSourceID: source.id,
+                    audioStreamIndex: audio.index
+                )
                 #if DEBUG
-                print("[PlayerVM] EAC3 detected → using transcode HLS URL for Atmos (index=\(audio.index))")
-                print("[PlayerVM] Transcode path: \(transcodePath.prefix(150))...")
+                print("[PlayerVM] EAC3 detected → HLS audio URL for Atmos (index=\(audio.index))")
                 #endif
             } else {
                 player.externalAudioURL = nil
