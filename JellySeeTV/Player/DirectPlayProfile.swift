@@ -1,8 +1,8 @@
 import Foundation
 
-/// Jellyfin device profile for SteelPlayer on Apple TV.
+/// Jellyfin device profile for AetherEngine on Apple TV.
 ///
-/// SteelPlayer demuxes MKV/MP4/AVI/TS natively via FFmpeg, so we can
+/// AetherEngine demuxes MKV/MP4/AVI/TS natively via FFmpeg, so we can
 /// direct-play far more containers than AVPlayer. This drastically
 /// reduces server-side transcoding — the server only needs to re-encode
 /// when the actual codec is unsupported (e.g. MPEG-2, VC-1).
@@ -29,7 +29,7 @@ enum DirectPlayProfile {
     // MARK: - HDR-capable display
 
     /// Profile for HDR-capable Apple TV setups (HDR display + Match
-    /// Dynamic Range on). SteelPlayer handles HEVC Main10, HDR10,
+    /// Dynamic Range on). AetherEngine handles HEVC Main10, HDR10,
     /// Dolby Vision (Profile 5/8.1/8.4), HLG, and multichannel audio.
     /// Server only has to remux containers — no re-encoding.
     static func permissiveHDRProfile() -> [String: Any] {
@@ -38,7 +38,7 @@ enum DirectPlayProfile {
             "MaxStaticBitrate": 200_000_000,
             "MusicStreamingTranscodingBitrate": 384_000,
 
-            // SteelPlayer (FFmpeg) handles these containers natively.
+            // AetherEngine (FFmpeg) handles these containers natively.
             "DirectPlayProfiles": [
                 [
                     "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
@@ -52,7 +52,7 @@ enum DirectPlayProfile {
                 ],
             ] as [[String: Any]],
 
-            // Fallback: progressive MP4 over HTTP (not HLS!). SteelPlayer
+            // Fallback: progressive MP4 over HTTP (not HLS!). AetherEngine
             // uses a custom AVIO context with URLSession for HTTP streams,
             // which doesn't support HLS playlists. HTTP progressive download
             // works perfectly with our read-ahead buffer.
@@ -98,7 +98,7 @@ enum DirectPlayProfile {
             "MaxStaticBitrate": 200_000_000,
             "MusicStreamingTranscodingBitrate": 384_000,
 
-            // SteelPlayer (FFmpeg) handles these containers natively.
+            // AetherEngine (FFmpeg) handles these containers natively.
             "DirectPlayProfiles": [
                 [
                     "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",

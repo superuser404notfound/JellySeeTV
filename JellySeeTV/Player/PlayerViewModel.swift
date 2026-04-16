@@ -1,13 +1,13 @@
 import Foundation
 import Combine
 import Observation
-import SteelPlayer
+import AetherEngine
 import AVKit
 
-/// ViewModel that bridges SteelPlayer with Jellyfin session reporting
+/// ViewModel that bridges AetherEngine with Jellyfin session reporting
 /// and our custom tvOS-style player UI.
 ///
-/// Uses Combine subscriptions to observe SteelPlayer's @Published
+/// Uses Combine subscriptions to observe AetherEngine's @Published
 /// properties instead of polling timers — eliminates AttributeGraph cycles.
 ///
 /// Split into extensions:
@@ -78,7 +78,7 @@ final class PlayerViewModel {
     // MARK: - Dependencies
 
     var item: JellyfinItem
-    let player: SteelPlayer
+    let player: AetherEngine
 
     let playbackService: JellyfinPlaybackServiceProtocol
     let userID: String
@@ -102,7 +102,7 @@ final class PlayerViewModel {
 
     init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) throws {
         self.item = item
-        self.player = try SteelPlayer()
+        self.player = try AetherEngine()
         self.startFromBeginning = startFromBeginning
         self.playbackService = playbackService
         self.userID = userID

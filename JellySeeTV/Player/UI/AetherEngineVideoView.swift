@@ -2,8 +2,8 @@ import SwiftUI
 import UIKit
 import QuartzCore
 
-/// UIViewRepresentable that hosts SteelPlayer's video layer.
-struct SteelPlayerVideoView: UIViewRepresentable {
+/// UIViewRepresentable that hosts AetherEngine's video layer.
+struct AetherEngineVideoView: UIViewRepresentable {
     let videoLayer: CALayer
 
     func makeUIView(context: Context) -> VideoLayerHostView {

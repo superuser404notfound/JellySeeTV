@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9D491D932F8F92E600B3BE42 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D491D922F8F92E500B3BE42 /* AVKit.framework */; };
-		AA000001STEELPLAYER /* SteelPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = AA000002STEELPLAYER /* SteelPlayer */; };
+		AA000001STEELPLAYER /* AetherEngine in Frameworks */ = {isa = PBXBuildFile; productRef = AA000002STEELPLAYER /* AetherEngine */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,7 +30,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9D491D932F8F92E600B3BE42 /* AVKit.framework in Frameworks */,
-				AA000001STEELPLAYER /* SteelPlayer in Frameworks */,
+				AA000001STEELPLAYER /* AetherEngine in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,7 +124,7 @@
 			mainGroup = 9DD913642F8645860078D0BE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AA000003STEELPLAYER /* XCLocalSwiftPackageReference "../SteelPlayer" */,
+				AA000003STEELPLAYER /* XCLocalSwiftPackageReference "../AetherEngine" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9DD9136E2F8645860078D0BE /* Products */;
@@ -366,16 +366,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		AA000003STEELPLAYER /* XCLocalSwiftPackageReference "../SteelPlayer" */ = {
+		AA000003STEELPLAYER /* XCLocalSwiftPackageReference "../AetherEngine" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../SteelPlayer;
+			relativePath = ../AetherEngine;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AA000002STEELPLAYER /* SteelPlayer */ = {
+		AA000002STEELPLAYER /* AetherEngine */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = SteelPlayer;
+			productName = AetherEngine;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

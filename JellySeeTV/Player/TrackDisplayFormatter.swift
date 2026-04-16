@@ -1,5 +1,5 @@
 import Foundation
-import SteelPlayer
+import AetherEngine
 
 /// Formats TrackInfo into localized display strings for the player UI.
 ///
