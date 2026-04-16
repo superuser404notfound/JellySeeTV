@@ -9,7 +9,6 @@ protocol JellyfinPlaybackServiceProtocol: Sendable {
     func getNextEpisode(seriesID: String, userID: String) async throws -> JellyfinItem?
     func getEpisodes(seriesID: String, seasonID: String, userID: String) async throws -> [JellyfinItem]
     func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL?
-    func buildAudioStreamURL(itemID: String, mediaSourceID: String, audioStreamIndex: Int) -> URL?
     func buildSubtitleURL(itemID: String, mediaSourceID: String, streamIndex: Int, format: String) -> URL?
     func buildTranscodeURL(relativePath: String) -> URL?
 }
@@ -148,36 +147,6 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
         let path = "/Videos/\(itemID)/\(mediaSourceID)/Subtitles/\(streamIndex)/0/Stream.\(fmt)"
         var components = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: true)
         components?.queryItems = [URLQueryItem(name: "api_key", value: client.accessToken)]
-        return components?.url
-    }
-
-    /// Build an HLS URL for Dolby Atmos audio passthrough via AVPlayer.
-    ///
-    /// Requests a Jellyfin HLS transcode with:
-    /// - Audio: EAC3 copy (no transcoding) → preserves Atmos JOC metadata
-    /// - Video: H.264 at minimal quality (320px, 100kbps) → we don't use the video
-    ///
-    /// AVPlayer plays the HLS stream natively. We only use the audio output.
-    /// Video from AVPlayer is ignored — our own VideoToolbox pipeline handles video.
-    func buildAudioStreamURL(itemID: String, mediaSourceID: String, audioStreamIndex: Int) -> URL? {
-        guard let baseURL = client.baseURL else { return nil }
-        var components = URLComponents(
-            url: baseURL.appendingPathComponent("/videos/\(itemID)/main.m3u8"),
-            resolvingAgainstBaseURL: true
-        )
-        components?.queryItems = [
-            URLQueryItem(name: "MediaSourceId", value: mediaSourceID),
-            URLQueryItem(name: "AudioStreamIndex", value: String(audioStreamIndex)),
-            URLQueryItem(name: "AudioCodec", value: "eac3"),
-            // Minimal video — Jellyfin transcodes to tiny H.264, we only use audio
-            URLQueryItem(name: "VideoCodec", value: "h264"),
-            URLQueryItem(name: "VideoBitRate", value: "100000"),
-            URLQueryItem(name: "MaxWidth", value: "320"),
-            URLQueryItem(name: "MaxHeight", value: "180"),
-            URLQueryItem(name: "TranscodingMaxAudioChannels", value: "8"),
-            URLQueryItem(name: "SegmentContainer", value: "ts"),
-            URLQueryItem(name: "api_key", value: client.accessToken),
-        ]
         return components?.url
     }
 
