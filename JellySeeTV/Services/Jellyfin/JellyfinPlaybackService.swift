@@ -152,13 +152,14 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
     }
 
     /// Build a URL for Dolby Atmos audio passthrough via AVPlayer.
-    /// Uses the regular video stream endpoint with MP4 container — Jellyfin
-    /// remuxes MKV→MP4 on the fly (DirectStream, no transcoding).
+    /// Uses MPEG-TS container — TS is a streaming format that doesn't need
+    /// moov headers upfront (MP4 streaming has moov-at-end which AVPlayer rejects).
+    /// Jellyfin remuxes MKV→TS on the fly (DirectStream, no transcoding).
     /// AVPlayer plays the full stream but we only use its audio output.
     func buildAudioStreamURL(itemID: String, mediaSourceID: String, audioStreamIndex: Int) -> URL? {
         guard let baseURL = client.baseURL else { return nil }
         var components = URLComponents(
-            url: baseURL.appendingPathComponent("/Videos/\(itemID)/stream.mp4"),
+            url: baseURL.appendingPathComponent("/Videos/\(itemID)/stream.ts"),
             resolvingAgainstBaseURL: true
         )
         components?.queryItems = [
