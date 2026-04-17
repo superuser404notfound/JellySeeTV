@@ -14,6 +14,10 @@ struct SyncablePreferences: Codable, Sendable {
     var maxStreamingBitrate: Int?
 }
 
+/// Local storage for synced preferences and server list.
+/// tvOS doesn't support iCloud KVS provisioning — UserDefaults
+/// provides the same API without the entitlement requirement.
+/// Data persists across app launches on the same device.
 final class CloudSyncService: CloudSyncServiceProtocol {
     private let store = UserDefaults.standard
 
