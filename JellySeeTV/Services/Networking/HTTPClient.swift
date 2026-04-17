@@ -26,8 +26,21 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
-    nonisolated init(session: URLSession = .shared) {
-        self.session = session
+    nonisolated init(session: URLSession? = nil) {
+        if let session {
+            self.session = session
+        } else {
+            // Configure URL cache: 10 MB memory, 50 MB disk.
+            // Jellyfin API responses are small (1-50 KB each) —
+            // this caches ~1000+ responses. URLSession respects
+            // HTTP cache headers (Cache-Control, ETag) from Jellyfin.
+            let cache = URLCache(memoryCapacity: 10 * 1024 * 1024,
+                                 diskCapacity: 50 * 1024 * 1024)
+            let config = URLSessionConfiguration.default
+            config.urlCache = cache
+            config.requestCachePolicy = .useProtocolCachePolicy
+            self.session = URLSession(configuration: config)
+        }
 
         self.encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601

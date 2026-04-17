@@ -40,26 +40,29 @@ final class DetailViewModel {
     func loadFullDetail() async {
         isLoading = true
 
-        do {
-            let detail = try await itemService.getItemDetail(userID: userID, itemID: item.id)
+        let itemID = item.id
+        let itemType = item.type
+
+        // Fetch detail + similar in parallel, then content (seasons/collection).
+        // Detail must complete first so loadSeasons has fresh item data.
+        async let detailResult = itemService.getItemDetail(userID: userID, itemID: itemID)
+        async let similarResult = try? itemService.getSimilarItems(itemID: itemID, userID: userID, limit: 12)
+
+        if let detail = try? await detailResult {
             item = detail
             isFavorite = detail.userData?.isFavorite ?? false
-        } catch {
-            // Keep existing item data
         }
-
-        // Pre-fetch playback info for movies (series prefetch happens
-        // in loadSeasons() after the target episode is determined)
-        if item.type != .series {
-            prefetchPlaybackInfo(for: item.id)
-        }
-
-        // Load similar items
-        do {
-            let similar = try await itemService.getSimilarItems(itemID: item.id, userID: userID, limit: 12)
+        if let similar = await similarResult {
             similarItems = similar.items
-        } catch {
-            // Non-critical
+        }
+
+        // Load content (depends on item type from detail response)
+        if itemType == .series {
+            await loadSeasons()
+        } else if itemType == .boxSet {
+            await loadCollectionItems()
+        } else {
+            prefetchPlaybackInfo(for: itemID)
         }
 
         isLoading = false
@@ -86,21 +89,7 @@ final class DetailViewModel {
                 }
             }
 
-            // Fallback: find season with in-progress episode
-            if targetSeasonID == nil {
-                for season in seasons {
-                    let eps = try? await itemService.getEpisodes(
-                        seriesID: item.id, seasonID: season.id, userID: userID
-                    )
-                    if let inProgress = eps?.items.first(where: {
-                        ($0.userData?.playbackPositionTicks ?? 0) > 0
-                    }) {
-                        targetSeasonID = season.id
-                        targetEpisodeID = inProgress.id
-                        break
-                    }
-                }
-            }
+            // Fallback: no NextUp means no watch history → start at season 1
 
             // Load the target season or fallback to first
             let seasonToLoad = targetSeasonID ?? seasons.first?.id
