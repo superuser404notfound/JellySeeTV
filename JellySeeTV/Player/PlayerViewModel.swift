@@ -273,6 +273,11 @@ final class PlayerViewModel {
         // Report BEFORE stop — player.stop() resets currentTime to 0
         await reportStop()
         player.stop()
+        // Always revert the TV to SDR once playback ends. PlayerView's
+        // onDisappear also calls this, but if the app is backgrounded or
+        // the VC is torn down by other means, we still want the TV back in
+        // SDR mode so menus don't stay in HDR.
+        resetDisplayCriteria()
     }
 
     // MARK: - State Observation (Combine)
