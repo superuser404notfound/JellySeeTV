@@ -55,12 +55,19 @@ extension PlayerViewModel {
     func startProgressReporting() {
         progressTimer?.cancel()
         progressTimer = Task {
+            // Report immediately so even short views (< 1 min) are tracked
+            await reportProgress()
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(10))
                 guard !Task.isCancelled else { return }
                 await reportProgress()
             }
         }
+    }
+
+    /// Report progress on pause/seek so Jellyfin always has the latest position.
+    func reportProgressIfNeeded() {
+        Task { await reportProgress() }
     }
 
     func stopProgressReporting() {

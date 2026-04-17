@@ -223,8 +223,8 @@ final class PlayerViewModel {
     func stopPlayback() async {
         stopProgressReporting()
         cancellables.removeAll()
+        // Report BEFORE stop — player.stop() resets currentTime to 0
         await reportStop()
-        player.stop()
     }
 
     // MARK: - State Observation (Combine)
@@ -320,6 +320,7 @@ final class PlayerViewModel {
 
     func togglePlayPause() {
         player.togglePlayPause()
+        reportProgressIfNeeded()
         showControls = true
         scheduleControlsHide()
     }

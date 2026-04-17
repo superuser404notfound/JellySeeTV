@@ -47,6 +47,7 @@ extension PlayerViewModel {
         isScrubbing = false
         Task {
             await player.seek(to: targetTime)
+            reportProgressIfNeeded()
             scheduleControlsHide()
         }
     }
