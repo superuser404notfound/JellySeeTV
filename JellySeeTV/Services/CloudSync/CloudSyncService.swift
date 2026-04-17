@@ -15,7 +15,7 @@ struct SyncablePreferences: Codable, Sendable {
 }
 
 final class CloudSyncService: CloudSyncServiceProtocol {
-    private let store = NSUbiquitousKeyValueStore.default
+    private let store = UserDefaults.standard
 
     private enum Keys {
         static let serverList = "syncedServerList"

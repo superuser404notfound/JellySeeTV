@@ -1,8 +1,10 @@
 import Foundation
+import AetherEngine
 
 @MainActor
 @Observable
 final class DependencyContainer {
+    @MainActor static let playerEngine: AetherEngine = try! AetherEngine()
     let keychainService: KeychainServiceProtocol
     let httpClient: HTTPClientProtocol
     let jellyfinClient: JellyfinClient
