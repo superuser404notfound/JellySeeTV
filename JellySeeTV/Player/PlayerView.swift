@@ -113,10 +113,11 @@ final class PlayerHostController: UIViewController {
         pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
         view.addGestureRecognizer(pan)
 
-        // Background → pause (user resumes with Play/Pause button)
+        // Background → engine stops demux loop (VT + AVIO die in suspension)
+        // Foreground → reload pipeline at current position
         NotificationCenter.default.addObserver(
-            self, selector: #selector(appWillResignActive),
-            name: UIApplication.willResignActiveNotification, object: nil
+            self, selector: #selector(appDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification, object: nil
         )
     }
 
@@ -153,8 +154,14 @@ final class PlayerHostController: UIViewController {
         Task { await viewModel.stopPlayback() }
     }
 
-    @objc private func appWillResignActive() {
-        viewModel.player.pause()
+    @objc private func appDidBecomeActive() {
+        // AetherEngine stops the demux loop on didEnterBackground (VT sessions
+        // and AVIO connections are invalidated by tvOS). Reload the pipeline
+        // from the current position to rebuild everything safely.
+        guard viewModel.hasStartedPlaying else { return }
+        Task {
+            try? await viewModel.player.reloadAtCurrentPosition()
+        }
     }
 
     // MARK: - Press Handlers (state machine)
