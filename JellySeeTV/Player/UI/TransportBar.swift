@@ -25,6 +25,7 @@ struct TransportBar: View {
     let subtitleStreams: [MediaStream]
     let activeAudioIndex: Int?
     let activeSubtitleIndex: Int?
+    let activeSpeedIndex: Int
     let controlsFocus: PlayerViewModel.ControlsFocus
     let trackDropdown: PlayerViewModel.TrackDropdown
 
@@ -41,38 +42,44 @@ struct TransportBar: View {
             }
 
             // Track buttons with dropdown
-            if !audioTracks.isEmpty || !subtitleStreams.isEmpty {
-                HStack(alignment: .bottom, spacing: 16) {
-                    Spacer()
+            HStack(alignment: .bottom, spacing: 16) {
+                Spacer()
 
-                    if !audioTracks.isEmpty {
-                        let activeTrack = audioTracks.first(where: { $0.id == activeAudioIndex })
-                        trackButton(
-                            label: activeTrack.map { TrackDisplayFormatter.shortName(for: $0) }
-                                ?? String(localized: "player.audio", defaultValue: "Audio"),
-                            icon: "speaker.wave.2",
-                            isFocused: controlsFocus == .audioButton,
-                            dropdown: audioDropdownItems,
-                            isOpen: isAudioDropdownOpen
-                        )
-                    }
-
-                    if !subtitleStreams.isEmpty {
-                        let activeStream = activeSubtitleIndex.flatMap { idx in
-                            subtitleStreams.first(where: { $0.index == idx })
-                        }
-                        trackButton(
-                            label: activeStream.map { TrackDisplayFormatter.subtitleShortName(for: $0) }
-                                ?? String(localized: "player.subtitles.off", defaultValue: "Off"),
-                            icon: "captions.bubble",
-                            isFocused: controlsFocus == .subtitleButton,
-                            dropdown: subtitleDropdownItems,
-                            isOpen: isSubtitleDropdownOpen
-                        )
-                    }
+                if !audioTracks.isEmpty {
+                    let activeTrack = audioTracks.first(where: { $0.id == activeAudioIndex })
+                    trackButton(
+                        label: activeTrack.map { TrackDisplayFormatter.shortName(for: $0) }
+                            ?? String(localized: "player.audio", defaultValue: "Audio"),
+                        icon: "speaker.wave.2",
+                        isFocused: controlsFocus == .audioButton,
+                        dropdown: audioDropdownItems,
+                        isOpen: isAudioDropdownOpen
+                    )
                 }
-                .padding(.bottom, 4)
+
+                if !subtitleStreams.isEmpty {
+                    let activeStream = activeSubtitleIndex.flatMap { idx in
+                        subtitleStreams.first(where: { $0.index == idx })
+                    }
+                    trackButton(
+                        label: activeStream.map { TrackDisplayFormatter.subtitleShortName(for: $0) }
+                            ?? String(localized: "player.subtitles.off", defaultValue: "Off"),
+                        icon: "captions.bubble",
+                        isFocused: controlsFocus == .subtitleButton,
+                        dropdown: subtitleDropdownItems,
+                        isOpen: isSubtitleDropdownOpen
+                    )
+                }
+
+                trackButton(
+                    label: TransportBar.speedLabel(for: activeSpeedIndex),
+                    icon: "gauge.with.needle",
+                    isFocused: controlsFocus == .speedButton,
+                    dropdown: speedDropdownItems,
+                    isOpen: isSpeedDropdownOpen
+                )
             }
+            .padding(.bottom, 4)
 
             // Progress bar
             progressBar
@@ -113,6 +120,27 @@ struct TransportBar: View {
         return false
     }
 
+    private var isSpeedDropdownOpen: Bool {
+        if case .speed = trackDropdown { return true }
+        return false
+    }
+
+    /// "1×" / "1.5×" / "0.75×" — fixed-style, not localized (the × glyph
+    /// and arabic digits are universal in the native tvOS player too).
+    static func speedLabel(for index: Int) -> String {
+        let rate = PlayerViewModel.speedOptions[
+            max(0, min(PlayerViewModel.speedOptions.count - 1, index))
+        ]
+        if rate == rate.rounded() {
+            return "\(Int(rate))×"
+        }
+        // Strip trailing zeros (0.50 → 0.5)
+        let s = String(format: "%.2f", rate)
+            .replacingOccurrences(of: #"0+$"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"\.$"#, with: "", options: .regularExpression)
+        return "\(s)×"
+    }
+
     private var audioDropdownItems: [DropdownItem] {
         guard case .audio(let highlighted) = trackDropdown else { return [] }
         return audioTracks.enumerated().map { idx, track in
@@ -141,6 +169,17 @@ struct TransportBar: View {
             )
         }
         return items
+    }
+
+    private var speedDropdownItems: [DropdownItem] {
+        guard case .speed(let highlighted) = trackDropdown else { return [] }
+        return PlayerViewModel.speedOptions.enumerated().map { idx, _ in
+            DropdownItem(
+                title: TransportBar.speedLabel(for: idx),
+                isActive: idx == activeSpeedIndex,
+                isHighlighted: idx == highlighted
+            )
+        }
     }
 
     // MARK: - Track Button + Dropdown

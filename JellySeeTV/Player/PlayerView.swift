@@ -172,6 +172,7 @@ final class PlayerHostController: UIViewController {
             switch viewModel.controlsFocus {
             case .audioButton: openAudioDropdown()
             case .subtitleButton: openSubtitleDropdown()
+            case .speedButton: openSpeedDropdown()
             default: break
             }
         } else if viewModel.isScrubbing {
@@ -211,10 +212,7 @@ final class PlayerHostController: UIViewController {
     @objc private func leftPressed() {
         if viewModel.isDropdownOpen { return }
         if viewModel.showControls && viewModel.controlsFocus != .progressBar {
-            // On a track button — navigate between buttons (or do nothing if leftmost)
-            if viewModel.controlsFocus == .subtitleButton && !viewModel.player.audioTracks.isEmpty {
-                viewModel.controlsFocus = .audioButton
-            }
+            stepTransportFocus(direction: -1)
         } else {
             viewModel.seekJump(seconds: -10)
         }
@@ -223,12 +221,24 @@ final class PlayerHostController: UIViewController {
     @objc private func rightPressed() {
         if viewModel.isDropdownOpen { return }
         if viewModel.showControls && viewModel.controlsFocus != .progressBar {
-            // On a track button — navigate between buttons (or do nothing if rightmost)
-            if viewModel.controlsFocus == .audioButton && !viewModel.subtitleStreams.isEmpty {
-                viewModel.controlsFocus = .subtitleButton
-            }
+            stepTransportFocus(direction: 1)
         } else {
             viewModel.seekJump(seconds: 10)
+        }
+    }
+
+    /// Move focus one step through the available transport buttons.
+    /// Builds the list dynamically so a stream without audio or subtitle
+    /// tracks still leaves speed reachable without dead stops.
+    private func stepTransportFocus(direction: Int) {
+        var order: [PlayerViewModel.ControlsFocus] = []
+        if !viewModel.player.audioTracks.isEmpty { order.append(.audioButton) }
+        if !viewModel.subtitleStreams.isEmpty { order.append(.subtitleButton) }
+        order.append(.speedButton)
+        guard let current = order.firstIndex(of: viewModel.controlsFocus) else { return }
+        let next = current + direction
+        if next >= 0 && next < order.count {
+            viewModel.controlsFocus = order[next]
         }
     }
 
@@ -243,7 +253,8 @@ final class PlayerHostController: UIViewController {
                 let hasSubs = !viewModel.subtitleStreams.isEmpty
                 if hasAudio { viewModel.controlsFocus = .audioButton }
                 else if hasSubs { viewModel.controlsFocus = .subtitleButton }
-            case .audioButton, .subtitleButton:
+                else { viewModel.controlsFocus = .speedButton }
+            case .audioButton, .subtitleButton, .speedButton:
                 break
             }
         } else {
@@ -288,6 +299,11 @@ final class PlayerHostController: UIViewController {
         viewModel.trackDropdown = .subtitle(highlighted: currentIdx)
     }
 
+    private func openSpeedDropdown() {
+        viewModel.controlsTimer?.cancel()
+        viewModel.trackDropdown = .speed(highlighted: viewModel.activeSpeedIndex)
+    }
+
     private func moveDropdownHighlight(by offset: Int) {
         switch viewModel.trackDropdown {
         case .audio(let idx):
@@ -300,6 +316,10 @@ final class PlayerHostController: UIViewController {
             guard count > 0 else { return }
             let newIdx = max(0, min(count - 1, idx + offset))
             viewModel.trackDropdown = .subtitle(highlighted: newIdx)
+        case .speed(let idx):
+            let count = PlayerViewModel.speedOptions.count
+            let newIdx = max(0, min(count - 1, idx + offset))
+            viewModel.trackDropdown = .speed(highlighted: newIdx)
         case .none:
             break
         }
@@ -324,6 +344,10 @@ final class PlayerHostController: UIViewController {
                     viewModel.selectSubtitleTrack(id: streams[streamIdx].index)
                 }
             }
+            viewModel.trackDropdown = .none
+            viewModel.scheduleControlsHide()
+        case .speed(let idx):
+            viewModel.selectSpeed(index: idx)
             viewModel.trackDropdown = .none
             viewModel.scheduleControlsHide()
         case .none:
@@ -561,6 +585,7 @@ private struct PlayerOverlayView: View {
                     subtitleStreams: viewModel.subtitleStreams,
                     activeAudioIndex: viewModel.activeAudioIndex,
                     activeSubtitleIndex: viewModel.activeSubtitleIndex,
+                    activeSpeedIndex: viewModel.activeSpeedIndex,
                     controlsFocus: viewModel.controlsFocus,
                     trackDropdown: viewModel.trackDropdown
                 )

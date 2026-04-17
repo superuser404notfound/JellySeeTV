@@ -49,15 +49,23 @@ final class PlayerViewModel {
         case progressBar
         case audioButton
         case subtitleButton
+        case speedButton
     }
 
     enum TrackDropdown: Equatable {
         case none
         case audio(highlighted: Int)   // index into player.audioTracks
         case subtitle(highlighted: Int) // index into subtitle items (0=Off, 1..=tracks)
+        case speed(highlighted: Int)    // index into PlayerViewModel.speedOptions
     }
 
     var isDropdownOpen: Bool { trackDropdown != .none }
+
+    /// Playback speed choices. Native tvOS player uses the same stepped
+    /// set — keeping it consistent with user expectations. Index 2 = 1.0×.
+    static let speedOptions: [Float] = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
+    /// Index into `speedOptions` for the currently applied rate.
+    var activeSpeedIndex: Int = 2
 
     // Tracks
     var subtitleCues: [SubtitleCue] = []
@@ -413,6 +421,13 @@ final class PlayerViewModel {
     func selectAudioTrack(id: Int) {
         activeAudioIndex = id
         player.selectAudioTrack(index: id)
+    }
+
+    /// Apply the playback speed at the given index in `speedOptions`.
+    func selectSpeed(index: Int) {
+        let clamped = max(0, min(Self.speedOptions.count - 1, index))
+        activeSpeedIndex = clamped
+        player.setRate(Self.speedOptions[clamped])
     }
 
     func selectSubtitleTrack(id: Int?) {
