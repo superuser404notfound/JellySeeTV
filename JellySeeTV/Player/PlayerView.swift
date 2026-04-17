@@ -455,8 +455,7 @@ private struct PlayerOverlayView: View {
                         Spacer(minLength: 0)
 
                         if viewModel.nextEpisodeTimer != nil, viewModel.nextEpisodeCountdown > 0 {
-                            let count = viewModel.nextEpisodeCountdown
-                            Text(String(localized: "player.nextEpisode.countdown \(count)", defaultValue: "Starting in \(count)s..."))
+                            Text("player.nextEpisode.countdown \(viewModel.nextEpisodeCountdown)")
                                 .font(.caption)
                                 .foregroundStyle(.white.opacity(0.75))
                                 .monospacedDigit()
