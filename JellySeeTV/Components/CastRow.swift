@@ -13,7 +13,7 @@ struct CastRow: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 20) {
-                    ForEach(people, id: \.id) { person in
+                    ForEach(Array(people.enumerated()), id: \.offset) { _, person in
                         CastCard(person: person, imageURL: imageURLProvider(person))
                     }
                 }
