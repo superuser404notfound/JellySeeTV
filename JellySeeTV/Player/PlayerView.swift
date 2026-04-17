@@ -167,14 +167,7 @@ final class PlayerHostController: UIViewController {
     @objc private func appDidBecomeActive() {
         guard wasPlayingBeforeBackground else { return }
         wasPlayingBeforeBackground = false
-        // Seek to current position to rebuild the decode pipeline.
-        // VideoToolbox sessions may be invalidated while backgrounded —
-        // a seek flushes decoders, recreates sessions, and restores video.
-        let pos = viewModel.playbackTime
-        Task {
-            await viewModel.player.seek(to: pos)
-            viewModel.player.play()
-        }
+        viewModel.player.play()
     }
 
     // MARK: - Press Handlers (state machine)

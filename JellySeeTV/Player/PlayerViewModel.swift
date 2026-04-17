@@ -245,16 +245,12 @@ final class PlayerViewModel {
                     self.isPlaying = false
                 case .idle:
                     self.isPlaying = false
+                    // Don't auto-play next episode on idle — the demux loop
+                    // reaches EOF 15-20s before playback actually finishes
+                    // (read-ahead). The countdown timer handles the transition.
                     #if DEBUG
                     print("[NextEpisode] State=idle, hasStarted=\(self.hasStartedPlaying), nextEp=\(self.nextEpisode?.name ?? "nil")")
                     #endif
-                    // If countdown didn't start yet (e.g. very short video),
-                    // auto-play immediately on EOF
-                    if self.hasStartedPlaying, self.nextEpisode != nil, !self.nextEpisodeCancelled, self.nextEpisodeTimer == nil {
-                        Task { @MainActor [weak self] in
-                            await self?.playNextEpisode()
-                        }
-                    }
                 case .loading:
                     if !self.hasStartedPlaying { self.isLoading = true }
                 case .seeking:
