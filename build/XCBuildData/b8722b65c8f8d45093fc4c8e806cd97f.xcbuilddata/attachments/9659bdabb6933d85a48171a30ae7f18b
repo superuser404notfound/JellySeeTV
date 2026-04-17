@@ -1,4 +1,0 @@
-module FFmpegBuild {
-header "FFmpegBuild-Swift.h"
-export *
-}

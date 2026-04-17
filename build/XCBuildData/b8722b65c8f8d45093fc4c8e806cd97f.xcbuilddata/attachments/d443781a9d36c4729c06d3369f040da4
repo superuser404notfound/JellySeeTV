@@ -1,4 +1,0 @@
-module SteelPlayer {
-header "SteelPlayer-Swift.h"
-export *
-}
