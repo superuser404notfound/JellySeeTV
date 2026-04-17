@@ -19,6 +19,15 @@ final class DetailViewModel {
     private let playbackService: JellyfinPlaybackServiceProtocol?
     private let imageService: JellyfinImageService
     private let userID: String
+    /// In-flight prefetch task — cancelled on deinit so a disappearing
+    /// view doesn't keep self alive waiting on network. `nonisolated(unsafe)`
+    /// only because `deinit` on an actor-isolated class runs nonisolated;
+    /// Task is Sendable so the cancel call itself is safe.
+    nonisolated(unsafe) private var prefetchTask: Task<Void, Never>?
+
+    deinit {
+        prefetchTask?.cancel()
+    }
 
     init(
         item: JellyfinItem,
@@ -160,13 +169,18 @@ final class DetailViewModel {
 
     func prefetchPlaybackInfo(for itemID: String) {
         guard let playbackService else { return }
-        Task {
-            cachedPlaybackInfo = try? await playbackService.getPlaybackInfo(
-                itemID: itemID, userID: userID,
+        // Cancel any older prefetch — only the latest item matters.
+        prefetchTask?.cancel()
+        prefetchTask = Task { [weak self] in
+            guard let self else { return }
+            let response = try? await playbackService.getPlaybackInfo(
+                itemID: itemID, userID: self.userID,
                 profile: DirectPlayProfile.current()
             )
+            if Task.isCancelled { return }
+            self.cachedPlaybackInfo = response
             #if DEBUG
-            if cachedPlaybackInfo != nil {
+            if response != nil {
                 print("[Prefetch] PlaybackInfo cached for \(itemID)")
             }
             #endif
