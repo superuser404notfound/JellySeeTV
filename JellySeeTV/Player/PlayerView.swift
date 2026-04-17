@@ -23,16 +23,13 @@ struct PlayerLauncher: UIViewControllerRepresentable {
 
     func updateUIViewController(_ host: PlayerLauncherHostVC, context: Context) {
         if isPresented, let item, host.presentedViewController == nil {
-            guard let vm = try? PlayerViewModel(
+            let vm = PlayerViewModel(
                 item: item,
                 startFromBeginning: startFromBeginning,
                 playbackService: playbackService,
                 userID: userID,
                 cachedPlaybackInfo: cachedPlaybackInfo
-            ) else {
-                isPresented = false
-                return
-            }
+            )
             let playerVC = PlayerHostController(viewModel: vm, onDismiss: {
                 host.dismiss(animated: false) {
                     isPresented = false

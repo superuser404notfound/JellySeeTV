@@ -1,8 +1,11 @@
 import Foundation
+import AetherEngine
 
 @MainActor
 @Observable
 final class DependencyContainer {
+    /// Shared player engine — created once, reused across playback sessions.
+    @MainActor static let playerEngine: AetherEngine = try! AetherEngine()
     let keychainService: KeychainServiceProtocol
     let httpClient: HTTPClientProtocol
     let jellyfinClient: JellyfinClient
