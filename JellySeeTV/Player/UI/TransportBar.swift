@@ -145,8 +145,8 @@ struct TransportBar: View {
 
     // MARK: - Track Button + Dropdown
 
-    private static let dropdownItemHeight: CGFloat = 40
-    private static let dropdownMaxVisible: Int = 8
+    private static let dropdownItemHeight: CGFloat = 56
+    private static let dropdownMaxVisible: Int = 6
 
     private func trackButton(label: String, icon: String, isFocused: Bool, dropdown: [DropdownItem], isOpen: Bool) -> some View {
         VStack(spacing: 6) {

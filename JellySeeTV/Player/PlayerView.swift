@@ -349,22 +349,28 @@ final class PlayerHostController: UIViewController {
 
     // MARK: - Pan (Touchpad Scrubbing)
 
-    private var lastPanTranslation: CGFloat = 0
+    private var lastDropdownStep: CGFloat = 0
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
         if viewModel.isDropdownOpen {
-            // Vertical swipe navigates dropdown items
+            // Vertical swipe navigates dropdown items.
+            // Uses total translation divided into steps — each 80pt of
+            // cumulative movement = one item. Prevents over-scrolling
+            // on fast swipes.
             switch gesture.state {
+            case .began:
+                lastDropdownStep = 0
             case .changed:
                 let ty = gesture.translation(in: view).y
-                let delta = ty - lastPanTranslation
-                // Threshold: ~40pt per item to avoid over-scrolling
-                if abs(delta) > 40 {
-                    moveDropdownHighlight(by: delta > 0 ? 1 : -1)
-                    lastPanTranslation = ty
+                let stepSize: CGFloat = 80
+                let currentStep = (ty / stepSize).rounded(.towardZero)
+                if currentStep != lastDropdownStep {
+                    let steps = Int(currentStep - lastDropdownStep)
+                    moveDropdownHighlight(by: steps)
+                    lastDropdownStep = currentStep
                 }
             case .ended, .cancelled:
-                lastPanTranslation = 0
+                lastDropdownStep = 0
             default:
                 break
             }
