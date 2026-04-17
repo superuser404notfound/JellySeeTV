@@ -28,20 +28,23 @@ final class PlaybackPreferences {
     static let countdownChoices: [Int] = [0, 5, 10, 15]
     static let skipIntervalChoices: [Int] = [5, 10, 15, 30]
     static let languageChoices: [LanguageChoice] = [
-        LanguageChoice(code: nil,    titleKey: "settings.playback.language.auto"),
-        LanguageChoice(code: "deu",  titleKey: "settings.playback.language.deu"),
-        LanguageChoice(code: "eng",  titleKey: "settings.playback.language.eng"),
-        LanguageChoice(code: "fra",  titleKey: "settings.playback.language.fra"),
-        LanguageChoice(code: "spa",  titleKey: "settings.playback.language.spa"),
-        LanguageChoice(code: "ita",  titleKey: "settings.playback.language.ita"),
-        LanguageChoice(code: "jpn",  titleKey: "settings.playback.language.jpn"),
-        LanguageChoice(code: "zho",  titleKey: "settings.playback.language.zho"),
+        LanguageChoice(code: nil,    short: "Auto", titleKey: "settings.playback.language.auto"),
+        LanguageChoice(code: "deu",  short: "DE",   titleKey: "settings.playback.language.deu"),
+        LanguageChoice(code: "eng",  short: "EN",   titleKey: "settings.playback.language.eng"),
+        LanguageChoice(code: "fra",  short: "FR",   titleKey: "settings.playback.language.fra"),
+        LanguageChoice(code: "spa",  short: "ES",   titleKey: "settings.playback.language.spa"),
+        LanguageChoice(code: "ita",  short: "IT",   titleKey: "settings.playback.language.ita"),
+        LanguageChoice(code: "jpn",  short: "JA",   titleKey: "settings.playback.language.jpn"),
+        LanguageChoice(code: "zho",  short: "ZH",   titleKey: "settings.playback.language.zho"),
     ]
 
     struct LanguageChoice: Hashable, Sendable {
         /// ISO 639-2/B code as Jellyfin uses it (e.g. "deu", "eng"),
         /// or nil for "use the stream's default / current logic".
         let code: String?
+        /// Short label for the chip UI ("DE", "EN", "Auto").
+        let short: String
+        /// Localization key for the long name ("Deutsch", "Englisch", …).
         let titleKey: String
     }
 

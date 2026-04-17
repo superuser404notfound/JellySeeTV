@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Playback preferences UI. Rows mirror `SettingsTile` visually so the
-/// Settings tab feels consistent, but use inline pickers instead of
-/// NavigationLink since every choice is immediate and few.
+/// Playback preferences UI. Rows span the full width of the screen;
+/// each option is a focusable chip so the Siri Remote's left/right
+/// swipes move between choices without any clicking.
 struct PlaybackSettingsView: View {
     @Environment(\.dependencies) private var dependencies
 
@@ -10,10 +10,13 @@ struct PlaybackSettingsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 8) {
+                header
+                    .padding(.bottom, 24)
+
                 sectionHeader("settings.playback.section.episodes")
 
-                toggleRow(
+                boolChipRow(
                     icon: "play.square.stack",
                     title: "settings.playback.autoplayNextEp",
                     subtitle: "settings.playback.autoplayNextEp.subtitle",
@@ -23,7 +26,7 @@ struct PlaybackSettingsView: View {
                     )
                 )
 
-                pickerRow(
+                chipRow(
                     icon: "timer",
                     title: "settings.playback.nextEpCountdown",
                     subtitle: "settings.playback.nextEpCountdown.subtitle",
@@ -41,7 +44,7 @@ struct PlaybackSettingsView: View {
 
                 sectionHeader("settings.playback.section.controls")
 
-                pickerRow(
+                chipRow(
                     icon: "goforward",
                     title: "settings.playback.skipInterval",
                     subtitle: "settings.playback.skipInterval.subtitle",
@@ -55,7 +58,7 @@ struct PlaybackSettingsView: View {
 
                 sectionHeader("settings.playback.section.languages")
 
-                languagePickerRow(
+                languageChipRow(
                     icon: "speaker.wave.2",
                     title: "settings.playback.preferredAudio",
                     subtitle: "settings.playback.preferredAudio.subtitle",
@@ -65,7 +68,7 @@ struct PlaybackSettingsView: View {
                     )
                 )
 
-                languagePickerRow(
+                languageChipRow(
                     icon: "captions.bubble",
                     title: "settings.playback.preferredSubtitle",
                     subtitle: "settings.playback.preferredSubtitle.subtitle",
@@ -76,45 +79,58 @@ struct PlaybackSettingsView: View {
                 )
             }
             .padding(.horizontal, 80)
-            .padding(.top, 40)
-            .padding(.bottom, 60)
-            .frame(maxWidth: 900, alignment: .leading)
+            .padding(.top, 60)
+            .padding(.bottom, 80)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity)
-        .navigationTitle("settings.playback.title")
         .toolbar(.hidden, for: .tabBar)
+        // Suppress the floating tvOS nav-title; we show our own inline
+        // header because the default one sits behind scrolling content.
+        .toolbar(.hidden, for: .navigationBar)
     }
 
-    // MARK: - Rows
+    // MARK: - Header
+
+    private var header: some View {
+        Text("settings.playback.title")
+            .font(.largeTitle)
+            .fontWeight(.bold)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
 
     private func sectionHeader(_ key: LocalizedStringKey) -> some View {
         Text(key)
             .font(.title3)
             .fontWeight(.semibold)
             .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 12)
+            .padding(.top, 24)
+            .padding(.bottom, 4)
     }
 
-    private func toggleRow(
+    // MARK: - Rows
+
+    private func boolChipRow(
         icon: String,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey,
         value: Binding<Bool>
     ) -> some View {
-        Button {
-            value.wrappedValue.toggle()
-        } label: {
-            settingsRowContent(icon: icon, title: title, subtitle: subtitle) {
-                Image(systemName: value.wrappedValue ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundStyle(value.wrappedValue ? Color.accentColor : Color.secondary)
+        ChipPickerRow(
+            icon: icon,
+            title: title,
+            subtitle: subtitle,
+            options: [false, true],
+            selection: value,
+            label: { on in
+                on
+                    ? String(localized: "settings.playback.on", defaultValue: "On")
+                    : String(localized: "settings.playback.off", defaultValue: "Off")
             }
-        }
-        .buttonStyle(SettingsRowButtonStyle())
+        )
     }
 
-    private func pickerRow<Value: Hashable>(
+    private func chipRow<Value: Hashable>(
         icon: String,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey,
@@ -122,7 +138,7 @@ struct PlaybackSettingsView: View {
         selection: Binding<Value>,
         label: @escaping (Value) -> String
     ) -> some View {
-        SegmentedPickerRow(
+        ChipPickerRow(
             icon: icon,
             title: title,
             subtitle: subtitle,
@@ -132,7 +148,7 @@ struct PlaybackSettingsView: View {
         )
     }
 
-    private func languagePickerRow(
+    private func languageChipRow(
         icon: String,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey,
@@ -143,10 +159,8 @@ struct PlaybackSettingsView: View {
             get: { choices.first(where: { $0.code == selection.wrappedValue }) ?? choices[0] },
             set: { selection.wrappedValue = $0.code }
         )
-        let labelFn: (PlaybackPreferences.LanguageChoice) -> String = { choice in
-            String(localized: String.LocalizationValue(choice.titleKey))
-        }
-        return SegmentedPickerRow(
+        let labelFn: (PlaybackPreferences.LanguageChoice) -> String = { $0.short }
+        return ChipPickerRow(
             icon: icon,
             title: title,
             subtitle: subtitle,
@@ -155,42 +169,15 @@ struct PlaybackSettingsView: View {
             label: labelFn
         )
     }
-
-    private func settingsRowContent<Trailing: View>(
-        icon: String,
-        title: LocalizedStringKey,
-        subtitle: LocalizedStringKey,
-        @ViewBuilder trailing: () -> Trailing
-    ) -> some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .frame(width: 36)
-                .foregroundStyle(.tint)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.body)
-                    .fontWeight(.medium)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-
-            Spacer()
-            trailing()
-        }
-        .padding(20)
-    }
 }
 
-// MARK: - Segmented Picker Row
+// MARK: - Chip Picker Row
 
-/// Single-row picker for short finite choice lists. The row itself holds
-/// focus and cycles through options on select — cleaner than a separate
-/// NavigationLink for settings with 3-5 values.
-private struct SegmentedPickerRow<Value: Hashable>: View {
+/// Full-width settings row: icon + title/subtitle on the left, a
+/// horizontal row of focusable option chips on the right. Each chip is
+/// an independent focusable button, so the tvOS focus engine moves
+/// left/right through the options natively — no click needed.
+private struct ChipPickerRow<Value: Hashable>: View {
     let icon: String
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
@@ -199,68 +186,93 @@ private struct SegmentedPickerRow<Value: Hashable>: View {
     let label: (Value) -> String
 
     var body: some View {
-        Button {
-            advance()
-        } label: {
-            HStack(spacing: 16) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .frame(width: 36)
-                    .foregroundStyle(.tint)
+        HStack(alignment: .center, spacing: 32) {
+            Image(systemName: icon)
+                .font(.system(size: 28))
+                .frame(width: 48)
+                .foregroundStyle(.tint)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.body)
-                        .fontWeight(.medium)
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.body)
+                    .fontWeight(.medium)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-                Spacer()
-
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.left")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                    Text(label(selection))
-                        .font(.body)
-                        .fontWeight(.medium)
-                        .frame(minWidth: 80, alignment: .center)
-                    Image(systemName: "chevron.right")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+            HStack(spacing: 8) {
+                ForEach(Array(options.enumerated()), id: \.offset) { _, option in
+                    OptionChip(
+                        label: label(option),
+                        isActive: option == selection,
+                        action: { selection = option }
+                    )
                 }
             }
-            .padding(20)
         }
-        .buttonStyle(SettingsRowButtonStyle())
-    }
-
-    private func advance() {
-        guard let current = options.firstIndex(of: selection) else {
-            selection = options.first ?? selection
-            return
-        }
-        let next = (current + 1) % options.count
-        selection = options[next]
+        .padding(.horizontal, 28)
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.04))
+        )
     }
 }
 
-// MARK: - Button Style
+// MARK: - Option Chip
 
-struct SettingsRowButtonStyle: ButtonStyle {
+private struct OptionChip: View {
+    let label: String
+    let isActive: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(label)
+                .font(.callout)
+                .fontWeight(isActive ? .semibold : .regular)
+                .frame(minWidth: 60)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+        }
+        .buttonStyle(OptionChipButtonStyle(isActive: isActive))
+    }
+}
+
+private struct OptionChipButtonStyle: ButtonStyle {
+    let isActive: Bool
     @Environment(\.isFocused) private var isFocused
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(isFocused ? .white.opacity(0.15) : .white.opacity(0.05))
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(background)
             )
-            .scaleEffect(isFocused ? 1.02 : 1.0)
-            .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 10, y: 4)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(isActive ? Color.accentColor : .clear, lineWidth: 2)
+            )
+            .foregroundStyle(foreground)
+            .scaleEffect(isFocused ? 1.08 : 1.0)
+            .shadow(color: .black.opacity(isFocused ? 0.35 : 0), radius: 8, y: 3)
             .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .animation(.easeInOut(duration: 0.15), value: isActive)
+    }
+
+    private var background: Color {
+        if isFocused { return .white.opacity(0.25) }
+        if isActive { return Color.accentColor.opacity(0.25) }
+        return .white.opacity(0.08)
+    }
+
+    private var foreground: Color {
+        if isFocused { return .white }
+        if isActive { return .white }
+        return .white.opacity(0.7)
     }
 }
