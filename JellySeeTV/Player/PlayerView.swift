@@ -13,7 +13,6 @@ struct PlayerLauncher: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
     let item: JellyfinItem?
     let startFromBeginning: Bool
-    let player: AetherEngine
     let playbackService: JellyfinPlaybackServiceProtocol
     let userID: String
     var cachedPlaybackInfo: PlaybackInfoResponse?
@@ -24,14 +23,16 @@ struct PlayerLauncher: UIViewControllerRepresentable {
 
     func updateUIViewController(_ host: PlayerLauncherHostVC, context: Context) {
         if isPresented, let item, host.presentedViewController == nil {
-            let vm = PlayerViewModel(
+            guard let vm = try? PlayerViewModel(
                 item: item,
-                player: player,
                 startFromBeginning: startFromBeginning,
                 playbackService: playbackService,
                 userID: userID,
                 cachedPlaybackInfo: cachedPlaybackInfo
-            )
+            ) else {
+                isPresented = false
+                return
+            }
             let playerVC = PlayerHostController(viewModel: vm, onDismiss: {
                 host.dismiss(animated: false) {
                     isPresented = false

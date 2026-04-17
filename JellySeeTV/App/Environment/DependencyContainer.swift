@@ -1,5 +1,4 @@
 import Foundation
-import AetherEngine
 
 @MainActor
 @Observable
@@ -15,11 +14,6 @@ final class DependencyContainer {
     let jellyfinImageService: JellyfinImageService
     let jellyfinPlaybackService: JellyfinPlaybackServiceProtocol
     let cloudSyncService: CloudSyncServiceProtocol
-
-    /// Shared player engine — created once at app launch via static let
-    /// (dispatch_once semantics), reused across all playback sessions.
-    /// Static avoids double-init from SwiftUI's @State evaluation.
-    @MainActor static let playerEngine: AetherEngine = try! AetherEngine()
 
     init(
         keychainService: KeychainServiceProtocol = KeychainService(),
