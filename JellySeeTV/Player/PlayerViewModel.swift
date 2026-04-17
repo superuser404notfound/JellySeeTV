@@ -143,7 +143,24 @@ final class PlayerViewModel {
             }
             #endif
 
-            subtitleStreams = source.mediaStreams?.filter { $0.type == .subtitle } ?? []
+            // Filter subtitle streams: only text-based formats that Jellyfin
+            // can convert to SRT. Image-based formats (PGS from Blu-ray,
+            // VOBSUB from DVD) can't be rendered as text overlays.
+            let textBasedCodecs: Set<String> = [
+                "srt", "subrip", "ass", "ssa", "webvtt", "vtt",
+                "mov_text", "ttml", "text", "dvdsub" // dvdsub is sometimes text
+            ]
+            subtitleStreams = source.mediaStreams?.filter { stream in
+                guard stream.type == .subtitle else { return false }
+                // Prefer the supportsExternalStream flag if available
+                if let codec = stream.codec?.lowercased() {
+                    // Exclude known image-based formats
+                    if codec == "pgssub" || codec == "hdmv_pgs_subtitle" || codec == "dvd_subtitle" || codec == "xsub" {
+                        return false
+                    }
+                }
+                return true
+            } ?? []
 
             let url: URL
             if source.supportsDirectPlay == true || source.supportsDirectStream == true {

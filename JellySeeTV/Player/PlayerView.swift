@@ -362,7 +362,7 @@ final class PlayerHostController: UIViewController {
                 lastDropdownStep = 0
             case .changed:
                 let ty = gesture.translation(in: view).y
-                let stepSize: CGFloat = 80
+                let stepSize: CGFloat = 120
                 let currentStep = (ty / stepSize).rounded(.towardZero)
                 if currentStep != lastDropdownStep {
                     let steps = Int(currentStep - lastDropdownStep)
