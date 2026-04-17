@@ -77,8 +77,9 @@ extension PlayerViewModel {
 
     func startNextEpisodeCountdown() {
         #if DEBUG
-        print("[NextEpisode] Countdown starts (10s)")
+        print("[NextEpisode] Countdown starts (\(nextEpisodeCountdown)s)")
         #endif
+        isCountdownActive = true
         nextEpisodeTimer?.cancel()
         nextEpisodeTimer = Task {
             while nextEpisodeCountdown > 0, !Task.isCancelled {
@@ -118,6 +119,7 @@ extension PlayerViewModel {
         hasFetchedNextEpisode = false
         nextEpisodeCancelled = false
         nextEpisodeCountdown = 10
+        isCountdownActive = false
         hasReportedStart = false
         hasStartedPlaying = false
         showControls = false
@@ -135,6 +137,7 @@ extension PlayerViewModel {
     func cancelNextEpisode() {
         nextEpisodeTimer?.cancel()
         showNextEpisodeOverlay = false
+        isCountdownActive = false
         nextEpisodeCancelled = true
     }
 }

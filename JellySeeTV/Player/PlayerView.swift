@@ -481,7 +481,7 @@ private struct PlayerOverlayView: View {
 
                         Spacer(minLength: 0)
 
-                        if viewModel.nextEpisodeTimer != nil, viewModel.nextEpisodeCountdown > 0 {
+                        if viewModel.isCountdownActive, viewModel.nextEpisodeCountdown > 0 {
                             Text("player.nextEpisode.countdown \(viewModel.nextEpisodeCountdown)")
                                 .font(.caption)
                                 .foregroundStyle(.white.opacity(0.75))

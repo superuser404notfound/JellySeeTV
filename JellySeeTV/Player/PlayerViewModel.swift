@@ -71,6 +71,7 @@ final class PlayerViewModel {
     var nextEpisode: JellyfinItem?
     var showNextEpisodeOverlay = false
     var nextEpisodeCountdown = 10
+    var isCountdownActive = false
     var nextEpisodeTimer: Task<Void, Never>?
     var hasFetchedNextEpisode = false
     var nextEpisodeCancelled = false
