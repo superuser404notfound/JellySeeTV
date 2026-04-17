@@ -14,8 +14,11 @@ struct SyncablePreferences: Codable, Sendable {
     var maxStreamingBitrate: Int?
 }
 
+/// Uses UserDefaults as local storage. iCloud sync can be added later
+/// when the ubiquity-kvstore-identifier entitlement is configured.
+/// NSUbiquitousKeyValueStore.default crashes (SIGABRT) without it.
 final class CloudSyncService: CloudSyncServiceProtocol {
-    private let store = NSUbiquitousKeyValueStore.default
+    private let defaults = UserDefaults.standard
 
     private enum Keys {
         static let serverList = "syncedServerList"
@@ -24,12 +27,11 @@ final class CloudSyncService: CloudSyncServiceProtocol {
 
     func saveServerList(_ servers: [JellyfinServer]) {
         guard let data = try? JSONEncoder().encode(servers) else { return }
-        store.set(data, forKey: Keys.serverList)
-        synchronize()
+        defaults.set(data, forKey: Keys.serverList)
     }
 
     func loadServerList() -> [JellyfinServer] {
-        guard let data = store.data(forKey: Keys.serverList),
+        guard let data = defaults.data(forKey: Keys.serverList),
               let servers = try? JSONDecoder().decode([JellyfinServer].self, from: data)
         else {
             return []
@@ -39,16 +41,15 @@ final class CloudSyncService: CloudSyncServiceProtocol {
 
     func savePreferences(_ preferences: SyncablePreferences) {
         guard let data = try? JSONEncoder().encode(preferences) else { return }
-        store.set(data, forKey: Keys.preferences)
-        synchronize()
+        defaults.set(data, forKey: Keys.preferences)
     }
 
     func loadPreferences() -> SyncablePreferences? {
-        guard let data = store.data(forKey: Keys.preferences) else { return nil }
+        guard let data = defaults.data(forKey: Keys.preferences) else { return nil }
         return try? JSONDecoder().decode(SyncablePreferences.self, from: data)
     }
 
     func synchronize() {
-        store.synchronize()
+        // UserDefaults syncs automatically
     }
 }
