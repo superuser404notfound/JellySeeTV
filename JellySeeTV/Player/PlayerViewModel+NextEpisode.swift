@@ -117,6 +117,7 @@ extension PlayerViewModel {
         nextEpisode = nil
         hasFetchedNextEpisode = false
         nextEpisodeCancelled = false
+        nextEpisodeCountdown = 10
         hasReportedStart = false
         hasStartedPlaying = false
         showControls = false

@@ -279,8 +279,9 @@ final class PlayerViewModel {
                     if !self.showNextEpisodeOverlay && remaining < 30 {
                         self.showNextEpisodeOverlay = true
                     }
-                    // Start countdown at 10s remaining (plays to the end)
-                    if self.nextEpisodeCountdown == 10 && remaining < 10 && self.nextEpisodeTimer == nil && self.showNextEpisodeOverlay {
+                    // Start countdown when ≤10s remaining (synced to actual remaining time)
+                    if remaining <= 10 && self.nextEpisodeTimer == nil && self.showNextEpisodeOverlay {
+                        self.nextEpisodeCountdown = max(1, Int(ceil(remaining)))
                         self.startNextEpisodeCountdown()
                     }
                 }

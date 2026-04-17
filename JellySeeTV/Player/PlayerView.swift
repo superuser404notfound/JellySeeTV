@@ -113,10 +113,14 @@ final class PlayerHostController: UIViewController {
         pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
         view.addGestureRecognizer(pan)
 
-        // Background → pause
+        // Background → pause, Foreground → resume
         NotificationCenter.default.addObserver(
             self, selector: #selector(appWillResignActive),
             name: UIApplication.willResignActiveNotification, object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(appDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification, object: nil
         )
     }
 
@@ -153,8 +157,24 @@ final class PlayerHostController: UIViewController {
         Task { await viewModel.stopPlayback() }
     }
 
+    private var wasPlayingBeforeBackground = false
+
     @objc private func appWillResignActive() {
+        wasPlayingBeforeBackground = (viewModel.player.state == .playing)
         viewModel.player.pause()
+    }
+
+    @objc private func appDidBecomeActive() {
+        guard wasPlayingBeforeBackground else { return }
+        wasPlayingBeforeBackground = false
+        // Seek to current position to rebuild the decode pipeline.
+        // VideoToolbox sessions may be invalidated while backgrounded —
+        // a seek flushes decoders, recreates sessions, and restores video.
+        let pos = viewModel.playbackTime
+        Task {
+            await viewModel.player.seek(to: pos)
+            viewModel.player.play()
+        }
     }
 
     // MARK: - Press Handlers (state machine)
