@@ -248,18 +248,18 @@ final class PlayerViewModel {
                     #if DEBUG
                     print("[NextEpisode] State=idle, hasStarted=\(self.hasStartedPlaying), nextEp=\(self.nextEpisode?.name ?? "nil")")
                     #endif
-                    // Demux EOF — but AVPlayer may still have buffered audio.
-                    // Start countdown with actual remaining time so the
-                    // transition happens when playback truly finishes.
-                    // (player.$currentTime stops firing when the value no
-                    // longer changes, so the time-based trigger won't work.)
+                    // Demux EOF — start 10s countdown for next episode.
+                    // The demux reads ahead 15-20s, so player.$currentTime
+                    // may never reach the final seconds (Combine only fires
+                    // on value changes). Cap at 10 so the overlay text is
+                    // always visible.
                     if self.hasStartedPlaying,
                        self.nextEpisode != nil,
                        !self.nextEpisodeCancelled,
                        self.nextEpisodeTimer == nil {
                         let remaining = self.effectiveDuration - self.playbackTime
+                        self.nextEpisodeCountdown = min(10, max(1, Int(ceil(max(0, remaining)))))
                         self.showNextEpisodeOverlay = true
-                        self.nextEpisodeCountdown = max(1, Int(ceil(max(0, remaining))))
                         self.startNextEpisodeCountdown()
                     }
                 case .loading:

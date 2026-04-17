@@ -113,14 +113,10 @@ final class PlayerHostController: UIViewController {
         pan.allowedTouchTypes = [NSNumber(value: UITouch.TouchType.indirect.rawValue)]
         view.addGestureRecognizer(pan)
 
-        // Background → pause, Foreground → resume
+        // Background → pause (user resumes with Play/Pause button)
         NotificationCenter.default.addObserver(
             self, selector: #selector(appWillResignActive),
             name: UIApplication.willResignActiveNotification, object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self, selector: #selector(appDidBecomeActive),
-            name: UIApplication.didBecomeActiveNotification, object: nil
         )
     }
 
@@ -157,17 +153,8 @@ final class PlayerHostController: UIViewController {
         Task { await viewModel.stopPlayback() }
     }
 
-    private var wasPlayingBeforeBackground = false
-
     @objc private func appWillResignActive() {
-        wasPlayingBeforeBackground = (viewModel.player.state == .playing)
         viewModel.player.pause()
-    }
-
-    @objc private func appDidBecomeActive() {
-        guard wasPlayingBeforeBackground else { return }
-        wasPlayingBeforeBackground = false
-        viewModel.player.play()
     }
 
     // MARK: - Press Handlers (state machine)
@@ -404,8 +391,8 @@ private struct PlayerOverlayView: View {
                 controlsOverlay
             }
 
-            // Next episode overlay — hidden when player controls are visible
-            if viewModel.showNextEpisodeOverlay && !viewModel.showControls,
+            // Next episode overlay
+            if viewModel.showNextEpisodeOverlay,
                let next = viewModel.nextEpisode {
                 nextEpisodeOverlay(next)
             }
@@ -451,7 +438,7 @@ private struct PlayerOverlayView: View {
                         .font(.body)
                         .fontWeight(.semibold)
 
-                        if viewModel.nextEpisodeCountdown < 10 {
+                        if viewModel.nextEpisodeCountdown > 0 {
                             Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
                                 .font(.caption)
                                 .foregroundStyle(.white.opacity(0.75))
