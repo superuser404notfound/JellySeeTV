@@ -147,10 +147,8 @@ final class PlayerHostController: UIViewController {
         // Display mode switches (HDR/SDR) briefly trigger viewWillDisappear
         // without actually dismissing — don't kill playback for that.
         guard isBeingDismissed || isMovingFromParent else { return }
-        Task {
-            await viewModel.stopPlayback()
-            viewModel.player.stop()
-        }
+        viewModel.player.videoLayer.removeFromSuperlayer()
+        Task { await viewModel.stopPlayback() }
     }
 
     @objc private func appDidBecomeActive() {
@@ -336,10 +334,10 @@ final class PlayerHostController: UIViewController {
     }
 
     private func dismissPlayer() {
+        viewModel.player.videoLayer.removeFromSuperlayer()
         viewModel.resetDisplayCriteria()
         Task {
             await viewModel.stopPlayback()
-            viewModel.player.stop()
             onDismiss()
         }
     }

@@ -252,6 +252,7 @@ final class PlayerViewModel {
         cancellables.removeAll()
         // Report BEFORE stop — player.stop() resets currentTime to 0
         await reportStop()
+        player.stop()
     }
 
     // MARK: - State Observation (Combine)
