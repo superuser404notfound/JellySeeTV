@@ -112,7 +112,10 @@ extension PlayerViewModel {
         item = next
         startFromBeginning = true
         cachedPlaybackInfo = nil
+        errorMessage = nil
+        videoFormat = .sdr
         subtitleCues = []
+        subtitleStreams = []
         activeSubtitleIndex = nil
         activeAudioIndex = nil
         nextEpisode = nil
