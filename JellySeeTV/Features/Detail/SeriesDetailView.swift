@@ -79,13 +79,12 @@ struct SeriesDetailView: View {
         }
         .ignoresSafeArea()
         .overlay {
-            if let userID = appState.activeUser?.id,
-               let engine = DependencyContainer.playerEngine {
+            if let userID = appState.activeUser?.id {
                 PlayerLauncher(
                     isPresented: $showPlayer,
                     item: playItem,
                     startFromBeginning: playFromBeginning,
-                    player: engine,
+                    player: DependencyContainer.playerEngine,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
                     cachedPlaybackInfo: playItem.flatMap { ep in
