@@ -16,6 +16,7 @@ final class DependencyContainer {
     let jellyfinImageService: JellyfinImageService
     let jellyfinPlaybackService: JellyfinPlaybackServiceProtocol
     let cloudSyncService: CloudSyncServiceProtocol
+    let playbackPreferences: PlaybackPreferences
 
     init(
         keychainService: KeychainServiceProtocol = KeychainService(),
@@ -34,6 +35,7 @@ final class DependencyContainer {
         })
         self.jellyfinPlaybackService = JellyfinPlaybackService(client: jellyfinClient)
         self.cloudSyncService = CloudSyncService()
+        self.playbackPreferences = PlaybackPreferences()
     }
 
     func restoreSession() -> Bool {

@@ -15,6 +15,7 @@ struct PlayerLauncher: UIViewControllerRepresentable {
     let startFromBeginning: Bool
     let playbackService: JellyfinPlaybackServiceProtocol
     let userID: String
+    let preferences: PlaybackPreferences
     var cachedPlaybackInfo: PlaybackInfoResponse?
 
     func makeUIViewController(context: Context) -> PlayerLauncherHostVC {
@@ -28,6 +29,7 @@ struct PlayerLauncher: UIViewControllerRepresentable {
                 startFromBeginning: startFromBeginning,
                 playbackService: playbackService,
                 userID: userID,
+                preferences: preferences,
                 cachedPlaybackInfo: cachedPlaybackInfo
             )
             let playerVC = PlayerHostController(viewModel: vm, onDismiss: {
@@ -214,7 +216,7 @@ final class PlayerHostController: UIViewController {
         if viewModel.showControls && viewModel.controlsFocus != .progressBar {
             stepTransportFocus(direction: -1)
         } else {
-            viewModel.seekJump(seconds: -10)
+            viewModel.seekJumpByConfiguredInterval(direction: -1)
         }
     }
 
@@ -223,7 +225,7 @@ final class PlayerHostController: UIViewController {
         if viewModel.showControls && viewModel.controlsFocus != .progressBar {
             stepTransportFocus(direction: 1)
         } else {
-            viewModel.seekJump(seconds: 10)
+            viewModel.seekJumpByConfiguredInterval(direction: 1)
         }
     }
 

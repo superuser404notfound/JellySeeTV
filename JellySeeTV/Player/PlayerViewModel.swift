@@ -93,6 +93,7 @@ final class PlayerViewModel {
     let userID: String
     var startFromBeginning: Bool
     var cachedPlaybackInfo: PlaybackInfoResponse?
+    let preferences: PlaybackPreferences
 
     // MARK: - Internal State
 
@@ -109,12 +110,20 @@ final class PlayerViewModel {
     var activePlayMethod: PlayMethod = .directPlay
     var subtitleStreams: [MediaStream] = []
 
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
+    init(
+        item: JellyfinItem,
+        startFromBeginning: Bool,
+        playbackService: JellyfinPlaybackServiceProtocol,
+        userID: String,
+        preferences: PlaybackPreferences,
+        cachedPlaybackInfo: PlaybackInfoResponse? = nil
+    ) {
         self.item = item
         self.player = DependencyContainer.playerEngine
         self.startFromBeginning = startFromBeginning
         self.playbackService = playbackService
         self.userID = userID
+        self.preferences = preferences
         self.cachedPlaybackInfo = cachedPlaybackInfo
     }
 
@@ -260,8 +269,24 @@ final class PlayerViewModel {
             )
 
             totalTime = formatSeconds(effectiveDuration)
-            activeAudioIndex = player.audioTracks.first(where: { $0.isDefault })?.id
-                ?? player.audioTracks.first?.id
+            // Audio track priority: preferred language → stream default → first.
+            let preferredAudio = preferences.preferredAudioLanguage
+            let chosenAudio = player.audioTracks.first(where: {
+                preferredAudio != nil && $0.language == preferredAudio
+            }) ?? player.audioTracks.first(where: { $0.isDefault })
+              ?? player.audioTracks.first
+            if let chosenAudio {
+                activeAudioIndex = chosenAudio.id
+                player.selectAudioTrack(index: chosenAudio.id)
+            }
+
+            // Subtitle preference: if the user picked a language, enable
+            // the matching stream automatically. No preference → leave off.
+            if let preferredSub = preferences.preferredSubtitleLanguage,
+               let match = subtitleStreams.first(where: { $0.language == preferredSub }) {
+                selectSubtitleTrack(id: match.index)
+            }
+
             isLoading = false
             isPlaying = true
 
@@ -398,6 +423,15 @@ final class PlayerViewModel {
         reportProgressIfNeeded()
         showControls = true
         scheduleControlsHide()
+    }
+
+    /// Seek by the user's configured interval (5/10/15/30 s). The
+    /// direction is +1 (right) or −1 (left). Wraps the seconds variant
+    /// so the press handler doesn't need a Preferences lookup.
+    func seekJumpByConfiguredInterval(direction: Int) {
+        let interval = preferences.skipIntervalSeconds
+        let signed = (direction < 0 ? -1 : 1) * interval
+        seekJump(seconds: Double(signed))
     }
 
     func seekJump(seconds: Double) {

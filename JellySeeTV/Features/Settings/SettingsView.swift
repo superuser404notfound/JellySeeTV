@@ -69,7 +69,7 @@ struct SettingsView: View {
                 title: "settings.playback.title",
                 subtitle: "settings.playback.subtitle"
             ) {
-                PlaybackSettingsPlaceholder()
+                PlaybackSettingsView()
             }
         }
     }

@@ -76,6 +76,28 @@ extension PlayerViewModel {
     }
 
     func startNextEpisodeCountdown() {
+        // If autoplay is disabled, still show the overlay (so the user
+        // can pick next manually) but skip the timer that auto-transitions.
+        guard preferences.autoplayNextEpisode else {
+            #if DEBUG
+            print("[NextEpisode] Autoplay disabled — showing overlay only")
+            #endif
+            isCountdownActive = false
+            nextEpisodeCountdown = 0
+            return
+        }
+
+        // If the user set countdown to 0, skip straight to the next episode.
+        let configured = preferences.nextEpisodeCountdownSeconds
+        guard configured > 0 else {
+            #if DEBUG
+            print("[NextEpisode] Countdown disabled — playing next immediately")
+            #endif
+            Task { @MainActor [weak self] in await self?.playNextEpisode() }
+            return
+        }
+
+        nextEpisodeCountdown = configured
         #if DEBUG
         print("[NextEpisode] Countdown starts (\(nextEpisodeCountdown)s)")
         #endif

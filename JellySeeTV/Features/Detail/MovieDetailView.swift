@@ -30,6 +30,7 @@ struct MovieDetailView: View {
                     startFromBeginning: playFromBeginning,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
+                    preferences: dependencies.playbackPreferences,
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo
                 )
                 .allowsHitTesting(false)
