@@ -430,34 +430,43 @@ private struct PlayerOverlayView: View {
                     }
 
                     // Glass overlay + content
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.85))
+                            .padding(.bottom, 8)
 
-                        HStack(spacing: 4) {
+                        Spacer(minLength: 0)
+
+                        HStack(alignment: .top, spacing: 4) {
                             if let s = episode.parentIndexNumber, let e = episode.indexNumber {
                                 Text("S\(s)E\(e)")
                                     .foregroundStyle(.white.opacity(0.85))
+                                    .layoutPriority(1)
                             }
                             Text(episode.name)
                                 .foregroundStyle(.white)
-                                .lineLimit(1)
+                                .lineLimit(2)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         .font(.body)
                         .fontWeight(.semibold)
 
-                        if viewModel.nextEpisodeCountdown > 0 {
-                            Text(String(localized: "player.nextEpisode.countdown", defaultValue: "Starting in") + " \(viewModel.nextEpisodeCountdown)s...")
+                        Spacer(minLength: 0)
+
+                        if viewModel.nextEpisodeTimer != nil, viewModel.nextEpisodeCountdown > 0 {
+                            let count = viewModel.nextEpisodeCountdown
+                            Text(String(localized: "player.nextEpisode.countdown \(count)", defaultValue: "Starting in \(count)s..."))
                                 .font(.caption)
                                 .foregroundStyle(.white.opacity(0.75))
                                 .monospacedDigit()
                                 .contentTransition(.numericText())
+                                .padding(.top, 8)
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .padding(.horizontal, 24)
-                    .padding(.vertical, 20)
+                    .padding(.vertical, 16)
                 }
                 .frame(width: 380, height: 214) // 16:9
                 .background(.thinMaterial)
