@@ -16,10 +16,16 @@ final class DependencyContainer {
     let jellyfinPlaybackService: JellyfinPlaybackServiceProtocol
     let cloudSyncService: CloudSyncServiceProtocol
 
-    /// Shared player engine — reused across playback sessions to avoid
-    /// recreating CMTimebase, DisplayLayer, and Renderers on every play.
-    /// stop() resets all internal state; load() starts fresh.
-    let playerEngine: AetherEngine
+    /// Shared player engine — created on first use, reused across playback
+    /// sessions. Lazy to avoid crashes on simulator where AV stack is limited,
+    /// and to prevent double-init from SwiftUI's @State evaluation.
+    private var _playerEngine: AetherEngine?
+    var playerEngine: AetherEngine {
+        if _playerEngine == nil {
+            _playerEngine = try? AetherEngine()
+        }
+        return _playerEngine!
+    }
 
     init(
         keychainService: KeychainServiceProtocol = KeychainService(),
@@ -38,9 +44,6 @@ final class DependencyContainer {
         })
         self.jellyfinPlaybackService = JellyfinPlaybackService(client: jellyfinClient)
         self.cloudSyncService = CloudSyncService()
-        self.playerEngine = (try? AetherEngine()) ?? {
-            fatalError("Failed to initialize AetherEngine")
-        }()
     }
 
     func restoreSession() -> Bool {
