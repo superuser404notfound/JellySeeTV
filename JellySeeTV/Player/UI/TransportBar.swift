@@ -145,10 +145,17 @@ struct TransportBar: View {
 
     // MARK: - Track Button + Dropdown
 
+    private static let dropdownItemHeight: CGFloat = 40
+    private static let dropdownMaxVisible: Int = 8
+
     private func trackButton(label: String, icon: String, isFocused: Bool, dropdown: [DropdownItem], isOpen: Bool) -> some View {
         VStack(spacing: 6) {
             // Dropdown menu (opens upward, scrollable if many items)
             if isOpen {
+                let itemCount = dropdown.count
+                let visibleCount = min(itemCount, Self.dropdownMaxVisible)
+                let height = CGFloat(visibleCount) * Self.dropdownItemHeight
+
                 ScrollViewReader { proxy in
                     ScrollView {
                         VStack(spacing: 0) {
@@ -165,7 +172,7 @@ struct TransportBar: View {
                                     }
                                 }
                                 .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
+                                .frame(height: Self.dropdownItemHeight)
                                 .background(item.isHighlighted ? Color.white.opacity(0.25) : Color.clear)
                                 .foregroundStyle(item.isHighlighted ? .white : .white.opacity(0.8))
                                 .id(idx)
@@ -178,7 +185,7 @@ struct TransportBar: View {
                         }
                     }
                 }
-                .frame(maxHeight: 400)
+                .frame(height: height)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .fixedSize(horizontal: true, vertical: false)
