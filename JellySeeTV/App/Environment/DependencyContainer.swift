@@ -19,7 +19,14 @@ final class DependencyContainer {
     /// Shared player engine — created once at app launch via static let
     /// (dispatch_once semantics), reused across all playback sessions.
     /// Static avoids double-init from SwiftUI's @State evaluation.
-    @MainActor static let playerEngine: AetherEngine = try! AetherEngine()
+    /// Nil on simulator where AVSampleBuffer stack is unsupported.
+    @MainActor static let playerEngine: AetherEngine? = {
+        #if targetEnvironment(simulator)
+        return nil
+        #else
+        return try? AetherEngine()
+        #endif
+    }()
 
     init(
         keychainService: KeychainServiceProtocol = KeychainService(),

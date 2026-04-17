@@ -23,12 +23,13 @@ struct MovieDetailView: View {
         }
         .ignoresSafeArea()
         .overlay {
-            if let userID = appState.activeUser?.id {
+            if let userID = appState.activeUser?.id,
+               let engine = DependencyContainer.playerEngine {
                 PlayerLauncher(
                     isPresented: $showPlayer,
                     item: showPlayer ? (viewModel?.item ?? item) : nil,
                     startFromBeginning: playFromBeginning,
-                    player: DependencyContainer.playerEngine,
+                    player: engine,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo
