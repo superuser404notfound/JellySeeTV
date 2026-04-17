@@ -245,12 +245,23 @@ final class PlayerViewModel {
                     self.isPlaying = false
                 case .idle:
                     self.isPlaying = false
-                    // Don't auto-play next episode on idle — the demux loop
-                    // reaches EOF 15-20s before playback actually finishes
-                    // (read-ahead). The countdown timer handles the transition.
                     #if DEBUG
                     print("[NextEpisode] State=idle, hasStarted=\(self.hasStartedPlaying), nextEp=\(self.nextEpisode?.name ?? "nil")")
                     #endif
+                    // Demux EOF — but AVPlayer may still have buffered audio.
+                    // Start countdown with actual remaining time so the
+                    // transition happens when playback truly finishes.
+                    // (player.$currentTime stops firing when the value no
+                    // longer changes, so the time-based trigger won't work.)
+                    if self.hasStartedPlaying,
+                       self.nextEpisode != nil,
+                       !self.nextEpisodeCancelled,
+                       self.nextEpisodeTimer == nil {
+                        let remaining = self.effectiveDuration - self.playbackTime
+                        self.showNextEpisodeOverlay = true
+                        self.nextEpisodeCountdown = max(1, Int(ceil(max(0, remaining))))
+                        self.startNextEpisodeCountdown()
+                    }
                 case .loading:
                     if !self.hasStartedPlaying { self.isLoading = true }
                 case .seeking:
