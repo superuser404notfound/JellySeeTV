@@ -214,7 +214,13 @@ final class PlayerViewModel {
             // Set display criteria BEFORE loading — the TV needs time to switch
             // to HDR/DV mode before the first frame is decoded. Use Jellyfin's
             // mediaStreams metadata for detection (available before decode).
+            //
+            // If the display won't actually switch (Match Content disabled,
+            // SDR panel, no window), we must tone-map HDR→SDR during decode.
+            // Without tone-mapping, AVSampleBufferDisplayLayer shows black
+            // because it can't map PQ values onto an SDR display.
             let detectedFormat = detectVideoFormat(from: source)
+            var displayWillSwitchToHDR = false
             if detectedFormat != .sdr {
                 // If content is DV but TV only supports HDR10, use HDR10 criteria
                 let displayFormat: VideoFormat
@@ -223,13 +229,27 @@ final class PlayerViewModel {
                 } else {
                     displayFormat = detectedFormat
                 }
-                applyDisplayCriteria(format: displayFormat)
-                // Give the TV time to begin the mode switch, then wait for completion
-                try? await Task.sleep(for: .milliseconds(200))
-                await waitForDisplayModeSwitch()
+                displayWillSwitchToHDR = applyDisplayCriteria(format: displayFormat)
+                if displayWillSwitchToHDR {
+                    // Give the TV time to begin the mode switch, then wait for completion
+                    try? await Task.sleep(for: .milliseconds(200))
+                    await waitForDisplayModeSwitch()
+                }
             }
 
-            try await player.load(url: url, startPosition: startPos)
+            // Tone-map when source is HDR but display stays in SDR.
+            let tonemapHDRToSDR = detectedFormat != .sdr && !displayWillSwitchToHDR
+            #if DEBUG
+            if tonemapHDRToSDR {
+                print("[PlayerVM] Tone-mapping HDR→SDR (display stays in SDR mode)")
+            }
+            #endif
+
+            try await player.load(
+                url: url,
+                startPosition: startPos,
+                tonemapHDRToSDR: tonemapHDRToSDR
+            )
 
             totalTime = formatSeconds(effectiveDuration)
             activeAudioIndex = player.audioTracks.first(where: { $0.isDefault })?.id
@@ -501,15 +521,20 @@ final class PlayerViewModel {
     /// Tell tvOS to switch the TV to HDR/DV/HLG mode via AVDisplayCriteria.
     /// Must be called BEFORE playback starts so the TV has time to switch.
     /// Uses public AVKit API — `UIWindow.avDisplayManager` (tvOS 11.2+).
-    func applyDisplayCriteria(format: VideoFormat, refreshRate: Float = 23.976) {
+    ///
+    /// - Returns: `true` if the display will switch to HDR mode. `false` means
+    ///   the caller should tone-map HDR content down to SDR during decode
+    ///   (e.g. Match Content disabled, no window, or SDR content).
+    @discardableResult
+    func applyDisplayCriteria(format: VideoFormat, refreshRate: Float = 23.976) -> Bool {
         #if os(tvOS)
-        guard #available(tvOS 17.0, *), format != .sdr else { return }
+        guard #available(tvOS 17.0, *), format != .sdr else { return false }
 
         guard let window = displayWindow else {
             #if DEBUG
             print("[PlayerVM] No window for display criteria")
             #endif
-            return
+            return false
         }
 
         let displayManager = window.avDisplayManager
@@ -519,7 +544,7 @@ final class PlayerViewModel {
             #if DEBUG
             print("[PlayerVM] Match Content disabled by user")
             #endif
-            return
+            return false
         }
 
         let transferFunction: CFString = switch format {
@@ -541,7 +566,7 @@ final class PlayerViewModel {
             extensions: extensions,
             formatDescriptionOut: &formatDesc
         )
-        guard let desc = formatDesc else { return }
+        guard let desc = formatDesc else { return false }
 
         let criteria = AVDisplayCriteria(refreshRate: refreshRate, formatDescription: desc)
         displayManager.preferredDisplayCriteria = criteria
@@ -549,6 +574,9 @@ final class PlayerViewModel {
         #if DEBUG
         print("[PlayerVM] Display criteria SET: \(format), \(refreshRate) fps")
         #endif
+        return true
+        #else
+        return false
         #endif
     }
 
