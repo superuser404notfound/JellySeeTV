@@ -163,11 +163,21 @@ final class PlayerViewModel {
 
             // Filter subtitle streams:
             // 1. Exclude image-based formats (PGS, VOBSUB) — can't convert to text
-            // 2. Deduplicate same-language streams with no distinguishing metadata
+            // 2. Drop forced tracks — they only cover foreign-dialogue
+            //    segments inside an otherwise-understood audio track, so
+            //    users rarely want them on; keeping them also poisons the
+            //    preferred-language auto-select (a forced "deu" beats a
+            //    full "deu" track if it comes first).
+            // 3. Deduplicate same-language streams with no distinguishing metadata
             let imageCodecs: Set<String> = ["pgssub", "hdmv_pgs_subtitle", "dvd_subtitle", "dvdsub", "xsub", "vobsub"]
             let textStreams = source.mediaStreams?.filter { stream in
                 guard stream.type == .subtitle else { return false }
                 if let codec = stream.codec?.lowercased(), imageCodecs.contains(codec) {
+                    return false
+                }
+                if stream.isForced == true { return false }
+                // Some servers put "forced" in the title instead of the flag.
+                if let title = stream.title?.lowercased(), title.contains("forced") {
                     return false
                 }
                 return true
