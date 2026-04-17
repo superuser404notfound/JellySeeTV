@@ -122,7 +122,6 @@ struct SeriesDetailView: View {
                 Task {
                     await viewModel?.loadFullDetail()
                     updateBackdropURL()
-                    await viewModel?.loadSeasons()
                 }
             }
         }

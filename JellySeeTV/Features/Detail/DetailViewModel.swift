@@ -45,14 +45,17 @@ final class DetailViewModel {
 
         // Fetch detail + similar in parallel, then content (seasons/collection).
         // Detail must complete first so loadSeasons has fresh item data.
+        // NOTE: `try?` must live at the await, not in the async-let declaration —
+        // putting it in the declaration corrupts the task-local allocator
+        // (swift_task_dealloc SIGABRT "freed pointer was not the last allocation").
         async let detailResult = itemService.getItemDetail(userID: userID, itemID: itemID)
-        async let similarResult = try? itemService.getSimilarItems(itemID: itemID, userID: userID, limit: 12)
+        async let similarResult = itemService.getSimilarItems(itemID: itemID, userID: userID, limit: 12)
 
         if let detail = try? await detailResult {
             item = detail
             isFavorite = detail.userData?.isFavorite ?? false
         }
-        if let similar = await similarResult {
+        if let similar = try? await similarResult {
             similarItems = similar.items
         }
 
