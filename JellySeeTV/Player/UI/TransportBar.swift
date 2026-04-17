@@ -22,7 +22,7 @@ struct TransportBar: View {
     let isScrubbing: Bool
     let scrubTime: String
     let audioTracks: [TrackInfo]
-    let subtitleTracks: [TrackInfo]
+    let subtitleStreams: [MediaStream]
     let activeAudioIndex: Int?
     let activeSubtitleIndex: Int?
     let controlsFocus: PlayerViewModel.ControlsFocus
@@ -41,7 +41,7 @@ struct TransportBar: View {
             }
 
             // Track buttons with dropdown
-            if !audioTracks.isEmpty || !subtitleTracks.isEmpty {
+            if !audioTracks.isEmpty || !subtitleStreams.isEmpty {
                 HStack(alignment: .bottom, spacing: 16) {
                     Spacer()
 
@@ -57,12 +57,12 @@ struct TransportBar: View {
                         )
                     }
 
-                    if !subtitleTracks.isEmpty {
-                        let activeTrack = activeSubtitleIndex.flatMap { idx in
-                            subtitleTracks.first(where: { $0.id == idx })
+                    if !subtitleStreams.isEmpty {
+                        let activeStream = activeSubtitleIndex.flatMap { idx in
+                            subtitleStreams.first(where: { $0.index == idx })
                         }
                         trackButton(
-                            label: activeTrack.map { TrackDisplayFormatter.shortName(for: $0) }
+                            label: activeStream.map { TrackDisplayFormatter.subtitleShortName(for: $0) }
                                 ?? String(localized: "player.subtitles.off", defaultValue: "Off"),
                             icon: "captions.bubble",
                             isFocused: controlsFocus == .subtitleButton,
@@ -133,10 +133,10 @@ struct TransportBar: View {
                 isHighlighted: highlighted == 0
             )
         ]
-        items += subtitleTracks.enumerated().map { idx, track in
+        items += subtitleStreams.enumerated().map { idx, stream in
             DropdownItem(
-                title: TrackDisplayFormatter.subtitleDisplayName(for: track),
-                isActive: track.id == activeSubtitleIndex,
+                title: TrackDisplayFormatter.subtitleStreamDisplayName(for: stream),
+                isActive: stream.index == activeSubtitleIndex,
                 isHighlighted: idx + 1 == highlighted
             )
         }

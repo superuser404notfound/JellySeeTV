@@ -44,6 +44,36 @@ enum TrackDisplayFormatter {
             ?? String(localized: "player.track.unknown", defaultValue: "Unknown")
     }
 
+    /// Display name for a Jellyfin subtitle MediaStream.
+    /// Uses displayTitle from Jellyfin if available (e.g. "German - Forced"),
+    /// otherwise builds from language + flags.
+    static func subtitleStreamDisplayName(for stream: MediaStream) -> String {
+        let lang = streamLanguageName(for: stream)
+
+        // Build descriptor from flags
+        var descriptors: [String] = []
+        if stream.isForced == true { descriptors.append("Forced") }
+        if let title = stream.title, !title.isEmpty {
+            let lower = title.lowercased()
+            let useful = ["sdh", "commentary", "cc", "signs", "songs", "full", "hearing", "forced", "musik", "music"]
+            if useful.contains(where: { lower.contains($0) }) {
+                // Use original title if it has useful descriptor
+                if let lang { return "\(lang) (\(title))" }
+                return title
+            }
+        }
+        if !descriptors.isEmpty, let lang {
+            return "\(lang) (\(descriptors.joined(separator: ", ")))"
+        }
+        return lang ?? stream.displayTitle
+            ?? String(localized: "player.track.unknown", defaultValue: "Unknown")
+    }
+
+    /// Short name for subtitle button label.
+    static func subtitleShortName(for stream: MediaStream) -> String {
+        streamLanguageName(for: stream) ?? stream.displayTitle ?? "Sub"
+    }
+
     /// Short name for the transport bar button label.
     /// Shows language only, no codec info.
     static func shortName(for track: TrackInfo) -> String {
@@ -51,6 +81,14 @@ enum TrackDisplayFormatter {
     }
 
     // MARK: - Private
+
+    private static func streamLanguageName(for stream: MediaStream) -> String? {
+        guard let code = stream.language, !code.isEmpty else { return nil }
+        if let name = Locale.current.localizedString(forLanguageCode: code) {
+            return name.prefix(1).uppercased() + name.dropFirst()
+        }
+        return code.uppercased()
+    }
 
     private static func languageName(for track: TrackInfo) -> String? {
         guard let code = track.language, !code.isEmpty else { return nil }

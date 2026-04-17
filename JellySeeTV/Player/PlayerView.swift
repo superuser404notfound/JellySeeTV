@@ -231,7 +231,7 @@ final class PlayerHostController: UIViewController {
         if viewModel.isDropdownOpen { return }
         if viewModel.showControls && viewModel.controlsFocus != .progressBar {
             // On a track button — navigate between buttons (or do nothing if rightmost)
-            if viewModel.controlsFocus == .audioButton && !viewModel.player.subtitleTracks.isEmpty {
+            if viewModel.controlsFocus == .audioButton && !viewModel.subtitleStreams.isEmpty {
                 viewModel.controlsFocus = .subtitleButton
             }
         } else {
@@ -247,7 +247,7 @@ final class PlayerHostController: UIViewController {
             case .progressBar:
                 // Preserve scrub state — user can confirm/cancel when returning
                 let hasAudio = !viewModel.player.audioTracks.isEmpty
-                let hasSubs = !viewModel.player.subtitleTracks.isEmpty
+                let hasSubs = !viewModel.subtitleStreams.isEmpty
                 if hasAudio { viewModel.controlsFocus = .audioButton }
                 else if hasSubs { viewModel.controlsFocus = .subtitleButton }
             case .audioButton, .subtitleButton:
@@ -284,11 +284,11 @@ final class PlayerHostController: UIViewController {
 
     private func openSubtitleDropdown() {
         viewModel.controlsTimer?.cancel()
-        // Items: Off (index 0), then each subtitle track (index 1...)
+        // Items: Off (index 0), then each subtitle stream (index 1...)
         let currentIdx: Int
         if let activeId = viewModel.activeSubtitleIndex,
-           let trackIdx = viewModel.player.subtitleTracks.firstIndex(where: { $0.id == activeId }) {
-            currentIdx = trackIdx + 1
+           let streamIdx = viewModel.subtitleStreams.firstIndex(where: { $0.index == activeId }) {
+            currentIdx = streamIdx + 1
         } else {
             currentIdx = 0
         }
@@ -303,7 +303,7 @@ final class PlayerHostController: UIViewController {
             let newIdx = max(0, min(count - 1, idx + offset))
             viewModel.trackDropdown = .audio(highlighted: newIdx)
         case .subtitle(let idx):
-            let count = viewModel.player.subtitleTracks.count + 1 // +1 for "Off"
+            let count = viewModel.subtitleStreams.count + 1 // +1 for "Off"
             guard count > 0 else { return }
             let newIdx = max(0, min(count - 1, idx + offset))
             viewModel.trackDropdown = .subtitle(highlighted: newIdx)
@@ -325,10 +325,10 @@ final class PlayerHostController: UIViewController {
             if idx == 0 {
                 viewModel.selectSubtitleTrack(id: nil)
             } else {
-                let tracks = viewModel.player.subtitleTracks
-                let trackIdx = idx - 1
-                if trackIdx < tracks.count {
-                    viewModel.selectSubtitleTrack(id: tracks[trackIdx].id)
+                let streams = viewModel.subtitleStreams
+                let streamIdx = idx - 1
+                if streamIdx < streams.count {
+                    viewModel.selectSubtitleTrack(id: streams[streamIdx].index)
                 }
             }
             viewModel.trackDropdown = .none
@@ -565,7 +565,7 @@ private struct PlayerOverlayView: View {
                     isScrubbing: viewModel.isScrubbing,
                     scrubTime: viewModel.scrubTime,
                     audioTracks: viewModel.player.audioTracks,
-                    subtitleTracks: viewModel.player.subtitleTracks,
+                    subtitleStreams: viewModel.subtitleStreams,
                     activeAudioIndex: viewModel.activeAudioIndex,
                     activeSubtitleIndex: viewModel.activeSubtitleIndex,
                     controlsFocus: viewModel.controlsFocus,

@@ -143,24 +143,33 @@ final class PlayerViewModel {
             }
             #endif
 
-            // Filter subtitle streams: only text-based formats that Jellyfin
-            // can convert to SRT. Image-based formats (PGS from Blu-ray,
-            // VOBSUB from DVD) can't be rendered as text overlays.
-            let textBasedCodecs: Set<String> = [
-                "srt", "subrip", "ass", "ssa", "webvtt", "vtt",
-                "mov_text", "ttml", "text", "dvdsub" // dvdsub is sometimes text
-            ]
-            subtitleStreams = source.mediaStreams?.filter { stream in
+            // Filter subtitle streams:
+            // 1. Exclude image-based formats (PGS, VOBSUB) — can't convert to text
+            // 2. Deduplicate same-language streams with no distinguishing metadata
+            let imageCodecs: Set<String> = ["pgssub", "hdmv_pgs_subtitle", "dvd_subtitle", "dvdsub", "xsub", "vobsub"]
+            let textStreams = source.mediaStreams?.filter { stream in
                 guard stream.type == .subtitle else { return false }
-                // Prefer the supportsExternalStream flag if available
-                if let codec = stream.codec?.lowercased() {
-                    // Exclude known image-based formats
-                    if codec == "pgssub" || codec == "hdmv_pgs_subtitle" || codec == "dvd_subtitle" || codec == "xsub" {
-                        return false
-                    }
+                if let codec = stream.codec?.lowercased(), imageCodecs.contains(codec) {
+                    return false
                 }
                 return true
             } ?? []
+
+            // Deduplicate: if multiple streams share the same language and
+            // neither has a distinguishing title (SDH, Forced, etc.),
+            // keep only the first one.
+            var seen = Set<String>()
+            subtitleStreams = textStreams.filter { stream in
+                let lang = stream.language ?? "und"
+                let hasDescriptor = stream.isForced == true
+                    || (stream.title?.lowercased()).map { t in
+                        ["sdh", "commentary", "cc", "signs", "songs", "hearing", "forced", "musik", "music"].contains(where: { t.contains($0) })
+                    } ?? false
+                let key = hasDescriptor ? "\(lang)_\(stream.title ?? "")" : lang
+                if seen.contains(key) { return false }
+                seen.insert(key)
+                return true
+            }
 
             let url: URL
             if source.supportsDirectPlay == true || source.supportsDirectStream == true {
