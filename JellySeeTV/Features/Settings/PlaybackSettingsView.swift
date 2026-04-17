@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Playback preferences UI. Rows span the full width of the screen;
-/// each option is a focusable chip so the Siri Remote's left/right
-/// swipes move between choices without any clicking.
+/// Playback preferences UI. Each row is a single focusable surface:
+/// the Siri Remote's left/right swipe cycles through values directly —
+/// no click needed, matching the native tvOS System Settings feel.
 struct PlaybackSettingsView: View {
     @Environment(\.dependencies) private var dependencies
 
@@ -16,7 +16,7 @@ struct PlaybackSettingsView: View {
 
                 sectionHeader("settings.playback.section.episodes")
 
-                boolChipRow(
+                boolRow(
                     icon: "play.square.stack",
                     title: "settings.playback.autoplayNextEp",
                     subtitle: "settings.playback.autoplayNextEp.subtitle",
@@ -26,7 +26,7 @@ struct PlaybackSettingsView: View {
                     )
                 )
 
-                chipRow(
+                valueRow(
                     icon: "timer",
                     title: "settings.playback.nextEpCountdown",
                     subtitle: "settings.playback.nextEpCountdown.subtitle",
@@ -44,7 +44,7 @@ struct PlaybackSettingsView: View {
 
                 sectionHeader("settings.playback.section.controls")
 
-                chipRow(
+                valueRow(
                     icon: "goforward",
                     title: "settings.playback.skipInterval",
                     subtitle: "settings.playback.skipInterval.subtitle",
@@ -58,7 +58,7 @@ struct PlaybackSettingsView: View {
 
                 sectionHeader("settings.playback.section.languages")
 
-                languageChipRow(
+                languageRow(
                     icon: "speaker.wave.2",
                     title: "settings.playback.preferredAudio",
                     subtitle: "settings.playback.preferredAudio.subtitle",
@@ -68,7 +68,7 @@ struct PlaybackSettingsView: View {
                     )
                 )
 
-                languageChipRow(
+                languageRow(
                     icon: "captions.bubble",
                     title: "settings.playback.preferredSubtitle",
                     subtitle: "settings.playback.preferredSubtitle.subtitle",
@@ -110,13 +110,13 @@ struct PlaybackSettingsView: View {
 
     // MARK: - Rows
 
-    private func boolChipRow(
+    private func boolRow(
         icon: String,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey,
         value: Binding<Bool>
     ) -> some View {
-        ChipPickerRow(
+        ValuePickerRow(
             icon: icon,
             title: title,
             subtitle: subtitle,
@@ -130,7 +130,7 @@ struct PlaybackSettingsView: View {
         )
     }
 
-    private func chipRow<Value: Hashable>(
+    private func valueRow<Value: Hashable>(
         icon: String,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey,
@@ -138,7 +138,7 @@ struct PlaybackSettingsView: View {
         selection: Binding<Value>,
         label: @escaping (Value) -> String
     ) -> some View {
-        ChipPickerRow(
+        ValuePickerRow(
             icon: icon,
             title: title,
             subtitle: subtitle,
@@ -148,7 +148,7 @@ struct PlaybackSettingsView: View {
         )
     }
 
-    private func languageChipRow(
+    private func languageRow(
         icon: String,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey,
@@ -159,8 +159,10 @@ struct PlaybackSettingsView: View {
             get: { choices.first(where: { $0.code == selection.wrappedValue }) ?? choices[0] },
             set: { selection.wrappedValue = $0.code }
         )
-        let labelFn: (PlaybackPreferences.LanguageChoice) -> String = { $0.short }
-        return ChipPickerRow(
+        let labelFn: (PlaybackPreferences.LanguageChoice) -> String = { choice in
+            String(localized: String.LocalizationValue(choice.titleKey))
+        }
+        return ValuePickerRow(
             icon: icon,
             title: title,
             subtitle: subtitle,
@@ -171,13 +173,14 @@ struct PlaybackSettingsView: View {
     }
 }
 
-// MARK: - Chip Picker Row
+// MARK: - Value Picker Row
 
-/// Full-width settings row: icon + title/subtitle on the left, a
-/// horizontal row of focusable option chips on the right. Each chip is
-/// an independent focusable button, so the tvOS focus engine moves
-/// left/right through the options natively — no click needed.
-private struct ChipPickerRow<Value: Hashable>: View {
+/// Full-width settings row. The Siri Remote's left/right gesture cycles
+/// through the options directly — no click, no dropdown to open. The
+/// chevrons are visual cues; they're not independent focus targets.
+/// Select also advances forward, because some users press instead of
+/// swipe. Up/Down moves between rows as usual.
+private struct ValuePickerRow<Value: Hashable>: View {
     let icon: String
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
@@ -185,11 +188,13 @@ private struct ChipPickerRow<Value: Hashable>: View {
     @Binding var selection: Value
     let label: (Value) -> String
 
+    @FocusState private var focused: Bool
+
     var body: some View {
-        HStack(alignment: .center, spacing: 32) {
+        HStack(alignment: .center, spacing: 36) {
             Image(systemName: icon)
-                .font(.system(size: 28))
-                .frame(width: 48)
+                .font(.system(size: 36))
+                .frame(width: 64)
                 .foregroundStyle(.tint)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -204,75 +209,64 @@ private struct ChipPickerRow<Value: Hashable>: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            HStack(spacing: 8) {
-                ForEach(Array(options.enumerated()), id: \.offset) { _, option in
-                    OptionChip(
-                        label: label(option),
-                        isActive: option == selection,
-                        action: { selection = option }
-                    )
-                }
+            HStack(spacing: 12) {
+                Image(systemName: "chevron.left")
+                    .font(.body)
+                    .foregroundStyle(focused ? .white : Color.secondary)
+                    .opacity(canMoveBackward ? 1 : 0.25)
+                Text(label(selection))
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(focused ? .white : Color.white.opacity(0.85))
+                    .frame(minWidth: 110, alignment: .center)
+                    .contentTransition(.opacity)
+                Image(systemName: "chevron.right")
+                    .font(.body)
+                    .foregroundStyle(focused ? .white : Color.secondary)
+                    .opacity(canMoveForward ? 1 : 0.25)
             }
         }
         .padding(.horizontal, 28)
-        .padding(.vertical, 20)
+        .padding(.vertical, 22)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white.opacity(0.04))
+                .fill(focused ? Color.white.opacity(0.15) : Color.white.opacity(0.04))
         )
-    }
-}
-
-// MARK: - Option Chip
-
-private struct OptionChip: View {
-    let label: String
-    let isActive: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(label)
-                .font(.callout)
-                .fontWeight(isActive ? .semibold : .regular)
-                .frame(minWidth: 60)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
+        .scaleEffect(focused ? 1.015 : 1.0)
+        .shadow(color: .black.opacity(focused ? 0.3 : 0), radius: 14, y: 6)
+        .focusable(true)
+        .focused($focused)
+        .animation(.easeInOut(duration: 0.15), value: focused)
+        .animation(.easeInOut(duration: 0.15), value: selection)
+        .onMoveCommand { direction in
+            switch direction {
+            case .left:  advance(by: -1)
+            case .right: advance(by: 1)
+            default: break
+            }
         }
-        .buttonStyle(OptionChipButtonStyle(isActive: isActive))
-    }
-}
-
-private struct OptionChipButtonStyle: ButtonStyle {
-    let isActive: Bool
-    @Environment(\.isFocused) private var isFocused
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(background)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(isActive ? Color.accentColor : .clear, lineWidth: 2)
-            )
-            .foregroundStyle(foreground)
-            .scaleEffect(isFocused ? 1.08 : 1.0)
-            .shadow(color: .black.opacity(isFocused ? 0.35 : 0), radius: 8, y: 3)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
-            .animation(.easeInOut(duration: 0.15), value: isActive)
+        // Pressing the clickpad also advances forward for users who
+        // prefer clicking over swiping.
+        #if os(tvOS)
+        .onLongPressGesture(minimumDuration: 0.01) {
+            advance(by: 1)
+        }
+        #endif
     }
 
-    private var background: Color {
-        if isFocused { return .white.opacity(0.25) }
-        if isActive { return Color.accentColor.opacity(0.25) }
-        return .white.opacity(0.08)
+    private var currentIndex: Int {
+        options.firstIndex(of: selection) ?? 0
     }
 
-    private var foreground: Color {
-        if isFocused { return .white }
-        if isActive { return .white }
-        return .white.opacity(0.7)
+    private var canMoveBackward: Bool { currentIndex > 0 }
+    private var canMoveForward: Bool { currentIndex < options.count - 1 }
+
+    /// Advance the selection. Clamps at the ends — no wrap — because
+    /// wrap is disorienting for short lists like "Off / 5s / 10s / 15s".
+    private func advance(by step: Int) {
+        let newIdx = max(0, min(options.count - 1, currentIndex + step))
+        if newIdx != currentIndex {
+            selection = options[newIdx]
+        }
     }
 }
