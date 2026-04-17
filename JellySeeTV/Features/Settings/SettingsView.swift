@@ -106,12 +106,19 @@ struct SettingsView: View {
     // MARK: - Logout
 
     private var logoutButton: some View {
-        Button(role: .destructive) {
+        // No destructive role — on tvOS that renders as dark red text
+        // that's hard to read against the dark background. A subtle
+        // arrow-out icon + neutral text is clear enough; the
+        // consequence isn't catastrophic.
+        Button {
             try? dependencies.clearSession()
             appState.logout()
         } label: {
-            Text("settings.logout")
-                .font(.subheadline)
+            Label("settings.logout", systemImage: "rectangle.portrait.and.arrow.right")
+                .font(.body)
+                .fontWeight(.medium)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
         }
         .padding(.top, 12)
     }
