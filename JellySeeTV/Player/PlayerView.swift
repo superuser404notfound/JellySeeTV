@@ -13,6 +13,7 @@ struct PlayerLauncher: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
     let item: JellyfinItem?
     let startFromBeginning: Bool
+    let player: AetherEngine
     let playbackService: JellyfinPlaybackServiceProtocol
     let userID: String
     var cachedPlaybackInfo: PlaybackInfoResponse?
@@ -23,25 +24,21 @@ struct PlayerLauncher: UIViewControllerRepresentable {
 
     func updateUIViewController(_ host: PlayerLauncherHostVC, context: Context) {
         if isPresented, let item, host.presentedViewController == nil {
-            // Host VC is always in the window (no conditional overlay).
-            // Present immediately — no window check needed.
-            guard let vm = try? PlayerViewModel(
+            let vm = PlayerViewModel(
                 item: item,
+                player: player,
                 startFromBeginning: startFromBeginning,
                 playbackService: playbackService,
                 userID: userID,
                 cachedPlaybackInfo: cachedPlaybackInfo
-            ) else {
-                isPresented = false
-                return
-            }
-            let player = PlayerHostController(viewModel: vm, onDismiss: {
+            )
+            let playerVC = PlayerHostController(viewModel: vm, onDismiss: {
                 host.dismiss(animated: false) {
                     isPresented = false
                 }
             })
-            player.modalPresentationStyle = .fullScreen
-            host.present(player, animated: false)
+            playerVC.modalPresentationStyle = .fullScreen
+            host.present(playerVC, animated: false)
         } else if !isPresented, host.presentedViewController != nil {
             host.dismiss(animated: false)
         }

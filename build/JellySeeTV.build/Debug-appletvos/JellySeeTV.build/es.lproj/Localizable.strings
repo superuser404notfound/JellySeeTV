@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>auth.login.password</key>
+	<string>Contraseña</string>
+	<key>auth.login.quickConnect</key>
+	<string>Usar Quick Connect</string>
+	<key>auth.login.signIn</key>
+	<string>Iniciar sesión</string>
+	<key>auth.login.subtitle</key>
+	<string>Inicia sesión en tu cuenta</string>
+	<key>auth.login.username</key>
+	<string>Nombre de usuario</string>
+	<key>auth.login.welcome %@</key>
+	<string>¡Bienvenido, %@!</string>
+	<key>auth.quickConnect.authenticate</key>
+	<string>Completar inicio de sesión</string>
+	<key>auth.quickConnect.cancel</key>
+	<string>Volver al inicio de sesión</string>
+	<key>auth.quickConnect.instruction</key>
+	<string>Introduce este código en tu panel de Jellyfin</string>
+	<key>auth.quickConnect.title</key>
+	<string>Quick Connect</string>
+	<key>auth.quickConnect.waiting</key>
+	<string>Esperando autorización...</string>
+	<key>auth.server.connect</key>
+	<string>Conectar</string>
+	<key>auth.server.placeholder</key>
+	<string>Dirección del servidor o IP</string>
+	<key>auth.server.subtitle</key>
+	<string>Introduce la dirección de tu servidor Jellyfin</string>
+	<key>auth.server.title</key>
+	<string>Conectar al servidor</string>
+	<key>detail.cast</key>
+	<string>Reparto</string>
+	<key>detail.collection.itemCount %lld</key>
+	<string>%lld Elementos</string>
+	<key>detail.collection.items</key>
+	<string>En esta colección</string>
+	<key>detail.episode.showDetails</key>
+	<string>Mostrar detalles</string>
+	<key>detail.favorite</key>
+	<string>Favorito</string>
+	<key>detail.play</key>
+	<string>Reproducir</string>
+	<key>detail.replay</key>
+	<string>Repetir</string>
+	<key>detail.resume</key>
+	<string>Continuar</string>
+	<key>detail.seasonCount %lld</key>
+	<string>%lld Temporadas</string>
+	<key>detail.showSeries</key>
+	<string>Ver serie</string>
+	<key>detail.similar</key>
+	<string>Títulos similares</string>
+	<key>detail.techInfo</key>
+	<string>Detalles técnicos</string>
+	<key>detail.unfavorite</key>
+	<string>Quitar</string>
+	<key>duration.hours.short</key>
+	<string>h</string>
+	<key>duration.minutes.short</key>
+	<string>min</string>
+	<key>home.allMovies</key>
+	<string>Todas las películas</string>
+	<key>home.allSeries</key>
+	<string>Todas las series</string>
+	<key>home.collections</key>
+	<string>Colecciones</string>
+	<key>home.continueWatching</key>
+	<string>Seguir viendo</string>
+	<key>home.customize.active</key>
+	<string>Activo</string>
+	<key>home.customize.description</key>
+	<string>Elige qué filas aparecen en tu pantalla de inicio.</string>
+	<key>home.customize.inactive</key>
+	<string>Disponible</string>
+	<key>home.customize.moveTip</key>
+	<string>Selecciona la posición deseada.</string>
+	<key>home.customize.moving</key>
+	<string>Moviendo...</string>
+	<key>home.customize.resetDefaults</key>
+	<string>Restaurar valores predeterminados</string>
+	<key>home.customize.title</key>
+	<string>Personalizar inicio</string>
+	<key>home.favorites</key>
+	<string>Favoritos</string>
+	<key>home.genres</key>
+	<string>Géneros</string>
+	<key>home.latestMovies</key>
+	<string>Últimas películas</string>
+	<key>home.latestShows</key>
+	<string>Últimas series</string>
+	<key>home.nextUp</key>
+	<string>Siguiente</string>
+	<key>home.recentlyAdded</key>
+	<string>Añadidos recientemente</string>
+	<key>home.retry</key>
+	<string>Reintentar</string>
+	<key>home.studios</key>
+	<string>Estudios y proveedores</string>
+	<key>home.topRatedMovies</key>
+	<string>Películas mejor valoradas</string>
+	<key>home.topRatedShows</key>
+	<string>Series mejor valoradas</string>
+	<key>player.audio</key>
+	<string>Audio</string>
+	<key>player.subtitles</key>
+	<string>Subtítulos</string>
+	<key>player.subtitles.off</key>
+	<string>Desactivado</string>
+	<key>settings.about.serverAddress</key>
+	<string>Servidor</string>
+	<key>settings.about.serverVersion</key>
+	<string>Versión del servidor</string>
+	<key>settings.about.version</key>
+	<string>Versión de la app</string>
+	<key>settings.home.customize</key>
+	<string>Personalizar filas</string>
+	<key>settings.home.customizeSubtitle</key>
+	<string>Elige y ordena las filas</string>
+	<key>settings.logout</key>
+	<string>Cerrar sesión</string>
+	<key>settings.playback.comingSoon</key>
+	<string>Próximamente</string>
+	<key>settings.playback.subtitle</key>
+	<string>Calidad, audio y subtítulos</string>
+	<key>settings.playback.title</key>
+	<string>Ajustes de reproducción</string>
+	<key>tab.catalog</key>
+	<string>Catálogo</string>
+	<key>tab.home</key>
+	<string>Inicio</string>
+	<key>tab.search</key>
+	<string>Buscar</string>
+	<key>tab.settings</key>
+	<string>Ajustes</string>
+	<key>tech.channels.mono</key>
+	<string>Mono</string>
+	<key>tech.channels.stereo</key>
+	<string>Estéreo</string>
+	<key>tech.subtitles.forced</key>
+	<string>F</string>
+</dict>
+</plist>

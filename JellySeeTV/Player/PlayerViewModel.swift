@@ -101,9 +101,9 @@ final class PlayerViewModel {
     var activePlayMethod: PlayMethod = .directPlay
     var subtitleStreams: [MediaStream] = []
 
-    init(item: JellyfinItem, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) throws {
+    init(item: JellyfinItem, player: AetherEngine, startFromBeginning: Bool, playbackService: JellyfinPlaybackServiceProtocol, userID: String, cachedPlaybackInfo: PlaybackInfoResponse? = nil) {
         self.item = item
-        self.player = try AetherEngine()
+        self.player = player
         self.startFromBeginning = startFromBeginning
         self.playbackService = playbackService
         self.userID = userID

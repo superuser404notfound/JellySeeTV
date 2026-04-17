@@ -1,0 +1,72 @@
+{
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Features/Home/HomeView.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeView.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeView.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeView.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeView.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeView.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Features/Home/HomeViewModel.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeViewModel.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeViewModel.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeViewModel.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeViewModel.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/HomeViewModel.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Features/Library/FilteredGridView.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/FilteredGridView.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/FilteredGridView.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/FilteredGridView.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/FilteredGridView.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/FilteredGridView.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Features/Settings/SettingsView.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/SettingsView.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/SettingsView.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/SettingsView.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/SettingsView.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/SettingsView.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Models/Jellyfin/JellyfinAuthResponse.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinAuthResponse.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinAuthResponse.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinAuthResponse.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinAuthResponse.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinAuthResponse.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Models/Jellyfin/JellyfinItem.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinItem.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinItem.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinItem.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinItem.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinItem.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Models/Jellyfin/JellyfinLibrary.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinLibrary.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinLibrary.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinLibrary.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinLibrary.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinLibrary.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Models/Jellyfin/JellyfinServer.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinServer.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinServer.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinServer.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinServer.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinServer.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Models/Jellyfin/JellyfinUser.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinUser.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinUser.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinUser.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinUser.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/JellyfinUser.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/JellySeeTV/JellySeeTV/Models/Jellyfin/NamedItem.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/NamedItem.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/NamedItem.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/NamedItem.dia",
+    "object" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/NamedItem.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/JellySeeTV/build/JellySeeTV.build/Debug-appletvos/JellySeeTV.build/Objects-normal/arm64/NamedItem.swiftdeps"
+  }
+}

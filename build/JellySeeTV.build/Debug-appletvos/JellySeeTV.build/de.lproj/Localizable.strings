@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>auth.login.password</key>
+	<string>Passwort</string>
+	<key>auth.login.quickConnect</key>
+	<string>Quick Connect verwenden</string>
+	<key>auth.login.signIn</key>
+	<string>Anmelden</string>
+	<key>auth.login.subtitle</key>
+	<string>Melde dich bei deinem Konto an</string>
+	<key>auth.login.username</key>
+	<string>Benutzername</string>
+	<key>auth.login.welcome %@</key>
+	<string>Willkommen, %@!</string>
+	<key>auth.quickConnect.authenticate</key>
+	<string>Anmeldung abschließen</string>
+	<key>auth.quickConnect.cancel</key>
+	<string>Zurück zur Anmeldung</string>
+	<key>auth.quickConnect.instruction</key>
+	<string>Gib diesen Code in deinem Jellyfin-Dashboard ein</string>
+	<key>auth.quickConnect.title</key>
+	<string>Quick Connect</string>
+	<key>auth.quickConnect.waiting</key>
+	<string>Warte auf Autorisierung...</string>
+	<key>auth.server.connect</key>
+	<string>Verbinden</string>
+	<key>auth.server.placeholder</key>
+	<string>Serveradresse oder IP</string>
+	<key>auth.server.subtitle</key>
+	<string>Gib die Adresse deines Jellyfin-Servers ein</string>
+	<key>auth.server.title</key>
+	<string>Mit Server verbinden</string>
+	<key>detail.cast</key>
+	<string>Besetzung</string>
+	<key>detail.collection.itemCount %lld</key>
+	<string>%lld Titel</string>
+	<key>detail.collection.items</key>
+	<string>In dieser Sammlung</string>
+	<key>detail.episode.showDetails</key>
+	<string>Details anzeigen</string>
+	<key>detail.favorite</key>
+	<string>Favorit</string>
+	<key>detail.play</key>
+	<string>Abspielen</string>
+	<key>detail.replay</key>
+	<string>Neu starten</string>
+	<key>detail.resume</key>
+	<string>Fortsetzen</string>
+	<key>detail.seasonCount %lld</key>
+	<string>%lld Staffeln</string>
+	<key>detail.showSeries</key>
+	<string>Serie anzeigen</string>
+	<key>detail.similar</key>
+	<string>Ähnliche Titel</string>
+	<key>detail.tech.audio</key>
+	<string>Audio</string>
+	<key>detail.tech.bitrate</key>
+	<string>Bitrate</string>
+	<key>detail.tech.channels</key>
+	<string>Kanäle</string>
+	<key>detail.tech.codec</key>
+	<string>Codec</string>
+	<key>detail.tech.file</key>
+	<string>Datei</string>
+	<key>detail.tech.filename</key>
+	<string>Datei</string>
+	<key>detail.tech.format</key>
+	<string>Format</string>
+	<key>detail.tech.framerate</key>
+	<string>Bildrate</string>
+	<key>detail.tech.hdr</key>
+	<string>HDR</string>
+	<key>detail.tech.language</key>
+	<string>Sprache</string>
+	<key>detail.tech.resolution</key>
+	<string>Auflösung</string>
+	<key>detail.tech.size</key>
+	<string>Größe</string>
+	<key>detail.tech.subtitles</key>
+	<string>Untertitel</string>
+	<key>detail.tech.tracks</key>
+	<string>Spuren</string>
+	<key>detail.tech.video</key>
+	<string>Video</string>
+	<key>detail.techInfo</key>
+	<string>Technische Details</string>
+	<key>detail.unfavorite</key>
+	<string>Entfernen</string>
+	<key>duration.hours.short</key>
+	<string>Std.</string>
+	<key>duration.minutes.short</key>
+	<string>Min.</string>
+	<key>error.decodingError</key>
+	<string>Serverantwort konnte nicht verarbeitet werden</string>
+	<key>error.httpError %lld</key>
+	<string>Serverfehler (%lld)</string>
+	<key>error.invalidResponse</key>
+	<string>Ungültige Serverantwort</string>
+	<key>error.invalidURL</key>
+	<string>Ungültige URL</string>
+	<key>error.networkError</key>
+	<string>Netzwerkverbindung fehlgeschlagen</string>
+	<key>error.serverUnreachable</key>
+	<string>Server nicht erreichbar</string>
+	<key>error.timeout</key>
+	<string>Zeitüberschreitung bei der Anfrage</string>
+	<key>error.unauthorized</key>
+	<string>Authentifizierung erforderlich</string>
+	<key>home.allMovies</key>
+	<string>Alle Filme</string>
+	<key>home.allSeries</key>
+	<string>Alle Serien</string>
+	<key>home.collections</key>
+	<string>Sammlungen</string>
+	<key>home.continueWatching</key>
+	<string>Weiterschauen</string>
+	<key>home.customize.active</key>
+	<string>Aktiv</string>
+	<key>home.customize.description</key>
+	<string>Wähle aus, welche Reihen auf deiner Startseite angezeigt werden.</string>
+	<key>home.customize.inactive</key>
+	<string>Verfügbar</string>
+	<key>home.customize.moveTip</key>
+	<string>Wähle die Position, an die es verschoben werden soll.</string>
+	<key>home.customize.moving</key>
+	<string>Verschieben...</string>
+	<key>home.customize.resetDefaults</key>
+	<string>Standard wiederherstellen</string>
+	<key>home.customize.title</key>
+	<string>Startseite anpassen</string>
+	<key>home.favorites</key>
+	<string>Favoriten</string>
+	<key>home.genres</key>
+	<string>Genres</string>
+	<key>home.latestMovies</key>
+	<string>Neueste Filme</string>
+	<key>home.latestShows</key>
+	<string>Neueste Serien</string>
+	<key>home.nextUp</key>
+	<string>Als Nächstes</string>
+	<key>home.recentlyAdded</key>
+	<string>Kürzlich hinzugefügt</string>
+	<key>home.retry</key>
+	<string>Erneut versuchen</string>
+	<key>home.studios</key>
+	<string>Studios &amp; Anbieter</string>
+	<key>home.topRatedMovies</key>
+	<string>Bestbewertete Filme</string>
+	<key>home.topRatedShows</key>
+	<string>Bestbewertete Serien</string>
+	<key>player.audio</key>
+	<string>Audio</string>
+	<key>player.subtitles</key>
+	<string>Untertitel</string>
+	<key>player.subtitles.off</key>
+	<string>Aus</string>
+	<key>settings.about.serverAddress</key>
+	<string>Server</string>
+	<key>settings.about.serverVersion</key>
+	<string>Server-Version</string>
+	<key>settings.about.version</key>
+	<string>App-Version</string>
+	<key>settings.home.customize</key>
+	<string>Reihen anpassen</string>
+	<key>settings.home.customizeSubtitle</key>
+	<string>Reihen der Startseite wählen und sortieren</string>
+	<key>settings.logout</key>
+	<string>Abmelden</string>
+	<key>settings.playback.comingSoon</key>
+	<string>Kommt bald</string>
+	<key>settings.playback.subtitle</key>
+	<string>Qualität, Audio und Untertitel</string>
+	<key>settings.playback.title</key>
+	<string>Wiedergabe-Einstellungen</string>
+	<key>tab.catalog</key>
+	<string>Katalog</string>
+	<key>tab.home</key>
+	<string>Startseite</string>
+	<key>tab.search</key>
+	<string>Suche</string>
+	<key>tab.settings</key>
+	<string>Einstellungen</string>
+	<key>tech.channels.mono</key>
+	<string>Mono</string>
+	<key>tech.channels.stereo</key>
+	<string>Stereo</string>
+	<key>tech.subtitles.forced</key>
+	<string>E</string>
+</dict>
+</plist>

@@ -1,4 +1,5 @@
 import Foundation
+import AetherEngine
 
 @MainActor
 @Observable
@@ -14,6 +15,11 @@ final class DependencyContainer {
     let jellyfinImageService: JellyfinImageService
     let jellyfinPlaybackService: JellyfinPlaybackServiceProtocol
     let cloudSyncService: CloudSyncServiceProtocol
+
+    /// Shared player engine — reused across playback sessions to avoid
+    /// recreating CMTimebase, DisplayLayer, and Renderers on every play.
+    /// stop() resets all internal state; load() starts fresh.
+    let playerEngine: AetherEngine
 
     init(
         keychainService: KeychainServiceProtocol = KeychainService(),
@@ -32,6 +38,9 @@ final class DependencyContainer {
         })
         self.jellyfinPlaybackService = JellyfinPlaybackService(client: jellyfinClient)
         self.cloudSyncService = CloudSyncService()
+        self.playerEngine = (try? AetherEngine()) ?? {
+            fatalError("Failed to initialize AetherEngine")
+        }()
     }
 
     func restoreSession() -> Bool {

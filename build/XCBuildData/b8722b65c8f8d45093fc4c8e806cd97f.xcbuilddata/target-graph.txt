@@ -1,0 +1,11 @@
+Target dependency graph (5 targets)
+Target 'JellySeeTV' in project 'JellySeeTV'
+➜ Explicit dependency on target 'SteelPlayer' in project 'SteelPlayer'
+Target 'SteelPlayer' in project 'SteelPlayer'
+➜ Explicit dependency on target 'SteelPlayer' in project 'SteelPlayer'
+➜ Explicit dependency on target 'FFmpegBuild' in project 'FFmpegBuild'
+Target 'SteelPlayer' in project 'SteelPlayer'
+➜ Explicit dependency on target 'FFmpegBuild' in project 'FFmpegBuild'
+Target 'FFmpegBuild' in project 'FFmpegBuild'
+➜ Explicit dependency on target 'FFmpegBuild' in project 'FFmpegBuild'
+Target 'FFmpegBuild' in project 'FFmpegBuild' (no dependencies)

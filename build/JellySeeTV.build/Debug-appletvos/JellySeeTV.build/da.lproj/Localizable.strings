@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>auth.login.password</key>
+	<string>Adgangskode</string>
+	<key>auth.login.quickConnect</key>
+	<string>Brug Quick Connect</string>
+	<key>auth.login.signIn</key>
+	<string>Log ind</string>
+	<key>auth.login.subtitle</key>
+	<string>Log ind på din konto</string>
+	<key>auth.login.username</key>
+	<string>Brugernavn</string>
+	<key>auth.login.welcome %@</key>
+	<string>Velkommen, %@!</string>
+	<key>auth.quickConnect.authenticate</key>
+	<string>Fuldfør login</string>
+	<key>auth.quickConnect.cancel</key>
+	<string>Tilbage til login</string>
+	<key>auth.quickConnect.instruction</key>
+	<string>Indtast denne kode i dit Jellyfin-dashboard</string>
+	<key>auth.quickConnect.title</key>
+	<string>Quick Connect</string>
+	<key>auth.quickConnect.waiting</key>
+	<string>Venter på godkendelse...</string>
+	<key>auth.server.connect</key>
+	<string>Opret forbindelse</string>
+	<key>auth.server.placeholder</key>
+	<string>Serveradresse eller IP</string>
+	<key>auth.server.subtitle</key>
+	<string>Indtast adressen på din Jellyfin-server</string>
+	<key>auth.server.title</key>
+	<string>Opret forbindelse til server</string>
+	<key>detail.cast</key>
+	<string>Medvirkende</string>
+	<key>detail.collection.itemCount %lld</key>
+	<string>%lld Elementer</string>
+	<key>detail.collection.items</key>
+	<string>I denne samling</string>
+	<key>detail.episode.showDetails</key>
+	<string>Vis detaljer</string>
+	<key>detail.favorite</key>
+	<string>Favorit</string>
+	<key>detail.play</key>
+	<string>Afspil</string>
+	<key>detail.replay</key>
+	<string>Afspil igen</string>
+	<key>detail.resume</key>
+	<string>Genoptag</string>
+	<key>detail.seasonCount %lld</key>
+	<string>%lld Sæsoner</string>
+	<key>detail.showSeries</key>
+	<string>Vis serie</string>
+	<key>detail.similar</key>
+	<string>Lignende titler</string>
+	<key>detail.techInfo</key>
+	<string>Tekniske detaljer</string>
+	<key>detail.unfavorite</key>
+	<string>Fjern</string>
+	<key>duration.hours.short</key>
+	<string>t</string>
+	<key>duration.minutes.short</key>
+	<string>m</string>
+	<key>home.allMovies</key>
+	<string>Alle film</string>
+	<key>home.allSeries</key>
+	<string>Alle serier</string>
+	<key>home.collections</key>
+	<string>Samlinger</string>
+	<key>home.continueWatching</key>
+	<string>Fortsæt med at se</string>
+	<key>home.customize.active</key>
+	<string>Aktive</string>
+	<key>home.customize.description</key>
+	<string>Vælg hvilke rækker der vises på din startskærm.</string>
+	<key>home.customize.inactive</key>
+	<string>Tilgængelig</string>
+	<key>home.customize.moveTip</key>
+	<string>Vælg den ønskede position.</string>
+	<key>home.customize.moving</key>
+	<string>Flytter...</string>
+	<key>home.customize.resetDefaults</key>
+	<string>Gendan standardindstillinger</string>
+	<key>home.customize.title</key>
+	<string>Tilpas hjem</string>
+	<key>home.favorites</key>
+	<string>Favoritter</string>
+	<key>home.genres</key>
+	<string>Genrer</string>
+	<key>home.latestMovies</key>
+	<string>Nyeste film</string>
+	<key>home.latestShows</key>
+	<string>Nyeste serier</string>
+	<key>home.nextUp</key>
+	<string>Næste</string>
+	<key>home.recentlyAdded</key>
+	<string>Tilføjet for nylig</string>
+	<key>home.retry</key>
+	<string>Prøv igen</string>
+	<key>home.studios</key>
+	<string>Studier og udbydere</string>
+	<key>home.topRatedMovies</key>
+	<string>Højest bedømte film</string>
+	<key>home.topRatedShows</key>
+	<string>Højest bedømte serier</string>
+	<key>player.audio</key>
+	<string>Lyd</string>
+	<key>player.subtitles</key>
+	<string>Undertekster</string>
+	<key>player.subtitles.off</key>
+	<string>Fra</string>
+	<key>settings.about.serverAddress</key>
+	<string>Server</string>
+	<key>settings.about.serverVersion</key>
+	<string>Serverversion</string>
+	<key>settings.about.version</key>
+	<string>Appversion</string>
+	<key>settings.home.customize</key>
+	<string>Tilpas rækker</string>
+	<key>settings.home.customizeSubtitle</key>
+	<string>Vælg og sorter rækker</string>
+	<key>settings.logout</key>
+	<string>Log ud</string>
+	<key>settings.playback.comingSoon</key>
+	<string>Kommer snart</string>
+	<key>settings.playback.subtitle</key>
+	<string>Kvalitet, lyd og undertekster</string>
+	<key>settings.playback.title</key>
+	<string>Afspilningsindstillinger</string>
+	<key>tab.catalog</key>
+	<string>Katalog</string>
+	<key>tab.home</key>
+	<string>Hjem</string>
+	<key>tab.search</key>
+	<string>Søg</string>
+	<key>tab.settings</key>
+	<string>Indstillinger</string>
+	<key>tech.channels.mono</key>
+	<string>Mono</string>
+	<key>tech.channels.stereo</key>
+	<string>Stereo</string>
+	<key>tech.subtitles.forced</key>
+	<string>T</string>
+</dict>
+</plist>

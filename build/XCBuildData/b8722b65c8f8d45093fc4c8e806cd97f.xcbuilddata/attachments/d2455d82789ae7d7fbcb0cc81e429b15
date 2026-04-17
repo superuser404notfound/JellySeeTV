@@ -1,0 +1,109 @@
+{
+  "" : {
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer-primary.dia",
+    "emit-module-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer-primary-emit-module.dia",
+    "pch" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer-primary.swiftdeps"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/Audio/AudioDecoder.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioDecoder.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioDecoder.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioDecoder.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioDecoder.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioDecoder.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioDecoder.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioDecoder.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioDecoder~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/Audio/AudioOutput.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioOutput.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioOutput.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioOutput.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioOutput.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioOutput.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioOutput.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioOutput.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AudioOutput~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/Audio/CompressedAudioFeeder.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/CompressedAudioFeeder.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/CompressedAudioFeeder.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/CompressedAudioFeeder.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/CompressedAudioFeeder.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/CompressedAudioFeeder.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/CompressedAudioFeeder.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/CompressedAudioFeeder.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/CompressedAudioFeeder~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/Decoder/SoftwareVideoDecoder.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SoftwareVideoDecoder.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SoftwareVideoDecoder.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SoftwareVideoDecoder.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SoftwareVideoDecoder.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SoftwareVideoDecoder.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SoftwareVideoDecoder.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SoftwareVideoDecoder.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SoftwareVideoDecoder~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/Decoder/VideoDecoder.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/VideoDecoder.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/VideoDecoder.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/VideoDecoder.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/VideoDecoder.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/VideoDecoder.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/VideoDecoder.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/VideoDecoder.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/VideoDecoder~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/Demuxer/AVIOReader.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AVIOReader.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AVIOReader.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AVIOReader.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AVIOReader.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AVIOReader.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AVIOReader.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AVIOReader.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/AVIOReader~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/Demuxer/Demuxer.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/Demuxer.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/Demuxer.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/Demuxer.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/Demuxer.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/Demuxer.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/Demuxer.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/Demuxer.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/Demuxer~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/PlayerState.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/PlayerState.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/PlayerState.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/PlayerState.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/PlayerState.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/PlayerState.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/PlayerState.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/PlayerState.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/PlayerState~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/Renderer/SampleBufferRenderer.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SampleBufferRenderer.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SampleBufferRenderer.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SampleBufferRenderer.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SampleBufferRenderer.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SampleBufferRenderer.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SampleBufferRenderer.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SampleBufferRenderer.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SampleBufferRenderer~partial.swiftmodule"
+  },
+  "/Users/vincentherbst/Dev/SteelPlayer/Sources/SteelPlayer/SteelPlayer.swift" : {
+    "const-values" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer.swiftconstvalues",
+    "dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer.d",
+    "diagnostics" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer.dia",
+    "index-unit-output-path" : "/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer.o",
+    "llvm-bc" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer.bc",
+    "object" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer.o",
+    "swift-dependencies" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer.swiftdeps",
+    "swiftmodule" : "/Users/vincentherbst/Dev/SteelPlayer/build/SteelPlayer.build/Debug-appletvos/SteelPlayer.build/Objects-normal/arm64/SteelPlayer~partial.swiftmodule"
+  }
+}
