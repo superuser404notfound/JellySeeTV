@@ -84,7 +84,7 @@ struct SeriesDetailView: View {
                     isPresented: $showPlayer,
                     item: playItem,
                     startFromBeginning: playFromBeginning,
-                    player: dependencies.playerEngine,
+                    player: DependencyContainer.playerEngine,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
                     cachedPlaybackInfo: playItem.flatMap { ep in

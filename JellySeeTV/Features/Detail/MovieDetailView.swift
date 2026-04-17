@@ -28,7 +28,7 @@ struct MovieDetailView: View {
                     isPresented: $showPlayer,
                     item: showPlayer ? (viewModel?.item ?? item) : nil,
                     startFromBeginning: playFromBeginning,
-                    player: dependencies.playerEngine,
+                    player: DependencyContainer.playerEngine,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
                     cachedPlaybackInfo: viewModel?.cachedPlaybackInfo
