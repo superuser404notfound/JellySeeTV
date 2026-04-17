@@ -338,7 +338,21 @@ final class PlayerViewModel {
         player.$videoFormat
             .receive(on: DispatchQueue.main)
             .sink { [weak self] format in
-                self?.videoFormat = format
+                guard let self else { return }
+                // Only show the HDR badge if the display is actually in
+                // HDR mode. When "Match Dynamic Range" is off, the TV
+                // stays in SDR — showing "HDR10" would be misleading.
+                #if os(tvOS)
+                if format != .sdr {
+                    let matchEnabled = self.displayWindow?.avDisplayManager
+                        .isDisplayCriteriaMatchingEnabled ?? false
+                    if !matchEnabled {
+                        self.videoFormat = .sdr
+                        return
+                    }
+                }
+                #endif
+                self.videoFormat = format
             }
             .store(in: &cancellables)
     }
