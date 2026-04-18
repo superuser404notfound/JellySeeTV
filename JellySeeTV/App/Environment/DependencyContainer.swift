@@ -25,6 +25,7 @@ final class DependencyContainer {
     let seerrMediaService: SeerrMediaServiceProtocol
     let seerrRequestService: SeerrRequestServiceProtocol
     let seerrServiceConfigService: SeerrServiceConfigServiceProtocol
+    let seerrSearchService: SeerrSearchServiceProtocol
 
     init(
         keychainService: KeychainServiceProtocol = KeychainService(),
@@ -52,6 +53,7 @@ final class DependencyContainer {
         self.seerrMediaService = SeerrMediaService(client: seerrClient)
         self.seerrRequestService = SeerrRequestService(client: seerrClient)
         self.seerrServiceConfigService = SeerrServiceConfigService(client: seerrClient)
+        self.seerrSearchService = SeerrSearchService(client: seerrClient)
     }
 
     func restoreSession() -> Bool {

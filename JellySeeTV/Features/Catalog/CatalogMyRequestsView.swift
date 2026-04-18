@@ -72,6 +72,7 @@ private struct SeerrRequestRow: View {
         switch request.type {
         case .movie: "film"
         case .tv: "tv"
+        case .person: "person"
         }
     }
 
@@ -81,6 +82,8 @@ private struct SeerrRequestRow: View {
             String(localized: "catalog.request.movie", defaultValue: "Movie Request")
         case .tv:
             String(localized: "catalog.request.tv", defaultValue: "Series Request")
+        case .person:
+            ""
         }
         return "\(typeLabel) · #\(request.id)"
     }

@@ -10,6 +10,8 @@ enum SeerrEndpoint: APIEndpoint {
     case discoverMovies(page: Int)
     case discoverTV(page: Int)
 
+    case search(query: String, page: Int)
+
     case movieDetail(tmdbID: Int)
     case tvDetail(tmdbID: Int)
 
@@ -30,6 +32,7 @@ enum SeerrEndpoint: APIEndpoint {
         case .discoverTrending: "/api/v1/discover/trending"
         case .discoverMovies: "/api/v1/discover/movies"
         case .discoverTV: "/api/v1/discover/tv"
+        case .search: "/api/v1/search"
         case .movieDetail(let id): "/api/v1/movie/\(id)"
         case .tvDetail(let id): "/api/v1/tv/\(id)"
         case .createRequest: "/api/v1/request"
@@ -53,6 +56,12 @@ enum SeerrEndpoint: APIEndpoint {
         switch self {
         case .discoverTrending(let page), .discoverMovies(let page), .discoverTV(let page):
             return [URLQueryItem(name: "page", value: String(page))]
+
+        case .search(let query, let page):
+            return [
+                URLQueryItem(name: "query", value: query),
+                URLQueryItem(name: "page", value: String(page)),
+            ]
 
         case .myRequests(let take, let skip):
             return [

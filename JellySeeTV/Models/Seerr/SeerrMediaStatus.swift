@@ -45,4 +45,8 @@ enum SeerrRequestStatus: Int, Codable, Sendable {
 enum SeerrMediaType: String, Codable, Sendable {
     case movie
     case tv
+    // `/search` also returns `person` results — we decode them so the
+    // array parse doesn't fail, then filter them out in the service
+    // layer before they reach the UI.
+    case person
 }

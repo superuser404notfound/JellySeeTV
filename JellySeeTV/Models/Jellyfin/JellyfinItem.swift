@@ -32,6 +32,17 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
     let collectionType: String?
     let childCount: Int?
     let seriesPrimaryImageTag: String?
+    let providerIds: [String: String]?
+
+    /// TMDB identifier if Jellyfin has it (used to correlate with Seerr
+    /// catalog entries — dedup in search, route from detail-view
+    /// "request" button). Jellyfin stores the keys case-sensitively
+    /// ("Tmdb") but some older scanner versions wrote "tmdb" — check both.
+    var tmdbID: Int? {
+        guard let ids = providerIds else { return nil }
+        let raw = ids["Tmdb"] ?? ids["tmdb"] ?? ids["TMDB"]
+        return raw.flatMap(Int.init)
+    }
 
     enum CodingKeys: String, CodingKey {
         case id = "Id"
@@ -65,6 +76,7 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
         case collectionType = "CollectionType"
         case childCount = "ChildCount"
         case seriesPrimaryImageTag = "SeriesPrimaryImageTag"
+        case providerIds = "ProviderIds"
     }
 
     /// Create a copy with updated userData
@@ -100,6 +112,7 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
         self.collectionType = item.collectionType
         self.childCount = item.childCount
         self.seriesPrimaryImageTag = item.seriesPrimaryImageTag
+        self.providerIds = item.providerIds
     }
 
     /// Create a minimal series stub for navigation
@@ -135,6 +148,7 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
         self.collectionType = nil
         self.childCount = nil
         self.seriesPrimaryImageTag = nil
+        self.providerIds = nil
     }
 
     static func == (lhs: JellyfinItem, rhs: JellyfinItem) -> Bool {

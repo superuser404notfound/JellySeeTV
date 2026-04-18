@@ -56,6 +56,7 @@ struct SeerrMediaCard: View {
         switch media.mediaType {
         case .movie: "film"
         case .tv: "tv"
+        case .person: "person"
         }
     }
 }

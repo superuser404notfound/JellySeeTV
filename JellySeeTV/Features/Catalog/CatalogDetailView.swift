@@ -313,6 +313,7 @@ struct CatalogDetailView: View {
         switch media.mediaType {
         case .movie: "catalog.button.request"
         case .tv: "catalog.button.requestSeasons"
+        case .person: "catalog.button.request"
         }
     }
 
@@ -320,6 +321,7 @@ struct CatalogDetailView: View {
         switch media.mediaType {
         case .movie: true
         case .tv: !selectedSeasons.isEmpty
+        case .person: false
         }
     }
 
@@ -389,6 +391,8 @@ struct CatalogDetailView: View {
                 movieDetail = try await dependencies.seerrMediaService.movieDetail(tmdbID: media.id)
             case .tv:
                 tvDetail = try await dependencies.seerrMediaService.tvDetail(tmdbID: media.id)
+            case .person:
+                return
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -408,6 +412,7 @@ struct CatalogDetailView: View {
             switch media.mediaType {
             case .movie: servers = try await config.radarrServers()
             case .tv: servers = try await config.sonarrServers()
+            case .person: return
             }
             guard let chosen = servers.first(where: { $0.isDefault == true }) ?? servers.first else {
                 return
@@ -416,6 +421,7 @@ struct CatalogDetailView: View {
             switch media.mediaType {
             case .movie: details = try await config.radarrDetails(serverID: chosen.id)
             case .tv: details = try await config.sonarrDetails(serverID: chosen.id)
+            case .person: return
             }
             serviceDetails = details
             selectedProfileID = chosen.activeProfileId ?? details.profiles.first?.id
