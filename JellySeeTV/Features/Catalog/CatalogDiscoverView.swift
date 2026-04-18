@@ -6,33 +6,45 @@ struct CatalogDiscoverView: View {
 
     var body: some View {
         Group {
-            if viewModel.isLoadingDiscover && viewModel.trending.isEmpty {
+            if viewModel.isLoadingDiscover && viewModel.trending.items.isEmpty {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = viewModel.errorMessage, viewModel.trending.isEmpty {
+            } else if let error = viewModel.errorMessage, viewModel.trending.items.isEmpty {
                 errorState(message: error)
             } else {
                 ScrollView(.vertical, showsIndicators: false) {
                     LazyVStack(alignment: .leading, spacing: 40) {
-                        if !viewModel.trending.isEmpty {
+                        if !viewModel.trending.items.isEmpty {
                             SeerrHorizontalMediaRow(
                                 title: "catalog.section.trending",
-                                items: viewModel.trending,
-                                onItemSelected: onSelect
+                                items: viewModel.trending.items,
+                                isLoadingMore: viewModel.trending.isLoading,
+                                onItemSelected: onSelect,
+                                onNeedsMore: {
+                                    Task { await viewModel.loadMore(row: .trending) }
+                                }
                             )
                         }
-                        if !viewModel.popularMovies.isEmpty {
+                        if !viewModel.popularMovies.items.isEmpty {
                             SeerrHorizontalMediaRow(
                                 title: "catalog.section.popularMovies",
-                                items: viewModel.popularMovies,
-                                onItemSelected: onSelect
+                                items: viewModel.popularMovies.items,
+                                isLoadingMore: viewModel.popularMovies.isLoading,
+                                onItemSelected: onSelect,
+                                onNeedsMore: {
+                                    Task { await viewModel.loadMore(row: .movies) }
+                                }
                             )
                         }
-                        if !viewModel.popularTV.isEmpty {
+                        if !viewModel.popularTV.items.isEmpty {
                             SeerrHorizontalMediaRow(
                                 title: "catalog.section.popularShows",
-                                items: viewModel.popularTV,
-                                onItemSelected: onSelect
+                                items: viewModel.popularTV.items,
+                                isLoadingMore: viewModel.popularTV.isLoading,
+                                onItemSelected: onSelect,
+                                onNeedsMore: {
+                                    Task { await viewModel.loadMore(row: .tv) }
+                                }
                             )
                         }
                     }
