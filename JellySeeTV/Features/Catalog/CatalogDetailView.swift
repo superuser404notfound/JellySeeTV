@@ -123,10 +123,7 @@ struct CatalogDetailView: View {
             }
 
             if let overview, !overview.isEmpty {
-                Text(overview)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(6)
+                ExpandableTextBox(text: overview)
             }
 
             if !genres.isEmpty {

@@ -61,6 +61,8 @@ struct SeerrRequestStatusBadge: View {
         case .pendingApproval: "clock"
         case .approved: "checkmark"
         case .declined: "xmark"
+        case .failed: "exclamationmark.triangle"
+        case .completed: "checkmark.circle.fill"
         }
     }
 
@@ -69,6 +71,8 @@ struct SeerrRequestStatusBadge: View {
         case .pendingApproval: .orange
         case .approved: .green
         case .declined: .red
+        case .failed: .red
+        case .completed: .green
         }
     }
 }
