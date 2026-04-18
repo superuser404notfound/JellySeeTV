@@ -42,6 +42,57 @@ struct PlaybackMediaSource: Codable, Sendable, Identifiable {
     }
 }
 
+// MARK: - Media Segments
+
+/// Response from `/MediaSegments/{itemId}` — intro / outro / preview
+/// markers. Populated natively on Jellyfin 10.10+, and by the
+/// intro-skipper plugin on 10.9.
+struct MediaSegmentsResponse: Codable, Sendable {
+    let items: [MediaSegment]
+    let totalRecordCount: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case items = "Items"
+        case totalRecordCount = "TotalRecordCount"
+    }
+}
+
+struct MediaSegment: Codable, Sendable, Identifiable {
+    /// Unique segment id; used as Identifiable key for lists.
+    let id: String
+    let itemId: String
+    let type: SegmentType
+    let startTicks: Int64
+    let endTicks: Int64
+
+    enum CodingKeys: String, CodingKey {
+        case id = "Id"
+        case itemId = "ItemId"
+        case type = "Type"
+        case startTicks = "StartTicks"
+        case endTicks = "EndTicks"
+    }
+
+    /// Seconds — 10_000_000 ticks per second.
+    var startSeconds: Double { Double(startTicks) / 10_000_000 }
+    var endSeconds: Double { Double(endTicks) / 10_000_000 }
+}
+
+enum SegmentType: String, Codable, Sendable {
+    case intro = "Intro"
+    case outro = "Outro"
+    case preview = "Preview"
+    case recap = "Recap"
+    case commercial = "Commercial"
+    case unknown
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        self = SegmentType(rawValue: raw) ?? .unknown
+    }
+}
+
 // MARK: - Session Reports
 
 struct PlaybackStartReport: Encodable, Sendable {

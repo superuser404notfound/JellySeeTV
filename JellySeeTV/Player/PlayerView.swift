@@ -168,6 +168,13 @@ final class PlayerHostController: UIViewController {
             Task { await viewModel.playNextEpisode() }
             return
         }
+        // Intro skip takes priority while the controls are hidden —
+        // the button is the only thing the viewer sees, so Select
+        // targets it rather than opening the full transport overlay.
+        if viewModel.isInsideIntro && !viewModel.showControls && !viewModel.isDropdownOpen {
+            viewModel.skipIntro()
+            return
+        }
         if viewModel.isDropdownOpen {
             confirmDropdownSelection()
         } else if viewModel.showControls && viewModel.controlsFocus != .progressBar {
@@ -446,6 +453,13 @@ private struct PlayerOverlayView: View {
                 controlsOverlay
             }
 
+            // Intro skip hint — shown whenever playbackTime is inside
+            // the detected intro range. Positioned so it never overlaps
+            // the transport bar when controls are open.
+            if viewModel.isInsideIntro && viewModel.errorMessage == nil && !viewModel.showNextEpisodeOverlay {
+                introSkipOverlay
+            }
+
             // Next episode overlay
             if viewModel.showNextEpisodeOverlay,
                let next = viewModel.nextEpisode {
@@ -455,6 +469,43 @@ private struct PlayerOverlayView: View {
         .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showControls)
         .animation(.easeInOut(duration: 0.3), value: viewModel.showNextEpisodeOverlay)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.isInsideIntro)
+    }
+
+    private var introSkipOverlay: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                HStack(spacing: 10) {
+                    Image(systemName: "forward.end.fill")
+                        .font(.body)
+                    Text(String(localized: "player.skipIntro", defaultValue: "Skip Intro"))
+                        .font(.body)
+                        .fontWeight(.semibold)
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+                .background(
+                    Capsule()
+                        .fill(.ultraThinMaterial)
+                        .environment(\.colorScheme, .dark)
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(.white.opacity(viewModel.showControls ? 0.1 : 0.35), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.45), radius: 14, y: 6)
+                // Lift above the transport bar when controls are open
+                // so the button never sits on top of the progress bar
+                // or the track buttons.
+                .padding(.trailing, 80)
+                .padding(.bottom, viewModel.showControls ? 300 : 80)
+            }
+        }
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .allowsHitTesting(false)
     }
 
     private func nextEpisodeOverlay(_ episode: JellyfinItem) -> some View {

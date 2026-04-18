@@ -8,6 +8,7 @@ protocol JellyfinPlaybackServiceProtocol: Sendable {
     func reportPlaybackStopped(_ report: PlaybackStopReport) async throws
     func getNextEpisode(seriesID: String, userID: String) async throws -> JellyfinItem?
     func getEpisodes(seriesID: String, seasonID: String, userID: String) async throws -> [JellyfinItem]
+    func getIntroSegment(itemID: String) async throws -> MediaSegment?
     func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL?
     func buildSubtitleURL(itemID: String, mediaSourceID: String, streamIndex: Int, format: String) -> URL?
     func buildTranscodeURL(relativePath: String) -> URL?
@@ -124,6 +125,22 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
             responseType: JellyfinItemsResponse.self
         )
         return response.items
+    }
+
+    /// Ask the server for intro markers on an item. Returns nil if the
+    /// server doesn't expose the endpoint (Jellyfin pre-10.10 without
+    /// the intro-skipper plugin → 404), or if no intro was detected.
+    func getIntroSegment(itemID: String) async throws -> MediaSegment? {
+        do {
+            let response: MediaSegmentsResponse = try await client.request(
+                endpoint: JellyfinEndpoint.mediaSegments(itemID: itemID),
+                responseType: MediaSegmentsResponse.self
+            )
+            return response.items.first(where: { $0.type == .intro })
+        } catch APIError.httpError(let status, _) where status == 404 {
+            // Server doesn't expose MediaSegments — feature just stays off.
+            return nil
+        }
     }
 
     func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL? {

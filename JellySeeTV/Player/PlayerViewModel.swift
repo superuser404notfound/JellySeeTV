@@ -84,6 +84,13 @@ final class PlayerViewModel {
     var hasFetchedNextEpisode = false
     var nextEpisodeCancelled = false
 
+    // Intro skip — populated from Jellyfin Media Segments / intro-skipper plugin
+    var introSegment: MediaSegment?
+    /// True while playbackTime is inside the intro range. UI shows the
+    /// Skip Intro button whenever this is true, regardless of whether
+    /// the transport controls are open.
+    var isInsideIntro: Bool = false
+
     // MARK: - Dependencies
 
     var item: JellyfinItem
@@ -304,6 +311,12 @@ final class PlayerViewModel {
             await reportStart()
             startProgressReporting()
 
+            // Fetch intro marker in the background — don't block
+            // playback start if the server is slow or doesn't expose
+            // the endpoint. Once the marker lands the next time tick
+            // will flip isInsideIntro on naturally.
+            Task { [weak self] in await self?.loadIntroSegment() }
+
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
@@ -374,6 +387,7 @@ final class PlayerViewModel {
             .sink { [weak self] time in
                 guard let self else { return }
                 self.playbackTime = time
+                self.updateIntroVisibility(time: time)
                 self.checkForNextEpisode()
                 let dur = self.effectiveDuration
                 let remaining = dur - time
@@ -465,6 +479,53 @@ final class PlayerViewModel {
     func selectAudioTrack(id: Int) {
         activeAudioIndex = id
         player.selectAudioTrack(index: id)
+    }
+
+    // MARK: - Intro Skip
+
+    /// Called from the playback-time Combine subscription. Toggles
+    /// `isInsideIntro` so the UI can show/hide the Skip Intro button
+    /// without each caller recomputing the range.
+    func updateIntroVisibility(time: Double) {
+        guard let seg = introSegment else {
+            if isInsideIntro { isInsideIntro = false }
+            return
+        }
+        // Plugin sometimes reports introStart=0 on episodes with a
+        // pre-title cold-open → button would pop up the instant the
+        // episode starts, before the titles even play. Give it a tiny
+        // lead-in so the button appears with the intro music.
+        let inside = time >= max(seg.startSeconds, 0.5)
+                  && time < seg.endSeconds - 1   // hide 1s before end
+        if inside != isInsideIntro {
+            isInsideIntro = inside
+        }
+    }
+
+    /// Jump past the intro. Triggered by the Skip Intro button.
+    func skipIntro() {
+        guard let seg = introSegment else { return }
+        isInsideIntro = false
+        Task { await player.seek(to: seg.endSeconds) }
+    }
+
+    /// Fetch the intro marker once on startup. Safe if the server
+    /// doesn't expose the endpoint — service returns nil and the
+    /// button simply never appears.
+    func loadIntroSegment() async {
+        do {
+            introSegment = try await playbackService.getIntroSegment(itemID: item.id)
+            #if DEBUG
+            if let seg = introSegment {
+                print("[IntroSkip] Intro \(String(format: "%.1f", seg.startSeconds))s → \(String(format: "%.1f", seg.endSeconds))s")
+            }
+            #endif
+        } catch {
+            #if DEBUG
+            print("[IntroSkip] Fetch failed: \(error)")
+            #endif
+            introSegment = nil
+        }
     }
 
     /// Apply the playback speed at the given index in `speedOptions`.

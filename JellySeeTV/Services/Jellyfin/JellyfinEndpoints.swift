@@ -41,6 +41,10 @@ enum JellyfinEndpoint: APIEndpoint {
     // Search
     case searchHints(userID: String, query: String, limit: Int)
 
+    // Media Segments (Intro / Outro markers — Jellyfin 10.10+ native,
+    // or intro-skipper plugin on older servers)
+    case mediaSegments(itemID: String)
+
     var path: String {
         switch self {
         case .publicInfo:
@@ -87,6 +91,8 @@ enum JellyfinEndpoint: APIEndpoint {
             "/Users/\(userID)/FavoriteItems/\(itemID)"
         case .searchHints:
             "/Search/Hints"
+        case .mediaSegments(let itemID):
+            "/MediaSegments/\(itemID)"
         }
     }
 
@@ -177,6 +183,11 @@ enum JellyfinEndpoint: APIEndpoint {
                 URLQueryItem(name: "SearchTerm", value: query),
                 URLQueryItem(name: "Limit", value: String(limit)),
             ]
+
+        case .mediaSegments:
+            // Only care about Intro for now; outro would conflict with
+            // the next-episode overlay that already covers that window.
+            return [URLQueryItem(name: "includeSegmentTypes", value: "Intro")]
 
         default:
             return nil

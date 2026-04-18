@@ -154,6 +154,8 @@ extension PlayerViewModel {
         progress = 0
         playbackTime = 0
         resumePositionTicks = 0
+        introSegment = nil
+        isInsideIntro = false
 
         // Start new
         await startPlayback()
