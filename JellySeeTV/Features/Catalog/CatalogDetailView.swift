@@ -56,18 +56,47 @@ struct CatalogDetailView: View {
                 .frame(maxWidth: .infinity)
                 .padding(40)
         } else if let errorMessage {
-            VStack(spacing: 12) {
-                Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.secondary)
-                Text(errorMessage)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(40)
+            errorState(message: errorMessage)
         } else {
             detailBody
         }
+    }
+
+    private func errorState(message: String) -> some View {
+        // tvOS routes the Menu button to dismiss the top navigation level
+        // only when the current view has something focusable. An error
+        // screen with just text has no focus → Menu exits the app instead
+        // of popping back to the catalog. Retry and Back buttons fix both:
+        // they claim focus and give the user a way to recover without
+        // reaching for the remote.
+        VStack(spacing: 20) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 40))
+                .foregroundStyle(.secondary)
+            Text(message)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 600)
+            HStack(spacing: 16) {
+                Button {
+                    Task { await load() }
+                } label: {
+                    Text("home.retry")
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 10)
+                }
+                Button {
+                    dismiss()
+                } label: {
+                    Text("common.back")
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 10)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 80)
+        .padding(.vertical, 60)
     }
 
     private var detailBody: some View {
@@ -130,7 +159,11 @@ struct CatalogDetailView: View {
                         )
                     }
                 }
-                .padding(.vertical, 4)
+                // Horizontal padding leaves room for the focus-scale grow
+                // on the first and last chips — without it the leftmost
+                // season gets its halo clipped by the scroll-view edge.
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
             }
         }
     }
