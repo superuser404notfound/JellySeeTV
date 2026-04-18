@@ -44,7 +44,13 @@ enum DirectPlayProfile {
                     "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
                     "Type": "Video",
                     "VideoCodec": "h264,hevc,av1,vp9",
-                    "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,dca,pcm_s16le,pcm_s24le,pcm_f32le",
+                    // Jellyfin reports DTS variants inconsistently — some
+                    // builds use `dts`, some `dca`, some `dts-hd`. Listing
+                    // every spelling we've seen stops the server from
+                    // kicking DTS-HD MA into a transcode just because our
+                    // profile didn't happen to use the exact string it
+                    // chose this release.
+                    "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,mlp,dts,dca,dts-hd,dtshd,pcm_s16le,pcm_s24le,pcm_f32le",
                 ],
                 [
                     "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus,ogg",
@@ -104,7 +110,13 @@ enum DirectPlayProfile {
                     "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,ogg,webm,flv",
                     "Type": "Video",
                     "VideoCodec": "h264,hevc,av1,vp9",
-                    "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,dca,pcm_s16le,pcm_s24le,pcm_f32le",
+                    // Jellyfin reports DTS variants inconsistently — some
+                    // builds use `dts`, some `dca`, some `dts-hd`. Listing
+                    // every spelling we've seen stops the server from
+                    // kicking DTS-HD MA into a transcode just because our
+                    // profile didn't happen to use the exact string it
+                    // chose this release.
+                    "AudioCodec": "aac,ac3,eac3,mp3,flac,opus,vorbis,alac,truehd,mlp,dts,dca,dts-hd,dtshd,pcm_s16le,pcm_s24le,pcm_f32le",
                 ],
                 [
                     "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus,ogg",
