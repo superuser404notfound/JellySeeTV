@@ -138,6 +138,11 @@ enum JellyfinEndpoint: APIEndpoint {
             var items = [
                 URLQueryItem(name: "Limit", value: String(limit)),
                 URLQueryItem(name: "Fields", value: Self.defaultFields),
+                // Jellyfin collapses BoxSet members into a single row
+                // entry by default (e.g. "John Wick 1–4" → one card).
+                // That hides the actual newly-added movies from the
+                // "Latest" row — opt out so every new file shows up.
+                URLQueryItem(name: "GroupItems", value: "false"),
             ]
             if let parentID {
                 items.append(URLQueryItem(name: "ParentId", value: parentID))
