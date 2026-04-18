@@ -234,7 +234,8 @@ struct SeriesDetailView: View {
 
                 if !isShowingEpisode,
                    appState.isSeerrConnected,
-                   let tmdbID = vm.item.tmdbID {
+                   let tmdbID = vm.item.tmdbID,
+                   shouldShowSeerrRequest(for: vm.item) {
                     GlassActionButton(
                         title: "detail.requestInSeerr",
                         systemImage: "tray.and.arrow.down",
@@ -259,6 +260,16 @@ struct SeriesDetailView: View {
             return "detail.resume"
         }
         return "detail.play"
+    }
+
+    /// The "Request in Seerr" button only makes sense for series that
+    /// may still grow — a user with the full run of an ended show rarely
+    /// wants to request it again. Jellyfin exposes this as the `status`
+    /// field ("Continuing" vs "Ended"). Missing status → stay permissive
+    /// and show the button rather than hiding a valid use case.
+    private func shouldShowSeerrRequest(for item: JellyfinItem) -> Bool {
+        guard let status = item.status else { return true }
+        return status == "Continuing"
     }
 
     // MARK: - Season Section
