@@ -19,6 +19,7 @@ final class DependencyContainer {
     let playbackPreferences: PlaybackPreferences
 
     let seerrClient: SeerrClient
+    let seerrServerDiscoveryService: SeerrServerDiscoveryServiceProtocol
     let seerrAuthService: SeerrAuthServiceProtocol
     let seerrDiscoverService: SeerrDiscoverServiceProtocol
     let seerrMediaService: SeerrMediaServiceProtocol
@@ -44,6 +45,7 @@ final class DependencyContainer {
         self.playbackPreferences = PlaybackPreferences()
 
         self.seerrClient = SeerrClient(httpClient: httpClient)
+        self.seerrServerDiscoveryService = SeerrServerDiscoveryService(httpClient: httpClient)
         self.seerrAuthService = SeerrAuthService(client: seerrClient)
         self.seerrDiscoverService = SeerrDiscoverService(client: seerrClient)
         self.seerrMediaService = SeerrMediaService(client: seerrClient)

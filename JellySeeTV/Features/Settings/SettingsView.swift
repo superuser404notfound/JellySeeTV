@@ -151,10 +151,10 @@ struct SettingsTile<Destination: View>: View {
             destination()
                 .toolbar(.hidden, for: .tabBar)
         } label: {
-            HStack(spacing: 16) {
+            HStack(spacing: 28) {
                 Image(systemName: icon)
                     .font(.title2)
-                    .frame(width: 36)
+                    .frame(width: 56, alignment: .center)
                     .foregroundStyle(.tint)
 
                 VStack(alignment: .leading, spacing: 2) {

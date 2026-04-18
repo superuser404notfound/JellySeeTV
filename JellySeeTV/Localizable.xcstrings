@@ -3019,157 +3019,157 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Konfigurer Jellyseerr i Indstillinger for at gennemse og anmode om nye film og serier."
+            "value": "Konfigurer Seerr i Indstillinger for at gennemse og anmode om nye film og serier."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Richte Jellyseerr in den Einstellungen ein, um neue Filme und Serien zu entdecken und anzufordern."
+            "value": "Richte Seerr in den Einstellungen ein, um neue Filme und Serien zu entdecken und anzufordern."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set up Jellyseerr in Settings to browse and request new movies and shows."
+            "value": "Set up Seerr in Settings to browse and request new movies and shows."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configura Jellyseerr en Ajustes para explorar y solicitar nuevas películas y series."
+            "value": "Configura Seerr en Ajustes para explorar y solicitar nuevas películas y series."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurez Jellyseerr dans les Réglages pour parcourir et demander de nouveaux films et séries."
+            "value": "Configurez Seerr dans les Réglages pour parcourir et demander de nouveaux films et séries."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configura Jellyseerr nelle Impostazioni per sfogliare e richiedere nuovi film e serie."
+            "value": "Configura Seerr nelle Impostazioni per sfogliare e richiedere nuovi film e serie."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "設定で Jellyseerr をセットアップして、新しい映画や番組を閲覧・リクエストできます。"
+            "value": "設定で Seerr をセットアップして、新しい映画や番組を閲覧・リクエストできます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "설정에서 Jellyseerr를 구성하여 새 영화와 프로그램을 탐색하고 요청하세요."
+            "value": "설정에서 Seerr를 구성하여 새 영화와 프로그램을 탐색하고 요청하세요."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sett opp Jellyseerr i Innstillinger for å bla gjennom og be om nye filmer og serier."
+            "value": "Sett opp Seerr i Innstillinger for å bla gjennom og be om nye filmer og serier."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stel Jellyseerr in bij Instellingen om nieuwe films en series te bekijken en aan te vragen."
+            "value": "Stel Seerr in bij Instellingen om nieuwe films en series te bekijken en aan te vragen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skonfiguruj Jellyseerr w Ustawieniach, aby przeglądać i prosić o nowe filmy oraz seriale."
+            "value": "Skonfiguruj Seerr w Ustawieniach, aby przeglądać i prosić o nowe filmy oraz seriale."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configure o Jellyseerr em Configurações para navegar e solicitar novos filmes e séries."
+            "value": "Configure o Seerr em Configurações para navegar e solicitar novos filmes e séries."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Настройте Jellyseerr в настройках, чтобы просматривать и запрашивать новые фильмы и сериалы."
+            "value": "Настройте Seerr в настройках, чтобы просматривать и запрашивать новые фильмы и сериалы."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Konfigurera Jellyseerr i Inställningar för att bläddra bland och begära nya filmer och serier."
+            "value": "Konfigurera Seerr i Inställningar för att bläddra bland och begära nya filmer och serier."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在设置中配置 Jellyseerr,以便浏览并请求新的电影和剧集。"
+            "value": "在设置中配置 Seerr,以便浏览并请求新的电影和剧集。"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yeni filmlere ve dizilere göz atmak ve istekte bulunmak için Ayarlar'da Jellyseerr'i kurun."
+            "value": "Yeni filmlere ve dizilere göz atmak ve istekte bulunmak için Ayarlar'da Seerr'i kurun."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Налаштуйте Jellyseerr у Параметрах, щоб переглядати та запитувати нові фільми й серіали."
+            "value": "Налаштуйте Seerr у Параметрах, щоб переглядати та запитувати нові фільми й серіали."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nastavte Jellyseerr v Nastavení, abyste mohli procházet a žádat o nové filmy a seriály."
+            "value": "Nastavte Seerr v Nastavení, abyste mohli procházet a žádat o nové filmy a seriály."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nastavte Jellyseerr v Nastaveniach, aby ste mohli prehliadať a žiadať o nové filmy a seriály."
+            "value": "Nastavte Seerr v Nastaveniach, aby ste mohli prehliadať a žiadať o nové filmy a seriály."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Postavite Jellyseerr u Postavkama za pregledavanje i zahtijevanje novih filmova i serija."
+            "value": "Postavite Seerr u Postavkama za pregledavanje i zahtijevanje novih filmova i serija."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在「設定」中設定 Jellyseerr,以瀏覽並請求新的電影與影集。"
+            "value": "在「設定」中設定 Seerr,以瀏覽並請求新的電影與影集。"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Määritä Jellyseerr asetuksissa selataksesi ja pyytääksesi uusia elokuvia ja sarjoja."
+            "value": "Määritä Seerr asetuksissa selataksesi ja pyytääksesi uusia elokuvia ja sarjoja."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configure o Jellyseerr nas Definições para explorar e pedir novos filmes e séries."
+            "value": "Configure o Seerr nas Definições para explorar e pedir novos filmes e séries."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ρυθμίστε το Jellyseerr στις Ρυθμίσεις για να περιηγηθείτε και να ζητήσετε νέες ταινίες και σειρές."
+            "value": "Ρυθμίστε το Seerr στις Ρυθμίσεις για να περιηγηθείτε και να ζητήσετε νέες ταινίες και σειρές."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Állítsd be a Jellyseerr-t a Beállításokban új filmek és sorozatok böngészéséhez és kéréséhez."
+            "value": "Állítsd be a Seerr-t a Beállításokban új filmek és sorozatok böngészéséhez és kéréséhez."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Configurează Jellyseerr în Setări pentru a răsfoi și solicita noi filme și seriale."
+            "value": "Configurează Seerr în Setări pentru a răsfoi și solicita noi filme și seriale."
           }
         }
       }
@@ -3181,157 +3181,157 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ingen Jellyseerr-server"
+            "value": "Ingen Seerr-server"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kein Jellyseerr-Server"
+            "value": "Kein Seerr-Server"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No Jellyseerr server"
+            "value": "No Seerr server"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sin servidor Jellyseerr"
+            "value": "Sin servidor Seerr"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun serveur Jellyseerr"
+            "value": "Aucun serveur Seerr"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun server Jellyseerr"
+            "value": "Nessun server Seerr"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr サーバーがありません"
+            "value": "Seerr サーバーがありません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr 서버 없음"
+            "value": "Seerr 서버 없음"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ingen Jellyseerr-server"
+            "value": "Ingen Seerr-server"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geen Jellyseerr-server"
+            "value": "Geen Seerr-server"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Brak serwera Jellyseerr"
+            "value": "Brak serwera Seerr"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nenhum servidor Jellyseerr"
+            "value": "Nenhum servidor Seerr"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Нет сервера Jellyseerr"
+            "value": "Нет сервера Seerr"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ingen Jellyseerr-server"
+            "value": "Ingen Seerr-server"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无 Jellyseerr 服务器"
+            "value": "无 Seerr 服务器"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr sunucusu yok"
+            "value": "Seerr sunucusu yok"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Немає сервера Jellyseerr"
+            "value": "Немає сервера Seerr"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Žádný server Jellyseerr"
+            "value": "Žádný server Seerr"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Žiadny server Jellyseerr"
+            "value": "Žiadny server Seerr"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nema Jellyseerr poslužitelja"
+            "value": "Nema Seerr poslužitelja"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "沒有 Jellyseerr 伺服器"
+            "value": "沒有 Seerr 伺服器"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ei Jellyseerr-palvelinta"
+            "value": "Ei Seerr-palvelinta"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sem servidor Jellyseerr"
+            "value": "Sem servidor Seerr"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Κανένας διακομιστής Jellyseerr"
+            "value": "Κανένας διακομιστής Seerr"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nincs Jellyseerr-kiszolgáló"
+            "value": "Nincs Seerr-kiszolgáló"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Niciun server Jellyseerr"
+            "value": "Niciun server Seerr"
           }
         }
       }
@@ -20774,6 +20774,330 @@
         }
       }
     },
+    "settings.seerr.changeServer": {
+      "comment": "Button to pick a different server after one was discovered",
+      "extractionState": "manual",
+      "localizations": {
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skift"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "변경"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endre"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wijzigen"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmień"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändra"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Değiştir"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Змінити"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Změnit"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmeniť"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Promijeni"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "變更"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaihda"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Αλλαγή"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Módosítás"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schimbă"
+          }
+        }
+      }
+    },
+    "settings.seerr.connect": {
+      "comment": "Button to test/verify the Seerr server address",
+      "extractionState": "manual",
+      "localizations": {
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opret forbindelse"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connetti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接続"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koble til"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinden"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połącz"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключить"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anslut"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bağlan"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підключитися"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Připojit"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripojiť"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poveži"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yhdistä"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligar"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Σύνδεση"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapcsolódás"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectare"
+          }
+        }
+      }
+    },
     "settings.seerr.description": {
       "comment": "Settings description",
       "extractionState": "manual",
@@ -20781,157 +21105,157 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Forbind Jellyseerr for at gennemse populært indhold og anmode om nye film eller serier."
+            "value": "Forbind Seerr for at gennemse populært indhold og anmode om nye film eller serier."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbinde Jellyseerr, um beliebte Inhalte zu entdecken und neue Filme oder Serien anzufordern."
+            "value": "Verbinde Seerr, um beliebte Inhalte zu entdecken und neue Filme oder Serien anzufordern."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect Jellyseerr to browse popular content and request new movies or shows."
+            "value": "Connect Seerr to browse popular content and request new movies or shows."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conecta Jellyseerr para explorar contenido popular y solicitar nuevas películas o series."
+            "value": "Conecta Seerr para explorar contenido popular y solicitar nuevas películas o series."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connectez Jellyseerr pour parcourir les contenus populaires et demander de nouveaux films ou séries."
+            "value": "Connectez Seerr pour parcourir les contenus populaires et demander de nouveaux films ou séries."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Collega Jellyseerr per sfogliare i contenuti popolari e richiedere nuovi film o serie."
+            "value": "Collega Seerr per sfogliare i contenuti popolari e richiedere nuovi film o serie."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr に接続すると、人気コンテンツを閲覧したり、新しい映画や番組をリクエストできます。"
+            "value": "Seerr に接続すると、人気コンテンツを閲覧したり、新しい映画や番組をリクエストできます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr에 연결하여 인기 콘텐츠를 둘러보고 새 영화나 프로그램을 요청하세요."
+            "value": "Seerr에 연결하여 인기 콘텐츠를 둘러보고 새 영화나 프로그램을 요청하세요."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Koble til Jellyseerr for å bla gjennom populært innhold og be om nye filmer eller serier."
+            "value": "Koble til Seerr for å bla gjennom populært innhold og be om nye filmer eller serier."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbind Jellyseerr om populaire content te bekijken en nieuwe films of series aan te vragen."
+            "value": "Verbind Seerr om populaire content te bekijken en nieuwe films of series aan te vragen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Połącz Jellyseerr, aby przeglądać popularne treści i prosić o nowe filmy lub seriale."
+            "value": "Połącz Seerr, aby przeglądać popularne treści i prosić o nowe filmy lub seriale."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conecte o Jellyseerr para navegar por conteúdo popular e solicitar novos filmes ou séries."
+            "value": "Conecte o Seerr para navegar por conteúdo popular e solicitar novos filmes ou séries."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Подключите Jellyseerr, чтобы просматривать популярный контент и запрашивать новые фильмы или сериалы."
+            "value": "Подключите Seerr, чтобы просматривать популярный контент и запрашивать новые фильмы или сериалы."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anslut Jellyseerr för att bläddra bland populärt innehåll och begära nya filmer eller serier."
+            "value": "Anslut Seerr för att bläddra bland populärt innehåll och begära nya filmer eller serier."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接 Jellyseerr 以浏览热门内容并请求新的电影或剧集。"
+            "value": "连接 Seerr 以浏览热门内容并请求新的电影或剧集。"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Popüler içeriklere göz atmak ve yeni filmler veya diziler istemek için Jellyseerr'i bağlayın."
+            "value": "Popüler içeriklere göz atmak ve yeni filmler veya diziler istemek için Seerr'i bağlayın."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Підключіть Jellyseerr, щоб переглядати популярний контент і запитувати нові фільми чи серіали."
+            "value": "Підключіть Seerr, щоб переглядати популярний контент і запитувати нові фільми чи серіали."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Připojte Jellyseerr k procházení oblíbeného obsahu a žádání o nové filmy nebo seriály."
+            "value": "Připojte Seerr k procházení oblíbeného obsahu a žádání o nové filmy nebo seriály."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pripojte Jellyseerr na prehliadanie obľúbeného obsahu a žiadanie o nové filmy alebo seriály."
+            "value": "Pripojte Seerr na prehliadanie obľúbeného obsahu a žiadanie o nové filmy alebo seriály."
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Povežite Jellyseerr za pregledavanje popularnog sadržaja i zahtijevanje novih filmova ili serija."
+            "value": "Povežite Seerr za pregledavanje popularnog sadržaja i zahtijevanje novih filmova ili serija."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "連接 Jellyseerr 以瀏覽熱門內容並請求新的電影或影集。"
+            "value": "連接 Seerr 以瀏覽熱門內容並請求新的電影或影集。"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yhdistä Jellyseerr selataksesi suosittua sisältöä ja pyytääksesi uusia elokuvia tai sarjoja."
+            "value": "Yhdistä Seerr selataksesi suosittua sisältöä ja pyytääksesi uusia elokuvia tai sarjoja."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ligue o Jellyseerr para explorar conteúdo popular e pedir novos filmes ou séries."
+            "value": "Ligue o Seerr para explorar conteúdo popular e pedir novos filmes ou séries."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Συνδέστε το Jellyseerr για να περιηγηθείτε σε δημοφιλές περιεχόμενο και να ζητήσετε νέες ταινίες ή σειρές."
+            "value": "Συνδέστε το Seerr για να περιηγηθείτε σε δημοφιλές περιεχόμενο και να ζητήσετε νέες ταινίες ή σειρές."
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Csatlakoztasd a Jellyseerr-t a népszerű tartalmak böngészéséhez és új filmek vagy sorozatok kéréséhez."
+            "value": "Csatlakoztasd a Seerr-t a népszerű tartalmak böngészéséhez és új filmek vagy sorozatok kéréséhez."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conectează Jellyseerr pentru a răsfoi conținut popular și a solicita noi filme sau seriale."
+            "value": "Conectează Seerr pentru a răsfoi conținut popular și a solicita noi filme sau seriale."
           }
         }
       }
@@ -21584,6 +21908,492 @@
         }
       }
     },
+    "settings.seerr.section.credentials": {
+      "comment": "Section heading for username/password fields",
+      "extractionState": "manual",
+      "localizations": {
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log ind"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign In"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar sesión"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サインイン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logg inn"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aanmelden"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaloguj się"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Войти"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logga in"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giriş yap"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увійти"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Přihlásit se"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prihlásiť sa"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prijava"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirjaudu sisään"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar sessão"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Σύνδεση"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bejelentkezés"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectare"
+          }
+        }
+      }
+    },
+    "settings.seerr.section.server": {
+      "comment": "Section heading for server address field",
+      "extractionState": "manual",
+      "localizations": {
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servidor"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serveur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サーバ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "서버"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serwer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servidor"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сервер"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sunucu"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сервер"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poslužitelj"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "伺服器"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Palvelin"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servidor"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Διακομιστής"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kiszolgáló"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        }
+      }
+    },
+    "settings.seerr.serverAddress.placeholder": {
+      "comment": "Placeholder text in the server address input field",
+      "extractionState": "manual",
+      "localizations": {
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP eller URL"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP oder URL"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP or URL"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP o URL"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP ou URL"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP o URL"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP または URL"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP 또는 URL"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP eller URL"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP of URL"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP lub URL"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP ou URL"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP или URL"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP eller URL"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP 或 URL"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP veya URL"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP або URL"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP nebo URL"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP alebo URL"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP ili URL"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP 或 URL"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP tai URL"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP ou URL"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP ή URL"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP vagy URL"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP sau URL"
+          }
+        }
+      }
+    },
     "settings.seerr.serverURL": {
       "comment": "URL field placeholder",
       "extractionState": "manual",
@@ -22070,6 +22880,168 @@
         }
       }
     },
+    "settings.seerr.success": {
+      "comment": "Success message shown after login succeeds",
+      "extractionState": "manual",
+      "localizations": {
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forbundet til Seerr"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Seerr verbunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected to Seerr"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado a Seerr"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecté à Seerr"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connesso a Seerr"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seerr に接続しました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seerr에 연결됨"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koblet til Seerr"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbonden met Seerr"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Połączono z Seerr"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectado ao Seerr"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключено к Seerr"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ansluten till Seerr"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已连接到 Seerr"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seerr'e bağlandı"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Підключено до Seerr"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Připojeno k Seerr"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pripojené k Seerr"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Povezano sa Seerr"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已連線到 Seerr"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yhdistetty Seerr-palveluun"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ligado ao Seerr"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Συνδέθηκε στο Seerr"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Csatlakoztatva a Seerr-hez"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectat la Seerr"
+          }
+        }
+      }
+    },
     "settings.seerr.title": {
       "comment": "Settings tile title, brand name - do not translate",
       "extractionState": "manual",
@@ -22077,157 +23049,481 @@
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jellyseerr"
+            "value": "Seerr"
+          }
+        }
+      }
+    },
+    "settings.seerr.useJellyfin": {
+      "comment": "Toggle label, reuse Jellyfin username for Seerr login",
+      "extractionState": "manual",
+      "localizations": {
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brug Jellyfin-loginoplysninger"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin-Anmeldedaten verwenden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Jellyfin credentials"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar credenciales de Jellyfin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utiliser les identifiants Jellyfin"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa credenziali Jellyfin"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin の認証情報を使用"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin 자격 증명 사용"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bruk Jellyfin-påloggingsinformasjon"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin-inloggegevens gebruiken"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Użyj danych logowania Jellyfin"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar credenciais do Jellyfin"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Использовать учётные данные Jellyfin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Använd Jellyfin-inloggningsuppgifter"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Jellyfin 凭据"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin kimlik bilgilerini kullan"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Використовувати облікові дані Jellyfin"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Použít přihlašovací údaje Jellyfin"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Použiť prihlasovacie údaje Jellyfin"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koristi Jellyfin vjerodajnice"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Jellyfin 憑證"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käytä Jellyfin-tunnuksia"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilizar credenciais do Jellyfin"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Χρήση διαπιστευτηρίων Jellyfin"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin hitelesítő adatok használata"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilizează acreditările Jellyfin"
+          }
+        }
+      }
+    },
+    "settings.seerr.useJellyfin.subtitle": {
+      "comment": "Subtitle under the toggle explaining what happens",
+      "extractionState": "manual",
+      "localizations": {
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brug samme konto, som du loggede ind på Jellyfin med"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dasselbe Konto verwenden, mit dem du bei Jellyfin angemeldet bist"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the same account you signed in to Jellyfin with"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa la misma cuenta con la que iniciaste sesión en Jellyfin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilise le même compte que celui connecté à Jellyfin"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa lo stesso account con cui hai effettuato l'accesso a Jellyfin"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin にサインインしたのと同じアカウントを使用します"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin에 로그인한 것과 동일한 계정을 사용합니다"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bruk den samme kontoen du logget på Jellyfin med"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gebruik hetzelfde account waarmee je bij Jellyfin bent aangemeld"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Użyj tego samego konta, na które zalogowano się w Jellyfin"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar a mesma conta com que você entrou no Jellyfin"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Использовать ту же учётную запись, с которой вы вошли в Jellyfin"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Använd samma konto som du loggade in på Jellyfin med"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用与登录 Jellyfin 相同的账户"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jellyfin'e giriş yaptığınız hesabın aynısını kullanın"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Використовуйте той самий обліковий запис, з яким ви увійшли в Jellyfin"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Použít stejný účet, pod kterým jste se přihlásili do Jellyfin"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Použiť rovnaký účet, pod ktorým ste sa prihlásili do Jellyfinu"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Koristi isti račun s kojim si se prijavio u Jellyfin"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用與登入 Jellyfin 相同的帳戶"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käytä samaa tiliä, jolla kirjauduit Jellyfiniin"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilizar a mesma conta com que iniciou sessão no Jellyfin"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Χρησιμοποιήστε τον ίδιο λογαριασμό με τον οποίο συνδεθήκατε στο Jellyfin"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Használja ugyanazt a fiókot, amellyel a Jellyfinbe bejelentkezett"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folosește același cont cu care te-ai conectat la Jellyfin"
           }
         }
       }
