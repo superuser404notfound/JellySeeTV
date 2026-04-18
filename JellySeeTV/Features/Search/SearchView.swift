@@ -7,33 +7,32 @@ struct SearchView: View {
     @State private var selectedJellyfinItem: JellyfinItem?
     @State private var selectedSeerrMedia: SeerrMedia?
     @FocusState private var searchFieldFocused: Bool
+    @Namespace private var searchFocusScope
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Wrapping the search bar in its own focus section makes
-                // the tvOS focus engine treat "coming down from the tab
-                // bar" as entering the search-bar section first — the
-                // text field grabs focus before any result card. Results
-                // get their own section so horizontal navigation between
-                // cards still works naturally once the user steps down.
                 searchBar
-                    .focusSection()
 
                 if let vm = viewModel {
-                    Group {
-                        if vm.jellyfinResults.isEmpty && vm.seerrResults.isEmpty {
-                            emptyState(vm: vm)
-                        } else {
-                            resultsView(vm: vm)
-                        }
+                    if vm.jellyfinResults.isEmpty && vm.seerrResults.isEmpty {
+                        emptyState(vm: vm)
+                    } else {
+                        resultsView(vm: vm)
                     }
-                    .focusSection()
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
+            // Declare the whole screen as a focus scope, then mark the
+            // search field as the preferred default. Coming down from the
+            // tab bar, tvOS enters the scope and lands on the field
+            // first; normal vertical navigation from there flows through
+            // the results. Plain .focusSection() made the whole chunk
+            // opaque — up/down skipped it entirely and jumped to the
+            // tab bar / end of screen.
+            .focusScope(searchFocusScope)
             .navigationDestination(item: $selectedJellyfinItem) { item in
                 DetailRouterView(item: item)
             }
@@ -73,6 +72,7 @@ struct SearchView: View {
                 )
                 .autocorrectionDisabled()
                 .focused($searchFieldFocused)
+                .prefersDefaultFocus(in: searchFocusScope)
                 #if os(iOS)
                 .textInputAutocapitalization(.never)
                 #endif

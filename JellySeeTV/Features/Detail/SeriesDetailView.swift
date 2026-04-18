@@ -282,7 +282,11 @@ struct SeriesDetailView: View {
                             .id(season.id)
                         }
                     }
+                    // Focus scale is 1.05 — without vertical slack the
+                    // halo clips against the scroll-view top/bottom
+                    // edges when a tab is focused.
                     .padding(.horizontal, 50)
+                    .padding(.vertical, 12)
                 }
                 .onChange(of: focusedSeasonID) { oldID, newID in
                     // Three cases where we force focus back to the current
