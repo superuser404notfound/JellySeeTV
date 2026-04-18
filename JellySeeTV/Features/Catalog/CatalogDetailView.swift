@@ -15,6 +15,13 @@ struct CatalogDetailView: View {
     @State private var didRequest = false
     @State private var requestError: String?
 
+    // Advanced request options — populated from /service/radarr or
+    // /service/sonarr. `nil` means "fall back to Seerr's server default"
+    // (which is what happens when the request body omits the field).
+    @State private var serviceDetails: SeerrServiceDetails?
+    @State private var selectedProfileID: Int?
+    @State private var selectedRootFolder: String?
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 32) {
@@ -138,9 +145,109 @@ struct CatalogDetailView: View {
                 seasonSelection(seasons: seasons)
             }
 
+            advancedOptionsSection
+
             requestSection
         }
         .padding(.horizontal, 80)
+    }
+
+    @ViewBuilder
+    private var advancedOptionsSection: some View {
+        if let details = serviceDetails, !didRequest {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("catalog.request.advanced")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+
+                HStack(spacing: 16) {
+                    profilePicker(details: details)
+                    rootFolderPicker(details: details)
+                }
+            }
+        }
+    }
+
+    private func profilePicker(details: SeerrServiceDetails) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("catalog.request.qualityProfile")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Menu {
+                ForEach(details.profiles) { profile in
+                    Button {
+                        selectedProfileID = profile.id
+                    } label: {
+                        if profile.id == selectedProfileID {
+                            Label(profile.name, systemImage: "checkmark")
+                        } else {
+                            Text(profile.name)
+                        }
+                    }
+                }
+            } label: {
+                HStack {
+                    Text(selectedProfileName(details: details))
+                        .fontWeight(.medium)
+                    Spacer()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                .frame(maxWidth: .infinity)
+                .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func rootFolderPicker(details: SeerrServiceDetails) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("catalog.request.rootFolder")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Menu {
+                ForEach(details.rootFolders) { folder in
+                    Button {
+                        selectedRootFolder = folder.path
+                    } label: {
+                        if folder.path == selectedRootFolder {
+                            Label(folder.path, systemImage: "checkmark")
+                        } else {
+                            Text(folder.path)
+                        }
+                    }
+                }
+            } label: {
+                HStack {
+                    Text(selectedRootFolder ?? String(localized: "catalog.request.rootFolder.default", defaultValue: "Default"))
+                        .fontWeight(.medium)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Spacer()
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
+                .frame(maxWidth: .infinity)
+                .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func selectedProfileName(details: SeerrServiceDetails) -> String {
+        if let id = selectedProfileID,
+           let profile = details.profiles.first(where: { $0.id == id }) {
+            return profile.name
+        }
+        return String(localized: "catalog.request.qualityProfile.default", defaultValue: "Default")
     }
 
     private func seasonSelection(seasons: [SeerrSeason]) -> some View {
@@ -285,6 +392,37 @@ struct CatalogDetailView: View {
             }
         } catch {
             errorMessage = error.localizedDescription
+            return
+        }
+
+        // Load service config in the background — best-effort. If it
+        // fails (admin hasn't configured Radarr/Sonarr, user lacks
+        // permission), we silently fall back to Seerr's server defaults.
+        await loadServiceConfig()
+    }
+
+    private func loadServiceConfig() async {
+        let config = dependencies.seerrServiceConfigService
+        do {
+            let servers: [SeerrServiceServer]
+            switch media.mediaType {
+            case .movie: servers = try await config.radarrServers()
+            case .tv: servers = try await config.sonarrServers()
+            }
+            guard let chosen = servers.first(where: { $0.isDefault == true }) ?? servers.first else {
+                return
+            }
+            let details: SeerrServiceDetails
+            switch media.mediaType {
+            case .movie: details = try await config.radarrDetails(serverID: chosen.id)
+            case .tv: details = try await config.sonarrDetails(serverID: chosen.id)
+            }
+            serviceDetails = details
+            selectedProfileID = chosen.activeProfileId ?? details.profiles.first?.id
+            selectedRootFolder = chosen.activeDirectory ?? details.rootFolders.first?.path
+        } catch {
+            // Swallow — dropdowns simply won't appear and the request
+            // will use Seerr's defaults.
         }
     }
 
@@ -299,7 +437,11 @@ struct CatalogDetailView: View {
             _ = try await dependencies.seerrRequestService.createRequest(
                 mediaType: media.mediaType,
                 tmdbID: media.id,
-                seasons: seasons
+                seasons: seasons,
+                serverID: serviceDetails?.server.id,
+                profileID: selectedProfileID,
+                rootFolder: selectedRootFolder,
+                languageProfileID: serviceDetails?.server.activeLanguageProfileId
             )
             didRequest = true
         } catch {

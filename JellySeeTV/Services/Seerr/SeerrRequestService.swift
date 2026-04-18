@@ -1,7 +1,15 @@
 import Foundation
 
 protocol SeerrRequestServiceProtocol: Sendable {
-    func createRequest(mediaType: SeerrMediaType, tmdbID: Int, seasons: [Int]?) async throws -> SeerrRequest
+    func createRequest(
+        mediaType: SeerrMediaType,
+        tmdbID: Int,
+        seasons: [Int]?,
+        serverID: Int?,
+        profileID: Int?,
+        rootFolder: String?,
+        languageProfileID: Int?
+    ) async throws -> SeerrRequest
     func myRequests(take: Int, skip: Int) async throws -> SeerrRequestsResult
 }
 
@@ -16,12 +24,20 @@ final class SeerrRequestService: SeerrRequestServiceProtocol {
     func createRequest(
         mediaType: SeerrMediaType,
         tmdbID: Int,
-        seasons: [Int]? = nil
+        seasons: [Int]? = nil,
+        serverID: Int? = nil,
+        profileID: Int? = nil,
+        rootFolder: String? = nil,
+        languageProfileID: Int? = nil
     ) async throws -> SeerrRequest {
         let body = SeerrCreateRequestBody(
             mediaType: mediaType,
             mediaId: tmdbID,
-            seasons: seasons
+            seasons: seasons,
+            serverId: serverID,
+            profileId: profileID,
+            rootFolder: rootFolder,
+            languageProfileId: languageProfileID
         )
         return try await client.request(
             endpoint: SeerrEndpoint.createRequest(body: body),

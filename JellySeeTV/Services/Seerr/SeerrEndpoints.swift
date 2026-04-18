@@ -16,6 +16,11 @@ enum SeerrEndpoint: APIEndpoint {
     case createRequest(body: SeerrCreateRequestBody)
     case myRequests(take: Int, skip: Int)
 
+    case radarrServers
+    case radarrDetails(serverID: Int)
+    case sonarrServers
+    case sonarrDetails(serverID: Int)
+
     var path: String {
         switch self {
         case .status: "/api/v1/status"
@@ -29,6 +34,10 @@ enum SeerrEndpoint: APIEndpoint {
         case .tvDetail(let id): "/api/v1/tv/\(id)"
         case .createRequest: "/api/v1/request"
         case .myRequests: "/api/v1/request"
+        case .radarrServers: "/api/v1/service/radarr"
+        case .radarrDetails(let id): "/api/v1/service/radarr/\(id)"
+        case .sonarrServers: "/api/v1/service/sonarr"
+        case .sonarrDetails(let id): "/api/v1/service/sonarr/\(id)"
         }
     }
 
