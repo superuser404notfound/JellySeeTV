@@ -6,6 +6,7 @@ struct SearchView: View {
     @State private var viewModel: SearchViewModel?
     @State private var selectedJellyfinItem: JellyfinItem?
     @State private var selectedSeerrMedia: SeerrMedia?
+    @FocusState private var searchFieldFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -33,6 +34,24 @@ struct SearchView: View {
             }
         }
         .onAppear(perform: bootstrap)
+        .onChange(of: selectedJellyfinItem) { _, newValue in
+            if newValue == nil { restoreSearchFocus() }
+        }
+        .onChange(of: selectedSeerrMedia) { _, newValue in
+            if newValue == nil { restoreSearchFocus() }
+        }
+    }
+
+    /// After the user pops back from a detail view, tvOS sometimes leaves
+    /// the system in a brief window with no focused element — if the Menu
+    /// button fires during that gap it routes all the way up to App-Exit
+    /// instead of popping the tab-bar level. Re-focusing the search field
+    /// right after the pop closes that gap. Same pattern MovieDetailView
+    /// uses for its play button (playButtonFocused).
+    private func restoreSearchFocus() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            searchFieldFocused = true
+        }
     }
 
     private var searchBar: some View {
@@ -45,6 +64,7 @@ struct SearchView: View {
                     text: Bindable(vm).query
                 )
                 .autocorrectionDisabled()
+                .focused($searchFieldFocused)
                 #if os(iOS)
                 .textInputAutocapitalization(.never)
                 #endif
