@@ -179,6 +179,7 @@ final class PlayerHostController: UIViewController {
             confirmDropdownSelection()
         } else if viewModel.showControls && viewModel.controlsFocus != .progressBar {
             switch viewModel.controlsFocus {
+            case .skipIntroButton: viewModel.skipIntro()
             case .audioButton: openAudioDropdown()
             case .subtitleButton: openSubtitleDropdown()
             case .speedButton: openSpeedDropdown()
@@ -241,6 +242,7 @@ final class PlayerHostController: UIViewController {
     /// tracks still leaves speed reachable without dead stops.
     private func stepTransportFocus(direction: Int) {
         var order: [PlayerViewModel.ControlsFocus] = []
+        if viewModel.isInsideIntro { order.append(.skipIntroButton) }
         if !viewModel.player.audioTracks.isEmpty { order.append(.audioButton) }
         if !viewModel.subtitleStreams.isEmpty { order.append(.subtitleButton) }
         order.append(.speedButton)
@@ -260,10 +262,11 @@ final class PlayerHostController: UIViewController {
                 // Preserve scrub state — user can confirm/cancel when returning
                 let hasAudio = !viewModel.player.audioTracks.isEmpty
                 let hasSubs = !viewModel.subtitleStreams.isEmpty
-                if hasAudio { viewModel.controlsFocus = .audioButton }
+                if viewModel.isInsideIntro { viewModel.controlsFocus = .skipIntroButton }
+                else if hasAudio { viewModel.controlsFocus = .audioButton }
                 else if hasSubs { viewModel.controlsFocus = .subtitleButton }
                 else { viewModel.controlsFocus = .speedButton }
-            case .audioButton, .subtitleButton, .speedButton:
+            case .skipIntroButton, .audioButton, .subtitleButton, .speedButton:
                 break
             }
         } else {
@@ -453,10 +456,13 @@ private struct PlayerOverlayView: View {
                 controlsOverlay
             }
 
-            // Intro skip hint — shown whenever playbackTime is inside
-            // the detected intro range. Positioned so it never overlaps
-            // the transport bar when controls are open.
-            if viewModel.isInsideIntro && viewModel.errorMessage == nil && !viewModel.showNextEpisodeOverlay {
+            // Floating Skip Intro hint — only while the full controls
+            // are hidden. When they open, the skip action becomes a
+            // proper focusable button inside TransportBar instead.
+            if viewModel.isInsideIntro
+                && !viewModel.showControls
+                && viewModel.errorMessage == nil
+                && !viewModel.showNextEpisodeOverlay {
                 introSkipOverlay
             }
 
@@ -494,14 +500,11 @@ private struct PlayerOverlayView: View {
                 )
                 .overlay(
                     Capsule()
-                        .strokeBorder(.white.opacity(viewModel.showControls ? 0.1 : 0.35), lineWidth: 1)
+                        .strokeBorder(.white.opacity(0.35), lineWidth: 1)
                 )
                 .shadow(color: .black.opacity(0.45), radius: 14, y: 6)
-                // Lift above the transport bar when controls are open
-                // so the button never sits on top of the progress bar
-                // or the track buttons.
                 .padding(.trailing, 80)
-                .padding(.bottom, viewModel.showControls ? 300 : 80)
+                .padding(.bottom, 80)
             }
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -640,7 +643,8 @@ private struct PlayerOverlayView: View {
                     activeSubtitleIndex: viewModel.activeSubtitleIndex,
                     activeSpeedIndex: viewModel.activeSpeedIndex,
                     controlsFocus: viewModel.controlsFocus,
-                    trackDropdown: viewModel.trackDropdown
+                    trackDropdown: viewModel.trackDropdown,
+                    showSkipIntroButton: viewModel.isInsideIntro
                 )
             }
         }

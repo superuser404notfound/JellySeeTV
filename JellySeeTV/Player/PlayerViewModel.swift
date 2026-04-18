@@ -47,6 +47,7 @@ final class PlayerViewModel {
 
     enum ControlsFocus: Hashable {
         case progressBar
+        case skipIntroButton
         case audioButton
         case subtitleButton
         case speedButton
@@ -488,7 +489,7 @@ final class PlayerViewModel {
     /// without each caller recomputing the range.
     func updateIntroVisibility(time: Double) {
         guard let seg = introSegment else {
-            if isInsideIntro { isInsideIntro = false }
+            if isInsideIntro { setInsideIntro(false) }
             return
         }
         // Plugin sometimes reports introStart=0 on episodes with a
@@ -498,7 +499,19 @@ final class PlayerViewModel {
         let inside = time >= max(seg.startSeconds, 0.5)
                   && time < seg.endSeconds - 1   // hide 1s before end
         if inside != isInsideIntro {
-            isInsideIntro = inside
+            setInsideIntro(inside)
+        }
+    }
+
+    /// Update the flag *and* move focus away from the Skip Intro button
+    /// if it just disappeared — otherwise the user would be stuck on a
+    /// button that's no longer in the row.
+    private func setInsideIntro(_ newValue: Bool) {
+        isInsideIntro = newValue
+        if !newValue && controlsFocus == .skipIntroButton {
+            if !player.audioTracks.isEmpty { controlsFocus = .audioButton }
+            else if !subtitleStreams.isEmpty { controlsFocus = .subtitleButton }
+            else { controlsFocus = .speedButton }
         }
     }
 

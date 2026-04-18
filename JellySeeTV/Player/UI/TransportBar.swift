@@ -28,6 +28,10 @@ struct TransportBar: View {
     let activeSpeedIndex: Int
     let controlsFocus: PlayerViewModel.ControlsFocus
     let trackDropdown: PlayerViewModel.TrackDropdown
+    /// When true, a Skip Intro button sits at the leftmost slot of the
+    /// transport button row. The floating glass version is suppressed
+    /// in that case (see PlayerOverlayView).
+    let showSkipIntroButton: Bool
 
     var body: some View {
         VStack(spacing: 10) {
@@ -44,6 +48,16 @@ struct TransportBar: View {
             // Track buttons with dropdown
             HStack(alignment: .bottom, spacing: 16) {
                 Spacer()
+
+                if showSkipIntroButton {
+                    trackButton(
+                        label: String(localized: "player.skipIntro", defaultValue: "Skip Intro"),
+                        icon: "forward.end.fill",
+                        isFocused: controlsFocus == .skipIntroButton,
+                        dropdown: [],
+                        isOpen: false
+                    )
+                }
 
                 if !audioTracks.isEmpty {
                     let activeTrack = audioTracks.first(where: { $0.id == activeAudioIndex })
