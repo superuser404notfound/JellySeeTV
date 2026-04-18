@@ -11,7 +11,14 @@ struct SearchView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // Wrapping the search bar in its own focus section makes
+                // the tvOS focus engine treat "coming down from the tab
+                // bar" as entering the search-bar section first — the
+                // text field grabs focus before any result card. Results
+                // get their own section so horizontal navigation between
+                // cards still works naturally once the user steps down.
                 searchBar
+                    .focusSection()
 
                 if let vm = viewModel {
                     Group {
@@ -21,6 +28,7 @@ struct SearchView: View {
                             resultsView(vm: vm)
                         }
                     }
+                    .focusSection()
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -14,6 +14,14 @@ struct SeriesDetailView: View {
     @FocusState private var focusedSeasonID: String?
     @FocusState private var focusedEpisodeID: String?
     @State private var episodeRedirectDone = false
+    /// Sticky flag: set when the episode row had focus so that the
+    /// season bar's onChange can tell "user scrolled up from episodes"
+    /// apart from "user is tabbing between season tabs". Used to snap
+    /// the focus back to the currently playing season when the user
+    /// scrolls back up — without it, tvOS lands on whichever tab is
+    /// geographically above the last focused episode, which may be
+    /// two seasons away from what's actually being shown.
+    @State private var episodesHadFocus = false
 
     let item: JellyfinItem
 
@@ -277,14 +285,31 @@ struct SeriesDetailView: View {
                     .padding(.horizontal, 50)
                 }
                 .onChange(of: focusedSeasonID) { oldID, newID in
-                    if oldID == nil && newID != nil && newID != vm.selectedSeasonID {
-                        focusedSeasonID = vm.selectedSeasonID
+                    // Three cases where we force focus back to the current
+                    // season: (a) first entry from above (oldID == nil),
+                    // (b) return from the episode row below (episodesHadFocus),
+                    // (c) fall-through from some other section.
+                    let cameFromOutside = oldID == nil || episodesHadFocus
+                    if cameFromOutside, let newID, newID != vm.selectedSeasonID {
+                        let target = vm.selectedSeasonID
+                        // Defer to the next runloop tick — setting
+                        // @FocusState synchronously inside its own onChange
+                        // gets silently dropped on tvOS.
+                        DispatchQueue.main.async {
+                            focusedSeasonID = target
+                        }
                     }
+                    episodesHadFocus = false
                     if let focusedID = focusedSeasonID {
                         withAnimation { proxy.scrollTo(focusedID, anchor: .center) }
                     }
                     if newID != nil {
                         episodeRedirectDone = false
+                    }
+                }
+                .onChange(of: focusedEpisodeID) { _, newEpisode in
+                    if newEpisode != nil {
+                        episodesHadFocus = true
                     }
                 }
                 .onChange(of: vm.selectedSeasonID) { _, newID in
