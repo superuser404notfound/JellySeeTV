@@ -122,6 +122,7 @@ extension PlayerViewModel {
     func playNextEpisode() async {
         guard let next = nextEpisode else { return }
         nextEpisodeTimer?.cancel()
+        nextEpisodeTimer = nil
         showNextEpisodeOverlay = false
 
         // Stop current
@@ -164,6 +165,7 @@ extension PlayerViewModel {
 
     func cancelNextEpisode() {
         nextEpisodeTimer?.cancel()
+        nextEpisodeTimer = nil
         showNextEpisodeOverlay = false
         isCountdownActive = false
         nextEpisodeCancelled = true
