@@ -164,16 +164,19 @@ final class PlayerHostController: UIViewController {
     // MARK: - Press Handlers (state machine)
 
     @objc private func selectPressed() {
-        if viewModel.showNextEpisodeOverlay {
-            Task { await viewModel.playNextEpisode() }
-            return
-        }
-        // Intro skip takes priority while the controls are hidden —
-        // the button is the only thing the viewer sees, so Select
-        // targets it rather than opening the full transport overlay.
-        if viewModel.isInsideIntro && !viewModel.showControls && !viewModel.isDropdownOpen {
-            viewModel.skipIntro()
-            return
+        // Next-episode and Skip-Intro commandeer Select only when the
+        // transport is hidden — otherwise the user is interacting with
+        // the control overlay (scrubbing, picking a track) and a
+        // surprise skip/next would be destructive.
+        if !viewModel.showControls && !viewModel.isDropdownOpen {
+            if viewModel.showNextEpisodeOverlay {
+                Task { await viewModel.playNextEpisode() }
+                return
+            }
+            if viewModel.isInsideIntro {
+                viewModel.skipIntro()
+                return
+            }
         }
         if viewModel.isDropdownOpen {
             confirmDropdownSelection()
@@ -199,7 +202,11 @@ final class PlayerHostController: UIViewController {
     }
 
     @objc private func menuPressed() {
-        if viewModel.showNextEpisodeOverlay {
+        // Cancelling the next-episode countdown only hijacks Menu when
+        // the transport is hidden. With controls open, Menu behaves
+        // normally (close dropdown → abort scrub → step focus → hide
+        // controls) and the countdown keeps running in the corner.
+        if viewModel.showNextEpisodeOverlay && !viewModel.showControls && !viewModel.isDropdownOpen {
             viewModel.cancelNextEpisode()
             return
         }
