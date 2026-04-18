@@ -13,13 +13,15 @@ final class SeerrClient {
     init(httpClient: HTTPClientProtocol = HTTPClient()) {
         self.httpClient = httpClient
 
+        // Seerr returns TMDB-shaped JSON with snake_case keys (poster_path,
+        // first_air_date, vote_average, …) so we convert on decode — but
+        // POST bodies are camelCase (useSsl, urlBase, mediaId, mediaType)
+        // and the API rejects snake_case there with HTTP 500.
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         self.decoder = decoder
 
-        let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
-        self.encoder = encoder
+        self.encoder = JSONEncoder()
     }
 
     func request<T: Decodable>(

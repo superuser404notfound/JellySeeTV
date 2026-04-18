@@ -23,8 +23,6 @@ struct SeerrSettingsView: View {
         ZStack {
             ScrollView {
                 VStack(spacing: 32) {
-                    header
-
                     if appState.isSeerrConnected {
                         connectedState
                     } else {
@@ -52,20 +50,6 @@ struct SeerrSettingsView: View {
         .navigationTitle(Text("settings.seerr.title"))
         .toolbar(.hidden, for: .tabBar)
         .onAppear(perform: bootstrap)
-    }
-
-    // MARK: - Header
-
-    private var header: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "tray.and.arrow.down")
-                .font(.system(size: 48))
-                .foregroundStyle(.tint)
-            Text("settings.seerr.description")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
     }
 
     // MARK: - Server Section
@@ -452,9 +436,30 @@ struct SeerrSettingsView: View {
             appState.setSeerrConnected(server: server, user: user)
             showSuccess = false
         } catch {
-            try? dependencies.clearSeerrSession()
-            loginError = error.localizedDescription
+            // Drop the session cookie only — keep the discovered baseURL so
+            // the user can retry without re-entering the server address.
+            // Full clearSeerrSession() would wipe baseURL and the next
+            // attempt would fail with "invalid URL" before even reaching
+            // the server.
+            dependencies.seerrClient.sessionCookie = nil
+            loginError = seerrErrorMessage(from: error)
         }
+    }
+
+    private func seerrErrorMessage(from error: Error) -> String {
+        // Surface the server's message body so failed /auth/jellyfin calls
+        // tell the user *why* (e.g. "Media server has not been set up yet",
+        // "Incorrect credentials") rather than a generic "Server error (500)".
+        if case APIError.httpError(let statusCode, let data) = error,
+           let data, let body = String(data: data, encoding: .utf8), !body.isEmpty {
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let message = (json["message"] as? String) ?? (json["error"] as? String) {
+                return "HTTP \(statusCode) · \(message)"
+            }
+            let trimmed = body.prefix(200)
+            return "HTTP \(statusCode) · \(trimmed)"
+        }
+        return error.localizedDescription
     }
 
     private func logout() async {
