@@ -1,31 +1,14 @@
 import Foundation
 
+/// Body for `POST /api/v1/auth/jellyfin` on an already-configured
+/// Seerr server. Seerr rejects any request that re-sends `hostname`
+/// once the admin has run the initial setup ("jellyfin hostname
+/// already configured", HTTP 500) — so we only send credentials and
+/// let the server use the Jellyfin connection it already knows.
+///
+/// Provisioning a fresh Seerr install from inside the app is out of
+/// scope; that's a one-time admin task done through Seerr's web UI.
 struct SeerrJellyfinAuthBody: Encodable, Sendable {
     let username: String
     let password: String
-    let hostname: String
-    let port: Int
-    let urlBase: String
-    let useSsl: Bool
-
-    init(
-        username: String,
-        password: String,
-        jellyfinURL: URL
-    ) {
-        self.username = username
-        self.password = password
-        self.hostname = jellyfinURL.host ?? ""
-        self.useSsl = jellyfinURL.scheme == "https"
-        // Port is required by the API; default to Jellyfin's standard
-        // ports when the URL omits it (reverse-proxy on 443/80 still
-        // needs an explicit number, not null — null triggers HTTP 500
-        // on Jellyseerr's /auth/jellyfin endpoint).
-        self.port = jellyfinURL.port ?? (useSsl ? 443 : 80)
-        // urlBase must be a string ("") rather than null or absent —
-        // Jellyseerr concatenates it into the connection URL and rejects
-        // null with a 500.
-        let path = jellyfinURL.path
-        self.urlBase = (path.isEmpty || path == "/") ? "" : path
-    }
 }

@@ -400,15 +400,7 @@ struct SeerrSettingsView: View {
     }
 
     private func login() async {
-        guard let server = discoveredServer,
-              let jellyfinURL = appState.activeServer?.url
-        else {
-            loginError = String(
-                localized: "settings.seerr.error.missingJellyfin",
-                defaultValue: "Sign in to Jellyfin first."
-            )
-            return
-        }
+        guard let server = discoveredServer else { return }
 
         isLoggingIn = true
         loginError = nil
@@ -425,8 +417,7 @@ struct SeerrSettingsView: View {
         do {
             let user = try await dependencies.seerrAuthService.loginWithJellyfin(
                 username: username,
-                password: password,
-                jellyfinURL: jellyfinURL
+                password: password
             )
             try dependencies.saveSeerrSession(server: server)
             passwordText = ""

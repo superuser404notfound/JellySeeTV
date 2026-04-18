@@ -1,11 +1,7 @@
 import Foundation
 
 protocol SeerrAuthServiceProtocol: Sendable {
-    func loginWithJellyfin(
-        username: String,
-        password: String,
-        jellyfinURL: URL
-    ) async throws -> SeerrUser
+    func loginWithJellyfin(username: String, password: String) async throws -> SeerrUser
     func currentUser() async throws -> SeerrUser
     func logout() async throws
 }
@@ -18,16 +14,8 @@ final class SeerrAuthService: SeerrAuthServiceProtocol {
         self.client = client
     }
 
-    func loginWithJellyfin(
-        username: String,
-        password: String,
-        jellyfinURL: URL
-    ) async throws -> SeerrUser {
-        let body = SeerrJellyfinAuthBody(
-            username: username,
-            password: password,
-            jellyfinURL: jellyfinURL
-        )
+    func loginWithJellyfin(username: String, password: String) async throws -> SeerrUser {
+        let body = SeerrJellyfinAuthBody(username: username, password: password)
         let (user, response) = try await client.requestWithResponse(
             endpoint: SeerrEndpoint.authJellyfin(body: body),
             responseType: SeerrUser.self
