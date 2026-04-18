@@ -259,6 +259,13 @@ struct ItemQuery: Sendable {
         let fields = fields ?? JellyfinEndpoint.defaultFields
         items.append(URLQueryItem(name: "Fields", value: fields))
         items.append(URLQueryItem(name: "Recursive", value: "true"))
+        // Default is true for Movie queries: Jellyfin folds BoxSet
+        // members into a single representative row — even when the
+        // collection isn't visible in the UI (it may have been created
+        // silently from TMDB metadata). Always send false so each movie
+        // appears on its own. Our "Collections" row uses a dedicated
+        // IncludeItemTypes=BoxSet query and isn't affected.
+        items.append(URLQueryItem(name: "CollapseBoxSetItems", value: "false"))
 
         return items
     }
