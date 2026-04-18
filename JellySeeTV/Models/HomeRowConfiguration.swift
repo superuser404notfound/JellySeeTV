@@ -1,25 +1,30 @@
 import SwiftUI
 
 enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
+    // Declaration order is the default display order for new installs
+    // (defaultConfig() uses allCases.enumerated() for sortOrder). Existing
+    // users keep whatever order they saved; this only affects fresh
+    // installs and a Reset-to-Default.
     case continueWatching
     case nextUp
     case latestMovies
     case latestShows
+    case collections
+    case favorites
+    case genres
     case allMovies
     case allSeries
-    case favorites
     case topRatedMovies
     case topRatedShows
     case recentlyAdded
-    case genres
     case studios
-    case collections
 
     var id: String { rawValue }
 
     var defaultEnabled: Bool {
         switch self {
-        case .continueWatching, .nextUp, .latestMovies, .latestShows, .favorites, .genres:
+        case .continueWatching, .nextUp, .latestMovies, .latestShows,
+             .collections, .favorites, .genres:
             true
         default:
             false
