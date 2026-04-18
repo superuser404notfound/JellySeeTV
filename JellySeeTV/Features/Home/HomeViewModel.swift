@@ -84,10 +84,29 @@ final class HomeViewModel {
                 items = response.items
 
             case .latestMovies:
+                // Use /Items (not /Items/Latest) so BoxSet members don't
+                // collapse into a single representative — Jellyfin's
+                // Latest endpoint folds franchise movies (John Wick 1-4)
+                // into one card even with GroupItems=false. DateCreated
+                // desc gives us the same "newly added" semantics without
+                // the grouping surprise.
                 let movieLibID = libraries.first { $0.libraryType == .movies }?.id
-                items = try await libraryService.getLatestMedia(userID: userID, parentID: movieLibID, limit: 16)
+                let query = ItemQuery(
+                    parentID: movieLibID,
+                    includeItemTypes: [.movie],
+                    sortBy: "DateCreated",
+                    sortOrder: "Descending",
+                    limit: 16
+                )
+                let response = try await libraryService.getItems(userID: userID, query: query)
+                items = response.items
 
             case .latestShows:
+                // Shows stay on /Items/Latest: its built-in grouping is
+                // what we *want* here — show the series when a new
+                // episode lands, not the raw episode with its own title
+                // and screenshot. Using a DateCreated query here would
+                // surface individual episodes instead of series.
                 let showLibID = libraries.first { $0.libraryType == .tvshows }?.id
                 items = try await libraryService.getLatestMedia(userID: userID, parentID: showLibID, limit: 16)
 
