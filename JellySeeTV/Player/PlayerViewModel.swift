@@ -91,6 +91,10 @@ final class PlayerViewModel {
     /// Skip Intro button whenever this is true, regardless of whether
     /// the transport controls are open.
     var isInsideIntro: Bool = false
+    /// Set once per episode after an auto-skip fires — keeps the time
+    /// subscriber from re-triggering the skip in the brief window before
+    /// the seek actually moves currentTime past introEnd.
+    var didAutoSkipCurrentIntro: Bool = false
 
     // MARK: - Dependencies
 
@@ -498,6 +502,17 @@ final class PlayerViewModel {
         // lead-in so the button appears with the intro music.
         let inside = time >= max(seg.startSeconds, 0.5)
                   && time < seg.endSeconds - 1   // hide 1s before end
+
+        // Auto-skip path: the very first tick inside the intro fires
+        // the skip automatically if the user opted in. Guarded so the
+        // skip only happens once per episode even as further ticks
+        // arrive before currentTime has actually moved past introEnd.
+        if inside && preferences.autoSkipIntro && !didAutoSkipCurrentIntro {
+            didAutoSkipCurrentIntro = true
+            skipIntro()
+            return
+        }
+
         if inside != isInsideIntro {
             setInsideIntro(inside)
         }
@@ -526,6 +541,7 @@ final class PlayerViewModel {
     /// doesn't expose the endpoint — service returns nil and the
     /// button simply never appears.
     func loadIntroSegment() async {
+        didAutoSkipCurrentIntro = false
         do {
             introSegment = try await playbackService.getIntroSegment(itemID: item.id)
             #if DEBUG

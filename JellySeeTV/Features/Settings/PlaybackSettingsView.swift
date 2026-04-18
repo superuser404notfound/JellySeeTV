@@ -26,6 +26,16 @@ struct PlaybackSettingsView: View {
                     )
                 )
 
+                boolRow(
+                    icon: "forward.end.fill",
+                    title: "settings.playback.autoSkipIntro",
+                    subtitle: "settings.playback.autoSkipIntro.subtitle",
+                    value: Binding(
+                        get: { prefs.autoSkipIntro },
+                        set: { prefs.autoSkipIntro = $0 }
+                    )
+                )
+
                 valueRow(
                     icon: "timer",
                     title: "settings.playback.nextEpCountdown",
