@@ -23,49 +23,28 @@ struct CatalogDetailView: View {
     @State private var selectedRootFolder: String?
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 32) {
-                backdrop
-                content
-            }
-            .padding(.bottom, 60)
+        ZStack {
+            DetailBackdrop(imageURL: SeerrImageURL.backdrop(path: backdropPath))
+                .id(backdropPath ?? "empty")
+
+            content
         }
-        .ignoresSafeArea(edges: .top)
+        .ignoresSafeArea()
         .toolbar(.hidden, for: .tabBar)
         .task { await load() }
-    }
-
-    private var backdrop: some View {
-        ZStack(alignment: .bottom) {
-            AsyncCachedImage(url: SeerrImageURL.backdrop(path: backdropPath)) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Rectangle().fill(Color.Theme.surface)
-            }
-            .frame(height: 500)
-            .clipped()
-
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.9)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(height: 500)
-        }
     }
 
     @ViewBuilder
     private var content: some View {
         if isLoading {
             ProgressView()
-                .frame(maxWidth: .infinity)
-                .padding(40)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let errorMessage {
             errorState(message: errorMessage)
         } else {
-            detailBody
+            DetailContentOverlay {
+                detailBody
+            }
         }
     }
 
@@ -249,9 +228,26 @@ struct CatalogDetailView: View {
 
     private func seasonSelection(seasons: [SeerrSeason]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("catalog.seasons.select")
-                .font(.title3)
-                .fontWeight(.semibold)
+            HStack {
+                Text("catalog.seasons.select")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                if hasSelectableSeasons(in: seasons) {
+                    Button {
+                        toggleAllSeasons(seasons)
+                    } label: {
+                        Text(allSelectableSeasonsSelected(in: seasons)
+                            ? "catalog.seasons.deselectAll"
+                            : "catalog.seasons.selectAll")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                    }
+                }
+            }
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(seasons) { season in
@@ -268,6 +264,33 @@ struct CatalogDetailView: View {
                 // season gets its halo clipped by the scroll-view edge.
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
+            }
+        }
+    }
+
+    private func selectableSeasons(in seasons: [SeerrSeason]) -> [SeerrSeason] {
+        seasons.filter { !isSeasonAvailable($0) }
+    }
+
+    private func hasSelectableSeasons(in seasons: [SeerrSeason]) -> Bool {
+        !selectableSeasons(in: seasons).isEmpty
+    }
+
+    private func allSelectableSeasonsSelected(in seasons: [SeerrSeason]) -> Bool {
+        let selectable = selectableSeasons(in: seasons)
+        guard !selectable.isEmpty else { return false }
+        return selectable.allSatisfy { selectedSeasons.contains($0.seasonNumber) }
+    }
+
+    private func toggleAllSeasons(_ seasons: [SeerrSeason]) {
+        let selectable = selectableSeasons(in: seasons)
+        if allSelectableSeasonsSelected(in: seasons) {
+            for season in selectable {
+                selectedSeasons.remove(season.seasonNumber)
+            }
+        } else {
+            for season in selectable {
+                selectedSeasons.insert(season.seasonNumber)
             }
         }
     }
