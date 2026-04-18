@@ -120,6 +120,17 @@
 				sv,
 				nb,
 				da,
+				tr,
+				uk,
+				cs,
+				sk,
+				hr,
+				"zh-Hant",
+				fi,
+				"pt-PT",
+				el,
+				hu,
+				ro,
 			);
 			mainGroup = 9DD913642F8645860078D0BE;
 			minimizedProjectReferenceProxies = 1;
