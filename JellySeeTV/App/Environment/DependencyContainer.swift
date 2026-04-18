@@ -18,6 +18,12 @@ final class DependencyContainer {
     let cloudSyncService: CloudSyncServiceProtocol
     let playbackPreferences: PlaybackPreferences
 
+    let seerrClient: SeerrClient
+    let seerrAuthService: SeerrAuthServiceProtocol
+    let seerrDiscoverService: SeerrDiscoverServiceProtocol
+    let seerrMediaService: SeerrMediaServiceProtocol
+    let seerrRequestService: SeerrRequestServiceProtocol
+
     init(
         keychainService: KeychainServiceProtocol = KeychainService(),
         httpClient: HTTPClientProtocol = HTTPClient()
@@ -36,6 +42,12 @@ final class DependencyContainer {
         self.jellyfinPlaybackService = JellyfinPlaybackService(client: jellyfinClient)
         self.cloudSyncService = CloudSyncService()
         self.playbackPreferences = PlaybackPreferences()
+
+        self.seerrClient = SeerrClient(httpClient: httpClient)
+        self.seerrAuthService = SeerrAuthService(client: seerrClient)
+        self.seerrDiscoverService = SeerrDiscoverService(client: seerrClient)
+        self.seerrMediaService = SeerrMediaService(client: seerrClient)
+        self.seerrRequestService = SeerrRequestService(client: seerrClient)
     }
 
     func restoreSession() -> Bool {
@@ -71,5 +83,40 @@ final class DependencyContainer {
 
         jellyfinClient.baseURL = nil
         jellyfinClient.accessToken = nil
+
+        try clearSeerrSession()
+    }
+
+    func restoreSeerrSession() -> SeerrServer? {
+        guard let serverData = try? keychainService.loadData(for: KeychainKeys.seerrServer),
+              let server = try? JSONDecoder().decode(SeerrServer.self, from: serverData),
+              let cookie = try? keychainService.loadString(for: KeychainKeys.seerrSession(serverID: server.id))
+        else {
+            return nil
+        }
+
+        seerrClient.baseURL = server.url
+        seerrClient.sessionCookie = cookie
+        return server
+    }
+
+    func saveSeerrSession(server: SeerrServer) throws {
+        let serverData = try JSONEncoder().encode(server)
+        try keychainService.save(serverData, for: KeychainKeys.seerrServer)
+        if let cookie = seerrClient.sessionCookie {
+            try keychainService.save(cookie, for: KeychainKeys.seerrSession(serverID: server.id))
+        }
+        seerrClient.baseURL = server.url
+    }
+
+    func clearSeerrSession() throws {
+        if let serverData = try? keychainService.loadData(for: KeychainKeys.seerrServer),
+           let decoded = try? JSONDecoder().decode(SeerrServer.self, from: serverData) {
+            try keychainService.delete(for: KeychainKeys.seerrSession(serverID: decoded.id))
+        }
+        try keychainService.delete(for: KeychainKeys.seerrServer)
+
+        seerrClient.baseURL = nil
+        seerrClient.sessionCookie = nil
     }
 }

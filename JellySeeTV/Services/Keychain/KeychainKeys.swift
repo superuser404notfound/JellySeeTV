@@ -14,4 +14,10 @@ enum KeychainKeys {
     static func userID(serverID: String) -> String {
         "userID_\(serverID)"
     }
+
+    static let seerrServer = "seerrServer"
+
+    static func seerrSession(serverID: String) -> String {
+        "seerrSession_\(serverID)"
+    }
 }

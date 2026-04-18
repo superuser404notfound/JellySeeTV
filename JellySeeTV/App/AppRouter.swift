@@ -42,5 +42,13 @@ struct AppRouter: View {
             primaryImageTag: nil
         )
         appState.setAuthenticated(server: server, user: user)
+
+        if let seerrServer = dependencies.restoreSeerrSession() {
+            if let seerrUser = try? await dependencies.seerrAuthService.currentUser() {
+                appState.setSeerrConnected(server: seerrServer, user: seerrUser)
+            } else {
+                try? dependencies.clearSeerrSession()
+            }
+        }
     }
 }

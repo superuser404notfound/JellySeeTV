@@ -46,7 +46,7 @@ struct TabRootView: View {
         case .home:
             HomeView()
         case .catalog:
-            PlaceholderTabView(title: "tab.catalog", systemImage: "film.stack")
+            CatalogView()
         case .search:
             PlaceholderTabView(title: "tab.search", systemImage: "magnifyingglass")
         case .settings:

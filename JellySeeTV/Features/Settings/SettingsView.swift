@@ -71,7 +71,19 @@ struct SettingsView: View {
             ) {
                 PlaybackSettingsView()
             }
+
+            SettingsTile(
+                icon: "tray.and.arrow.down",
+                title: "settings.seerr.title",
+                subtitle: seerrSubtitle
+            ) {
+                SeerrSettingsView()
+            }
         }
+    }
+
+    private var seerrSubtitle: LocalizedStringKey {
+        appState.isSeerrConnected ? "settings.seerr.subtitle.connected" : "settings.seerr.subtitle.notConnected"
     }
 
     // MARK: - Server Info
