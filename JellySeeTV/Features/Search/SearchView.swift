@@ -6,8 +6,8 @@ struct SearchView: View {
     @State private var viewModel: SearchViewModel?
     @State private var selectedJellyfinItem: JellyfinItem?
     @State private var selectedSeerrMedia: SeerrMedia?
-    @FocusState private var searchFieldFocused: Bool
-    @Namespace private var searchFocusScope
+    @State private var showInputSheet = false
+    @FocusState private var searchBarFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -25,19 +25,18 @@ struct SearchView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            // Declare the whole screen as a focus scope, then mark the
-            // search field as the preferred default. Coming down from the
-            // tab bar, tvOS enters the scope and lands on the field
-            // first; normal vertical navigation from there flows through
-            // the results. Plain .focusSection() made the whole chunk
-            // opaque — up/down skipped it entirely and jumped to the
-            // tab bar / end of screen.
-            .focusScope(searchFocusScope)
             .navigationDestination(item: $selectedJellyfinItem) { item in
                 DetailRouterView(item: item)
             }
             .navigationDestination(item: $selectedSeerrMedia) { media in
                 CatalogDetailView(media: media)
+            }
+        }
+        .sheet(isPresented: $showInputSheet) {
+            if let vm = viewModel {
+                SearchInputSheet(query: Bindable(vm).query) {
+                    vm.scheduleSearch()
+                }
             }
         }
         .onAppear(perform: bootstrap)
@@ -49,41 +48,63 @@ struct SearchView: View {
         }
     }
 
-    /// After the user pops back from a detail view, tvOS sometimes leaves
-    /// the system in a brief window with no focused element — if the Menu
-    /// button fires during that gap it routes all the way up to App-Exit
-    /// instead of popping the tab-bar level. Re-focusing the search field
-    /// right after the pop closes that gap. Same pattern MovieDetailView
-    /// uses for its play button (playButtonFocused).
+    /// After the user pops back from a detail view, make the search bar
+    /// button regain focus so a Menu press pops the tab bar instead of
+    /// exiting the app (see MovieDetailView's playButtonFocused for the
+    /// same pattern).
     private func restoreSearchFocus() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            searchFieldFocused = true
+            searchBarFocused = true
         }
     }
 
+    /// The search bar is a Button (not a TextField) because tvOS's focus
+    /// engine routes buttons reliably along the vertical axis between
+    /// the tab bar and the result cards — TextField is technically
+    /// focusable but the engine skips over it and lands on whichever
+    /// card or tab is geometrically next. Tapping the button opens a
+    /// modal sheet with the actual text input, which is the same
+    /// pattern Apple Music and the App Store search use on tvOS.
     private var searchBar: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-            if let vm = viewModel {
-                TextField(
-                    String(localized: "search.placeholder", defaultValue: "Search"),
-                    text: Bindable(vm).query
-                )
-                .autocorrectionDisabled()
-                .focused($searchFieldFocused)
-                .prefersDefaultFocus(in: searchFocusScope)
-                #if os(iOS)
-                .textInputAutocapitalization(.never)
-                #endif
-                .onChange(of: vm.query) { _, _ in
-                    vm.scheduleSearch()
+        Button {
+            showInputSheet = true
+        } label: {
+            HStack(spacing: 16) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                Text(searchBarLabel)
+                    .foregroundStyle(searchBarLabelIsPlaceholder ? .secondary : .primary)
+                Spacer()
+                if viewModel?.isSearching == true {
+                    ProgressView()
                 }
             }
+            .padding(.horizontal, 32)
+            .padding(.vertical, 18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(.white.opacity(searchBarFocused ? 0.15 : 0.08))
+            )
+            .scaleEffect(searchBarFocused ? 1.02 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: searchBarFocused)
         }
+        .buttonStyle(.plain)
+        .focused($searchBarFocused)
         .padding(.horizontal, 80)
         .padding(.top, 40)
         .padding(.bottom, 20)
+    }
+
+    private var searchBarLabel: String {
+        if let q = viewModel?.query.trimmingCharacters(in: .whitespaces), !q.isEmpty {
+            return q
+        }
+        return String(localized: "search.placeholder", defaultValue: "Search")
+    }
+
+    private var searchBarLabelIsPlaceholder: Bool {
+        (viewModel?.query.trimmingCharacters(in: .whitespaces).isEmpty ?? true)
     }
 
     @ViewBuilder
@@ -214,5 +235,50 @@ struct SearchView: View {
             seerrSearchService: appState.isSeerrConnected ? dependencies.seerrSearchService : nil,
             userID: userID
         )
+    }
+}
+
+/// Modal sheet with the actual text field. Presented from the search
+/// bar button so tvOS can run its native text-input UI (keyboard
+/// overlay on tvOS, full keyboard on iOS) without us fighting the
+/// main-screen focus engine. The sheet closes itself on Menu or when
+/// the user dismisses the keyboard; query changes are debounced by
+/// the view model via `onQueryChange`.
+struct SearchInputSheet: View {
+    @Binding var query: String
+    let onQueryChange: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @FocusState private var fieldFocused: Bool
+
+    var body: some View {
+        VStack(spacing: 40) {
+            Text("search.placeholder")
+                .font(.title2)
+                .fontWeight(.semibold)
+
+            TextField(
+                String(localized: "search.placeholder", defaultValue: "Search"),
+                text: $query
+            )
+            .autocorrectionDisabled()
+            .focused($fieldFocused)
+            .frame(maxWidth: 800)
+            .onChange(of: query) { _, _ in
+                onQueryChange()
+            }
+
+            Button {
+                dismiss()
+            } label: {
+                Text("common.back")
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 12)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(80)
+        .onAppear {
+            fieldFocused = true
+        }
     }
 }
