@@ -21,8 +21,11 @@ final class DetailViewModel {
     private let userID: String
     /// In-flight prefetch task — cancelled on deinit so a disappearing
     /// view doesn't keep self alive waiting on network. `nonisolated(unsafe)`
-    /// only because `deinit` on an actor-isolated class runs nonisolated;
-    /// Task is Sendable so the cancel call itself is safe.
+    /// is required because `deinit` on an actor-isolated class runs
+    /// nonisolated, and the plain `nonisolated` fix-it the compiler
+    /// suggests fails to build here: @Observable expands to a stored-var
+    /// backing that Swift doesn't allow `nonisolated` on. Task<Void, Never>
+    /// is Sendable so the cancel call itself is safe.
     nonisolated(unsafe) private var prefetchTask: Task<Void, Never>?
 
     deinit {
