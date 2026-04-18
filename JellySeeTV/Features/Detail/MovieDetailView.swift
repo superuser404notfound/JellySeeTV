@@ -6,6 +6,7 @@ struct MovieDetailView: View {
     @State private var viewModel: DetailViewModel?
     @State private var navigateToSeries: JellyfinItem?
     @State private var navigateToItem: JellyfinItem?
+    @State private var navigateToSeerrRequest: SeerrMedia?
     @State private var showPlayer = false
     @State private var playFromBeginning = false
     @FocusState private var playButtonFocused: Bool
@@ -49,6 +50,9 @@ struct MovieDetailView: View {
         .navigationDestination(item: $navigateToSeries) { series in
             SeriesDetailView(item: series)
                 .toolbar(.hidden, for: .tabBar)
+        }
+        .navigationDestination(item: $navigateToSeerrRequest) { media in
+            CatalogDetailView(media: media)
         }
         .onAppear {
             if viewModel == nil, let userID = appState.activeUser?.id {
@@ -176,6 +180,16 @@ struct MovieDetailView: View {
                         }
                     )
                 }
+
+                if shouldShowSeerrRequest(vm: vm), let tmdbID = vm.item.tmdbID {
+                    GlassActionButton(
+                        title: "detail.requestInSeerr",
+                        systemImage: "tray.and.arrow.down",
+                        action: {
+                            navigateToSeerrRequest = .stub(tmdbID: tmdbID, mediaType: .movie)
+                        }
+                    )
+                }
             }
             .padding(.top, 4)
         }
@@ -191,6 +205,13 @@ struct MovieDetailView: View {
     private func hasProgress(vm: DetailViewModel) -> Bool {
         if let ticks = vm.item.userData?.playbackPositionTicks, ticks > 0 { return true }
         return false
+    }
+
+    /// The "Request in Seerr" button belongs on movies (not episodes —
+    /// you don't request a single episode) and only when Seerr is
+    /// connected and Jellyfin has a TMDB id we can cross-reference.
+    private func shouldShowSeerrRequest(vm: DetailViewModel) -> Bool {
+        appState.isSeerrConnected && vm.item.type == .movie && vm.item.tmdbID != nil
     }
 
     private func playButtonTitle(vm: DetailViewModel) -> LocalizedStringKey {

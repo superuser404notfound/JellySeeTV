@@ -6,6 +6,7 @@ struct SeriesDetailView: View {
     @State private var viewModel: DetailViewModel?
     @State private var selectedEpisode: JellyfinItem?
     @State private var navigateToItem: JellyfinItem?
+    @State private var navigateToSeerrRequest: SeerrMedia?
     @State private var backdropURL: URL?
     @State private var showPlayer = false
     @State private var playItem: JellyfinItem?
@@ -109,6 +110,9 @@ struct SeriesDetailView: View {
         }
         .navigationDestination(item: $navigateToItem) { item in
             DetailRouterView(item: item)
+        }
+        .navigationDestination(item: $navigateToSeerrRequest) { media in
+            CatalogDetailView(media: media)
         }
         .onAppear {
             if viewModel == nil, let userID = appState.activeUser?.id {
@@ -216,6 +220,18 @@ struct SeriesDetailView: View {
                         systemImage: "xmark",
                         action: {
                             withAnimation { selectedEpisode = nil }
+                        }
+                    )
+                }
+
+                if !isShowingEpisode,
+                   appState.isSeerrConnected,
+                   let tmdbID = vm.item.tmdbID {
+                    GlassActionButton(
+                        title: "detail.requestInSeerr",
+                        systemImage: "tray.and.arrow.down",
+                        action: {
+                            navigateToSeerrRequest = .stub(tmdbID: tmdbID, mediaType: .tv)
                         }
                     )
                 }
