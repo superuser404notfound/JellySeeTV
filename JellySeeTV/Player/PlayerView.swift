@@ -570,8 +570,11 @@ private struct PlayerOverlayView: View {
                 .frame(width: 380, height: 214) // 16:9
                 .background(.thinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 20))
-                .padding(.trailing, 80)
-                .padding(.bottom, 80)
+                // Tucks into the bottom-right corner when nothing else
+                // is on screen, then lifts above the transport bar once
+                // the controls open so it doesn't cover the track buttons.
+                .padding(.trailing, viewModel.showControls ? 60 : 40)
+                .padding(.bottom, viewModel.showControls ? 300 : 40)
             }
         }
         .transition(.move(edge: .trailing).combined(with: .opacity))
