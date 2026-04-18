@@ -13,6 +13,7 @@ struct SeerrSettingsView: View {
     @State private var useJellyfinCredentials = true
     @State private var usernameText: String = ""
     @State private var passwordText: String = ""
+    @State private var cachedJellyfinPassword: String?
     @State private var isLoggingIn = false
     @State private var loginError: String?
 
@@ -34,10 +35,10 @@ struct SeerrSettingsView: View {
                         }
                     }
                 }
+                .frame(maxWidth: 720)
+                .frame(maxWidth: .infinity)
                 .padding(.vertical, 60)
                 .padding(.horizontal, 80)
-                .frame(maxWidth: 800)
-                .frame(maxWidth: .infinity)
             }
             .animation(.easeInOut(duration: 0.3), value: discoveredServer)
             .animation(.easeInOut(duration: 0.3), value: appState.isSeerrConnected)
@@ -53,16 +54,13 @@ struct SeerrSettingsView: View {
         .onAppear(perform: bootstrap)
     }
 
-    // MARK: - Sections
+    // MARK: - Header
 
     private var header: some View {
         VStack(spacing: 12) {
             Image(systemName: "tray.and.arrow.down")
                 .font(.system(size: 48))
                 .foregroundStyle(.tint)
-            Text("settings.seerr.title")
-                .font(.title2)
-                .fontWeight(.semibold)
             Text("settings.seerr.description")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -70,52 +68,68 @@ struct SeerrSettingsView: View {
         }
     }
 
+    // MARK: - Server Section
+
     private var serverSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("settings.seerr.section.server")
                 .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if let server = discoveredServer {
                 discoveredServerCard(server: server)
             } else {
-                VStack(spacing: 12) {
-                    TextField(
-                        String(localized: "settings.seerr.serverAddress.placeholder",
-                               defaultValue: "IP or URL"),
-                        text: $serverAddressText
-                    )
-                    .textContentType(.URL)
-                    .autocorrectionDisabled()
-                    #if os(iOS)
-                    .textInputAutocapitalization(.never)
-                    .keyboardType(.URL)
-                    #endif
+                serverEntry
+            }
+        }
+    }
 
-                    if let discoveryError {
-                        Text(discoveryError)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
+    private var serverEntry: some View {
+        VStack(spacing: 12) {
+            TextField(
+                String(localized: "settings.seerr.serverAddress.placeholder",
+                       defaultValue: "IP or URL"),
+                text: $serverAddressText
+            )
+            .textContentType(.URL)
+            .autocorrectionDisabled()
+            #if os(iOS)
+            .textInputAutocapitalization(.never)
+            .keyboardType(.URL)
+            #endif
 
-                    Button {
-                        Task { await discover() }
-                    } label: {
-                        if isDiscovering {
-                            ProgressView()
-                                .padding(.horizontal, 24)
-                                .padding(.vertical, 12)
-                        } else {
-                            Text("settings.seerr.connect")
-                                .font(.body)
-                                .fontWeight(.medium)
-                                .padding(.horizontal, 32)
-                                .padding(.vertical, 12)
-                        }
-                    }
-                    .disabled(isDiscovering || !isAddressValid)
+            if let jellyfinHost = appState.activeServer?.url.host {
+                Button {
+                    serverAddressText = jellyfinHost
+                } label: {
+                    Label("settings.seerr.useJellyfinIP", systemImage: "arrow.triangle.2.circlepath")
+                        .font(.caption)
                 }
             }
+
+            if let discoveryError {
+                Text(discoveryError)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            Button {
+                Task { await discover() }
+            } label: {
+                if isDiscovering {
+                    ProgressView()
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 12)
+                } else {
+                    Text("settings.seerr.connect")
+                        .font(.body)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 32)
+                        .padding(.vertical, 12)
+                }
+            }
+            .disabled(isDiscovering || !isAddressValid)
         }
     }
 
@@ -155,44 +169,43 @@ struct SeerrSettingsView: View {
         )
     }
 
+    // MARK: - Credentials Section
+
     private var credentialsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("settings.seerr.section.credentials")
                 .font(.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if hasJellyfinUser {
-                Toggle(isOn: $useJellyfinCredentials) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("settings.seerr.useJellyfin")
-                            .font(.body)
-                        Text("settings.seerr.useJellyfin.subtitle")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .onChange(of: useJellyfinCredentials) { _, newValue in
-                    if newValue, let jfName = appState.activeUser?.name {
-                        usernameText = jfName
-                    }
-                }
+                jellyfinToggle
             }
 
             VStack(spacing: 12) {
-                TextField(
-                    String(localized: "auth.login.username", defaultValue: "Username"),
-                    text: $usernameText
-                )
-                .autocorrectionDisabled()
-                #if os(iOS)
-                .textInputAutocapitalization(.never)
-                #endif
-                .disabled(useJellyfinCredentials && hasJellyfinUser)
-                .opacity(useJellyfinCredentials && hasJellyfinUser ? 0.6 : 1.0)
+                if !isUsernameHidden {
+                    TextField(
+                        String(localized: "auth.login.username", defaultValue: "Username"),
+                        text: $usernameText
+                    )
+                    .autocorrectionDisabled()
+                    #if os(iOS)
+                    .textInputAutocapitalization(.never)
+                    #endif
+                    .disabled(useJellyfinCredentials && hasJellyfinUser)
+                    .opacity(useJellyfinCredentials && hasJellyfinUser ? 0.6 : 1.0)
+                }
 
-                SecureField(
-                    String(localized: "auth.login.password", defaultValue: "Password"),
-                    text: $passwordText
-                )
+                if isPasswordHidden {
+                    passwordCachedNote
+                } else {
+                    if useJellyfinCredentials && hasJellyfinUser && cachedJellyfinPassword == nil {
+                        quickConnectNote
+                    }
+                    SecureField(
+                        String(localized: "auth.login.password", defaultValue: "Password"),
+                        text: $passwordText
+                    )
+                }
 
                 if let loginError {
                     Text(loginError)
@@ -216,10 +229,87 @@ struct SeerrSettingsView: View {
                             .padding(.vertical, 12)
                     }
                 }
-                .disabled(isLoggingIn || !isCredentialsValid)
+                .disabled(isLoggingIn || !canSubmit)
             }
         }
     }
+
+    private var jellyfinToggle: some View {
+        Button {
+            useJellyfinCredentials.toggle()
+            if useJellyfinCredentials, let jfName = appState.activeUser?.name {
+                usernameText = jfName
+            }
+            passwordText = ""
+            loginError = nil
+        } label: {
+            HStack(alignment: .center, spacing: 16) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("settings.seerr.useJellyfin")
+                        .font(.body)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text("settings.seerr.useJellyfin.subtitle")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                Text(useJellyfinCredentials ? "common.on" : "common.off")
+                    .font(.body)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(useJellyfinCredentials ? Color.green : Color.secondary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(useJellyfinCredentials ? Color.green.opacity(0.15) : Color.white.opacity(0.08))
+                    )
+            }
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.white.opacity(0.05))
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var passwordCachedNote: some View {
+        Label {
+            Text("settings.seerr.passwordCached")
+                .font(.caption)
+        } icon: {
+            Image(systemName: "lock.shield.fill")
+                .foregroundStyle(.green)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.green.opacity(0.08))
+        )
+    }
+
+    private var quickConnectNote: some View {
+        Label {
+            Text("settings.seerr.quickConnectNote")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } icon: {
+            Image(systemName: "info.circle")
+                .foregroundStyle(.secondary)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.white.opacity(0.04))
+        )
+    }
+
+    // MARK: - Connected State
 
     private var connectedState: some View {
         VStack(spacing: 20) {
@@ -276,13 +366,23 @@ struct SeerrSettingsView: View {
         !serverAddressText.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
-    private var isCredentialsValid: Bool {
-        !usernameText.trimmingCharacters(in: .whitespaces).isEmpty
-            && !passwordText.isEmpty
-    }
-
     private var hasJellyfinUser: Bool {
         appState.activeUser != nil
+    }
+
+    private var isUsernameHidden: Bool {
+        useJellyfinCredentials && hasJellyfinUser
+    }
+
+    private var isPasswordHidden: Bool {
+        useJellyfinCredentials && hasJellyfinUser && cachedJellyfinPassword != nil
+    }
+
+    private var canSubmit: Bool {
+        guard !isLoggingIn else { return false }
+        if usernameText.trimmingCharacters(in: .whitespaces).isEmpty { return false }
+        if isPasswordHidden { return true }
+        return !passwordText.isEmpty
     }
 
     // MARK: - Actions
@@ -291,6 +391,7 @@ struct SeerrSettingsView: View {
         if let jfName = appState.activeUser?.name, usernameText.isEmpty {
             usernameText = jfName
         }
+        cachedJellyfinPassword = dependencies.loadJellyfinPassword()
     }
 
     private func discover() async {
@@ -330,11 +431,17 @@ struct SeerrSettingsView: View {
         defer { isLoggingIn = false }
 
         let username = usernameText.trimmingCharacters(in: .whitespaces)
+        let password: String = {
+            if isPasswordHidden, let cached = cachedJellyfinPassword {
+                return cached
+            }
+            return passwordText
+        }()
 
         do {
             let user = try await dependencies.seerrAuthService.loginWithJellyfin(
                 username: username,
-                password: passwordText,
+                password: password,
                 jellyfinURL: jellyfinURL
             )
             try dependencies.saveSeerrSession(server: server)

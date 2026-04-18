@@ -15,6 +15,10 @@ enum KeychainKeys {
         "userID_\(serverID)"
     }
 
+    static func jellyfinPassword(serverID: String) -> String {
+        "jellyfinPassword_\(serverID)"
+    }
+
     static let seerrServer = "seerrServer"
 
     static func seerrSession(serverID: String) -> String {

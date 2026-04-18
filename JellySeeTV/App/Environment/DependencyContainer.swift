@@ -65,21 +65,43 @@ final class DependencyContainer {
         return true
     }
 
-    func saveSession(server: JellyfinServer, user: JellyfinUser, token: String) throws {
+    func saveSession(
+        server: JellyfinServer,
+        user: JellyfinUser,
+        token: String,
+        password: String? = nil
+    ) throws {
         let serverData = try JSONEncoder().encode(server)
         try keychainService.save(serverData, for: "activeServer")
         try keychainService.save(token, for: KeychainKeys.accessToken(serverID: server.id))
         try keychainService.save(user.id, for: KeychainKeys.userID(serverID: server.id))
         try keychainService.save(user.name, for: "activeUserName")
 
+        if let password, !password.isEmpty {
+            try keychainService.save(password, for: KeychainKeys.jellyfinPassword(serverID: server.id))
+        }
+
         jellyfinClient.baseURL = server.url
         jellyfinClient.accessToken = token
+    }
+
+    func loadJellyfinPassword() -> String? {
+        guard let server = activeJellyfinServerID else { return nil }
+        return try? keychainService.loadString(for: KeychainKeys.jellyfinPassword(serverID: server))
+    }
+
+    private var activeJellyfinServerID: String? {
+        guard let data = try? keychainService.loadData(for: "activeServer"),
+              let server = try? JSONDecoder().decode(JellyfinServer.self, from: data)
+        else { return nil }
+        return server.id
     }
 
     func clearSession() throws {
         if let server = try? keychainService.loadData(for: "activeServer"),
            let decoded = try? JSONDecoder().decode(JellyfinServer.self, from: server) {
             try keychainService.delete(for: KeychainKeys.accessToken(serverID: decoded.id))
+            try keychainService.delete(for: KeychainKeys.jellyfinPassword(serverID: decoded.id))
         }
         try keychainService.delete(for: "activeServer")
 

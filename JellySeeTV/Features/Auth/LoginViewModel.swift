@@ -14,8 +14,11 @@ final class LoginViewModel {
     var isPollingQuickConnect = false
     var quickConnectAuthorized = false
 
-    // Auth result stored for finalization after animation
-    var authResult: (server: JellyfinServer, user: JellyfinUser, token: String)?
+    // Auth result stored for finalization after animation.
+    // savedPassword is set only for regular (non-Quick-Connect) logins —
+    // we cache it in the keychain so Seerr can reuse it without asking
+    // the user to retype.
+    var authResult: (server: JellyfinServer, user: JellyfinUser, token: String, savedPassword: String?)?
 
     let server: JellyfinServer
 
@@ -44,7 +47,7 @@ final class LoginViewModel {
 
         do {
             let response = try await authService.login(username: username, password: password)
-            authResult = (server, response.user, response.accessToken)
+            authResult = (server, response.user, response.accessToken, password)
             isLoading = false
             loginSucceeded = true
         } catch {
@@ -108,7 +111,7 @@ final class LoginViewModel {
 
         do {
             let response = try await authService.authenticateWithQuickConnect(secret: secret)
-            authResult = (server, response.user, response.accessToken)
+            authResult = (server, response.user, response.accessToken, String?.none)
             isLoading = false
             loginSucceeded = true
         } catch {
@@ -119,6 +122,11 @@ final class LoginViewModel {
 
     func finalizeAuth() throws {
         guard let result = authResult else { return }
-        try dependencies.saveSession(server: result.server, user: result.user, token: result.token)
+        try dependencies.saveSession(
+            server: result.server,
+            user: result.user,
+            token: result.token,
+            password: result.savedPassword
+        )
     }
 }
