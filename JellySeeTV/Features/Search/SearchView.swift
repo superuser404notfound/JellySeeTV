@@ -9,7 +9,9 @@ struct SearchView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
+            VStack(spacing: 0) {
+                searchBar
+
                 if let vm = viewModel {
                     if vm.jellyfinResults.isEmpty && vm.seerrResults.isEmpty {
                         emptyState(vm: vm)
@@ -21,18 +23,6 @@ struct SearchView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            // Apple's native tvOS search affordance. On tvOS 17+ this
-            // renders in the navigation bar area above the content and
-            // is owned by the system focus engine — no custom overlays,
-            // no focus hacks, no geometric routing surprises. The
-            // keyboard appears the moment the system bar receives focus
-            // (tab bar → search bar → content, reliably in both
-            // directions), and the system handles tab-switch state for
-            // us so we don't need the restore-focus dance on pop-back.
-            .searchable(
-                text: searchQueryBinding,
-                prompt: Text("search.placeholder")
-            )
             .navigationDestination(item: $selectedJellyfinItem) { item in
                 DetailRouterView(item: item)
             }
@@ -43,19 +33,44 @@ struct SearchView: View {
         .onAppear(perform: bootstrap)
     }
 
-    /// Binding that proxies the view model's query through .searchable
-    /// — keeps the view model as the single source of truth (so other
-    /// views/VMs can read/react to it) while giving the system bar the
-    /// `Binding<String>` it expects.
-    private var searchQueryBinding: Binding<String> {
-        Binding(
-            get: { viewModel?.query ?? "" },
-            set: { newValue in
-                guard let vm = viewModel else { return }
-                vm.query = newValue
-                vm.scheduleSearch()
+    /// Inline search bar using a UIKit UITextField wrapper. Reason:
+    /// SwiftUI's TextField on tvOS routes focus unreliably between the
+    /// tab bar and card rows (silently skipped by the focus engine);
+    /// .searchable() works but adds a 1-2s rebuild on every tab-switch.
+    /// UITextField is a first-class UIKit focus citizen — routing is
+    /// reliable and there's no switch-lag, with the inline look the
+    /// user wants.
+    @ViewBuilder
+    private var searchBar: some View {
+        if let vm = viewModel {
+            HStack(spacing: 16) {
+                Image(systemName: "magnifyingglass")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+
+                SearchTextField(
+                    text: Bindable(vm).query,
+                    placeholder: String(localized: "search.placeholder", defaultValue: "Search")
+                )
+                .frame(maxWidth: .infinity)
+                .onChange(of: vm.query) { _, _ in
+                    vm.scheduleSearch()
+                }
+
+                if vm.isSearching {
+                    ProgressView()
+                }
             }
-        )
+            .padding(.horizontal, 32)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(.white.opacity(0.08))
+            )
+            .padding(.horizontal, 80)
+            .padding(.top, 40)
+            .padding(.bottom, 20)
+        }
     }
 
     @ViewBuilder
