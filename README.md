@@ -131,6 +131,10 @@ Xcode 26+ and Swift 6.0+ are required.
 - [Seerr](https://github.com/Fallenbagel/jellyseerr) — request management for Jellyfin
 - [Swiftfin](https://github.com/jellyfin/Swiftfin) — official Jellyfin client for iOS / tvOS (VLCKit-based)
 
+## Built with
+
+JellySeeTV is vibe-coded — designed and shipped by [Vincent Herbst](https://github.com/superuser404notfound) in close pair-programming with **Claude** (Anthropic). The commit log is the receipt: nearly every commit carries a `Co-Authored-By: Claude` trailer.
+
 ## License
 
 [MIT](LICENSE).
