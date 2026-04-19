@@ -52,7 +52,7 @@ struct SearchView: View {
                     text: Bindable(vm).query,
                     placeholder: String(localized: "search.placeholder", defaultValue: "Search")
                 )
-                .frame(maxWidth: .infinity, maxHeight: 36)
+                .frame(maxWidth: .infinity, maxHeight: 42)
                 .onChange(of: vm.query) { _, _ in
                     vm.scheduleSearch()
                 }
@@ -62,15 +62,15 @@ struct SearchView: View {
                         .scaleEffect(0.8)
                 }
             }
-            .padding(.horizontal, 22)
-            .padding(.vertical, 4)
+            .padding(.horizontal, 26)
+            .padding(.vertical, 8)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 12)
                     .fill(.white.opacity(0.08))
             )
             .padding(.horizontal, 80)
-            .padding(.top, 36)
-            .padding(.bottom, 16)
+            .padding(.top, 38)
+            .padding(.bottom, 18)
         }
     }
 
