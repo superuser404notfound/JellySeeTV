@@ -9,19 +9,9 @@ extension PlayerViewModel {
         guard dur > 0, remaining < 30, remaining > 0,
               !hasFetchedNextEpisode else { return }
 
-        guard item.seriesId != nil else {
-            #if DEBUG
-            if !hasFetchedNextEpisode && remaining < 30 && remaining > 0 {
-                print("[NextEpisode] Skipped: seriesId=nil, type=\(item.type)")
-            }
-            #endif
-            return
-        }
+        guard item.seriesId != nil else { return }
 
         hasFetchedNextEpisode = true
-        #if DEBUG
-        print("[NextEpisode] Triggering fetch: remaining=\(String(format: "%.0f", remaining))s, type=\(item.type), seriesId=\(item.seriesId ?? "nil")")
-        #endif
         Task { await fetchNextEpisode() }
     }
 
@@ -37,16 +27,8 @@ extension PlayerViewModel {
             let next = try await playbackService.getNextEpisode(seriesID: seriesID, userID: userID)
             if let next, next.id != item.id {
                 nextEpisode = next
-                #if DEBUG
-                print("[NextEpisode] Found: \(next.name) (S\(next.parentIndexNumber ?? 0)E\(next.indexNumber ?? 0))")
-                #endif
                 return
             }
-
-            #if DEBUG
-            if next != nil { print("[NextEpisode] NextUp returned current episode, trying by index") }
-            else { print("[NextEpisode] NextUp returned nil, trying by index") }
-            #endif
 
             // NextUp failed (returned current or nil). Try to find
             // the next episode by index number in the same season.
@@ -59,13 +41,6 @@ extension PlayerViewModel {
                     ($0.indexNumber ?? 0) == currentIndex + 1
                 }) {
                     nextEpisode = nextEp
-                    #if DEBUG
-                    print("[NextEpisode] Found by index: \(nextEp.name) (S\(nextEp.parentIndexNumber ?? 0)E\(nextEp.indexNumber ?? 0))")
-                    #endif
-                } else {
-                    #if DEBUG
-                    print("[NextEpisode] No next episode in season")
-                    #endif
                 }
             }
         } catch {
@@ -79,9 +54,6 @@ extension PlayerViewModel {
         // If autoplay is disabled, still show the overlay (so the user
         // can pick next manually) but skip the timer that auto-transitions.
         guard preferences.autoplayNextEpisode else {
-            #if DEBUG
-            print("[NextEpisode] Autoplay disabled — showing overlay only")
-            #endif
             isCountdownActive = false
             nextEpisodeCountdown = 0
             return
@@ -90,17 +62,11 @@ extension PlayerViewModel {
         // If the user set countdown to 0, skip straight to the next episode.
         let configured = preferences.nextEpisodeCountdownSeconds
         guard configured > 0 else {
-            #if DEBUG
-            print("[NextEpisode] Countdown disabled — playing next immediately")
-            #endif
             Task { @MainActor [weak self] in await self?.playNextEpisode() }
             return
         }
 
         nextEpisodeCountdown = configured
-        #if DEBUG
-        print("[NextEpisode] Countdown starts (\(nextEpisodeCountdown)s)")
-        #endif
         isCountdownActive = true
         nextEpisodeTimer?.cancel()
         nextEpisodeTimer = Task {
