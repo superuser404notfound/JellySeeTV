@@ -56,6 +56,10 @@ final class DependencyContainer {
         self.seerrSearchService = SeerrSearchService(client: seerrClient)
     }
 
+    /// `try?` is intentional here: a missing or unreadable Keychain entry
+    /// (fresh install, wiped storage, corrupted item) means there's no session
+    /// to restore — the app falls back to the login screen. There's no recovery
+    /// path that would benefit from inspecting the underlying error.
     func restoreSession() -> Bool {
         guard let serverData = try? keychainService.loadData(for: "activeServer"),
               let server = try? JSONDecoder().decode(JellyfinServer.self, from: serverData),
@@ -115,6 +119,7 @@ final class DependencyContainer {
         try clearSeerrSession()
     }
 
+    /// See `restoreSession()` for the rationale behind silent `try?` here.
     func restoreSeerrSession() -> SeerrServer? {
         guard let serverData = try? keychainService.loadData(for: KeychainKeys.seerrServer),
               let server = try? JSONDecoder().decode(SeerrServer.self, from: serverData),
