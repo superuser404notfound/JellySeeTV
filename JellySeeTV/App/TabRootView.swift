@@ -55,19 +55,3 @@ struct TabRootView: View {
     }
 }
 
-struct PlaceholderTabView: View {
-    let title: LocalizedStringKey
-    let systemImage: String
-
-    var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: systemImage)
-                .font(.system(size: 60))
-                .foregroundStyle(.secondary)
-            Text(title)
-                .font(.headline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
