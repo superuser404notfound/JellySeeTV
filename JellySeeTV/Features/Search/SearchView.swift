@@ -6,14 +6,10 @@ struct SearchView: View {
     @State private var viewModel: SearchViewModel?
     @State private var selectedJellyfinItem: JellyfinItem?
     @State private var selectedSeerrMedia: SeerrMedia?
-    @FocusState private var searchFieldFocused: Bool
-    @FocusState private var searchBarFocused: Bool
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                searchBar
-
+            Group {
                 if let vm = viewModel {
                     if vm.jellyfinResults.isEmpty && vm.seerrResults.isEmpty {
                         emptyState(vm: vm)
@@ -25,6 +21,18 @@ struct SearchView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
+            // Apple's native tvOS search affordance. On tvOS 17+ this
+            // renders in the navigation bar area above the content and
+            // is owned by the system focus engine — no custom overlays,
+            // no focus hacks, no geometric routing surprises. The
+            // keyboard appears the moment the system bar receives focus
+            // (tab bar → search bar → content, reliably in both
+            // directions), and the system handles tab-switch state for
+            // us so we don't need the restore-focus dance on pop-back.
+            .searchable(
+                text: searchQueryBinding,
+                prompt: Text("search.placeholder")
+            )
             .navigationDestination(item: $selectedJellyfinItem) { item in
                 DetailRouterView(item: item)
             }
@@ -33,79 +41,21 @@ struct SearchView: View {
             }
         }
         .onAppear(perform: bootstrap)
-        .onChange(of: selectedJellyfinItem) { _, newValue in
-            if newValue == nil { restoreSearchFocus() }
-        }
-        .onChange(of: selectedSeerrMedia) { _, newValue in
-            if newValue == nil { restoreSearchFocus() }
-        }
     }
 
-    private func restoreSearchFocus() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            searchBarFocused = true
-        }
-    }
-
-    /// Inline search bar — visually identical to a plain TextField row,
-    /// but the whole thing is wrapped in a transparent Button overlay
-    /// that acts as the actual focus target. tvOS's focus engine routes
-    /// up/down reliably through buttons but silently skips over a
-    /// plain TextField between the tab bar and the result cards. The
-    /// Button's action programmatically focuses the hidden TextField
-    /// — that triggers tvOS's native keyboard overlay the same way a
-    /// direct tap would, without any extra sheet or modal of ours.
-    private var searchBar: some View {
-        ZStack {
-            HStack(spacing: 16) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(.secondary)
-                if let vm = viewModel {
-                    TextField(
-                        String(localized: "search.placeholder", defaultValue: "Search"),
-                        text: Bindable(vm).query
-                    )
-                    .focused($searchFieldFocused)
-                    .autocorrectionDisabled()
-                    #if os(iOS)
-                    .textInputAutocapitalization(.never)
-                    #endif
-                    // Swallow direct taps — the overlay button above is
-                    // the only element that should take input, so the
-                    // focus engine doesn't have two candidates for the
-                    // same rect.
-                    .allowsHitTesting(false)
-                    .onChange(of: vm.query) { _, _ in
-                        vm.scheduleSearch()
-                    }
-                }
-                Spacer()
-                if viewModel?.isSearching == true {
-                    ProgressView()
-                }
+    /// Binding that proxies the view model's query through .searchable
+    /// — keeps the view model as the single source of truth (so other
+    /// views/VMs can read/react to it) while giving the system bar the
+    /// `Binding<String>` it expects.
+    private var searchQueryBinding: Binding<String> {
+        Binding(
+            get: { viewModel?.query ?? "" },
+            set: { newValue in
+                guard let vm = viewModel else { return }
+                vm.query = newValue
+                vm.scheduleSearch()
             }
-            .padding(.horizontal, 32)
-            .padding(.vertical, 18)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(.white.opacity(searchBarFocused ? 0.15 : 0.08))
-            )
-            .scaleEffect(searchBarFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: searchBarFocused)
-
-            Button {
-                // Hand focus to the TextField — tvOS's keyboard overlay
-                // appears automatically when a TextField becomes focused.
-                searchFieldFocused = true
-            } label: {
-                Color.clear.contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .focused($searchBarFocused)
-        }
-        .padding(.horizontal, 80)
-        .padding(.top, 40)
-        .padding(.bottom, 20)
+        )
     }
 
     @ViewBuilder
