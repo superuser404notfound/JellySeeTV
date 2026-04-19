@@ -28,9 +28,6 @@ extension PlayerViewModel {
         )
         do {
             try await playbackService.reportPlaybackStart(report)
-            #if DEBUG
-            print("[SessionReport] Start: \(formatTicks(ticks))")
-            #endif
         } catch {
             #if DEBUG
             print("[SessionReport] Start FAILED: \(error)")
@@ -54,9 +51,6 @@ extension PlayerViewModel {
         )
         do {
             try await playbackService.reportPlaybackProgress(report)
-            #if DEBUG
-            print("[SessionReport] Progress: \(formatTicks(ticks))\(isPlaying ? "" : " (paused)")")
-            #endif
         } catch {
             #if DEBUG
             print("[SessionReport] Progress FAILED: \(error)")
@@ -74,9 +68,6 @@ extension PlayerViewModel {
         )
         do {
             try await playbackService.reportPlaybackStopped(report)
-            #if DEBUG
-            print("[SessionReport] Stop: \(formatTicks(ticks))")
-            #endif
         } catch {
             #if DEBUG
             print("[SessionReport] Stop FAILED: \(error)")
@@ -109,13 +100,4 @@ extension PlayerViewModel {
         progressTimer?.cancel()
         progressTimer = nil
     }
-
-    #if DEBUG
-    private func formatTicks(_ ticks: Int64) -> String {
-        let seconds = Int(ticks / 10_000_000)
-        let m = seconds / 60
-        let s = seconds % 60
-        return String(format: "%d:%02d (%lld ticks)", m, s, ticks)
-    }
-    #endif
 }
