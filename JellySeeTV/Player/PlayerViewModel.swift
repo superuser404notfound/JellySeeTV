@@ -359,9 +359,6 @@ final class PlayerViewModel {
                     self.isPlaying = false
                 case .idle:
                     self.isPlaying = false
-                    #if DEBUG
-                    print("[NextEpisode] State=idle, hasStarted=\(self.hasStartedPlaying), nextEp=\(self.nextEpisode?.name ?? "nil")")
-                    #endif
                     // Demux EOF — start 10s countdown for next episode.
                     // The demux reads ahead 15-20s, so player.$currentTime
                     // may never reach the final seconds (Combine only fires
@@ -544,11 +541,6 @@ final class PlayerViewModel {
         didAutoSkipCurrentIntro = false
         do {
             introSegment = try await playbackService.getIntroSegment(itemID: item.id)
-            #if DEBUG
-            if let seg = introSegment {
-                print("[IntroSkip] Intro \(String(format: "%.1f", seg.startSeconds))s → \(String(format: "%.1f", seg.endSeconds))s")
-            }
-            #endif
         } catch {
             #if DEBUG
             print("[IntroSkip] Fetch failed: \(error)")
@@ -567,16 +559,10 @@ final class PlayerViewModel {
     func selectSubtitleTrack(id: Int?) {
         if let id {
             activeSubtitleIndex = id
-            #if DEBUG
-            print("[Subtitles] Selected track index \(id)")
-            #endif
             Task { await loadSubtitles(streamIndex: id) }
         } else {
             activeSubtitleIndex = nil
             subtitleCues = []
-            #if DEBUG
-            print("[Subtitles] Disabled")
-            #endif
         }
     }
 
@@ -600,17 +586,11 @@ final class PlayerViewModel {
             #endif
             return
         }
-        #if DEBUG
-        print("[Subtitles] Fetching: \(url.absoluteString.prefix(120))...")
-        #endif
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             guard let content = String(data: data, encoding: .utf8) else { return }
             subtitleCues = SRTParser.parse(content)
-            #if DEBUG
-            print("[Subtitles] Loaded \(subtitleCues.count) cues for stream \(streamIndex)")
-            #endif
         } catch {
             #if DEBUG
             print("[Subtitles] Failed to load: \(error)")
@@ -695,9 +675,6 @@ final class PlayerViewModel {
 
         // Respect user's "Match Content" setting
         guard displayManager.isDisplayCriteriaMatchingEnabled else {
-            #if DEBUG
-            print("[PlayerVM] Match Content disabled by user")
-            #endif
             return false
         }
 
@@ -741,19 +718,11 @@ final class PlayerViewModel {
         let displayManager = window.avDisplayManager
         guard displayManager.isDisplayModeSwitchInProgress else { return }
 
-        #if DEBUG
-        print("[PlayerVM] Waiting for display mode switch...")
-        #endif
-
         // Wait up to 5 seconds for the switch, checking periodically
         for _ in 0..<50 {
             try? await Task.sleep(for: .milliseconds(100))
             if !displayManager.isDisplayModeSwitchInProgress { break }
         }
-
-        #if DEBUG
-        print("[PlayerVM] Display mode switch completed")
-        #endif
         #endif
     }
 
