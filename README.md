@@ -1,148 +1,124 @@
-# 📺 JellySeeTV
+<h1 align="center">JellySeeTV</h1>
 
-A native Jellyfin client for Apple TV, built with SwiftUI and [SteelPlayer](https://github.com/superuser404notfound/SteelPlayer).
+<p align="center">
+  <b>Your Jellyfin library on Apple TV — the way it should feel.</b><br>
+  Native tvOS, instant playback, real HDR, real Dolby Atmos, and one tap to request what's missing.
+</p>
 
-[![Platform](https://img.shields.io/badge/platform-tvOS%2026%2B-black)]()
-[![Swift](https://img.shields.io/badge/Swift-6.0%2B-orange)]()
+<p align="center">
+  <img src="https://img.shields.io/badge/tvOS-26%2B-black?logo=apple">
+  <img src="https://img.shields.io/badge/Swift-6.0%2B-F05138?logo=swift&logoColor=white">
+  <img src="https://img.shields.io/badge/license-LGPL--3.0-lightgrey">
+  <img src="https://img.shields.io/badge/languages-26-blue">
+</p>
 
-## About
+---
 
-JellySeeTV brings your Jellyfin media server to Apple TV with a native tvOS experience. Built from the ground up with SwiftUI and a custom FFmpeg + Metal video engine, it supports direct playback of virtually any format — including 4K HEVC, HDR10, Dolby Vision, and Dolby Atmos — without server-side transcoding.
+## Why JellySeeTV
+
+Jellyfin is great. The existing Apple TV clients are either web wrappers or built around third-party players that fight tvOS instead of using it. JellySeeTV is built natively from the ground up: SwiftUI on top, a custom video engine underneath, and the same HIG patterns Apple uses for TV+ — focus engine, Siri Remote gestures, transport bar, info panel. Plays the file directly from your server in almost every case, no transcoding required.
+
+And when you spot something on a streaming service that isn't in your library yet — request it from the same app. Jellyseerr handles the rest.
 
 ## Screenshots
 
-*Coming soon*
+*Coming soon — we'll add these once the public TestFlight opens.*
 
 ## Features
 
-### Media Browsing
-- [x] Server discovery (manual + automatic)
-- [x] User authentication with Jellyfin API
-- [x] Library browsing (Movies, Series, Collections)
-- [x] Movie detail view with metadata, cast, and tech info
-- [x] Series detail view with season/episode navigation
-- [x] Continue Watching / Next Up
-- [x] Search
-- [x] Image caching and prefetching
+### 📚 Browse & discover
+- **Server discovery** — finds Jellyfin on your network automatically, or add manually
+- **Home** — Continue Watching, Next Up, Latest by library, fully customizable
+- **Library** — Movies, Series, Collections with poster grids and instant filtering
+- **Series view** — season picker, episode list, "Up Next" highlighting
+- **Search** — across your whole server, results as you type
+- **Image caching & prefetching** — posters and backdrops load before you focus them
 
-### Player
-- [x] Custom FFmpeg + Metal engine ([SteelPlayer](https://github.com/superuser404notfound/SteelPlayer))
-- [x] Hardware-accelerated H.264 / HEVC decoding via VideoToolbox
-- [x] Direct Play for all supported codecs (no server transcoding)
-- [x] MKV container support (via Jellyfin container remux)
-- [x] Native tvOS player UI (transport bar, scrubbing, title overlay)
-- [x] Siri Remote support (touch surface scrubbing, click, play/pause, ±10s skip)
-- [x] Jellyfin session reporting (start, progress, stop)
-- [x] Resume playback from last position
-- [ ] HDR10 / Dolby Vision playback with tone mapping *(Phase 4)*
-- [ ] Audio output with multichannel + Atmos *(Phase 2)*
-- [ ] A/V synchronization *(Phase 2)*
-- [ ] Subtitle support (SRT, SSA, PGS) *(Phase 6)*
-- [ ] Audio / subtitle track selection UI *(Phase 2/6)*
+### 🎬 Watch
+- **Direct Play** for almost every codec your Apple TV understands: H.264, HEVC, HEVC Main10, AV1
+- **HDR10, Dolby Vision, HLG** — auto-detected, sent through with full color metadata, display switches to HDR mode automatically (Match Content)
+- **Dolby Atmos** via EAC3+JOC, wrapped as Dolby MAT 2.0 — your AVR's Atmos light actually comes on
+- **Multichannel surround** — 5.1, 7.1 with correct channel layout
+- **Resume** from where you left off, on any device
+- **Intro skip** — auto-detected from your Jellyfin server, optional one-tap skip
+- **Next episode** — auto-play with countdown, or just an overlay; configurable
+- **Subtitle support** — SRT, with track selection during playback
+- **Audio track switcher** — pick the language or surround mix you want, mid-playback
+- **Native player UI** — same transport bar, scrub preview and info panel as Apple TV+
 
-### Seerr Integration *(Planned)*
-- [ ] Browse trending / popular media
-- [ ] Request movies and series
-- [ ] View request status
+### 📨 Request what's missing
+- **Jellyseerr integration** — browse trending and popular media right inside the app
+- **One-tap requests** — for movies and full series
+- **Track status** — see what's been approved, declined, or is already downloading
+- **Single sign-on** — log in once, JellySeeTV handles your Seerr session
 
-### Design
-- [x] Dark minimalistic design
-- [x] Localized in 15 languages (DE, EN, ES, FR, IT, JA, KO, NL, PL, RU, SV, NB, DA, ZH-Hans, PT-BR)
-- [ ] Liquid Glass design language *(tvOS 26+)*
+### 🌍 Personal
+- **26 languages** — German, English, Spanish, French, Italian, Japanese, Korean, Norwegian, Dutch, Polish, Portuguese (BR + PT), Russian, Swedish, Simplified + Traditional Chinese, Turkish, Ukrainian, Czech, Slovak, Croatian, Finnish, Greek, Hungarian, Romanian, Danish
+- **Dark, minimal design** — built for living rooms, not for desks
+- **Liquid Glass** UI accents on tvOS 26+
+- **Siri Remote optimized** — touch surface scrubbing, click for play/pause, swipe gestures throughout
+- **No telemetry, no ads, no accounts** — your server, your client, nothing in between
 
-## Architecture
+## Built on
+
+JellySeeTV is a thin native shell over a custom video stack. The interesting part is what *isn't* there: no VLCKit, no third-party players, no web views. Just Apple's frameworks plus a Swift package that handles the formats Apple's own player can't.
+
+| Component | Technology |
+|---|---|
+| UI | SwiftUI + UIKit interop where needed |
+| Video engine | [AetherEngine](https://github.com/superuser404notfound/AetherEngine) — FFmpeg demux, VideoToolbox decode, AVPlayer for Atmos passthrough |
+| Display | `AVSampleBufferDisplayLayer` driven by a `CMTimebase` synced to the audio clock |
+| Audio | `AVSampleBufferAudioRenderer` for PCM, `AVPlayer` over local HLS for Dolby MAT 2.0 (Atmos) |
+| Networking | `URLSession` against the Jellyfin REST API |
+| Persistence | Keychain for credentials, no telemetry storage |
+| Media server | [Jellyfin](https://jellyfin.org) |
+
+If you want the full pipeline detail — HDR routing, Atmos passthrough, A/V sync, channel-layout tagging — see the [AetherEngine README](https://github.com/superuser404notfound/AetherEngine#readme).
+
+## Requirements
+
+| | Min |
+| --- | --- |
+| Apple TV | 4K (any generation) |
+| tvOS | 26.0 |
+| Jellyfin server | 10.9+ recommended |
+| Jellyseerr (optional) | 2.0+ |
+
+A 1080p Apple TV HD will technically run the app, but Direct Play of 4K HDR content needs the 4K hardware.
+
+## Building from source
+
+```bash
+git clone https://github.com/superuser404notfound/JellySeeTV.git
+cd JellySeeTV
+open JellySeeTV.xcodeproj
+```
+
+Pick the `JellySeeTV` scheme, an Apple TV destination, and run. AetherEngine is wired in as a local Swift Package — you'll need it cloned next to this repo (or adjust the path in Package dependencies).
 
 ```
-JellySeeTV
-├── App/                    App entry point, navigation, authentication
-├── Features/
-│   ├── Home/               Continue Watching, Latest, Libraries
-│   ├── Detail/             Movie + Series detail views
-│   ├── Search/             Search interface
-│   └── Settings/           Server config, preferences
-├── Player/
-│   ├── Engine/             SteelPlayer integration + AVPlayer fallback
-│   ├── UI/                 TransportBar, RemoteTapHandler, MetalVideoView
-│   ├── PlayerView.swift    Main player screen
-│   ├── PlayerViewModel.swift  State management + Jellyfin reporting
-│   ├── DirectPlayProfile.swift  Codec capability detection
-│   └── DisplayCapabilities.swift  HDR display detection
-├── Services/
-│   └── Jellyfin/           API client, endpoints, playback service
-├── Models/                 Data models (JellyfinItem, MediaStream, etc.)
-└── Components/             Reusable UI components
+~/Dev/
+├── JellySeeTV/
+└── AetherEngine/
 ```
 
-## Building
-
-### Requirements
-
-- Xcode 26+
-- tvOS 26+ deployment target
-- Swift 6.0+
-- Apple TV 4K (for testing)
-- A Jellyfin server on your network
-
-### Steps
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/superuser404notfound/JellySeeTV.git
-   ```
-
-2. Open in Xcode
-   ```bash
-   open JellySeeTV.xcodeproj
-   ```
-
-3. Select the `JellySeeTV` scheme and an Apple TV target
-
-4. Build and run (⌘R)
-
-> **Note:** SteelPlayer (the video engine) is included as a local Swift Package dependency.
+Xcode 26+ and Swift 6.0+ are required.
 
 ## Roadmap
 
-### Player Engine ([SteelPlayer](https://github.com/superuser404notfound/SteelPlayer))
-
-- [x] Phase 0 — Package skeleton + FFmpeg dependency
-- [x] Phase 1 — Demuxer + VideoToolbox decoder + Metal renderer
-- [ ] Phase 2 — Audio output + A/V synchronization
-- [ ] Phase 3 — Keyframe-accurate seeking
-- [ ] Phase 4 — HDR10 / Dolby Vision tone mapping
-- [ ] Phase 5 — Stability + edge cases
-- [ ] Phase 6 — Subtitle rendering
-- [ ] Phase 7 — App Store readiness
-
-### App Features
-
-- [x] Jellyfin browsing + authentication
-- [x] Movie + Series detail views
-- [x] Basic video playback (SDR content)
-- [ ] Full video playback (all formats, HDR, audio)
-- [ ] Seerr integration
-- [ ] Liquid Glass UI refresh
-- [ ] TestFlight beta
+- [ ] Public TestFlight beta
 - [ ] App Store release
+- [ ] iOS / iPadOS companion app
+- [ ] Live TV + DVR support
+- [ ] Music library support
 
-## Tech Stack
+## Related
 
-| Component | Technology |
-|-----------|-----------|
-| UI Framework | SwiftUI |
-| Video Engine | [SteelPlayer](https://github.com/superuser404notfound/SteelPlayer) (FFmpeg + Metal) |
-| Video Decode | VideoToolbox (hardware-accelerated) |
-| Video Render | Metal (CAMetalLayer) |
-| Audio | AVSampleBufferAudioRenderer |
-| Networking | URLSession + Jellyfin REST API |
-| Media Server | [Jellyfin](https://jellyfin.org) |
-
-## Related Projects
-
-- [SteelPlayer](https://github.com/superuser404notfound/SteelPlayer) — The open-source video engine powering JellySeeTV
-- [Jellyfin](https://github.com/jellyfin/jellyfin) — The free software media system
-- [Swiftfin](https://github.com/jellyfin/Swiftfin) — Official Jellyfin client for iOS/tvOS (VLCKit-based)
+- [AetherEngine](https://github.com/superuser404notfound/AetherEngine) — the video engine powering JellySeeTV
+- [Jellyfin](https://github.com/jellyfin/jellyfin) — the free software media system
+- [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) — request management for Jellyfin
+- [Swiftfin](https://github.com/jellyfin/Swiftfin) — official Jellyfin client for iOS / tvOS (VLCKit-based)
 
 ## License
 
-*License TBD — will be determined before App Store release.*
+[LGPL-3.0](LICENSE).
