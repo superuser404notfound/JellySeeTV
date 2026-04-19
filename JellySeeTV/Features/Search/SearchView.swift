@@ -108,6 +108,13 @@ struct SearchView: View {
                 .padding(.horizontal, 50)
                 .padding(.vertical, 20)
             }
+            // Mark each row as its own focus section so vertical
+            // navigation crosses row boundaries even when the geometry
+            // doesn't line up — e.g. the user is on a catalog card
+            // way to the right, but the library row above only has
+            // one item on the left. Without this, tvOS finds no
+            // element directly overhead and up-press does nothing.
+            .focusSection()
         }
     }
 
@@ -129,6 +136,7 @@ struct SearchView: View {
                 .padding(.horizontal, 50)
                 .padding(.vertical, 20)
             }
+            .focusSection()
         }
     }
 
