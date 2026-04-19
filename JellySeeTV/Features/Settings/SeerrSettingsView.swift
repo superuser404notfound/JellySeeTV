@@ -457,6 +457,9 @@ struct SeerrSettingsView: View {
         do {
             try await dependencies.seerrAuthService.logout()
         } catch {
+            #if DEBUG
+            print("[SeerrSettings] remote logout failed (clearing local session anyway): \(error)")
+            #endif
         }
         try? dependencies.clearSeerrSession()
         appState.disconnectSeerr()
