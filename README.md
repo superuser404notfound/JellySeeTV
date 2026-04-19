@@ -1,24 +1,31 @@
 <h1 align="center">JellySeeTV</h1>
 
 <p align="center">
-  <b>Your Jellyfin library on Apple TV — the way it should feel.</b><br>
-  Native tvOS, instant playback, real HDR, real Dolby Atmos, and one tap to request what's missing.
+  <b>Your Jellyfin library <i>and</i> Jellyseerr — together on Apple TV.</b><br>
+  Native tvOS, instant playback, real HDR, real Dolby Atmos.<br>
+  Browse what you own. Request what's missing. Without ever leaving the couch.
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/tvOS-26%2B-black?logo=apple">
   <img src="https://img.shields.io/badge/Swift-6.0%2B-F05138?logo=swift&logoColor=white">
-  <img src="https://img.shields.io/badge/license-LGPL--3.0-lightgrey">
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey">
   <img src="https://img.shields.io/badge/languages-26-blue">
 </p>
 
 ---
 
+## Two services, one remote
+
+JellySeeTV is the only Apple TV client that brings **Jellyfin and Jellyseerr together in the same UI**. Watch what's already on your server. Spot something on a trending row that isn't there yet? Request it from inside the app — Jellyseerr handles the rest.
+
+No more switching to a phone, opening a web UI, or pinging your homelab admin. Single sign-on, one focus-driven interface, the full library + request loop on the TV where you actually watch.
+
 ## Why JellySeeTV
 
 Jellyfin is great. The existing Apple TV clients are either web wrappers or built around third-party players that fight tvOS instead of using it. JellySeeTV is built natively from the ground up: SwiftUI on top, a custom video engine underneath, and the same HIG patterns Apple uses for TV+ — focus engine, Siri Remote gestures, transport bar, info panel. Plays the file directly from your server in almost every case, no transcoding required.
 
-And when you spot something on a streaming service that isn't in your library yet — request it from the same app. Jellyseerr handles the rest.
+And the Jellyseerr integration isn't a tacked-on link to a web view — it's a first-class part of the app, with its own browse rows, request flow, and status tracking right next to your library.
 
 ## Screenshots
 
@@ -121,4 +128,4 @@ Xcode 26+ and Swift 6.0+ are required.
 
 ## License
 
-[LGPL-3.0](LICENSE).
+[MIT](LICENSE).
