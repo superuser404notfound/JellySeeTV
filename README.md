@@ -21,6 +21,12 @@ JellySeeTV is the only Apple TV client that brings **Jellyfin and Seerr together
 
 No more switching to a phone, opening a web UI, or pinging your homelab admin. Single sign-on, one focus-driven interface, the full library + request loop on the TV where you actually watch.
 
+## Open source, end to end
+
+Most Apple TV media players are closed-source binaries you have to trust. JellySeeTV isn't. Every byte that touches your server is in this repo, your auth tokens stay in your Keychain, and there's no telemetry, no analytics, no third-party SDK phoning home.
+
+JellySeeTV itself is **MIT** — fork it, rebrand it, ship it. The video stack underneath ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) is **LGPL-3.0**, which keeps engine-level improvements flowing back to the community. Both are auditable, buildable from source, and free of any vendor lock-in. Self-host the server, self-build the client — the whole loop is yours.
+
 ## Why JellySeeTV
 
 Jellyfin is great. The existing Apple TV clients are either web wrappers or built around third-party players that fight tvOS instead of using it. JellySeeTV is built natively from the ground up: SwiftUI on top, a custom video engine underneath, and the same HIG patterns Apple uses for TV+ — focus engine, Siri Remote gestures, transport bar, info panel. Plays the file directly from your server in almost every case, no transcoding required.
@@ -64,7 +70,6 @@ And the Seerr integration isn't a tacked-on link to a web view — it's a first-
 - **Dark, minimal design** — built for living rooms, not for desks
 - **Liquid Glass** UI accents on tvOS 26+
 - **Siri Remote optimized** — touch surface scrubbing, click for play/pause, swipe gestures throughout
-- **No telemetry, no ads, no accounts** — your server, your client, nothing in between
 
 ## Built on
 
