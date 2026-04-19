@@ -1,7 +1,7 @@
 <h1 align="center">JellySeeTV</h1>
 
 <p align="center">
-  <b>Your Jellyfin library <i>and</i> Jellyseerr — together on Apple TV.</b><br>
+  <b>Your Jellyfin library <i>and</i> Seerr — together on Apple TV.</b><br>
   Native tvOS, instant playback, real HDR, real Dolby Atmos.<br>
   Browse what you own. Request what's missing. Without ever leaving the couch.
 </p>
@@ -17,7 +17,7 @@
 
 ## Two services, one remote
 
-JellySeeTV is the only Apple TV client that brings **Jellyfin and Jellyseerr together in the same UI**. Watch what's already on your server. Spot something on a trending row that isn't there yet? Request it from inside the app — Jellyseerr handles the rest.
+JellySeeTV is the only Apple TV client that brings **Jellyfin and Seerr together in the same UI**. Watch what's already on your server. Spot something on a trending row that isn't there yet? Request it from inside the app — Seerr handles the rest.
 
 No more switching to a phone, opening a web UI, or pinging your homelab admin. Single sign-on, one focus-driven interface, the full library + request loop on the TV where you actually watch.
 
@@ -25,7 +25,7 @@ No more switching to a phone, opening a web UI, or pinging your homelab admin. S
 
 Jellyfin is great. The existing Apple TV clients are either web wrappers or built around third-party players that fight tvOS instead of using it. JellySeeTV is built natively from the ground up: SwiftUI on top, a custom video engine underneath, and the same HIG patterns Apple uses for TV+ — focus engine, Siri Remote gestures, transport bar, info panel. Plays the file directly from your server in almost every case, no transcoding required.
 
-And the Jellyseerr integration isn't a tacked-on link to a web view — it's a first-class part of the app, with its own browse rows, request flow, and status tracking right next to your library.
+And the Seerr integration isn't a tacked-on link to a web view — it's a first-class part of the app, with its own browse rows, request flow, and status tracking right next to your library.
 
 ## Screenshots
 
@@ -54,7 +54,7 @@ And the Jellyseerr integration isn't a tacked-on link to a web view — it's a f
 - **Native player UI** — same transport bar, scrub preview and info panel as Apple TV+
 
 ### 📨 Request what's missing
-- **Jellyseerr integration** — browse trending and popular media right inside the app
+- **Seerr integration** — browse trending and popular media right inside the app
 - **One-tap requests** — for movies and full series
 - **Track status** — see what's been approved, declined, or is already downloading
 - **Single sign-on** — log in once, JellySeeTV handles your Seerr session
@@ -89,7 +89,7 @@ If you want the full pipeline detail — HDR routing, Atmos passthrough, A/V syn
 | Apple TV | 4K (any generation) |
 | tvOS | 26.0 |
 | Jellyfin server | 10.9+ recommended |
-| Jellyseerr (optional) | 2.0+ |
+| Seerr (optional) | 2.0+ |
 
 A 1080p Apple TV HD will technically run the app, but Direct Play of 4K HDR content needs the 4K hardware.
 
@@ -123,7 +123,7 @@ Xcode 26+ and Swift 6.0+ are required.
 
 - [AetherEngine](https://github.com/superuser404notfound/AetherEngine) — the video engine powering JellySeeTV
 - [Jellyfin](https://github.com/jellyfin/jellyfin) — the free software media system
-- [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) — request management for Jellyfin
+- [Seerr](https://github.com/Fallenbagel/jellyseerr) — request management for Jellyfin
 - [Swiftfin](https://github.com/jellyfin/Swiftfin) — official Jellyfin client for iOS / tvOS (VLCKit-based)
 
 ## License
