@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import AetherEngine
 
 /// Device-local playback preferences. Backed by `UserDefaults` so they
 /// survive app restarts; not synced via CloudSyncService because most of
@@ -21,6 +22,8 @@ final class PlaybackPreferences {
         static let preferredAudioLanguage = "playback.preferredAudioLanguage"
         static let preferredSubtitleLanguage = "playback.preferredSubtitleLanguage"
         static let autoSkipIntro = "playback.autoSkipIntro"
+        static let audioProcessing = "playback.audioProcessing"
+        static let dialogBoost = "playback.dialogBoost"
     }
 
     // MARK: - Allowed Values
@@ -75,6 +78,17 @@ final class PlaybackPreferences {
         didSet { store.set(preferredSubtitleLanguage, forKey: Keys.preferredSubtitleLanguage) }
     }
 
+    /// Default Night Mode applied at the start of every playback session.
+    /// User can still override per-film from the in-player audio button.
+    var audioProcessing: AudioProcessingMode {
+        didSet { store.set(audioProcessing.rawValue, forKey: Keys.audioProcessing) }
+    }
+
+    /// Default Dialog Boost applied at the start of every playback session.
+    var dialogBoost: Bool {
+        didSet { store.set(dialogBoost, forKey: Keys.dialogBoost) }
+    }
+
     // MARK: - Init
 
     private let store: UserDefaults
@@ -87,5 +101,8 @@ final class PlaybackPreferences {
         self.skipIntervalSeconds = store.object(forKey: Keys.skipIntervalSeconds) as? Int ?? 10
         self.preferredAudioLanguage = store.string(forKey: Keys.preferredAudioLanguage)
         self.preferredSubtitleLanguage = store.string(forKey: Keys.preferredSubtitleLanguage)
+        let storedMode = store.string(forKey: Keys.audioProcessing).flatMap(AudioProcessingMode.init(rawValue:))
+        self.audioProcessing = storedMode ?? .off
+        self.dialogBoost = store.object(forKey: Keys.dialogBoost) as? Bool ?? false
     }
 }

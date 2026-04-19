@@ -50,6 +50,7 @@ final class PlayerViewModel {
         case skipIntroButton
         case audioButton
         case subtitleButton
+        case audioModeButton
         case speedButton
     }
 
@@ -58,6 +59,9 @@ final class PlayerViewModel {
         case audio(highlighted: Int)   // index into player.audioTracks
         case subtitle(highlighted: Int) // index into subtitle items (0=Off, 1..=tracks)
         case speed(highlighted: Int)    // index into PlayerViewModel.speedOptions
+        /// Items 0–2 = Off / Light / Strong (mode, radio-style).
+        /// Item 3 = Dialog Boost toggle (stays open after select).
+        case audioMode(highlighted: Int)
     }
 
     var isDropdownOpen: Bool { trackDropdown != .none }
@@ -67,6 +71,23 @@ final class PlayerViewModel {
     static let speedOptions: [Float] = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
     /// Index into `speedOptions` for the currently applied rate.
     var activeSpeedIndex: Int = 2
+
+    // MARK: - Audio Processing
+
+    /// Per-session Night Mode override. The session is initialised
+    /// from `PlaybackPreferences.audioProcessing` in `init`. Changes
+    /// from the in-player audio button update this value, which then
+    /// pushes through to the engine via didSet — the global default
+    /// is intentionally not touched here (so a one-off late-night
+    /// session doesn't permanently change the user's preference).
+    var audioProcessing: AudioProcessingMode = .off {
+        didSet { player.audioProcessing = audioProcessing }
+    }
+
+    /// Per-session Dialog Boost. Same pattern as `audioProcessing`.
+    var dialogBoost: Bool = false {
+        didSet { player.dialogBoost = dialogBoost }
+    }
 
     // Tracks
     var subtitleCues: [SubtitleCue] = []
@@ -137,6 +158,10 @@ final class PlayerViewModel {
         self.userID = userID
         self.preferences = preferences
         self.cachedPlaybackInfo = cachedPlaybackInfo
+        // Seed per-session audio knobs from the user's stored defaults.
+        // didSet fires here, which pushes the values into the engine.
+        self.audioProcessing = preferences.audioProcessing
+        self.dialogBoost = preferences.dialogBoost
     }
 
     // MARK: - Lifecycle
