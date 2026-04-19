@@ -17,6 +17,10 @@ struct SearchTextField: UIViewRepresentable {
         field.placeholder = placeholder
         field.autocorrectionType = .no
         field.autocapitalizationType = .none
+        // tvOS UITextField defaults to a large system font; the
+        // inline search bar looks chunky with it. Match .body-ish
+        // sizing so the bar stays slim.
+        field.font = UIFont.systemFont(ofSize: 26, weight: .regular)
         field.delegate = context.coordinator
         field.addTarget(
             context.coordinator,

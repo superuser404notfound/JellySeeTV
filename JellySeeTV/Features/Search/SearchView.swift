@@ -43,33 +43,34 @@ struct SearchView: View {
     @ViewBuilder
     private var searchBar: some View {
         if let vm = viewModel {
-            HStack(spacing: 16) {
+            HStack(spacing: 14) {
                 Image(systemName: "magnifyingglass")
-                    .font(.title3)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
 
                 SearchTextField(
                     text: Bindable(vm).query,
                     placeholder: String(localized: "search.placeholder", defaultValue: "Search")
                 )
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: 36)
                 .onChange(of: vm.query) { _, _ in
                     vm.scheduleSearch()
                 }
 
                 if vm.isSearching {
                     ProgressView()
+                        .scaleEffect(0.8)
                 }
             }
-            .padding(.horizontal, 32)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 22)
+            .padding(.vertical, 4)
             .background(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: 10)
                     .fill(.white.opacity(0.08))
             )
             .padding(.horizontal, 80)
-            .padding(.top, 40)
-            .padding(.bottom, 20)
+            .padding(.top, 36)
+            .padding(.bottom, 16)
         }
     }
 
