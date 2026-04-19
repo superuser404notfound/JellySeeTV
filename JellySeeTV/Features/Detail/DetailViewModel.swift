@@ -182,11 +182,6 @@ final class DetailViewModel {
             )
             if Task.isCancelled { return }
             self.cachedPlaybackInfo = response
-            #if DEBUG
-            if response != nil {
-                print("[Prefetch] PlaybackInfo cached for \(itemID)")
-            }
-            #endif
         }
     }
 
