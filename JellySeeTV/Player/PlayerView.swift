@@ -217,7 +217,6 @@ final class PlayerHostController: UIViewController {
             case .skipIntroButton: viewModel.skipIntro()
             case .audioButton: openAudioDropdown()
             case .subtitleButton: openSubtitleDropdown()
-            case .audioModeButton: openAudioModeDropdown()
             case .speedButton: openSpeedDropdown()
             default: break
             }
@@ -285,9 +284,6 @@ final class PlayerHostController: UIViewController {
         if viewModel.isInsideIntro { order.append(.skipIntroButton) }
         if !viewModel.player.audioTracks.isEmpty { order.append(.audioButton) }
         if !viewModel.subtitleStreams.isEmpty { order.append(.subtitleButton) }
-        // Audio Mode is hidden while the Atmos passthrough path is
-        // active — DSP wouldn't apply, so the button would do nothing.
-        if !viewModel.player.isAtmosActive { order.append(.audioModeButton) }
         order.append(.speedButton)
         guard let current = order.firstIndex(of: viewModel.controlsFocus) else { return }
         let next = current + direction
@@ -309,7 +305,7 @@ final class PlayerHostController: UIViewController {
                 else if hasAudio { viewModel.controlsFocus = .audioButton }
                 else if hasSubs { viewModel.controlsFocus = .subtitleButton }
                 else { viewModel.controlsFocus = .speedButton }
-            case .skipIntroButton, .audioButton, .subtitleButton, .audioModeButton, .speedButton:
+            case .skipIntroButton, .audioButton, .subtitleButton, .speedButton:
                 break
             }
         } else {
@@ -359,13 +355,6 @@ final class PlayerHostController: UIViewController {
         viewModel.trackDropdown = .speed(highlighted: viewModel.activeSpeedIndex)
     }
 
-    private func openAudioModeDropdown() {
-        viewModel.controlsTimer?.cancel()
-        // Highlight the row matching the current mode (0=Off, 1=Light, 2=Strong).
-        let modeIdx = AudioProcessingMode.allCases.firstIndex(of: viewModel.audioProcessing) ?? 0
-        viewModel.trackDropdown = .audioMode(highlighted: modeIdx)
-    }
-
     private func moveDropdownHighlight(by offset: Int) {
         switch viewModel.trackDropdown {
         case .audio(let idx):
@@ -382,11 +371,6 @@ final class PlayerHostController: UIViewController {
             let count = PlayerViewModel.speedOptions.count
             let newIdx = max(0, min(count - 1, idx + offset))
             viewModel.trackDropdown = .speed(highlighted: newIdx)
-        case .audioMode(let idx):
-            // 3 mode rows + 1 dialog-boost toggle row = 4 items.
-            let count = AudioProcessingMode.allCases.count + 1
-            let newIdx = max(0, min(count - 1, idx + offset))
-            viewModel.trackDropdown = .audioMode(highlighted: newIdx)
         case .none:
             break
         }
@@ -417,18 +401,6 @@ final class PlayerHostController: UIViewController {
             viewModel.selectSpeed(index: idx)
             viewModel.trackDropdown = .none
             viewModel.scheduleControlsHide()
-        case .audioMode(let idx):
-            let modes = AudioProcessingMode.allCases
-            if idx < modes.count {
-                // Mode row: apply and close like a regular picker.
-                viewModel.audioProcessing = modes[idx]
-                viewModel.trackDropdown = .none
-                viewModel.scheduleControlsHide()
-            } else {
-                // Dialog Boost toggle: flip and stay open so the user
-                // can hear the difference and then decide.
-                viewModel.dialogBoost.toggle()
-            }
         case .none:
             break
         }
@@ -713,9 +685,6 @@ private struct PlayerOverlayView: View {
                     activeAudioIndex: viewModel.activeAudioIndex,
                     activeSubtitleIndex: viewModel.activeSubtitleIndex,
                     activeSpeedIndex: viewModel.activeSpeedIndex,
-                    audioProcessing: viewModel.audioProcessing,
-                    dialogBoost: viewModel.dialogBoost,
-                    showAudioModeButton: !viewModel.player.isAtmosActive,
                     controlsFocus: viewModel.controlsFocus,
                     trackDropdown: viewModel.trackDropdown,
                     showSkipIntroButton: viewModel.isInsideIntro

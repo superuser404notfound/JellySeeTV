@@ -1,5 +1,4 @@
 import SwiftUI
-import AetherEngine
 
 /// Playback preferences UI. Each row is a single focusable surface:
 /// the Siri Remote's left/right swipe cycles through values directly —
@@ -65,36 +64,6 @@ struct PlaybackSettingsView: View {
                         set: { prefs.skipIntervalSeconds = $0 }
                     ),
                     label: { seconds in "\(seconds) s" }
-                )
-
-                sectionHeader("settings.playback.section.audio")
-
-                valueRow(
-                    icon: "moon.zzz",
-                    title: "settings.playback.audioProcessing",
-                    subtitle: "settings.playback.audioProcessing.subtitle",
-                    options: AudioProcessingMode.allCases,
-                    selection: Binding(
-                        get: { prefs.audioProcessing },
-                        set: { prefs.audioProcessing = $0 }
-                    ),
-                    label: { mode in
-                        switch mode {
-                        case .off: return String(localized: "settings.playback.audioProcessing.off", defaultValue: "Off")
-                        case .light: return String(localized: "settings.playback.audioProcessing.light", defaultValue: "Light")
-                        case .strong: return String(localized: "settings.playback.audioProcessing.strong", defaultValue: "Strong")
-                        }
-                    }
-                )
-
-                boolRow(
-                    icon: "waveform.badge.mic",
-                    title: "settings.playback.dialogBoost",
-                    subtitle: "settings.playback.dialogBoost.subtitle",
-                    value: Binding(
-                        get: { prefs.dialogBoost },
-                        set: { prefs.dialogBoost = $0 }
-                    )
                 )
 
                 sectionHeader("settings.playback.section.languages")

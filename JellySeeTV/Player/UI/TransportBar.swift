@@ -26,10 +26,6 @@ struct TransportBar: View {
     let activeAudioIndex: Int?
     let activeSubtitleIndex: Int?
     let activeSpeedIndex: Int
-    let audioProcessing: AudioProcessingMode
-    let dialogBoost: Bool
-    /// Hidden during Atmos passthrough (DSP cannot run on the bitstream).
-    let showAudioModeButton: Bool
     let controlsFocus: PlayerViewModel.ControlsFocus
     let trackDropdown: PlayerViewModel.TrackDropdown
     /// When true, a Skip Intro button sits at the leftmost slot of the
@@ -89,16 +85,6 @@ struct TransportBar: View {
                     )
                 }
 
-                if showAudioModeButton {
-                    trackButton(
-                        label: audioModeButtonLabel,
-                        icon: "moon.zzz",
-                        isFocused: controlsFocus == .audioModeButton,
-                        dropdown: audioModeDropdownItems,
-                        isOpen: isAudioModeDropdownOpen
-                    )
-                }
-
                 trackButton(
                     label: TransportBar.speedLabel(for: activeSpeedIndex),
                     icon: "gauge.with.needle",
@@ -151,28 +137,6 @@ struct TransportBar: View {
     private var isSpeedDropdownOpen: Bool {
         if case .speed = trackDropdown { return true }
         return false
-    }
-
-    private var isAudioModeDropdownOpen: Bool {
-        if case .audioMode = trackDropdown { return true }
-        return false
-    }
-
-    /// Compact label for the button when collapsed. Reflects what's
-    /// currently active so the user can see at a glance whether
-    /// Night Mode / Boost is on.
-    private var audioModeButtonLabel: String {
-        let modeLabel: String
-        switch audioProcessing {
-        case .off: modeLabel = String(localized: "player.audioMode.off", defaultValue: "Off")
-        case .light: modeLabel = String(localized: "player.audioMode.light", defaultValue: "Light")
-        case .strong: modeLabel = String(localized: "player.audioMode.strong", defaultValue: "Strong")
-        }
-        if dialogBoost {
-            let boost = String(localized: "player.audioMode.boostShort", defaultValue: "Boost")
-            return "\(modeLabel) · \(boost)"
-        }
-        return modeLabel
     }
 
     /// "1×" / "1.5×" / "0.75×" — fixed-style, not localized (the × glyph
@@ -230,34 +194,6 @@ struct TransportBar: View {
                 isHighlighted: idx == highlighted
             )
         }
-    }
-
-    /// Items 0–2 are Night Mode (radio); item 3 is Dialog Boost (toggle).
-    /// PlayerView.confirmDropdownSelection routes the press accordingly.
-    private var audioModeDropdownItems: [DropdownItem] {
-        guard case .audioMode(let highlighted) = trackDropdown else { return [] }
-        let modes = AudioProcessingMode.allCases
-        var items: [DropdownItem] = modes.enumerated().map { idx, mode in
-            let title: String
-            switch mode {
-            case .off: title = String(localized: "player.audioMode.row.off", defaultValue: "Night Mode: Off")
-            case .light: title = String(localized: "player.audioMode.row.light", defaultValue: "Night Mode: Light")
-            case .strong: title = String(localized: "player.audioMode.row.strong", defaultValue: "Night Mode: Strong")
-            }
-            return DropdownItem(
-                title: title,
-                isActive: mode == audioProcessing,
-                isHighlighted: idx == highlighted
-            )
-        }
-        items.append(
-            DropdownItem(
-                title: String(localized: "player.audioMode.row.dialogBoost", defaultValue: "Dialog Boost"),
-                isActive: dialogBoost,
-                isHighlighted: highlighted == modes.count
-            )
-        )
-        return items
     }
 
     // MARK: - Track Button + Dropdown
