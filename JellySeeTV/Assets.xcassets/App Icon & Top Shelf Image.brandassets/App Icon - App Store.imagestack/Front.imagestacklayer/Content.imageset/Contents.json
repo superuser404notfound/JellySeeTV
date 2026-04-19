@@ -1,11 +1,12 @@
 {
-  "images" : [
+  "images": [
     {
-      "idiom" : "tv"
+      "idiom": "tv",
+      "filename": "icon.png"
     }
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
+  "info": {
+    "author": "xcode",
+    "version": 1
   }
 }
