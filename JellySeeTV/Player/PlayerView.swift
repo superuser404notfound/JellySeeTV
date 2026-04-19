@@ -70,6 +70,15 @@ final class PlayerHostController: UIViewController {
 
     private var hasLaunched = false
 
+    /// Tracks the currently hosted video layer. AetherEngine can replace
+    /// the underlying layer on every load() (see its
+    /// `onVideoLayerReplaced` callback and the "undefined behavior"
+    /// warnings in SampleBufferRenderer). When that happens we need to
+    /// pull the old sublayer out of our view hierarchy and drop the new
+    /// one in — otherwise the host view keeps pointing at a stale layer
+    /// that AetherEngine no longer feeds.
+    private var hostedVideoLayer: CALayer?
+
     init(viewModel: PlayerViewModel, onDismiss: @escaping () -> Void) {
         self.viewModel = viewModel
         self.onDismiss = onDismiss
@@ -83,7 +92,19 @@ final class PlayerHostController: UIViewController {
         view.backgroundColor = .black
 
         // Video layer
-        view.layer.addSublayer(viewModel.player.videoLayer)
+        let layer = viewModel.player.videoLayer
+        view.layer.addSublayer(layer)
+        hostedVideoLayer = layer
+
+        // Swap the sublayer if the engine recreates its video layer
+        // (happens on every load() to avoid stale state from the
+        // previous session). Without this the view keeps the old,
+        // unfed layer and the user sees a frozen or black picture.
+        viewModel.player.onVideoLayerReplaced = { [weak self] newLayer in
+            Task { @MainActor in
+                self?.swapVideoLayer(to: newLayer)
+            }
+        }
 
         // SwiftUI overlays (display-only)
         let overlay = PlayerOverlayView(viewModel: viewModel)
@@ -137,7 +158,7 @@ final class PlayerHostController: UIViewController {
         super.viewDidLayoutSubviews()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        viewModel.player.videoLayer.frame = view.bounds
+        hostedVideoLayer?.frame = view.bounds
         CATransaction.commit()
     }
 
@@ -147,8 +168,19 @@ final class PlayerHostController: UIViewController {
         // Display mode switches (HDR/SDR) briefly trigger viewWillDisappear
         // without actually dismissing — don't kill playback for that.
         guard isBeingDismissed || isMovingFromParent else { return }
-        viewModel.player.videoLayer.removeFromSuperlayer()
+        hostedVideoLayer?.removeFromSuperlayer()
+        viewModel.player.onVideoLayerReplaced = nil
         Task { await viewModel.stopPlayback() }
+    }
+
+    private func swapVideoLayer(to newLayer: CALayer) {
+        hostedVideoLayer?.removeFromSuperlayer()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        newLayer.frame = view.bounds
+        view.layer.insertSublayer(newLayer, at: 0)
+        CATransaction.commit()
+        hostedVideoLayer = newLayer
     }
 
     @objc private func appDidBecomeActive() {
@@ -375,7 +407,8 @@ final class PlayerHostController: UIViewController {
     }
 
     private func dismissPlayer() {
-        viewModel.player.videoLayer.removeFromSuperlayer()
+        hostedVideoLayer?.removeFromSuperlayer()
+        viewModel.player.onVideoLayerReplaced = nil
         viewModel.resetDisplayCriteria()
         Task {
             await viewModel.stopPlayback()
