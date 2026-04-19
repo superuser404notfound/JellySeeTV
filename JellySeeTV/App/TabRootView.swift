@@ -31,10 +31,24 @@ struct TabRootView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             ForEach(AppTab.allCases, id: \.self) { tab in
-                Tab(value: tab) {
-                    tabContent(for: tab)
-                } label: {
-                    Label(tab.labelKey, systemImage: tab.systemImage)
+                // The search tab gets role: .search so tvOS knows to
+                // prewarm its search UI. Without it, switching to the
+                // search tab triggers a ~1-2s rebuild of the navigation
+                // bar and the keyboard overlay on demand; with it, tvOS
+                // treats the tab as the conventional search surface and
+                // has both ready the moment the tab becomes active.
+                if tab == .search {
+                    Tab(value: tab, role: .search) {
+                        tabContent(for: tab)
+                    } label: {
+                        Label(tab.labelKey, systemImage: tab.systemImage)
+                    }
+                } else {
+                    Tab(value: tab) {
+                        tabContent(for: tab)
+                    } label: {
+                        Label(tab.labelKey, systemImage: tab.systemImage)
+                    }
                 }
             }
         }
