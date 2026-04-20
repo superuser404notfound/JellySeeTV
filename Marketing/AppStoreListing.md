@@ -3,8 +3,11 @@
 Drafts for App Store Connect. Copy-paste into the matching fields.
 
 **Versioning convention used here:**
-- Marketing version: `1.0.0`
-- Build number: `1` (TestFlight build #1)
+- TestFlight / Beta phase: `0.x.y` (currently `0.1.0`)
+- Patch (bugfix-only): `0.1.x`
+- Minor (new feature): `0.x.0`
+- `1.0.0` is reserved for the first stable App Store release (post-Beta)
+- Build number: resets to `1` on every MARKETING_VERSION change, monotonically increases within a marketing version
 
 **Limits Apple enforces:**
 
@@ -93,16 +96,15 @@ jellyfin,seerr,jellyseerr,media,player,hdr,dolby,atmos,4k,homelab,plex,emby
 - `jellyseerr` included as alias since it was the previous brand name and people still search for it
 - `plex,emby` for competitive discovery (users searching alternatives find JST)
 
-### What's New (for 1.0.0)
+### What's New (for 0.1.0)
 ```
-Welcome to JellySeeTV — the first release.
+JellySeeTV 0.1.0 is the first public TestFlight build.
 
 Native Jellyfin client for Apple TV with built-in Seerr integration. Direct Play, real HDR10 / Dolby Vision, real Dolby Atmos. 26 languages. Open source.
 
-Spotted a bug or want to request a feature? GitHub issues are open:
-https://github.com/superuser404notfound/JellySeeTV/issues
+This is a Beta release. Crashes and edge-case bugs are possible. Please report what you find: https://github.com/superuser404notfound/JellySeeTV/issues
 ```
-(327 chars)
+(380 chars)
 
 ### Support URL
 ```
@@ -197,16 +199,15 @@ jellyfin,seerr,jellyseerr,medienspieler,heimkino,hdr,dolby,atmos,4k,homelab,plex
 ```
 (86 chars)
 
-### Was ist neu (für 1.0.0)
+### Was ist neu (für 0.1.0)
 ```
-Willkommen bei JellySeeTV — das erste Release.
+JellySeeTV 0.1.0 ist der erste öffentliche TestFlight-Build.
 
 Nativer Jellyfin-Client für Apple TV mit eingebauter Seerr-Integration. Direct Play, echtes HDR10 / Dolby Vision, echtes Dolby Atmos. 26 Sprachen. Open Source.
 
-Bug entdeckt oder Feature-Wunsch? GitHub-Issues sind offen:
-https://github.com/superuser404notfound/JellySeeTV/issues
+Dies ist ein Beta-Release. Abstürze und Edge-Case-Bugs sind möglich. Bitte melde, was du findest: https://github.com/superuser404notfound/JellySeeTV/issues
 ```
-(322 chars)
+(380 chars)
 
 ### Support-URL
 ```
@@ -256,7 +257,8 @@ If a working test environment is required, we can provide temporary read-only cr
 The app contains no in-app purchases, no advertising, no telemetry, and no user tracking. Source code is publicly auditable at https://github.com/superuser404notfound/JellySeeTV
 ```
 
-### Contact Information
+### 
+
 - **First Name:** Vincent
 - **Last Name:** Herbst
 - **Phone:** *(your number, optional but speeds up review contact)*
@@ -269,3 +271,29 @@ The app contains no in-app purchases, no advertising, no telemetry, and no user 
 - The 24 languages beyond EN/DE are **not** required for App Store listing localization at launch. Apple shows the app in the user's preferred language if available, otherwise falls back to the primary listing.
 - Adding more localizations later is non-breaking — can be done at any time without resubmission.
 - The **app's UI** is localized in all 26 languages (separately from the App Store listing).
+
+
+
+TEST TEXT ----- 
+
+
+Welcome to JellySeeTV — public beta!                                                                                                                                        
+                                                                                
+  JellySeeTV is a native Apple TV client for self-hosted Jellyfin servers, with built-in Seerr/Jellyseerr integration for browsing and requesting media. Direct Play, real HDR10 /  
+  Dolby Vision, real Dolby Atmos. Open source (MIT).                            
+                                                                                                                                                                                    
+  Note for Apple Reviewer: this app requires a Jellyfin server, which the user must self-host. Without server access the login screen, server discovery flow and error handling can 
+  still be exercised. If a working test environment is needed, please contact superuser404@tuta.com for temporary read-only credentials to a private Jellyfin instance.
+                                                                                                                                                                                    
+  What to focus on for this build:                                                                                                                                                  
+  • Server discovery + login (auto-discovery on the local network, plus manual URL entry)                                                                                           
+  • Browsing — Home, Library, Series detail, Search across both library and Seerr catalog                                                                                           
+  • Playback — Direct Play across codecs, HDR display switching, Dolby Atmos passthrough, audio/subtitle track switching                                                            
+  • Seerr integration — browse trending, request a movie or series, status display                                                                                                  
+  • Resume + auto-play next episode for series                                                                                                                                      
+                                                                                                                                                                                    
+  Known limitations: HDR display switching depends on the TV model and the Match Content setting. TestFlight builds expire after 90 days.                                           
+                                                                                
+  Full tester guide and how to file bugs: https://github.com/superuser404notfound/JellySeeTV/blob/main/BETA.md                                                                      
+                                                                                                                                                                                    
+  Source code: https://github.com/superuser404notfound/JellySeeTV

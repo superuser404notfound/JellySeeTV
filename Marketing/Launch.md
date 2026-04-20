@@ -59,7 +59,7 @@ See [BETA.md](BETA.md) for the full list and the bug report template. The high v
 
 Open a new issue using the Bug Report template. Please include:
 
-* App build (Settings, scroll to the bottom, e.g. `1.0.0 (3)`)
+* App build (Settings, scroll to the bottom, e.g. `0.1.0 (1)`)
 * tvOS version
 * Steps to reproduce
 * Photo of the screen if it's a visual bug
