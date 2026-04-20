@@ -569,26 +569,33 @@ private struct PlayerOverlayView: View {
     }
 
     private func cardBody(for episode: JellyfinItem) -> some View {
-        ZStack {
-            // Backdrop: episode thumbnail, dimmed so the text on top
-            // stays legible. Sits as a layer inside the ZStack rather
-            // than as a `.background()` modifier so it actually fills
-            // the card frame (a `.background()` AsyncImage gets
-            // proposed an intrinsic size of zero and never appears).
+        ZStack(alignment: .topLeading) {
+            // Backdrop: episode thumbnail, dimmed so text stays
+            // legible. Without an explicit frame + clipped() the
+            // AsyncImage's intrinsic size leaks into ZStack sizing
+            // and a portrait thumbnail (e.g. when only a series
+            // poster is available as fallback) blows the card up
+            // into a tall portrait.
             if let imageURL = episodeThumbnailURL(for: episode) {
                 AsyncImage(url: imageURL) { image in
                     image.resizable().aspectRatio(contentMode: .fill)
                 } placeholder: {
                     Color.clear
                 }
+                .frame(width: 380, height: 214)
+                .clipped()
                 .opacity(0.4)
             }
 
-            // Foreground text content.
-            VStack(alignment: .leading, spacing: 12) {
+            // Foreground text content. .topLeading alignment + Spacer
+            // distribute header / title / countdown across the card
+            // height instead of bunching them in the centre.
+            VStack(alignment: .leading, spacing: 0) {
                 Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.85))
+
+                Spacer(minLength: 8)
 
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     if let s = episode.parentIndexNumber, let e = episode.indexNumber {
@@ -604,6 +611,8 @@ private struct PlayerOverlayView: View {
                 .font(.body)
                 .fontWeight(.semibold)
 
+                Spacer(minLength: 8)
+
                 if viewModel.isCountdownActive, viewModel.nextEpisodeCountdown > 0 {
                     Text("player.nextEpisode.countdown \(viewModel.nextEpisodeCountdown)")
                         .font(.caption)
@@ -613,15 +622,13 @@ private struct PlayerOverlayView: View {
                 }
             }
             .padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(width: 380, height: 214, alignment: .topLeading)
         }
-        // 380 × 214 = 16:9 baseline matching the Jellyfin thumbnail
-        // aspect. minHeight (not fixed height) so an extreme title can
-        // grow the card vertically instead of clipping.
-        .frame(width: 380)
-        .frame(minHeight: 214)
-        // thinMaterial UNDER the ZStack so the image floats on top of
-        // the glass blur but text floats above the image.
+        // Fixed 16:9 card. Both the image and the content above use
+        // the same explicit 380x214 frame, so the ZStack itself is
+        // exactly that size — nothing intrinsic-leaking can stretch
+        // it into a portrait.
+        .frame(width: 380, height: 214)
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
