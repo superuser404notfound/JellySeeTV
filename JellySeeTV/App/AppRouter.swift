@@ -4,6 +4,13 @@ struct AppRouter: View {
     @Environment(\.appState) private var appState
     @Environment(\.dependencies) private var dependencies
 
+    /// Tracks whether the initial session restore + splash has already
+    /// run for this process. SwiftUI re-fires `.task` when the AppRouter
+    /// view temporarily disappears (e.g. while the UIKit-presented
+    /// player modal is on screen) — without this guard, returning from
+    /// the player would show the launch splash again.
+    @State private var hasRestored = false
+
     var body: some View {
         ZStack {
             if appState.isAuthenticated {
@@ -25,6 +32,8 @@ struct AppRouter: View {
         }
         .animation(.easeOut(duration: 0.4), value: appState.isLoading)
         .task {
+            guard !hasRestored else { return }
+            hasRestored = true
             await restoreSession()
         }
     }
