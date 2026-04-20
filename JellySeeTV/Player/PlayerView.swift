@@ -556,83 +556,70 @@ private struct PlayerOverlayView: View {
     }
 
     private func nextEpisodeOverlay(_ episode: JellyfinItem) -> some View {
+        // Clean rewrite. Previous attempts kept fighting modifier-order
+        // and Spacer-expansion edge cases; this version uses an
+        // intrinsic-sized VStack inside a card with fixed width and
+        // min height (not fixed height). The card grows if content
+        // truly needs more vertical space — no clipping path possible.
         VStack {
             Spacer()
             HStack {
                 Spacer()
-                ZStack {
-                    // Episode thumbnail as dimmed background
-                    if let imageURL = episodeThumbnailURL(for: episode) {
-                        AsyncImage(url: imageURL) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Color.clear
-                        }
-                        .opacity(0.3)
-                    }
-
-                    // Glass overlay + content
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.85))
-                            .padding(.bottom, 8)
-
-                        Spacer(minLength: 0)
-
-                        HStack(alignment: .top, spacing: 4) {
-                            if let s = episode.parentIndexNumber, let e = episode.indexNumber {
-                                Text("S\(s)E\(e)")
-                                    .foregroundStyle(.white.opacity(0.85))
-                                    .layoutPriority(1)
+                cardBody(for: episode)
+                    .frame(width: 380)
+                    .background(
+                        ZStack {
+                            // Backdrop image dimmed in the background.
+                            if let imageURL = episodeThumbnailURL(for: episode) {
+                                AsyncImage(url: imageURL) { image in
+                                    image.resizable().aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    Color.clear
+                                }
+                                .opacity(0.3)
                             }
-                            // Up to two lines for longer titles, truncated
-                            // with ellipsis if even that's not enough. The
-                            // earlier clipping bug came from the modifier
-                            // order outside this HStack, not from the line
-                            // count, so two lines fit comfortably now that
-                            // padding is applied before the maxSize frame.
-                            Text(episode.name)
-                                .foregroundStyle(.white)
-                                .lineLimit(2)
-                                .truncationMode(.tail)
+                            Rectangle().fill(.thinMaterial)
                         }
-                        .font(.body)
-                        .fontWeight(.semibold)
-
-                        Spacer(minLength: 0)
-
-                        if viewModel.isCountdownActive, viewModel.nextEpisodeCountdown > 0 {
-                            Text("player.nextEpisode.countdown \(viewModel.nextEpisodeCountdown)")
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.75))
-                                .monospacedDigit()
-                                .contentTransition(.numericText())
-                                .padding(.top, 8)
-                        }
-                    }
-                    // Padding BEFORE the maxSize frame so the inset is
-                    // computed inside the card. Padding after a maxSize
-                    // frame adds 48x32 around the already-maxed VStack,
-                    // pushing the header off the top and the countdown
-                    // off the bottom of the 380x214 clipped area.
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 16)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                }
-                .frame(width: 380, height: 214) // 16:9
-                .background(.thinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                // Tucks into the bottom-right corner when nothing else
-                // is on screen, then lifts above the transport bar once
-                // the controls open so it doesn't cover the track buttons.
-                .padding(.trailing, viewModel.showControls ? 60 : 40)
-                .padding(.bottom, viewModel.showControls ? 300 : 40)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .padding(.trailing, viewModel.showControls ? 60 : 40)
+                    .padding(.bottom, viewModel.showControls ? 300 : 40)
             }
         }
         .transition(.move(edge: .trailing).combined(with: .opacity))
+    }
+
+    private func cardBody(for episode: JellyfinItem) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.85))
+
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                if let s = episode.parentIndexNumber, let e = episode.indexNumber {
+                    Text("S\(s)E\(e)")
+                        .foregroundStyle(.white.opacity(0.85))
+                        .layoutPriority(1)
+                }
+                Text(episode.name)
+                    .foregroundStyle(.white)
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+            }
+            .font(.body)
+            .fontWeight(.semibold)
+
+            if viewModel.isCountdownActive, viewModel.nextEpisodeCountdown > 0 {
+                Text("player.nextEpisode.countdown \(viewModel.nextEpisodeCountdown)")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.75))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(minHeight: 200)
     }
 
     /// Build episode thumbnail URL directly from item data
