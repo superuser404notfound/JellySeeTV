@@ -1,0 +1,42 @@
+name: Feature request
+description: Suggest something JellySeeTV could do that it doesn't already
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us what you'd like the app to do and why. Concrete use cases beat abstract wishlists — the easier it is to picture the user sitting on the couch, the more likely the feature ships.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What's the feature?
+      description: One or two sentences.
+      placeholder: "A 'shuffle this season' button on the series detail view."
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why? When would you use it?
+      placeholder: "Sitcoms in the background while doing chores. I want to randomly pick an episode without manually scrolling and tapping."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Anything you tried instead?
+      description: Optional. Helps us understand whether existing features could be discoverable, or whether new code is needed.
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How important is this to you?
+      options:
+        - Nice to have
+        - Would use regularly
+        - Would significantly change how I use the app
+    validations:
+      required: true

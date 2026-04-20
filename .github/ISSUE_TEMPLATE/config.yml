@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/superuser404notfound/JellySeeTV/security/policy
+    about: Please report security issues via email — do not open a public issue. See SECURITY.md for details.
+  - name: Jellyfin server bug
+    url: https://github.com/jellyfin/jellyfin/issues
+    about: If the bug is on the server side (your library, transcoding, metadata), report it to the Jellyfin project.
+  - name: Seerr / Jellyseerr request flow
+    url: https://github.com/Fallenbagel/jellyseerr/issues
+    about: If the bug is in the Seerr request system, report it there.

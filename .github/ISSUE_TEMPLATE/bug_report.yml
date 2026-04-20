@@ -1,0 +1,79 @@
+name: Bug report
+description: Something didn't work the way you expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. The more specific you can be, the faster it gets fixed.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what did the app actually do instead?
+      placeholder: |
+        I tapped Play on a movie. I expected it to start playing.
+        Instead the player opened and stayed on a black screen with no controls.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact sequence of buttons / actions. The more reliably it reproduces, the faster a fix lands.
+      placeholder: |
+        1. Open JellySeeTV
+        2. Go to the catalog tab
+        3. Pick any movie that's tagged HDR
+        4. Press Play
+        5. Wait
+    validations:
+      required: true
+
+  - type: input
+    id: app-version
+    attributes:
+      label: JellySeeTV build
+      description: Settings → scroll to the bottom (e.g. `1.0.0 (3)`)
+      placeholder: "1.0.0 (3)"
+    validations:
+      required: true
+
+  - type: input
+    id: tvos-version
+    attributes:
+      label: tvOS version
+      description: Apple TV Settings → System → About → tvOS
+      placeholder: "26.0"
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Apple TV model
+      placeholder: "Apple TV 4K (3rd gen, 2022)"
+    validations:
+      required: true
+
+  - type: input
+    id: jellyfin-version
+    attributes:
+      label: Jellyfin server version
+      description: Only if the bug looks server-related
+      placeholder: "10.9.6"
+
+  - type: input
+    id: media-type
+    attributes:
+      label: Media (if a playback bug)
+      description: Container / video codec / audio codec / resolution / HDR
+      placeholder: "MKV, HEVC Main10 4K, EAC3+JOC 5.1, Dolby Vision Profile 8"
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Logs, screenshots, hunches, anything that might help. Photos of the screen are very welcome for visual bugs.
