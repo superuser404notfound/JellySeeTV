@@ -556,32 +556,11 @@ private struct PlayerOverlayView: View {
     }
 
     private func nextEpisodeOverlay(_ episode: JellyfinItem) -> some View {
-        // Clean rewrite. Previous attempts kept fighting modifier-order
-        // and Spacer-expansion edge cases; this version uses an
-        // intrinsic-sized VStack inside a card with fixed width and
-        // min height (not fixed height). The card grows if content
-        // truly needs more vertical space — no clipping path possible.
         VStack {
             Spacer()
             HStack {
                 Spacer()
                 cardBody(for: episode)
-                    .frame(width: 380)
-                    .background(
-                        ZStack {
-                            // Backdrop image dimmed in the background.
-                            if let imageURL = episodeThumbnailURL(for: episode) {
-                                AsyncImage(url: imageURL) { image in
-                                    image.resizable().aspectRatio(contentMode: .fill)
-                                } placeholder: {
-                                    Color.clear
-                                }
-                                .opacity(0.3)
-                            }
-                            Rectangle().fill(.thinMaterial)
-                        }
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
                     .padding(.trailing, viewModel.showControls ? 60 : 40)
                     .padding(.bottom, viewModel.showControls ? 300 : 40)
             }
@@ -590,41 +569,61 @@ private struct PlayerOverlayView: View {
     }
 
     private func cardBody(for episode: JellyfinItem) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.85))
-
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                if let s = episode.parentIndexNumber, let e = episode.indexNumber {
-                    Text("S\(s)E\(e)")
-                        .foregroundStyle(.white.opacity(0.85))
-                        .layoutPriority(1)
+        ZStack {
+            // Backdrop: episode thumbnail, dimmed so the text on top
+            // stays legible. Sits as a layer inside the ZStack rather
+            // than as a `.background()` modifier so it actually fills
+            // the card frame (a `.background()` AsyncImage gets
+            // proposed an intrinsic size of zero and never appears).
+            if let imageURL = episodeThumbnailURL(for: episode) {
+                AsyncImage(url: imageURL) { image in
+                    image.resizable().aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Color.clear
                 }
-                Text(episode.name)
-                    .foregroundStyle(.white)
-                    .lineLimit(2)
-                    .truncationMode(.tail)
+                .opacity(0.4)
             }
-            .font(.body)
-            .fontWeight(.semibold)
 
-            if viewModel.isCountdownActive, viewModel.nextEpisodeCountdown > 0 {
-                Text("player.nextEpisode.countdown \(viewModel.nextEpisodeCountdown)")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.75))
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
+            // Foreground text content.
+            VStack(alignment: .leading, spacing: 12) {
+                Text(String(localized: "player.nextEpisode", defaultValue: "Next Episode"))
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.85))
+
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    if let s = episode.parentIndexNumber, let e = episode.indexNumber {
+                        Text("S\(s)E\(e)")
+                            .foregroundStyle(.white.opacity(0.85))
+                            .layoutPriority(1)
+                    }
+                    Text(episode.name)
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .truncationMode(.tail)
+                }
+                .font(.body)
+                .fontWeight(.semibold)
+
+                if viewModel.isCountdownActive, viewModel.nextEpisodeCountdown > 0 {
+                    Text("player.nextEpisode.countdown \(viewModel.nextEpisodeCountdown)")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.75))
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
             }
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        // 380 width × 214 height = 16:9 baseline matching the Jellyfin
-        // episode thumbnail aspect ratio. minHeight (not fixed height)
-        // so an unusually long title can push the card a little taller
-        // instead of clipping; in the typical case it stays exactly
-        // 16:9 to align with the backdrop image.
+        // 380 × 214 = 16:9 baseline matching the Jellyfin thumbnail
+        // aspect. minHeight (not fixed height) so an extreme title can
+        // grow the card vertically instead of clipping.
+        .frame(width: 380)
         .frame(minHeight: 214)
+        // thinMaterial UNDER the ZStack so the image floats on top of
+        // the glass blur but text floats above the image.
+        .background(.thinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
     }
 
     /// Build episode thumbnail URL directly from item data

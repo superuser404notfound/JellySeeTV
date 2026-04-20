@@ -287,6 +287,11 @@ struct FocusableIcon: View {
 extension Notification.Name {
     static let homeConfigDidChange = Notification.Name("homeConfigDidChange")
     static let homeFavoritesDidChange = Notification.Name("homeFavoritesDidChange")
+    /// Posted by PlayerViewModel after a successful playback-stop
+    /// report. Lets HomeView (and any other view that cares) refresh
+    /// Continue Watching / Next Up so the user sees their new
+    /// progress as soon as they're back.
+    static let playbackProgressDidChange = Notification.Name("playbackProgressDidChange")
 }
 
 // MARK: - Storage

@@ -68,6 +68,11 @@ extension PlayerViewModel {
         )
         do {
             try await playbackService.reportPlaybackStopped(report)
+            // Tell HomeView (and anyone else listening) that the
+            // server now has updated progress for this item, so
+            // Continue Watching / Next Up should be refreshed the
+            // next time those views appear.
+            NotificationCenter.default.post(name: .playbackProgressDidChange, object: nil)
         } catch {
             #if DEBUG
             print("[SessionReport] Stop FAILED: \(error)")

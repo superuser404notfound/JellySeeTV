@@ -18,30 +18,45 @@ extension PlayerViewModel {
     private func fetchNextEpisode() async {
         guard let seriesID = item.seriesId else { return }
 
-        // Force a progress report so Jellyfin knows we're near the end.
-        // Without this, NextUp returns the current episode because
-        // Jellyfin hasn't marked it as "watched" yet.
+        // Capture identifiers up front so anything we hand to the
+        // server is a snapshot of the episode we're playing right
+        // now, even if `item` mutates underneath us mid-await.
+        let currentID = item.id
+        let currentIndex = item.indexNumber
+        let currentSeasonID = item.seasonId
+
+        // Force a progress report so Jellyfin knows we're near the
+        // end. Without this, NextUp returns the current episode
+        // because Jellyfin hasn't marked it as "watched" yet.
         await reportProgress()
 
         do {
-            let next = try await playbackService.getNextEpisode(seriesID: seriesID, userID: userID)
-            if let next, next.id != item.id {
+            // Jellyfin's NextUp endpoint. Discard if it gives us the
+            // current episode back (still possible even after the
+            // progress report on some server configs).
+            if let next = try await playbackService.getNextEpisode(
+                seriesID: seriesID, userID: userID
+            ), next.id != currentID {
                 nextEpisode = next
                 return
             }
 
-            // NextUp failed (returned current or nil). Try to find
-            // the next episode by index number in the same season.
-            if let seasonID = item.seasonId,
-               let currentIndex = item.indexNumber {
-                let episodes = try await playbackService.getEpisodes(
-                    seriesID: seriesID, seasonID: seasonID, userID: userID
-                )
-                if let nextEp = episodes.first(where: {
-                    ($0.indexNumber ?? 0) == currentIndex + 1
-                }) {
-                    nextEpisode = nextEp
-                }
+            // Fallback: walk the season's episode list and pick the
+            // one whose indexNumber is the lowest value greater than
+            // the current one. This handles servers that:
+            //   - return episodes out of indexNumber order
+            //   - return the current episode in NextUp
+            //   - have gaps in indexNumber (mid-season specials etc.)
+            guard let currentSeasonID, let currentIndex else { return }
+            let episodes = try await playbackService.getEpisodes(
+                seriesID: seriesID, seasonID: currentSeasonID, userID: userID
+            )
+            let candidate = episodes
+                .filter { $0.id != currentID }
+                .filter { ($0.indexNumber ?? -1) > currentIndex }
+                .min { ($0.indexNumber ?? .max) < ($1.indexNumber ?? .max) }
+            if let candidate {
+                nextEpisode = candidate
             }
         } catch {
             #if DEBUG

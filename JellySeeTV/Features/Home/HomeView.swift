@@ -61,6 +61,12 @@ struct HomeView: View {
         .onReceive(NotificationCenter.default.publisher(for: .homeFavoritesDidChange)) { _ in
             Task { await viewModel?.loadContent() }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .playbackProgressDidChange)) { _ in
+            // The Jellyfin server has fresh progress for whatever
+            // the user just watched. Reload so Continue Watching and
+            // Next Up reflect it as soon as the user is back here.
+            Task { await viewModel?.loadContent() }
+        }
     }
 
     private func contentView(vm: HomeViewModel) -> some View {
