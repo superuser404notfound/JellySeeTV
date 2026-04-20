@@ -28,8 +28,19 @@ final class DetailViewModel {
     /// is Sendable so the cancel call itself is safe.
     nonisolated(unsafe) private var prefetchTask: Task<Void, Never>?
 
+    /// Background task that warms the episode cache for every season
+    /// once the initial season has rendered. Same nonisolated(unsafe)
+    /// rationale as `prefetchTask`.
+    nonisolated(unsafe) private var episodePrefetchTask: Task<Void, Never>?
+
+    /// Per-season episode cache. Hit on `loadEpisodes(seasonID:)` so a
+    /// season tab the user has already (or pre-emptively) visited
+    /// switches in instantly instead of doing another round trip.
+    private var episodesCache: [String: [JellyfinItem]] = [:]
+
     deinit {
         prefetchTask?.cancel()
+        episodePrefetchTask?.cancel()
     }
 
     init(
@@ -122,6 +133,10 @@ final class DetailViewModel {
                 if let prefetchID {
                     prefetchPlaybackInfo(for: prefetchID)
                 }
+
+                // Warm the cache for the remaining seasons in the
+                // background so subsequent tab switches are instant.
+                startEpisodePrefetch()
             }
         } catch {
             // Handle error
@@ -131,11 +146,43 @@ final class DetailViewModel {
     func loadEpisodes(seasonID: String) async {
         selectedSeasonID = seasonID
 
+        if let cached = episodesCache[seasonID] {
+            episodes = cached
+            return
+        }
+
         do {
             let response = try await itemService.getEpisodes(seriesID: item.id, seasonID: seasonID, userID: userID)
             episodes = response.items
+            episodesCache[seasonID] = response.items
         } catch {
             // Handle error
+        }
+    }
+
+    /// Walk through all seasons and pre-load their episodes into
+    /// `episodesCache`, lowest-effort and lowest-impact: one request
+    /// at a time, with an initial delay so we don't fight the foreground
+    /// season's request for socket time.
+    private func startEpisodePrefetch() {
+        episodePrefetchTask?.cancel()
+        let allSeasons = seasons
+        let seriesID = item.id
+        let user = userID
+        let service = itemService
+        episodePrefetchTask = Task { [weak self] in
+            // Let the foreground load + initial render breathe first.
+            try? await Task.sleep(for: .milliseconds(400))
+            for season in allSeasons {
+                if Task.isCancelled { return }
+                if self?.episodesCache[season.id] != nil { continue }
+                let response = try? await service.getEpisodes(
+                    seriesID: seriesID, seasonID: season.id, userID: user
+                )
+                if Task.isCancelled { return }
+                guard let self, let response else { continue }
+                self.episodesCache[season.id] = response.items
+            }
         }
     }
 
