@@ -114,6 +114,11 @@ final class PlayerViewModel {
     var controlsTimer: Task<Void, Never>?
     var hasReportedStart = false
     var hasStartedPlaying = false
+    /// Prevents double teardown when both dismissPlayer (Menu press)
+    /// and viewWillDisappear (UIKit modal dismiss) fire stopPlayback.
+    /// Without this we used to race two concurrent reportStop()s and
+    /// two notification posts.
+    var hasTornDown = false
     /// The position we resumed from — used as minimum for progress reports
     /// to prevent Jellyfin from resetting progress when stopping early.
     var resumePositionTicks: Int64 = 0
@@ -144,6 +149,7 @@ final class PlayerViewModel {
     func startPlayback() async {
         isLoading = true
         errorMessage = nil
+        hasTornDown = false
         #if DEBUG
         print("[PlayerVM] startPlayback: item=\(item.name), seriesId=\(item.seriesId ?? "nil"), type=\(item.type)")
         #endif
@@ -339,26 +345,31 @@ final class PlayerViewModel {
     /// doesn't hear the trailing buffer while reportStop() awaits the
     /// Jellyfin round-trip.
     ///
-    /// Critical: capture player.currentTime into playbackTime BEFORE
-    /// removing the Combine subscription. Otherwise the last in-flight
-    /// $currentTime emission (e.g. a fresh seek that hasn't propagated
-    /// through .receive(on: .main) yet) gets dropped, playbackTime stays
-    /// at the previous value, and the follow-up reportStop() tells
-    /// Jellyfin the user stopped at the OLD position — so resume always
-    /// jumps back to wherever they were before the seek.
+    /// playbackTime can be ahead of player.currentTime (commitScrub
+    /// sets it synchronously to the scrub target before the async
+    /// player.seek runs) OR behind by ~250ms (Combine lag). Take the
+    /// max so we never report a position the user already moved past
+    /// AND never overwrite a fresh scrub target with the pre-seek
+    /// engine position. This was the bug behind "resume always starts
+    /// from the same point": dismissing right after a scrub overwrote
+    /// the scrub target with the stale engine time.
     func tearDownPlayback() {
+        guard !hasTornDown else { return }
+        hasTornDown = true
         stopProgressReporting()
-        let livePosition = player.currentTime
-        if livePosition > 0 {
-            playbackTime = livePosition
-        }
+        playbackTime = max(playbackTime, player.currentTime)
         cancellables.removeAll()
         player.stop()
         resetDisplayCriteria()
     }
 
     func stopPlayback() async {
+        let alreadyTornDown = hasTornDown
         tearDownPlayback()
+        // Skip the second reportStop if dismissPlayer already kicked
+        // one off — avoids double posts to Jellyfin and double
+        // playbackProgressDidChange notifications on the same dismiss.
+        guard !alreadyTornDown else { return }
         await reportStop()
     }
 
