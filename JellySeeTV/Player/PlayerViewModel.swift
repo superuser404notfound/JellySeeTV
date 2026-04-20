@@ -334,17 +334,22 @@ final class PlayerViewModel {
         }
     }
 
-    func stopPlayback() async {
+    /// Synchronous teardown — kills audio/video instantly. Use this when
+    /// the player needs to be silent NOW (modal dismiss) so the user
+    /// doesn't hear the trailing buffer while reportStop() awaits the
+    /// Jellyfin round-trip. playbackTime survives because we drop the
+    /// Combine subscription before player.stop() resets currentTime to 0,
+    /// so currentPositionTicks remains valid for a follow-up reportStop().
+    func tearDownPlayback() {
         stopProgressReporting()
         cancellables.removeAll()
-        // Report BEFORE stop — player.stop() resets currentTime to 0
-        await reportStop()
         player.stop()
-        // Always revert the TV to SDR once playback ends. PlayerView's
-        // onDisappear also calls this, but if the app is backgrounded or
-        // the VC is torn down by other means, we still want the TV back in
-        // SDR mode so menus don't stay in HDR.
         resetDisplayCriteria()
+    }
+
+    func stopPlayback() async {
+        tearDownPlayback()
+        await reportStop()
     }
 
     // MARK: - State Observation (Combine)

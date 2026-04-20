@@ -413,11 +413,13 @@ final class PlayerHostController: UIViewController {
     private func dismissPlayer() {
         hostedVideoLayer?.removeFromSuperlayer()
         viewModel.player.onVideoLayerReplaced = nil
-        viewModel.resetDisplayCriteria()
-        Task {
-            await viewModel.stopPlayback()
-            onDismiss()
-        }
+        // Tear down synchronously so audio/video cut the moment the user
+        // dismisses, then dismiss the modal. The reportStop() round-trip
+        // runs in the background AFTER teardown — the user used to hear
+        // up to ~2s of trailing audio while we awaited that network call.
+        viewModel.tearDownPlayback()
+        onDismiss()
+        Task { await viewModel.reportStop() }
     }
 
     // MARK: - Pan (Touchpad Scrubbing)

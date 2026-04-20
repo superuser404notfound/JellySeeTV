@@ -106,11 +106,13 @@ extension PlayerViewModel {
         nextEpisodeTimer = nil
         showNextEpisodeOverlay = false
 
-        // Stop current
+        // Stop current — player.stop() before reportStop() so audio
+        // cuts immediately. playbackTime is frozen by removeAll() above,
+        // so the ticks reportStop() reads stay correct.
         stopProgressReporting()
         cancellables.removeAll()
-        await reportStop()
         player.stop()
+        await reportStop()
 
         // Reset state
         item = next
