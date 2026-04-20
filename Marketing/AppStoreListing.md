@@ -3,11 +3,10 @@
 Drafts for App Store Connect. Copy-paste into the matching fields.
 
 **Versioning convention used here:**
-- TestFlight / Beta phase: `0.x.y` (currently `0.1.0`)
-- Patch (bugfix-only): `0.1.x`
-- Minor (new feature): `0.x.0`
-- `1.0.0` is reserved for the first stable App Store release (post-Beta)
-- Build number: resets to `1` on every MARKETING_VERSION change, monotonically increases within a marketing version
+- `0.x.y` covers the entire TestFlight Beta phase. Both bugfixes and smaller features land here. Patch (`0.1.x`) for bug-only, minor (`0.x.0`) when a feature ships during Beta.
+- `1.0` is reserved for the first stable App Store release. It's a stability marker, not a feature marker — promoting the most recent Beta build to public.
+- Larger new features wait until after `1.0` and ship as `1.1`, `1.2`, etc.
+- Build number resets to `1` on every MARKETING_VERSION change, monotonically increases within a marketing version (Apple requirement).
 
 **Limits Apple enforces:**
 
