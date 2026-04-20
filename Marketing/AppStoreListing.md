@@ -43,7 +43,7 @@ Watch your Jellyfin library and request what's missing from the same app. Native
 ```
 Your Jellyfin library and Seerr — together on Apple TV.
 
-JellySeeTV is the only Apple TV client that brings Jellyfin and Seerr together in one native interface. Watch what's already on your server. See something on a trending row that isn't there yet? Request it from inside the app — Seerr handles the rest. No more switching to a phone, opening a web UI, or pinging your homelab admin.
+JellySeeTV is the only open-source Apple TV client that brings Jellyfin and Seerr together in one native interface. Watch what's already on your server. See something on a trending row that isn't there yet? Request it from inside the app — Seerr handles the rest. No more switching to a phone, opening a web UI, or pinging your homelab admin.
 
 WATCH
 • Direct Play for almost every codec your Apple TV understands: H.264, HEVC, HEVC Main10, AV1
@@ -151,7 +151,7 @@ Schau deine Jellyfin-Bibliothek und fordere fehlendes aus derselben App an. Nati
 ```
 Deine Jellyfin-Bibliothek und Seerr — gemeinsam auf Apple TV.
 
-JellySeeTV ist der einzige Apple-TV-Client, der Jellyfin und Seerr in einer nativen Oberfläche vereint. Schau, was schon auf deinem Server liegt. Etwas in einer Trending-Reihe entdeckt, das noch nicht da ist? Fordere es direkt aus der App an — Seerr erledigt den Rest. Kein Wechsel ans Handy, kein Aufrufen von Web-UIs, kein Anpingen des Homelab-Admins.
+JellySeeTV ist der einzige Open-Source-Apple-TV-Client, der Jellyfin und Seerr in einer nativen Oberfläche vereint. Schau, was schon auf deinem Server liegt. Etwas in einer Trending-Reihe entdeckt, das noch nicht da ist? Fordere es direkt aus der App an — Seerr erledigt den Rest. Kein Wechsel ans Handy, kein Aufrufen von Web-UIs, kein Anpingen des Homelab-Admins.
 
 SCHAUEN
 • Direct Play für nahezu jedes Codec, das dein Apple TV unterstützt: H.264, HEVC, HEVC Main10, AV1
