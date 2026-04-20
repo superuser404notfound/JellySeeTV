@@ -135,7 +135,7 @@
 			mainGroup = 9DD913642F8645860078D0BE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AA000003STEELPLAYER /* XCLocalSwiftPackageReference "../AetherEngine" */,
+				AA000003STEELPLAYER /* XCRemoteSwiftPackageReference "AetherEngine" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9DD9136E2F8645860078D0BE /* Products */;
@@ -384,16 +384,21 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		AA000003STEELPLAYER /* XCLocalSwiftPackageReference "../AetherEngine" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../AetherEngine;
+/* Begin XCRemoteSwiftPackageReference section */
+		AA000003STEELPLAYER /* XCRemoteSwiftPackageReference "AetherEngine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/superuser404notfound/AetherEngine";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
 		};
-/* End XCLocalSwiftPackageReference section */
+/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		AA000002STEELPLAYER /* AetherEngine */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = AA000003STEELPLAYER /* XCRemoteSwiftPackageReference "AetherEngine" */;
 			productName = AetherEngine;
 		};
 /* End XCSwiftPackageProductDependency section */
