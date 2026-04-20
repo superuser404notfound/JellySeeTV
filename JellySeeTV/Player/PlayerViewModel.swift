@@ -337,14 +337,22 @@ final class PlayerViewModel {
     func stopPlayback() async {
         stopProgressReporting()
         cancellables.removeAll()
-        // Report BEFORE stop — player.stop() resets currentTime to 0
-        await reportStop()
+        // Capture position synchronously, then stop the engine, then
+        // report. The capture-then-stop order is critical: player.stop()
+        // resets currentTime to 0, so we'd lose the position if we read
+        // it inside reportStop after the stop. By passing the captured
+        // ticks explicitly we keep the proven progress-sync correctness
+        // of the old "report before stop" flow, while killing the
+        // ~1-2s of trailing audio that the user heard during the
+        // network round-trip.
+        let finalTicks = currentPositionTicks
         player.stop()
         // Always revert the TV to SDR once playback ends. PlayerView's
         // onDisappear also calls this, but if the app is backgrounded or
         // the VC is torn down by other means, we still want the TV back in
         // SDR mode so menus don't stay in HDR.
         resetDisplayCriteria()
+        await reportStop(positionTicks: finalTicks)
     }
 
     // MARK: - State Observation (Combine)

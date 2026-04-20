@@ -58,8 +58,11 @@ extension PlayerViewModel {
         }
     }
 
-    func reportStop() async {
-        let ticks = currentPositionTicks
+    func reportStop(positionTicks: Int64? = nil) async {
+        // Optional override lets stopPlayback() capture the position
+        // BEFORE killing the engine, so we can stop audio first (no
+        // trailing buffer on dismiss) without losing the right position.
+        let ticks = positionTicks ?? currentPositionTicks
         let report = PlaybackStopReport(
             itemId: item.id,
             mediaSourceId: mediaSourceID,
