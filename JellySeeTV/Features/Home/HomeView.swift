@@ -62,13 +62,9 @@ struct HomeView: View {
             Task { await viewModel?.loadContent() }
         }
         .onReceive(NotificationCenter.default.publisher(for: .playbackProgressDidChange)) { _ in
-            // Two paths: trigger an immediate reload (for the case
-            // HomeView is in scene), AND mark needsReload so .onAppear
-            // catches up if the notification fired while the home tab
-            // was swapped out. tvOS's Tab(value:) lazy-mounts inactive
-            // tabs — without the flag, switching away during playback
-            // means the reload signal is lost forever.
-            viewModel?.needsReload = true
+            // The Jellyfin server has fresh progress for whatever
+            // the user just watched. Reload so Continue Watching and
+            // Next Up reflect it as soon as the user is back here.
             Task { await viewModel?.loadContent() }
         }
     }
@@ -99,6 +95,7 @@ struct HomeView: View {
                 }
             }
             .padding(.vertical, 40)
+            .id(vm.reloadID)
         }
     }
 

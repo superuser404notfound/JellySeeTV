@@ -8,6 +8,7 @@ final class HomeViewModel {
     var errorMessage: String?
     var rowConfigs: [HomeRowConfig] = []
     var needsReload = false
+    var reloadID = UUID()
 
     private let libraryService: JellyfinLibraryServiceProtocol
     private let imageService: JellyfinImageService
@@ -58,15 +59,10 @@ final class HomeViewModel {
                 }
             }
 
-            // Atomic swap -- old images stay visible until new data is ready.
-            // Don't bump a UUID here: HomeView used to apply .id() to the
-            // ScrollView, which forced SwiftUI to tear down and re-mount
-            // every AsyncImage on each refresh. The image cache then
-            // re-fetched everything from the server, which the user
-            // perceived as "images don't reload" (they actually went
-            // blank for a moment). With diffing, only changed rows update.
+            // Atomic swap -- old images stay visible until new data is ready
             rows = newRows
             tagRows = newTagRows
+            reloadID = UUID()
             isLoading = false
         } catch {
             errorMessage = error.localizedDescription

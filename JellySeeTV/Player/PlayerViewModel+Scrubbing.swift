@@ -45,13 +45,6 @@ extension PlayerViewModel {
         // completes and Combine updates it.
         progress = scrubProgress
         isScrubbing = false
-        // Record the user's seek target synchronously so reportStop()
-        // (or a reportProgress mid-seek) sees the intended position
-        // even if the user dismisses before player.seek completes.
-        // The Combine pipeline player.$currentTime → playbackTime
-        // has one run-loop tick of latency; without this, "resume"
-        // would jump back to the pre-seek position.
-        playbackTime = targetTime
         Task {
             await player.seek(to: targetTime)
             reportProgressIfNeeded()

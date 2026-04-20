@@ -106,12 +106,11 @@ extension PlayerViewModel {
         nextEpisodeTimer = nil
         showNextEpisodeOverlay = false
 
-        // Stop current via the shared teardown so playbackTime gets
-        // max-merged with player.currentTime (handles scrub races) and
-        // the hasTornDown idempotency holds. reportStop after teardown
-        // means audio is already silent during the network round-trip.
-        tearDownPlayback()
+        // Stop current
+        stopProgressReporting()
+        cancellables.removeAll()
         await reportStop()
+        player.stop()
 
         // Reset state
         item = next

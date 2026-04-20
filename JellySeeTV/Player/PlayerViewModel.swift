@@ -114,11 +114,6 @@ final class PlayerViewModel {
     var controlsTimer: Task<Void, Never>?
     var hasReportedStart = false
     var hasStartedPlaying = false
-    /// Prevents double teardown when both dismissPlayer (Menu press)
-    /// and viewWillDisappear (UIKit modal dismiss) fire stopPlayback.
-    /// Without this we used to race two concurrent reportStop()s and
-    /// two notification posts.
-    var hasTornDown = false
     /// The position we resumed from — used as minimum for progress reports
     /// to prevent Jellyfin from resetting progress when stopping early.
     var resumePositionTicks: Int64 = 0
@@ -149,7 +144,6 @@ final class PlayerViewModel {
     func startPlayback() async {
         isLoading = true
         errorMessage = nil
-        hasTornDown = false
         #if DEBUG
         print("[PlayerVM] startPlayback: item=\(item.name), seriesId=\(item.seriesId ?? "nil"), type=\(item.type)")
         #endif
@@ -340,37 +334,17 @@ final class PlayerViewModel {
         }
     }
 
-    /// Synchronous teardown — kills audio/video instantly. Use this when
-    /// the player needs to be silent NOW (modal dismiss) so the user
-    /// doesn't hear the trailing buffer while reportStop() awaits the
-    /// Jellyfin round-trip.
-    ///
-    /// playbackTime can be ahead of player.currentTime (commitScrub
-    /// sets it synchronously to the scrub target before the async
-    /// player.seek runs) OR behind by ~250ms (Combine lag). Take the
-    /// max so we never report a position the user already moved past
-    /// AND never overwrite a fresh scrub target with the pre-seek
-    /// engine position. This was the bug behind "resume always starts
-    /// from the same point": dismissing right after a scrub overwrote
-    /// the scrub target with the stale engine time.
-    func tearDownPlayback() {
-        guard !hasTornDown else { return }
-        hasTornDown = true
-        stopProgressReporting()
-        playbackTime = max(playbackTime, player.currentTime)
-        cancellables.removeAll()
-        player.stop()
-        resetDisplayCriteria()
-    }
-
     func stopPlayback() async {
-        let alreadyTornDown = hasTornDown
-        tearDownPlayback()
-        // Skip the second reportStop if dismissPlayer already kicked
-        // one off — avoids double posts to Jellyfin and double
-        // playbackProgressDidChange notifications on the same dismiss.
-        guard !alreadyTornDown else { return }
+        stopProgressReporting()
+        cancellables.removeAll()
+        // Report BEFORE stop — player.stop() resets currentTime to 0
         await reportStop()
+        player.stop()
+        // Always revert the TV to SDR once playback ends. PlayerView's
+        // onDisappear also calls this, but if the app is backgrounded or
+        // the VC is torn down by other means, we still want the TV back in
+        // SDR mode so menus don't stay in HDR.
+        resetDisplayCriteria()
     }
 
     // MARK: - State Observation (Combine)

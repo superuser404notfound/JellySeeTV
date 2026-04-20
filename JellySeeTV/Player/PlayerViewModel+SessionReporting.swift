@@ -66,17 +66,13 @@ extension PlayerViewModel {
             playSessionId: playSessionID,
             positionTicks: ticks
         )
-        defer {
-            // Always notify — even if the stop report failed, we want
-            // HomeView to refresh because progress reports during
-            // playback (every 10s + on pause/seek) likely already
-            // committed the latest position. Skipping the notification
-            // on error meant home stayed stale whenever the network
-            // hiccuped on the very last call.
-            NotificationCenter.default.post(name: .playbackProgressDidChange, object: nil)
-        }
         do {
             try await playbackService.reportPlaybackStopped(report)
+            // Tell HomeView (and anyone else listening) that the
+            // server now has updated progress for this item, so
+            // Continue Watching / Next Up should be refreshed the
+            // next time those views appear.
+            NotificationCenter.default.post(name: .playbackProgressDidChange, object: nil)
         } catch {
             #if DEBUG
             print("[SessionReport] Stop FAILED: \(error)")
