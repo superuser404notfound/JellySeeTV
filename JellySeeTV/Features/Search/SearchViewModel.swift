@@ -15,6 +15,14 @@ final class SearchViewModel {
     private let userID: String
     private var searchTask: Task<Void, Never>?
 
+    /// Monotonic counter for in-flight searches. Each scheduled search
+    /// captures its own ID; only the run whose ID still matches
+    /// `currentSearchID` at write-time is allowed to publish results.
+    /// Plain `Task.isCancelled` is not enough here: the inner network
+    /// helpers swallow cancellation into `[]`, which would otherwise
+    /// blow away a newer search's results with empty data.
+    private var currentSearchID: UInt64 = 0
+
     init(
         itemService: JellyfinItemServiceProtocol,
         seerrSearchService: SeerrSearchServiceProtocol?,
@@ -33,6 +41,10 @@ final class SearchViewModel {
 
         let trimmed = query.trimmingCharacters(in: .whitespaces)
         guard trimmed.count >= 2 else {
+            // Bump the ID so any in-flight task is also disqualified
+            // from writing — even the cleared state belongs to the
+            // newest "search" (which is "no search").
+            currentSearchID &+= 1
             jellyfinResults = []
             seerrResults = []
             isSearching = false
@@ -40,26 +52,35 @@ final class SearchViewModel {
             return
         }
 
+        currentSearchID &+= 1
+        let id = currentSearchID
+
         searchTask = Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(400))
             guard let self, !Task.isCancelled else { return }
-            await self.runSearch(query: trimmed)
+            await self.runSearch(query: trimmed, id: id)
         }
     }
 
-    private func runSearch(query: String) async {
+    private func runSearch(query: String, id: UInt64) async {
         isSearching = true
         errorMessage = nil
-        defer { isSearching = false }
 
         async let jfTask = searchJellyfin(query: query)
         async let seerrTask = searchSeerr(query: query)
 
         let (jfItems, seerrItems) = await (jfTask, seerrTask)
-        guard !Task.isCancelled else { return }
+
+        // Only publish if we are still the most recent search. A run
+        // that's been superseded must not overwrite the newer query's
+        // results — including not flipping isSearching back to false,
+        // which would tell the UI "done" while a fresher run is still
+        // mid-flight.
+        guard id == currentSearchID else { return }
 
         jellyfinResults = jfItems
         seerrResults = deduplicate(seerr: seerrItems, against: jfItems)
+        isSearching = false
     }
 
     private func searchJellyfin(query: String) async -> [JellyfinItem] {
