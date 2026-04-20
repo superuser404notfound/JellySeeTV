@@ -588,14 +588,15 @@ private struct PlayerOverlayView: View {
                                     .foregroundStyle(.white.opacity(0.85))
                                     .layoutPriority(1)
                             }
-                            // Single line, truncate with ellipsis. Two lines
-                            // on tvOS body font already overflow the fixed
-                            // 380x214 card and push the header / countdown
-                            // off-screen. One line is what Apple TV+ and
-                            // Netflix do for the same kind of card too.
+                            // Up to two lines for longer titles, truncated
+                            // with ellipsis if even that's not enough. The
+                            // earlier clipping bug came from the modifier
+                            // order outside this HStack, not from the line
+                            // count, so two lines fit comfortably now that
+                            // padding is applied before the maxSize frame.
                             Text(episode.name)
                                 .foregroundStyle(.white)
-                                .lineLimit(1)
+                                .lineLimit(2)
                                 .truncationMode(.tail)
                         }
                         .font(.body)
