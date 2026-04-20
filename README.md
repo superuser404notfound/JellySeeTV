@@ -11,7 +11,11 @@
   <img src="https://img.shields.io/badge/Swift-6.0%2B-F05138?logo=swift&logoColor=white">
   <img src="https://img.shields.io/badge/license-MIT-lightgrey">
   <img src="https://img.shields.io/badge/languages-26-blue">
+  <img src="https://img.shields.io/badge/status-public%20beta-orange">
 </p>
+
+> 🧪 **Public Beta is open.** Install via TestFlight: **https://testflight.apple.com/join/REPLACE_ME**
+> See [BETA.md](BETA.md) for what to focus on and how to report bugs.
 
 ---
 
