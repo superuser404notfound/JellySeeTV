@@ -619,7 +619,12 @@ private struct PlayerOverlayView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(minHeight: 200)
+        // 380 width × 214 height = 16:9 baseline matching the Jellyfin
+        // episode thumbnail aspect ratio. minHeight (not fixed height)
+        // so an unusually long title can push the card a little taller
+        // instead of clipping; in the typical case it stays exactly
+        // 16:9 to align with the backdrop image.
+        .frame(minHeight: 214)
     }
 
     /// Build episode thumbnail URL directly from item data
