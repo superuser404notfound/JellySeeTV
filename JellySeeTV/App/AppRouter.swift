@@ -5,15 +5,25 @@ struct AppRouter: View {
     @Environment(\.dependencies) private var dependencies
 
     var body: some View {
-        Group {
-            if appState.isLoading {
-                ProgressView()
-            } else if appState.isAuthenticated {
+        ZStack {
+            if appState.isAuthenticated {
                 TabRootView()
             } else {
                 ServerDiscoveryView()
             }
+
+            // Splash overlays everything until both the session restore
+            // has finished AND the minimum display time has elapsed —
+            // then it fades out to reveal whichever root view is now
+            // appropriate. Cross-fade looks nicer than the old spinner-
+            // then-content swap and prevents a jarring snap when restore
+            // completes in <100 ms.
+            if appState.isLoading {
+                SplashView()
+                    .transition(.opacity)
+            }
         }
+        .animation(.easeOut(duration: 0.4), value: appState.isLoading)
         .task {
             await restoreSession()
         }
@@ -21,8 +31,20 @@ struct AppRouter: View {
 
     private func restoreSession() async {
         appState.isLoading = true
-        defer { appState.isLoading = false }
+        let splashStart = Date()
+        await performRestore()
 
+        // Hold the splash for at least the minimum so the brand moment
+        // isn't reduced to a flash on a fast restore path.
+        let elapsed = Date().timeIntervalSince(splashStart)
+        let remaining = SplashView.minimumDisplayDuration - elapsed
+        if remaining > 0 {
+            try? await Task.sleep(for: .seconds(remaining))
+        }
+        appState.isLoading = false
+    }
+
+    private func performRestore() async {
         guard dependencies.restoreSession() else { return }
 
         guard let serverData = try? dependencies.keychainService.loadData(for: "activeServer"),

@@ -12,6 +12,7 @@ struct SettingsView: View {
                     settingsList
                     serverInfo
                     logoutButton
+                    aboutFooter
                 }
                 .padding(.vertical, 60)
                 .padding(.horizontal, 80)
@@ -113,6 +114,31 @@ struct SettingsView: View {
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
+    }
+
+    // MARK: - About
+
+    /// Brand footer at the very bottom of Settings — the conventional
+    /// place for app version and credit. Lives below the logout button
+    /// so users see it after they've already navigated past the
+    /// actionable content.
+    private var aboutFooter: some View {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return VStack(spacing: 12) {
+            Image("Logo")
+                .resizable()
+                .renderingMode(.template)
+                .foregroundStyle(.white.opacity(0.5))
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 56, height: 56)
+            Text("JellySeeTV \(version) (\(build))")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .monospacedDigit()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 32)
     }
 
     // MARK: - Logout

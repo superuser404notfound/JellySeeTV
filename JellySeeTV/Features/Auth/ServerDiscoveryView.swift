@@ -9,18 +9,23 @@ struct ServerDiscoveryView: View {
             VStack(spacing: 40) {
                 Spacer()
 
-                VStack(spacing: 16) {
-                    Image(systemName: "server.rack")
-                        .font(.system(size: 80))
-                        .foregroundStyle(.tint)
+                VStack(spacing: 24) {
+                    Image("Logo")
+                        .resizable()
+                        .renderingMode(.template)
+                        .foregroundStyle(.white)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 120, height: 120)
 
-                    Text("auth.server.title")
-                        .font(.title2)
+                    VStack(spacing: 8) {
+                        Text("auth.server.title")
+                            .font(.title2)
 
-                    Text("auth.server.subtitle")
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
+                        Text("auth.server.subtitle")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
                 }
 
                 if let vm = viewModel {
