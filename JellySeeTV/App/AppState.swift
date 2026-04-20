@@ -6,7 +6,10 @@ final class AppState {
     var isAuthenticated = false
     var activeServer: JellyfinServer?
     var activeUser: JellyfinUser?
-    var isLoading = false
+    /// Starts as `true` so the brand splash covers the very first
+    /// frame — otherwise the underlying view (whichever it is)
+    /// flashes for a frame before the AppRouter task can flip it.
+    var isLoading = true
 
     var activeSeerrServer: SeerrServer?
     var activeSeerrUser: SeerrUser?
