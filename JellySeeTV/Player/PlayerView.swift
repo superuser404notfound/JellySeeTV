@@ -588,10 +588,18 @@ private struct PlayerOverlayView: View {
                                     .foregroundStyle(.white.opacity(0.85))
                                     .layoutPriority(1)
                             }
+                            // No fixedSize here. With fixedSize set the Text
+                            // would force its full 2-line intrinsic height
+                            // and overflow the fixed 380x214 card, which
+                            // clipped the "Next Episode" header above and
+                            // the countdown below. Without it, lineLimit(2)
+                            // still caps at two lines but truncates with
+                            // ellipsis when the layout is tight, leaving
+                            // header and countdown visible.
                             Text(episode.name)
                                 .foregroundStyle(.white)
                                 .lineLimit(2)
-                                .fixedSize(horizontal: false, vertical: true)
+                                .truncationMode(.tail)
                         }
                         .font(.body)
                         .fontWeight(.semibold)
