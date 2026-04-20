@@ -270,8 +270,14 @@ final class PlayerViewModel {
                 }
                 displayWillSwitchToHDR = applyDisplayCriteria(format: displayFormat)
                 if displayWillSwitchToHDR {
-                    // Give the TV time to begin the mode switch, then wait for completion
-                    try? await Task.sleep(for: .milliseconds(200))
+                    // waitForDisplayModeSwitch() polls
+                    // isDisplayModeSwitchInProgress every 100 ms and
+                    // returns immediately when the flag is false. So
+                    // if the TV is already in the target HDR mode (e.g.
+                    // user just watched another HDR film) it costs us
+                    // a single check, not the full pre-sleep + wait
+                    // dance. The previous unconditional 200 ms sleep
+                    // was paid even in that no-op case.
                     await waitForDisplayModeSwitch()
                 }
             }

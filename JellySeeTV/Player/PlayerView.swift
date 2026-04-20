@@ -139,10 +139,14 @@ final class PlayerHostController: UIViewController {
         )
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        // Start playback only after the VC is visible — prevents
-        // background playback if present() failed.
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Kick off playback as the modal *starts* appearing instead of
+        // waiting for the appear animation to fully complete. The
+        // present() call uses animated:false so the gap is small, but
+        // every ms of network/demuxer work that overlaps with the
+        // present-then-layout sequence is one ms the user doesn't
+        // wait at the end.
         guard !hasLaunched else { return }
         hasLaunched = true
         Task { await viewModel.startPlayback() }
