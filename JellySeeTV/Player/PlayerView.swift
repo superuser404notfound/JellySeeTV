@@ -413,13 +413,19 @@ final class PlayerHostController: UIViewController {
     private func dismissPlayer() {
         hostedVideoLayer?.removeFromSuperlayer()
         viewModel.player.onVideoLayerReplaced = nil
-        // Tear down synchronously so audio/video cut the moment the user
-        // dismisses, then dismiss the modal. The reportStop() round-trip
-        // runs in the background AFTER teardown — the user used to hear
-        // up to ~2s of trailing audio while we awaited that network call.
+        // Kill audio/video synchronously so the user doesn't hear trailing
+        // buffer while we await the Jellyfin stop report (Bug 1).
         viewModel.tearDownPlayback()
-        onDismiss()
-        Task { await viewModel.reportStop() }
+        // Then await reportStop BEFORE dismissing the modal: the
+        // playbackProgressDidChange notification fires inside reportStop,
+        // and HomeView's .onReceive must still be subscribed when it
+        // arrives (otherwise the home screen never reloads — Bug 2).
+        // The modal stays as a black screen for the duration of the
+        // network round-trip (~100-500ms), but audio is already silent.
+        Task {
+            await viewModel.reportStop()
+            onDismiss()
+        }
     }
 
     // MARK: - Pan (Touchpad Scrubbing)
