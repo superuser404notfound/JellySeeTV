@@ -290,31 +290,11 @@ final class PlayerViewModel {
             }
             #endif
 
-            // Warm-start path: if DetailViewModel already pre-warmed the
-            // engine for this exact URL/position and we don't need a
-            // tonemap-on flip, skip the cold load() and just resume.
-            // Saves ~300-500 ms on the typical movie launch.
-            let canUsePrepared: Bool = {
-                guard player.preparedURL == url else { return false }
-                guard player.state == .paused else { return false }
-                guard !tonemapHDRToSDR else { return false }
-                let prepared = player.currentTime
-                let target = startPos ?? 0
-                return abs(prepared - target) < 1.0
-            }()
-
-            if canUsePrepared {
-                #if DEBUG
-                print("[PlayerVM] Warm start — engine already prepared for this URL")
-                #endif
-                player.play()
-            } else {
-                try await player.load(
-                    url: url,
-                    startPosition: startPos,
-                    tonemapHDRToSDR: tonemapHDRToSDR
-                )
-            }
+            try await player.load(
+                url: url,
+                startPosition: startPos,
+                tonemapHDRToSDR: tonemapHDRToSDR
+            )
 
             totalTime = formatSeconds(effectiveDuration)
             // Audio track priority: preferred language → stream default → first.

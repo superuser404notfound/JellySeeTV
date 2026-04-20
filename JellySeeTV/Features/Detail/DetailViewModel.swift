@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import AetherEngine
 
 @Observable
 final class DetailViewModel {
@@ -39,17 +38,9 @@ final class DetailViewModel {
     /// switches in instantly instead of doing another round trip.
     private var episodesCache: [String: [JellyfinItem]] = [:]
 
-    /// Pre-warms the AetherEngine with the movie's stream URL so that
-    /// pressing Play on the detail view starts within a frame or two
-    /// instead of paying the 300-500 ms cold-start. Only used for
-    /// movies — series episode switching makes per-item warming a
-    /// poor trade-off (Phase 3a scope).
-    nonisolated(unsafe) private var enginePrewarmTask: Task<Void, Never>?
-
     deinit {
         prefetchTask?.cancel()
         episodePrefetchTask?.cancel()
-        enginePrewarmTask?.cancel()
     }
 
     init(
@@ -238,56 +229,6 @@ final class DetailViewModel {
             )
             if Task.isCancelled { return }
             self.cachedPlaybackInfo = response
-            // Now that we have a stream URL we can pre-warm the engine
-            // for movies — see maybePrewarmEngine() for the constraints.
-            self.maybePrewarmEngine()
-        }
-    }
-
-    /// Tee up an AetherEngine.prepare() with this movie's stream URL.
-    /// Bails out for non-movies, when no source / playback service is
-    /// available, or when the URL can't be built. The 500 ms gate
-    /// means a user who's just scrolling past doesn't trigger
-    /// network work — they need to actually land on the detail view.
-    private func maybePrewarmEngine() {
-        guard item.type == .movie else { return }
-        guard let info = cachedPlaybackInfo,
-              let source = info.mediaSources.first,
-              let playbackService else { return }
-
-        let url: URL?
-        if source.supportsDirectPlay == true || source.supportsDirectStream == true {
-            let isDirectPlay = source.supportsDirectPlay == true
-            url = playbackService.buildStreamURL(
-                itemID: item.id,
-                mediaSourceID: source.id,
-                container: source.container,
-                isStatic: isDirectPlay
-            )
-        } else if let transcodePath = source.transcodingUrl, !transcodePath.isEmpty {
-            url = playbackService.buildTranscodeURL(relativePath: transcodePath)
-        } else {
-            url = nil
-        }
-        guard let url else { return }
-
-        // Match the resume logic PlayerViewModel uses, otherwise the
-        // prepared session sits at the wrong timestamp and the equality
-        // check there would force a reload anyway.
-        let startPos: Double? = item.userData?.playbackPositionTicks.flatMap {
-            $0 > 0 ? $0.ticksToSeconds : nil
-        }
-
-        enginePrewarmTask?.cancel()
-        let player = DependencyContainer.playerEngine
-        enginePrewarmTask = Task {
-            try? await Task.sleep(for: .milliseconds(500))
-            if Task.isCancelled { return }
-            // tonemapHDRToSDR stays at the default `false`. If the real
-            // playback turns out to need tone-mapping (HDR content +
-            // SDR display + Match Content off), PlayerViewModel will
-            // see the mismatch and fall through to a fresh load().
-            try? await player.prepare(url: url, startPosition: startPos)
         }
     }
 
