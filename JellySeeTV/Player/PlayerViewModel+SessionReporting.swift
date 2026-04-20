@@ -5,11 +5,17 @@ extension PlayerViewModel {
 
     /// Stable position in Jellyfin ticks, derived from playbackTime (updated
     /// by Combine every 250ms). Survives player.stop() — unlike player.currentTime
-    /// which resets to 0 immediately. Uses max(playback, resume) to prevent
-    /// reporting 0 before the first time update arrives.
+    /// which resets to 0 immediately.
+    ///
+    /// Falls back to resumePositionTicks ONLY if the player hasn't
+    /// reported a real time yet (playbackTime == 0). The earlier
+    /// `max(ticks, resumePositionTicks)` was wrong: after the user
+    /// rewound past the resume position, max() kept clamping the
+    /// reported position back up to where they originally resumed
+    /// from, so Jellyfin never recorded the rewind.
     var currentPositionTicks: Int64 {
         let ticks = Int64(playbackTime * 10_000_000)
-        return max(ticks, resumePositionTicks)
+        return ticks > 0 ? ticks : resumePositionTicks
     }
 
     func reportStart() async {
