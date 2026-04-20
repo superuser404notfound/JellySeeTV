@@ -337,11 +337,21 @@ final class PlayerViewModel {
     /// Synchronous teardown — kills audio/video instantly. Use this when
     /// the player needs to be silent NOW (modal dismiss) so the user
     /// doesn't hear the trailing buffer while reportStop() awaits the
-    /// Jellyfin round-trip. playbackTime survives because we drop the
-    /// Combine subscription before player.stop() resets currentTime to 0,
-    /// so currentPositionTicks remains valid for a follow-up reportStop().
+    /// Jellyfin round-trip.
+    ///
+    /// Critical: capture player.currentTime into playbackTime BEFORE
+    /// removing the Combine subscription. Otherwise the last in-flight
+    /// $currentTime emission (e.g. a fresh seek that hasn't propagated
+    /// through .receive(on: .main) yet) gets dropped, playbackTime stays
+    /// at the previous value, and the follow-up reportStop() tells
+    /// Jellyfin the user stopped at the OLD position — so resume always
+    /// jumps back to wherever they were before the seek.
     func tearDownPlayback() {
         stopProgressReporting()
+        let livePosition = player.currentTime
+        if livePosition > 0 {
+            playbackTime = livePosition
+        }
         cancellables.removeAll()
         player.stop()
         resetDisplayCriteria()
