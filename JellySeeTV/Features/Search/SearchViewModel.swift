@@ -83,16 +83,8 @@ final class SearchViewModel {
         // mid-flight.
         guard id == currentSearchID else { return }
 
-        let dedupedSeerr = deduplicate(seerr: seerrItems, against: jfItems)
-        #if DEBUG
-        let seerrAvailable = seerrSearchService != nil
-        print("[Search] q=\"\(query)\" jellyfin=\(jfItems.count) seerr_raw=\(seerrItems.count) seerr_deduped=\(dedupedSeerr.count) seerrConnected=\(seerrAvailable)")
-        if seerrAvailable, !seerrItems.isEmpty, dedupedSeerr.isEmpty {
-            print("[Search] all \(seerrItems.count) seerr results filtered out by dedup — every match is already in the library")
-        }
-        #endif
         jellyfinResults = jfItems
-        seerrResults = dedupedSeerr
+        seerrResults = deduplicate(seerr: seerrItems, against: jfItems)
         isSearching = false
     }
 
@@ -118,9 +110,6 @@ final class SearchViewModel {
             let result = try await service.search(query: query, page: 1)
             return result.results
         } catch {
-            #if DEBUG
-            print("[Search] seerr search failed for \"\(query)\": \(error)")
-            #endif
             return []
         }
     }
