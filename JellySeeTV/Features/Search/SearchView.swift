@@ -31,6 +31,18 @@ struct SearchView: View {
             }
         }
         .onAppear(perform: bootstrap)
+        // Reactive Seerr-service hookup. The bootstrap path captures
+        // isSeerrConnected only once at first appearance, so a user
+        // who hits Search before AppRouter.restoreSession finishes the
+        // Seerr part would be stuck with a nil service forever (only
+        // an app restart would build a new ViewModel). Watching the
+        // flag and re-syncing the service keeps the catalog half live.
+        .onChange(of: appState.isSeerrConnected) { _, connected in
+            viewModel?.seerrSearchService = connected ? dependencies.seerrSearchService : nil
+            // Re-run any active query so the Seerr half catches up
+            // without the user having to retype.
+            viewModel?.scheduleSearch()
+        }
     }
 
     /// Inline search bar using a UIKit UITextField wrapper. Reason:

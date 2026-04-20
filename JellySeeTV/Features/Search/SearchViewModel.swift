@@ -11,7 +11,12 @@ final class SearchViewModel {
     var errorMessage: String?
 
     private let itemService: JellyfinItemServiceProtocol
-    private let seerrSearchService: SeerrSearchServiceProtocol?
+    /// `var` rather than `let` so the SearchView can flip it from nil
+    /// to a real service when Seerr finishes connecting after the user
+    /// has already opened the search tab. Otherwise a fast tap into
+    /// Search during cold-start would freeze the catalog half at nil
+    /// for the entire app session.
+    var seerrSearchService: SeerrSearchServiceProtocol?
     private let userID: String
     private var searchTask: Task<Void, Never>?
 
