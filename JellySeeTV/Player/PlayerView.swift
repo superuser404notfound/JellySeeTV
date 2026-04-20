@@ -612,9 +612,14 @@ private struct PlayerOverlayView: View {
                                 .padding(.top, 8)
                         }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                    // Padding BEFORE the maxSize frame so the inset is
+                    // computed inside the card. Padding after a maxSize
+                    // frame adds 48x32 around the already-maxed VStack,
+                    // pushing the header off the top and the countdown
+                    // off the bottom of the 380x214 clipped area.
                     .padding(.horizontal, 24)
                     .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 }
                 .frame(width: 380, height: 214) // 16:9
                 .background(.thinMaterial)
