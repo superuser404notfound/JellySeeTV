@@ -80,6 +80,14 @@ struct SettingsView: View {
             ) {
                 SeerrSettingsView()
             }
+
+            SettingsTile(
+                icon: "heart",
+                title: "settings.support.title",
+                subtitle: "settings.support.subtitle"
+            ) {
+                SupportDevelopmentView()
+            }
         }
     }
 

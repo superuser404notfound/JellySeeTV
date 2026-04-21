@@ -1,0 +1,427 @@
+import StoreKit
+import SwiftUI
+
+/// Settings screen where users can leave an optional tip or unlock the
+/// Supporter Pack. Nothing in the app is gated behind either purchase —
+/// this screen exists purely so users who want to say thanks have a
+/// clean, non-pushy way to do it.
+struct SupportDevelopmentView: View {
+
+    @Environment(\.dependencies) private var dependencies
+
+    @State private var purchasing: String?
+    @State private var isRestoring = false
+    @State private var statusMessage: StatusMessage?
+
+    private var service: StoreKitServiceProtocol { dependencies.storeKitService }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 48) {
+                header
+                tipJarSection
+                supporterPackSection
+                restoreButton
+            }
+            .padding(.vertical, 60)
+            .padding(.horizontal, 80)
+        }
+        .navigationTitle(Text(String(
+            localized: "settings.support.title",
+            defaultValue: "Support Development"
+        )))
+        .task {
+            if !service.hasLoadedProducts {
+                await service.loadProducts()
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if let statusMessage {
+                statusBanner(statusMessage)
+                    .padding(.bottom, 40)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: statusMessage)
+    }
+
+    // MARK: - Sections
+
+    private var header: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "heart.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(.pink)
+
+            Text(String(
+                localized: "support.header.title",
+                defaultValue: "Thanks for considering"
+            ))
+            .font(.title2)
+            .fontWeight(.semibold)
+
+            Text(String(
+                localized: "support.header.copy",
+                defaultValue: "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            ))
+            .font(.body)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: 720)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var tipJarSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(
+                    localized: "support.tipJar.title",
+                    defaultValue: "Tip Jar"
+                ))
+                .font(.title3)
+                .fontWeight(.semibold)
+                Text(String(
+                    localized: "support.tipJar.subtitle",
+                    defaultValue: "One-time tips, no strings attached. Buy as many as you like."
+                ))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+
+            if service.tipProducts.isEmpty {
+                loadingCard
+            } else {
+                VStack(spacing: 4) {
+                    ForEach(service.tipProducts, id: \.id) { product in
+                        TipJarRow(
+                            product: product,
+                            isPurchasing: purchasing == product.id,
+                            isAnyPurchasing: purchasing != nil
+                        ) {
+                            await purchase(product)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var supporterPackSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(String(
+                    localized: "support.pack.title",
+                    defaultValue: "Supporter Pack"
+                ))
+                .font(.title3)
+                .fontWeight(.semibold)
+                Text(String(
+                    localized: "support.pack.subtitle",
+                    defaultValue: "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+                ))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            }
+
+            SupporterPackRow(
+                product: service.supporterPackProduct,
+                isUnlocked: service.isSupporter,
+                isPurchasing: purchasing == service.supporterPackProduct?.id,
+                isAnyPurchasing: purchasing != nil
+            ) {
+                if let product = service.supporterPackProduct {
+                    await purchase(product)
+                }
+            }
+        }
+    }
+
+    private var restoreButton: some View {
+        Button {
+            Task { await restore() }
+        } label: {
+            Label(
+                String(localized: "support.restore.button", defaultValue: "Restore Purchases"),
+                systemImage: "arrow.clockwise"
+            )
+            .font(.body)
+            .fontWeight(.medium)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 12)
+        }
+        .disabled(isRestoring)
+        .opacity(isRestoring ? 0.5 : 1)
+        .padding(.top, 12)
+    }
+
+    // MARK: - Helpers
+
+    private var loadingCard: some View {
+        HStack(spacing: 20) {
+            ProgressView()
+            Text(String(
+                localized: "support.loading",
+                defaultValue: "Loading products…"
+            ))
+            .font(.body)
+            .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.white.opacity(0.05))
+        )
+    }
+
+    private func statusBanner(_ message: StatusMessage) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: message.kind.icon)
+                .foregroundStyle(message.kind.tint)
+            Text(message.text)
+                .font(.body)
+                .fontWeight(.medium)
+        }
+        .padding(.horizontal, 28)
+        .padding(.vertical, 16)
+        .background(
+            Capsule()
+                .fill(.thinMaterial)
+        )
+    }
+
+    // MARK: - Actions
+
+    private func purchase(_ product: Product) async {
+        purchasing = product.id
+        defer { purchasing = nil }
+
+        do {
+            let outcome = try await service.purchase(product)
+            switch outcome {
+            case .success:
+                let text: String = StoreProducts.isSupporterPack(product.id)
+                    ? String(
+                        localized: "support.pack.thanks",
+                        defaultValue: "Welcome aboard! Supporter Pack unlocked."
+                    )
+                    : String(
+                        localized: "support.tipJar.thanks",
+                        defaultValue: "Thank you!"
+                    )
+                show(.success, text: text)
+            case .userCancelled:
+                break
+            case .pending:
+                show(.info, text: String(
+                    localized: "support.pending",
+                    defaultValue: "Waiting for approval. The purchase will complete once approved."
+                ))
+            }
+        } catch {
+            show(.error, text: String(
+                localized: "support.error",
+                defaultValue: "Purchase failed. Please try again."
+            ))
+        }
+    }
+
+    private func restore() async {
+        isRestoring = true
+        defer { isRestoring = false }
+
+        do {
+            try await service.restorePurchases()
+            show(.success, text: String(
+                localized: "support.restore.success",
+                defaultValue: "Purchases restored."
+            ))
+        } catch {
+            show(.error, text: String(
+                localized: "support.restore.error",
+                defaultValue: "Restore failed. Please try again."
+            ))
+        }
+    }
+
+    private func show(_ kind: StatusMessage.Kind, text: String) {
+        statusMessage = StatusMessage(kind: kind, text: text)
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            await MainActor.run {
+                if statusMessage?.text == text { statusMessage = nil }
+            }
+        }
+    }
+}
+
+// MARK: - Status Message
+
+private struct StatusMessage: Equatable {
+    enum Kind {
+        case success, info, error
+
+        var icon: String {
+            switch self {
+            case .success: "checkmark.circle.fill"
+            case .info: "clock.fill"
+            case .error: "exclamationmark.triangle.fill"
+            }
+        }
+
+        var tint: Color {
+            switch self {
+            case .success: .green
+            case .info: .yellow
+            case .error: .red
+            }
+        }
+    }
+
+    let kind: Kind
+    let text: String
+}
+
+// MARK: - Tip Jar Row
+
+private struct TipJarRow: View {
+    let product: Product
+    let isPurchasing: Bool
+    let isAnyPurchasing: Bool
+    let action: () async -> Void
+
+    @Environment(\.isFocused) private var isFocused
+
+    var body: some View {
+        Button {
+            Task { await action() }
+        } label: {
+            HStack(spacing: 28) {
+                Image(systemName: icon(for: product.id))
+                    .font(.title2)
+                    .frame(width: 56)
+                    .foregroundStyle(.tint)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(product.displayName)
+                        .font(.body)
+                        .fontWeight(.medium)
+                    Text(product.description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                if isPurchasing {
+                    ProgressView()
+                } else {
+                    Text(product.displayPrice)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .monospacedDigit()
+                }
+            }
+            .padding(20)
+        }
+        .buttonStyle(SettingsTileButtonStyle())
+        .disabled(isAnyPurchasing)
+    }
+
+    private func icon(for id: String) -> String {
+        switch id {
+        case StoreProducts.tipCoffee: "cup.and.saucer.fill"
+        case StoreProducts.tipBeer: "mug.fill"
+        case StoreProducts.tipPizza: "fork.knife"
+        default: "gift.fill"
+        }
+    }
+}
+
+// MARK: - Supporter Pack Row
+
+private struct SupporterPackRow: View {
+    let product: Product?
+    let isUnlocked: Bool
+    let isPurchasing: Bool
+    let isAnyPurchasing: Bool
+    let action: () async -> Void
+
+    var body: some View {
+        Button {
+            Task { await action() }
+        } label: {
+            HStack(spacing: 28) {
+                Group {
+                    if isUnlocked {
+                        Image(systemName: "star.circle.fill")
+                            .foregroundStyle(.yellow)
+                    } else {
+                        Image(systemName: "star.circle")
+                            .foregroundStyle(.tint)
+                    }
+                }
+                .font(.title2)
+                .frame(width: 56)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(product?.displayName ?? String(
+                        localized: "support.pack.title",
+                        defaultValue: "Supporter Pack"
+                    ))
+                    .font(.body)
+                    .fontWeight(.medium)
+
+                    Text(statusSubtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                trailing
+            }
+            .padding(20)
+        }
+        .buttonStyle(SettingsTileButtonStyle())
+        .disabled(isUnlocked || product == nil || isAnyPurchasing)
+    }
+
+    @ViewBuilder
+    private var trailing: some View {
+        if isUnlocked {
+            Label(
+                String(localized: "support.pack.unlocked", defaultValue: "Unlocked"),
+                systemImage: "checkmark"
+            )
+            .labelStyle(.titleAndIcon)
+            .font(.body)
+            .fontWeight(.semibold)
+            .foregroundStyle(.green)
+        } else if isPurchasing {
+            ProgressView()
+        } else if let product {
+            Text(product.displayPrice)
+                .font(.body)
+                .fontWeight(.semibold)
+                .monospacedDigit()
+        } else {
+            Text("—")
+                .font(.body)
+                .foregroundStyle(.tertiary)
+        }
+    }
+
+    private var statusSubtitle: String {
+        if isUnlocked {
+            return String(
+                localized: "support.pack.unlockedSubtitle",
+                defaultValue: "Thank you for your support!"
+            )
+        }
+        return product?.description ?? ""
+    }
+}
