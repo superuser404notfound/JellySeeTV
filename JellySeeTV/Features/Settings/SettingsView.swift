@@ -33,9 +33,21 @@ struct SettingsView: View {
                     .foregroundStyle(.primary)
             }
 
-            Text(appState.activeUser?.name ?? "")
-                .font(.title3)
-                .fontWeight(.semibold)
+            HStack(spacing: 10) {
+                Text(appState.activeUser?.name ?? "")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+
+                if dependencies.storeKitService.isSupporter {
+                    Image("PremiumBadge")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .accessibilityLabel(Text(String(
+                            localized: "support.pack.unlocked",
+                            defaultValue: "Unlocked"
+                        )))
+                }
+            }
 
             Text(appState.activeServer?.name ?? "")
                 .font(.subheadline)
@@ -134,10 +146,7 @@ struct SettingsView: View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return VStack(spacing: 12) {
-            Image("Logo")
-                .resizable()
-                .renderingMode(.template)
-                .foregroundStyle(.white.opacity(0.5))
+            footerLogo
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 56, height: 56)
             Text("JellySeeTV \(version) (\(build))")
@@ -147,6 +156,20 @@ struct SettingsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 32)
+    }
+
+    @ViewBuilder
+    private var footerLogo: some View {
+        if dependencies.storeKitService.isSupporter {
+            Image("PremiumLogo_Small")
+                .resizable()
+                .opacity(0.85)
+        } else {
+            Image("Logo")
+                .resizable()
+                .renderingMode(.template)
+                .foregroundStyle(.white.opacity(0.5))
+        }
     }
 
     // MARK: - Logout
