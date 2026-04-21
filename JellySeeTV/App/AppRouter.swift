@@ -54,6 +54,15 @@ struct AppRouter: View {
     }
 
     private func performRestore() async {
+        // Fire-and-forget: StoreKit lookups are independent of the
+        // Jellyfin restore and shouldn't block the splash. The observable
+        // isSupporter flag starts from the cached value and flips live
+        // once the async refresh completes.
+        Task { @MainActor in
+            await dependencies.storeKitService.refreshSupporterStatus()
+            await dependencies.storeKitService.loadProducts()
+        }
+
         guard dependencies.restoreSession() else { return }
 
         guard let serverData = try? dependencies.keychainService.loadData(for: "activeServer"),

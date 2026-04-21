@@ -17,6 +17,7 @@ final class DependencyContainer {
     let jellyfinPlaybackService: JellyfinPlaybackServiceProtocol
     let cloudSyncService: CloudSyncServiceProtocol
     let playbackPreferences: PlaybackPreferences
+    let storeKitService: StoreKitServiceProtocol
 
     let seerrClient: SeerrClient
     let seerrServerDiscoveryService: SeerrServerDiscoveryServiceProtocol
@@ -45,6 +46,7 @@ final class DependencyContainer {
         self.jellyfinPlaybackService = JellyfinPlaybackService(client: jellyfinClient)
         self.cloudSyncService = CloudSyncService()
         self.playbackPreferences = PlaybackPreferences()
+        self.storeKitService = StoreKitService()
 
         self.seerrClient = SeerrClient(httpClient: httpClient)
         self.seerrServerDiscoveryService = SeerrServerDiscoveryService(httpClient: httpClient)
