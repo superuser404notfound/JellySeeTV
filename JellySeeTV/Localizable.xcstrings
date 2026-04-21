@@ -17264,14 +17264,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametyst"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametyst"
           }
         },
         "de" : {
@@ -17282,8 +17282,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Αμέθυστος"
           }
         },
         "en" : {
@@ -17294,128 +17294,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Amatista"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametisti"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Améthyste"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametist"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametiszt"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametista"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "アメジスト"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "자수정"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametyst"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Amethist"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametyst"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametista"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametista"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametist"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Аметист"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametyst"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametist"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Ametist"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "Аметист"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "紫水晶"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Amethyst"
+            "state" : "translated",
+            "value" : "紫水晶"
           }
         }
       }
@@ -17426,14 +17426,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmínová"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmosin"
           }
         },
         "de" : {
@@ -17444,8 +17444,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Βαθυκόκκινο"
           }
         },
         "en" : {
@@ -17456,128 +17456,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Carmesí"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmiininpunainen"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Cramoisi"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Grimizna"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmazsin"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Cremisi"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "クリムゾン"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "크림슨"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmosin"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmozijn"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmazynowy"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Carmim"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Carmim"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Purpuriu"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Малиновый"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmínová"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Karmosin"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Koyu kırmızı"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "Малиновий"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "深红色"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Crimson"
+            "state" : "translated",
+            "value" : "深紅色"
           }
         }
       }
@@ -17588,14 +17588,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Zlatá"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Guld"
           }
         },
         "de" : {
@@ -17606,8 +17606,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Χρυσό"
           }
         },
         "en" : {
@@ -17618,128 +17618,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Oro"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Kulta"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Or"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Zlato"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Arany"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Oro"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "ゴールド"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "골드"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Gull"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Goud"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Złoto"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Dourado"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Dourado"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Auriu"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Золотой"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Zlatá"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Guld"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Altın"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "Золотий"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "金色"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Gold"
+            "state" : "translated",
+            "value" : "金色"
           }
         }
       }
@@ -17750,14 +17750,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Máta"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Mynte"
           }
         },
         "de" : {
@@ -17768,8 +17768,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Μέντα"
           }
         },
         "en" : {
@@ -17780,128 +17780,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Menta"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Minttu"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Menthe"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Menta"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Menta"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Menta"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "ミント"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "민트"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Mynte"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Mint"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Mięta"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Menta"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Menta"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Mentă"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Мятный"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Mäta"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Mynta"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "Nane"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "М'ятний"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "薄荷色"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Mint"
+            "state" : "translated",
+            "value" : "薄荷色"
           }
         }
       }
@@ -17912,14 +17912,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Růžová"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Rosa"
           }
         },
         "de" : {
@@ -17930,8 +17930,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Τριανταφυλλί"
           }
         },
         "en" : {
@@ -17942,128 +17942,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Rosa"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Ruusu"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Rose"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Ružičasta"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Rózsa"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Rosa"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "ローズ"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "로즈"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Rosa"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Roos"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Róża"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Rosa"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Rosa"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Roz"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Розовый"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Ružová"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Rosa"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Gül"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "Рожевий"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "玫瑰色"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Rose"
+            "state" : "translated",
+            "value" : "玫瑰色"
           }
         }
       }
@@ -18074,14 +18074,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Systémová modrá"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Systemblå"
           }
         },
         "de" : {
@@ -18092,8 +18092,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Μπλε συστήματος"
           }
         },
         "en" : {
@@ -18104,128 +18104,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Azul del sistema"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Järjestelmän sininen"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Bleu système"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Sistemska plava"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Rendszerkék"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Blu di sistema"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "システムブルー"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "시스템 블루"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Systemblå"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Systeemblauw"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Niebieski systemowy"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Azul do sistema"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Azul do sistema"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Albastru de sistem"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Системный синий"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Systémová modrá"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Systemblå"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Sistem mavisi"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "Системний синій"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "系统蓝"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "System Blue"
+            "state" : "translated",
+            "value" : "系統藍"
           }
         }
       }
@@ -19694,14 +19694,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Otevřít Podporu vývoje"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Åbn Støt udviklingen"
           }
         },
         "de" : {
@@ -19712,8 +19712,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Άνοιγμα Υποστήριξης ανάπτυξης"
           }
         },
         "en" : {
@@ -19724,128 +19724,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Abrir Apoyar el desarrollo"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Avaa Tue kehitystä"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Ouvrir Soutenir le développement"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Otvori Podršku razvoju"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Fejlesztés támogatása megnyitása"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Apri Supporta lo sviluppo"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "開発を支援を開く"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "개발 지원 열기"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Åpne Støtt utviklingen"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Open Ondersteun de ontwikkeling"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Otwórz Wesprzyj rozwój"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Abrir Apoiar o desenvolvimento"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Abrir Apoiar o desenvolvimento"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Deschide Sprijină dezvoltarea"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Открыть «Поддержать разработку»"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Otvoriť Podporu vývoja"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Öppna Stöd utvecklingen"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Geliştirmeyi destekle'yi aç"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "Відкрити «Підтримати розробку»"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "打开支持开发"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Open Support Development"
+            "state" : "translated",
+            "value" : "開啟支持開發"
           }
         }
       }
@@ -19856,14 +19856,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Odemkněte zvýrazňovací barvy spolu s prémiovou úvodní ikonou a odznakem podporovatele."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Lås op for fremhævningsfarver sammen med det premium splash-ikon og supporter-badget."
           }
         },
         "de" : {
@@ -19874,8 +19874,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Ξεκλειδώστε τα χρώματα έμφασης μαζί με το premium εικονίδιο έναρξης και το σήμα υποστηρικτή."
           }
         },
         "en" : {
@@ -19886,128 +19886,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Desbloquea los colores de acento junto con el icono de inicio premium y la insignia de apoyo."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Avaa korostusvärit premium-käynnistyskuvakkeen ja tukija-merkin kanssa."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Débloquez les couleurs d'accent avec l'icône de lancement premium et le badge de soutien."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Otključajte naglasne boje zajedno s premium uvodnom ikonom i podržavateljskom značkom."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Oldd fel a kiemelőszíneket a prémium nyitóikonnal és a támogatói jelvénnyel együtt."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Sblocca i colori di accento insieme all'icona iniziale premium e al badge sostenitore."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "プレミアムスプラッシュアイコンとサポーターバッジと一緒にアクセントカラーをアンロックします。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "프리미엄 스플래시 아이콘 및 서포터 배지와 함께 강조 색상을 잠금 해제하세요."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Lås opp aksentfarger sammen med premium splash-ikonet og supporter-merket."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Ontgrendel accentkleuren samen met het premium splash-icoon en de supportersbadge."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Odblokuj kolory akcentu wraz z premiową ikoną powitalną i odznaką wspierającego."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Desbloqueie cores de destaque junto com o ícone de abertura premium e o distintivo de apoiador."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Desbloqueie cores de realce juntamente com o ícone de abertura premium e o distintivo de apoiante."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Deblochează culorile de accent împreună cu pictograma de pornire premium și insigna de susținător."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Разблокируйте акцентные цвета вместе с премиальной заставкой и значком поддержки."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Odomknite zvýrazňovacie farby spolu s prémiovou úvodnou ikonou a odznakom podporovateľa."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Lås upp accentfärger tillsammans med premium-startikonen och supporter-märket."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Premium açılış simgesi ve destekçi rozeti ile birlikte vurgu renklerinin kilidini açın."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "Розблокуйте акцентні кольори разом із преміальною заставкою та значком прихильника."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "解锁强调色以及高级启动图标和支持者徽章。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlock accent colors along with the premium splash icon and supporter badge."
+            "state" : "translated",
+            "value" : "解鎖強調色以及高級啟動圖示和支持者徽章。"
           }
         }
       }
@@ -20018,14 +20018,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Součást balíčku podporovatele"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Del af Supporter-pakken"
           }
         },
         "de" : {
@@ -20036,8 +20036,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Μέρος του Πακέτου Υποστήριξης"
           }
         },
         "en" : {
@@ -20048,128 +20048,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Parte del Pack de Apoyo"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Osa Tukijapakettia"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Inclus dans le Pack de soutien"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Dio podržavateljskog paketa"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "A Támogatói csomag része"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Parte del Pacchetto Sostenitore"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "サポーターパックの一部"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "서포터 팩에 포함"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Del av Supporter-pakken"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Onderdeel van het Supporterspakket"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Część Pakietu Wspierającego"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Parte do Pacote de Apoio"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Parte do Pacote de Apoio"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Parte din Pachetul de Susținător"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Часть Пакета поддержки"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Súčasť balíčka podporovateľa"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "En del av Supporterpaketet"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Destekçi Paketi'nin parçası"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "Частина Пакета прихильника"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "支持者套餐的一部分"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Part of the Supporter Pack"
+            "state" : "translated",
+            "value" : "支持者套裝的一部分"
           }
         }
       }
@@ -20180,14 +20180,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Vyberte zvýrazňovací barvu pro tlačítka, fokusové prstence a zvýraznění."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Vælg en fremhævningsfarve til knapper, fokusringe og fremhævninger."
           }
         },
         "de" : {
@@ -20198,8 +20198,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Επιλέξτε ένα χρώμα έμφασης για κουμπιά, δαχτυλίδια εστίασης και επισημάνσεις."
           }
         },
         "en" : {
@@ -20210,128 +20210,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Elige un color de acento para botones, anillos de enfoque y resaltados."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Valitse korostusväri painikkeille, kohdistusrenkaille ja korostuksille."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Choisissez une couleur d'accent pour les boutons, les anneaux de focus et les surlignages."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Odaberite naglasnu boju za gumbe, prstenove fokusa i isticanja."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Válassz kiemelőszínt a gombokhoz, fókuszgyűrűkhöz és kiemelésekhez."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Scegli un colore di accento per pulsanti, anelli di messa a fuoco ed evidenziazioni."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "ボタン、フォーカスリング、ハイライトのアクセントカラーを選択します。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "버튼, 포커스 링 및 강조 표시에 사용할 강조 색상을 선택하세요."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Velg en aksentfarge for knapper, fokusringer og fremhevinger."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Kies een accentkleur voor knoppen, focusringen en markeringen."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Wybierz kolor akcentu dla przycisków, pierścieni fokusu i wyróżnień."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Escolha uma cor de destaque para botões, anéis de foco e realces."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Escolha uma cor de realce para botões, anéis de foco e destaques."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Alege o culoare de accent pentru butoane, inele de focalizare și evidențieri."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Выберите акцентный цвет для кнопок, колец фокуса и выделений."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Vyberte zvýrazňovaciu farbu pre tlačidlá, fokusové prstence a zvýraznenia."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Välj en accentfärg för knappar, fokusringar och markeringar."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Düğmeler, odak halkaları ve vurgular için bir vurgu rengi seçin."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "Виберіть акцентний колір для кнопок, кілець фокусу та виділень."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "为按钮、焦点环和高亮选择一个强调色。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Pick an accent color for buttons, focus rings, and highlights."
+            "state" : "translated",
+            "value" : "為按鈕、焦點環和高亮選擇一個強調色。"
           }
         }
       }
@@ -20342,14 +20342,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Zvýrazňovací barva"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Fremhævningsfarve"
           }
         },
         "de" : {
@@ -20360,8 +20360,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Χρώμα έμφασης"
           }
         },
         "en" : {
@@ -20372,128 +20372,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Color de acento"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Korostusväri"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Couleur d'accent"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Naglasna boja"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Kiemelőszín"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Colore di accento"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "アクセントカラー"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "강조 색상"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Aksentfarge"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Accentkleur"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Kolor akcentu"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Cor de destaque"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Cor de realce"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Culoare de accent"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Акцентный цвет"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Zvýrazňovacia farba"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Accentfärg"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Vurgu rengi"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "Акцентний колір"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "强调色"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Accent color"
+            "state" : "translated",
+            "value" : "強調色"
           }
         }
       }
@@ -20504,14 +20504,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Vzhled"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Udseende"
           }
         },
         "de" : {
@@ -20522,8 +20522,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Εμφάνιση"
           }
         },
         "en" : {
@@ -20534,128 +20534,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Apariencia"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Ulkoasu"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Apparence"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Izgled"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Megjelenés"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Aspetto"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "外観"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "모양"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Utseende"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Uiterlijk"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Wygląd"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Aparência"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Aparência"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Aspect"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Внешний вид"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Vzhľad"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Utseende"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Görünüm"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "Зовнішній вигляд"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "外观"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Appearance"
+            "state" : "translated",
+            "value" : "外觀"
           }
         }
       }
@@ -29064,14 +29064,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Košík na dýška a balíček podporovatele"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Drikkepenge og supporter-pakke"
           }
         },
         "de" : {
@@ -29082,8 +29082,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Φιλοδώρημα και πακέτο υποστήριξης"
           }
         },
         "en" : {
@@ -29094,128 +29094,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Propinas y pack de apoyo"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Juomarahat ja tukijapaketti"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Pourboires et pack de soutien"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Napojnica i podržavateljski paket"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Borravaló és támogatói csomag"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Mance e pacchetto sostenitore"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "チップとサポーターパック"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "팁과 서포터 팩"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Drikkepenger og supporter-pakke"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Fooi en supporterspakket"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Napiwki i pakiet wspierający"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Gorjetas e pacote de apoio"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Gorjetas e pacote de apoio"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Bacșiș și pachet de susținător"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Чаевые и пакет поддержки"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Prepitné a balíček podporovateľa"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Dricks och supporterpaket"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Bahşiş ve destekçi paketi"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "Чайові та пакет прихильника"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "小费和支持者套餐"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip jar and supporter pack"
+            "state" : "translated",
+            "value" : "小費和支持者套裝"
           }
         }
       }
@@ -29226,14 +29226,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Podpora vývoje"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Støt udviklingen"
           }
         },
         "de" : {
@@ -29244,8 +29244,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Υποστήριξη ανάπτυξης"
           }
         },
         "en" : {
@@ -29256,128 +29256,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Apoyar el desarrollo"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Tue kehitystä"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Soutenir le développement"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Podrška razvoju"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Fejlesztés támogatása"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Supporta lo sviluppo"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "開発を支援"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "개발 지원"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Støtt utviklingen"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Ondersteun de ontwikkeling"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Wesprzyj rozwój"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Apoiar o desenvolvimento"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Apoiar o desenvolvimento"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Sprijină dezvoltarea"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Поддержать разработку"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Podpora vývoja"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Stöd utvecklingen"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Geliştirmeyi destekle"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "Підтримати розробку"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "支持开发"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Support Development"
+            "state" : "translated",
+            "value" : "支持開發"
           }
         }
       }
@@ -29388,14 +29388,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Nákup se nezdařil. Zkuste to prosím znovu."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Køb mislykkedes. Prøv venligst igen."
           }
         },
         "de" : {
@@ -29406,8 +29406,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Η αγορά απέτυχε. Δοκιμάστε ξανά."
           }
         },
         "en" : {
@@ -29418,128 +29418,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Compra fallida. Inténtalo de nuevo."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Osto epäonnistui. Yritä uudelleen."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "L'achat a échoué. Veuillez réessayer."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Kupnja nije uspjela. Pokušajte ponovno."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "A vásárlás sikertelen. Kérjük, próbáld újra."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Acquisto fallito. Riprova."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "購入に失敗しました。もう一度お試しください。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "구매 실패. 다시 시도해 주세요."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Kjøpet mislyktes. Prøv igjen."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Aankoop mislukt. Probeer het opnieuw."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Zakup nie powiódł się. Spróbuj ponownie."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Falha na compra. Tente novamente."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Falha na compra. Tente novamente."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Achiziția a eșuat. Încearcă din nou."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Покупка не удалась. Попробуйте снова."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Nákup zlyhal. Skúste to znova."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Köpet misslyckades. Försök igen."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Satın alma başarısız oldu. Lütfen tekrar deneyin."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "Покупка не вдалася. Спробуйте ще раз."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "购买失败。请重试。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchase failed. Please try again."
+            "state" : "translated",
+            "value" : "購買失敗。請重試。"
           }
         }
       }
@@ -29550,14 +29550,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV je vášnivý projekt jedné osoby. Vše v aplikaci je a zůstane zdarma. Spropitné a balíček podporovatele jsou volitelné — pomáhají pokrýt poplatek Apple Developer a ukazují, že si práce vážíte."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV er et passionprojekt lavet af én person. Alt i appen er og forbliver gratis. Drikkepenge og Supporter-pakken er valgfri — de hjælper med at dække Apple Developer-gebyret og viser, at arbejdet værdsættes."
           }
         },
         "de" : {
@@ -29568,8 +29568,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "Το JellySeeTV είναι ένα έργο πάθους ενός ατόμου. Όλα στην εφαρμογή είναι και παραμένουν δωρεάν. Τα φιλοδωρήματα και το Πακέτο Υποστήριξης είναι προαιρετικά — βοηθούν να καλυφθεί η συνδρομή Apple Developer και δείχνουν ότι η δουλειά εκτιμάται."
           }
         },
         "en" : {
@@ -29580,128 +29580,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV es un proyecto de pasión hecho por una sola persona. Todo en la app es y sigue siendo gratis. Las propinas y el Pack de Apoyo son opcionales: ayudan a cubrir la cuota de Apple Developer y muestran que se aprecia el trabajo."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV on yhden henkilön intohimoprojekti. Kaikki sovelluksessa on ja pysyy ilmaisena. Juomarahat ja Tukijapaketti ovat valinnaisia — ne auttavat kattamaan Apple Developer -maksun ja osoittavat, että työtä arvostetaan."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV est un projet passion d'une seule personne. Tout dans l'application est et reste gratuit. Les pourboires et le Pack de soutien sont optionnels — ils aident à couvrir les frais Apple Developer et montrent que le travail est apprécié."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV je strastan projekt jedne osobe. Sve u aplikaciji jest i ostaje besplatno. Napojnice i Podržavateljski paket su opcionalni — pomažu pokriti naknadu Apple Developer i pokazuju da se rad cijeni."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "A JellySeeTV egyszemélyes szenvedélyprojekt. Az alkalmazásban minden ingyenes és az is marad. A borravalók és a Támogatói csomag opcionálisak — segítenek fedezni az Apple Developer díjat és mutatják, hogy a munkát megbecsülik."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV è un progetto di passione di una sola persona. Tutto nell'app è e rimane gratuito. Le mance e il Pacchetto Sostenitore sono opzionali — aiutano a coprire la quota Apple Developer e mostrano che il lavoro è apprezzato."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTVは一人で作っている情熱プロジェクトです。アプリの機能はすべて無料で、これからも無料のままです。チップとサポーターパックは任意です — Apple Developer手数料の負担を助け、作業への感謝を示すためのものです。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV는 한 사람의 열정 프로젝트입니다. 앱의 모든 기능은 무료이며 앞으로도 무료로 유지됩니다. 팁과 서포터 팩은 선택 사항으로, Apple Developer 수수료를 충당하고 작업에 대한 감사를 표현하는 데 도움이 됩니다."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV er et lidenskapsprosjekt laget av én person. Alt i appen er og forblir gratis. Drikkepenger og Supporter-pakken er valgfrie — de hjelper med å dekke Apple Developer-avgiften og viser at arbeidet settes pris på."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV is een passieproject van één persoon. Alles in de app is en blijft gratis. Fooien en het Supporterspakket zijn optioneel — ze helpen de Apple Developer-vergoeding te dekken en laten zien dat het werk gewaardeerd wordt."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV to projekt pasji jednej osoby. Wszystko w aplikacji jest i pozostanie darmowe. Napiwki i Pakiet Wspierający są opcjonalne — pomagają pokryć opłatę Apple Developer i pokazują, że praca jest doceniana."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV é um projeto de paixão feito por uma só pessoa. Tudo no app é e continua gratuito. Gorjetas e o Pacote de Apoio são opcionais — ajudam a cobrir a taxa do Apple Developer e mostram que o trabalho é apreciado."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV é um projeto de paixão feito por uma só pessoa. Tudo na app é e continua gratuito. Gorjetas e o Pacote de Apoio são opcionais — ajudam a cobrir a taxa do Apple Developer e mostram que o trabalho é apreciado."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV este un proiect pasional al unei singure persoane. Totul din aplicație este și rămâne gratuit. Bacșișurile și Pachetul de Susținător sunt opționale — ajută la acoperirea taxei Apple Developer și arată că munca este apreciată."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV — это проект-страсть одного человека. Всё в приложении бесплатно и таким останется. Чаевые и Пакет поддержки необязательны — они помогают покрыть плату Apple Developer и показывают, что работа ценится."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV je vášnivý projekt jednej osoby. Všetko v aplikácii je a zostane zadarmo. Prepitné a Balíček podporovateľa sú voliteľné — pomáhajú pokryť poplatok Apple Developer a ukazujú, že práca je cenená."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV är ett passionsprojekt av en enda person. Allt i appen är och förblir gratis. Dricks och Supporterpaketet är frivilliga — de hjälper till att täcka Apple Developer-avgiften och visar att arbetet uppskattas."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV tek kişinin tutku projesidir. Uygulamadaki her şey ücretsizdir ve öyle kalacaktır. Bahşişler ve Destekçi Paketi isteğe bağlıdır — Apple Developer ücretini karşılamaya yardımcı olur ve çalışmanın takdir edildiğini gösterir."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV — це пристрасний проєкт однієї людини. Все в застосунку безкоштовне і таким залишиться. Чайові та Пакет прихильника необов'язкові — вони допомагають покрити плату Apple Developer і показують, що роботу цінують."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV 是一个人的热情项目。应用中的所有功能都是免费的，且将保持免费。小费和支持者套餐是可选的——它们有助于支付 Apple Developer 费用，并表明这项工作受到赞赏。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "JellySeeTV is a one-person passion project. Everything in the app is and stays free. Tips and the Supporter Pack are optional — they help cover the Apple Developer fee and show that the work is appreciated."
+            "state" : "translated",
+            "value" : "JellySeeTV 是一個人的熱情專案。應用程式中的所有功能都是免費的，並將保持免費。小費和支持者套裝是可選的——它們有助於支付 Apple Developer 費用，並表明這項工作受到讚賞。"
           }
         }
       }
@@ -29712,14 +29712,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Děkujeme, že zvažujete"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Tak fordi du overvejer det"
           }
         },
         "de" : {
@@ -29730,8 +29730,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Ευχαριστούμε που το σκέφτεστε"
           }
         },
         "en" : {
@@ -29742,128 +29742,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Gracias por considerarlo"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Kiitos, että harkitset"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Merci d'y penser"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Hvala što razmišljate o tome"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Köszönjük, hogy fontolgatod"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Grazie per averci pensato"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "ご検討ありがとうございます"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "고려해 주셔서 감사합니다"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Takk for at du vurderer det"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Bedankt dat je het overweegt"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Dziękujemy za rozważenie"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Obrigado por considerar"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Obrigado por considerar"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Mulțumim că iei în considerare"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Спасибо, что рассматриваете"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Ďakujeme, že uvažuješ"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Tack för att du överväger"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Düşündüğün için teşekkürler"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "Дякуємо, що розглядаєте"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "感谢您的考虑"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thanks for considering"
+            "state" : "translated",
+            "value" : "感謝您的考慮"
           }
         }
       }
@@ -29874,14 +29874,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Načítání produktů…"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Indlæser produkter…"
           }
         },
         "de" : {
@@ -29892,8 +29892,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Φόρτωση προϊόντων…"
           }
         },
         "en" : {
@@ -29904,128 +29904,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Cargando productos…"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Ladataan tuotteita…"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Chargement des produits…"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Učitavanje proizvoda…"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Termékek betöltése…"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Caricamento prodotti…"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "商品を読み込み中…"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "제품 로드 중…"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Laster produkter…"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Producten laden…"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Ładowanie produktów…"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Carregando produtos…"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "A carregar produtos…"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Se încarcă produsele…"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Загрузка продуктов…"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Načítavanie produktov…"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Läser in produkter…"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Ürünler yükleniyor…"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "Завантаження продуктів…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "正在加载产品…"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Loading products…"
+            "state" : "translated",
+            "value" : "正在載入產品…"
           }
         }
       }
@@ -30036,14 +30036,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Jednorázové odemčení. Kosmetické extra — speciální úvodní ikona, vlastní zvýrazňovací barvy a odznak podporovatele v nastavení."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Engangsoplåsning. Kosmetiske ekstras — et specielt splash-ikon, brugerdefinerede fremhævningsfarver og et supporter-badge i Indstillinger."
           }
         },
         "de" : {
@@ -30054,8 +30054,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Εφάπαξ ξεκλείδωμα. Κοσμητικά έξτρα — ένα ειδικό εικονίδιο έναρξης, προσαρμοσμένα χρώματα έμφασης και ένα σήμα υποστηρικτή στις Ρυθμίσεις."
           }
         },
         "en" : {
@@ -30066,128 +30066,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Desbloqueo único. Extras cosméticos: un icono de inicio especial, colores de acento personalizados y una insignia de apoyo en Ajustes."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Kertakertainen avaus. Kosmeettiset lisät — erityinen käynnistyskuvake, mukautetut korostusvärit ja tukija-merkki asetuksissa."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Déblocage unique. Extras cosmétiques — une icône de lancement spéciale, des couleurs d'accent personnalisées et un badge de soutien dans les Réglages."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Jednokratno otključavanje. Kozmetički dodaci — posebna uvodna ikona, prilagođene naglasne boje i podržavateljska značka u postavkama."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Egyszeri feloldás. Kozmetikai extrák — egy különleges nyitóikon, egyéni kiemelőszínek és egy támogatói jelvény a Beállításokban."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Sblocco una tantum. Extra estetici — un'icona iniziale speciale, colori di accento personalizzati e un badge sostenitore in Impostazioni."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "一回限りのアンロック。コスメティックエクストラ — 特別なスプラッシュアイコン、カスタムアクセントカラー、設定内のサポーターバッジ。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "일회성 잠금 해제. 꾸미기 추가 기능 — 특별한 스플래시 아이콘, 맞춤 강조 색상, 설정의 서포터 배지."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Engangsopplåsing. Kosmetiske ekstra — et spesielt splash-ikon, tilpassede aksentfarger og et supporter-merke i Innstillinger."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Eenmalige ontgrendeling. Cosmetische extra's — een speciaal splash-icoon, aangepaste accentkleuren en een supportersbadge in Instellingen."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Jednorazowe odblokowanie. Dodatki kosmetyczne — specjalna ikona powitalna, niestandardowe kolory akcentu i odznaka wspierającego w Ustawieniach."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Desbloqueio único. Extras cosméticos — um ícone de abertura especial, cores de destaque personalizadas e um distintivo de apoiador nos Ajustes."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Desbloqueio único. Extras cosméticos — um ícone de abertura especial, cores de realce personalizadas e um distintivo de apoiante nas Definições."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Deblocare unică. Extra cosmetice — o pictogramă de pornire specială, culori de accent personalizate și o insignă de susținător în Setări."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Разовая разблокировка. Косметические дополнения — специальная заставка, настраиваемые акцентные цвета и значок поддержки в настройках."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Jednorazové odomknutie. Kozmetické extra — špeciálna úvodná ikona, vlastné zvýrazňovacie farby a odznak podporovateľa v nastaveniach."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Engångsupplåsning. Kosmetiska extra — en speciell startikon, anpassade accentfärger och ett supporter-märke i Inställningar."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Tek seferlik kilit açma. Kozmetik ekstralar — özel bir açılış simgesi, özel vurgu renkleri ve Ayarlar'da bir destekçi rozeti."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "Разове розблокування. Косметичні доповнення — спеціальна заставка, власні акцентні кольори та значок прихильника в налаштуваннях."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "一次性解锁。装饰性附加内容 — 特殊启动图标、自定义强调色和设置中的支持者徽章。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time unlock. Cosmetic extras — a special splash icon, custom accent colors, and a supporter badge in Settings."
+            "state" : "translated",
+            "value" : "一次性解鎖。裝飾性附加內容 — 特殊啟動圖示、自訂強調色和設定中的支持者徽章。"
           }
         }
       }
@@ -30198,14 +30198,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Vítejte! Balíček podporovatele odemčen."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Velkommen ombord! Supporter-pakke låst op."
           }
         },
         "de" : {
@@ -30216,8 +30216,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Καλώς ήρθατε! Το Πακέτο Υποστήριξης ξεκλειδώθηκε."
           }
         },
         "en" : {
@@ -30228,128 +30228,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "¡Bienvenido a bordo! Pack de Apoyo desbloqueado."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Tervetuloa! Tukijapaketti avattu."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Bienvenue à bord ! Pack de soutien débloqué."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Dobrodošli! Podržavateljski paket otključan."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Üdvözlünk! Támogatói csomag feloldva."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Benvenuto a bordo! Pacchetto Sostenitore sbloccato."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "ようこそ！サポーターパックがアンロックされました。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "환영합니다! 서포터 팩이 잠금 해제되었습니다."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Velkommen om bord! Supporter-pakke låst opp."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Welkom aan boord! Supporterspakket ontgrendeld."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Witamy na pokładzie! Pakiet Wspierający odblokowany."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Bem-vindo a bordo! Pacote de Apoio desbloqueado."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Bem-vindo a bordo! Pacote de Apoio desbloqueado."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Bine ai venit! Pachet de Susținător deblocat."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Добро пожаловать! Пакет поддержки разблокирован."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Vitajte! Balíček podporovateľa odomknutý."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Välkommen ombord! Supporterpaket upplåst."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Aramıza hoş geldin! Destekçi Paketi kilidi açıldı."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "Ласкаво просимо на борт! Пакет прихильника розблоковано."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "欢迎加入！支持者套餐已解锁。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Welcome aboard! Supporter Pack unlocked."
+            "state" : "translated",
+            "value" : "歡迎加入！支持者套裝已解鎖。"
           }
         }
       }
@@ -30360,14 +30360,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Balíček podporovatele"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Supporter-pakke"
           }
         },
         "de" : {
@@ -30378,8 +30378,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Πακέτο Υποστήριξης"
           }
         },
         "en" : {
@@ -30390,128 +30390,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Pack de Apoyo"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Tukijapaketti"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Pack de soutien"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Podržavateljski paket"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Támogatói csomag"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Pacchetto Sostenitore"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "サポーターパック"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "서포터 팩"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Supporter-pakke"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Supporterspakket"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Pakiet Wspierający"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Pacote de Apoio"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Pacote de Apoio"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Pachet de Susținător"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Пакет поддержки"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Balíček podporovateľa"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Supporterpaket"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Destekçi Paketi"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "Пакет прихильника"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "支持者套餐"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Supporter Pack"
+            "state" : "translated",
+            "value" : "支持者套裝"
           }
         }
       }
@@ -30522,14 +30522,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Odemčeno"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Låst op"
           }
         },
         "de" : {
@@ -30540,8 +30540,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Ξεκλειδωμένο"
           }
         },
         "en" : {
@@ -30552,128 +30552,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Desbloqueado"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Avattu"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Débloqué"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Otključano"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Feloldva"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Sbloccato"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "アンロック済み"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "잠금 해제됨"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Låst opp"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Ontgrendeld"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Odblokowano"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Desbloqueado"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Desbloqueado"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Deblocat"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Разблокировано"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Odomknuté"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Upplåst"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Kilit açıldı"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "Розблоковано"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "已解锁"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Unlocked"
+            "state" : "translated",
+            "value" : "已解鎖"
           }
         }
       }
@@ -30684,14 +30684,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Děkujeme za vaši podporu!"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Tak for din støtte!"
           }
         },
         "de" : {
@@ -30702,8 +30702,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Ευχαριστούμε για την υποστήριξή σας!"
           }
         },
         "en" : {
@@ -30714,128 +30714,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "¡Gracias por tu apoyo!"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Kiitos tuestasi!"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Merci pour votre soutien !"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Hvala na vašoj podršci!"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Köszönjük a támogatásodat!"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Grazie per il tuo supporto!"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "ご支援ありがとうございます！"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "지원해 주셔서 감사합니다!"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Takk for støtten din!"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Bedankt voor je steun!"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Dziękujemy za wsparcie!"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Obrigado pelo seu apoio!"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Obrigado pelo seu apoio!"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Mulțumim pentru sprijinul tău!"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Спасибо за вашу поддержку!"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Ďakujeme za vašu podporu!"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Tack för ditt stöd!"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Desteğin için teşekkürler!"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "Дякуємо за вашу підтримку!"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "感谢您的支持！"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you for your support!"
+            "state" : "translated",
+            "value" : "感謝您的支持！"
           }
         }
       }
@@ -30846,14 +30846,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Čeká se na schválení. Nákup bude dokončen po schválení."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Afventer godkendelse. Købet afsluttes, når det er godkendt."
           }
         },
         "de" : {
@@ -30864,8 +30864,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Αναμονή για έγκριση. Η αγορά θα ολοκληρωθεί μόλις εγκριθεί."
           }
         },
         "en" : {
@@ -30876,128 +30876,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Esperando aprobación. La compra se completará una vez aprobada."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Odotetaan hyväksyntää. Osto viimeistellään, kun se on hyväksytty."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "En attente d'approbation. L'achat sera finalisé une fois approuvé."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Čeka se odobrenje. Kupnja će biti dovršena nakon odobrenja."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Jóváhagyásra várva. A vásárlás jóváhagyás után fejeződik be."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "In attesa di approvazione. L'acquisto sarà completato una volta approvato."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "承認待ちです。承認後、購入が完了します。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "승인 대기 중. 승인되면 구매가 완료됩니다."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Venter på godkjenning. Kjøpet fullføres når det er godkjent."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Wachten op goedkeuring. De aankoop wordt voltooid na goedkeuring."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Oczekiwanie na zatwierdzenie. Zakup zostanie zakończony po zatwierdzeniu."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Aguardando aprovação. A compra será concluída após a aprovação."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "A aguardar aprovação. A compra será concluída após a aprovação."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Se așteaptă aprobarea. Achiziția se va finaliza după aprobare."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Ожидание подтверждения. Покупка будет завершена после подтверждения."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Čaká sa na schválenie. Nákup sa dokončí po schválení."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Väntar på godkännande. Köpet slutförs när det är godkänt."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Onay bekleniyor. Satın alma onaylandığında tamamlanacak."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "Очікування схвалення. Покупку буде завершено після схвалення."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "等待批准。批准后购买将完成。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Waiting for approval. The purchase will complete once approved."
+            "state" : "translated",
+            "value" : "等待批准。批准後購買將完成。"
           }
         }
       }
@@ -31008,14 +31008,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Obnovit nákupy"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Gendan køb"
           }
         },
         "de" : {
@@ -31026,8 +31026,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Επαναφορά αγορών"
           }
         },
         "en" : {
@@ -31038,128 +31038,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Restaurar compras"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Palauta ostokset"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Restaurer les achats"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Obnovi kupnje"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Vásárlások visszaállítása"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Ripristina acquisti"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "購入を復元"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "구매 복원"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Gjenopprett kjøp"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Aankopen herstellen"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Przywróć zakupy"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Restaurar compras"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Restaurar compras"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Restabilește achizițiile"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Восстановить покупки"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Obnoviť nákupy"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Återställ köp"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Satın almaları geri yükle"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "Відновити покупки"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "恢复购买"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore Purchases"
+            "state" : "translated",
+            "value" : "恢復購買"
           }
         }
       }
@@ -31170,14 +31170,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Obnovení se nezdařilo. Zkuste to prosím znovu."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Gendannelse mislykkedes. Prøv venligst igen."
           }
         },
         "de" : {
@@ -31188,8 +31188,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Η επαναφορά απέτυχε. Δοκιμάστε ξανά."
           }
         },
         "en" : {
@@ -31200,128 +31200,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Restauración fallida. Inténtalo de nuevo."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Palauttaminen epäonnistui. Yritä uudelleen."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "La restauration a échoué. Veuillez réessayer."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Obnavljanje nije uspjelo. Pokušajte ponovno."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "A visszaállítás sikertelen. Kérjük, próbáld újra."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Ripristino fallito. Riprova."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "復元に失敗しました。もう一度お試しください。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "복원 실패. 다시 시도해 주세요."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Gjenoppretting mislyktes. Prøv igjen."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Herstel mislukt. Probeer het opnieuw."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Przywracanie nie powiodło się. Spróbuj ponownie."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Falha ao restaurar. Tente novamente."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Falha ao restaurar. Tente novamente."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Restabilirea a eșuat. Încearcă din nou."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Восстановление не удалось. Попробуйте снова."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Obnovenie zlyhalo. Skúste to znova."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Återställningen misslyckades. Försök igen."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Geri yükleme başarısız. Lütfen tekrar deneyin."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "Не вдалося відновити. Спробуйте ще раз."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "恢复失败。请重试。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Restore failed. Please try again."
+            "state" : "translated",
+            "value" : "恢復失敗。請重試。"
           }
         }
       }
@@ -31332,14 +31332,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Nákupy obnoveny."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Køb gendannet."
           }
         },
         "de" : {
@@ -31350,8 +31350,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Οι αγορές επαναφέρθηκαν."
           }
         },
         "en" : {
@@ -31362,128 +31362,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Compras restauradas."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Ostokset palautettu."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Achats restaurés."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Kupnje obnovljene."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Vásárlások visszaállítva."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Acquisti ripristinati."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "購入が復元されました。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "구매가 복원되었습니다."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Kjøp gjenopprettet."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Aankopen hersteld."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Zakupy przywrócone."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Compras restauradas."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Compras restauradas."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Achiziții restabilite."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Покупки восстановлены."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Nákupy obnovené."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Köp återställda."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Satın almalar geri yüklendi."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "Покупки відновлено."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "已恢复购买。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Purchases restored."
+            "state" : "translated",
+            "value" : "已恢復購買。"
           }
         }
       }
@@ -31494,14 +31494,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Jednorázová dýška, bez podmínek. Kupujte, kolik chcete."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Engangsdrikkepenge, ingen betingelser. Køb så mange du vil."
           }
         },
         "de" : {
@@ -31512,8 +31512,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Εφάπαξ φιλοδωρήματα, χωρίς δεσμεύσεις. Αγοράστε όσα θέλετε."
           }
         },
         "en" : {
@@ -31524,128 +31524,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Propinas únicas, sin compromisos. Compra tantas como quieras."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Kertaluonteiset juomarahat, ei ehtoja. Osta niin monta kuin haluat."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Pourboires uniques, sans engagement. Achetez-en autant que vous voulez."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Jednokratne napojnice, bez obveza. Kupujte koliko želite."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Egyszeri borravalók, kötöttségek nélkül. Vegyél annyit, amennyit csak akarsz."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Mance una tantum, senza vincoli. Acquistane quante vuoi."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "一回限りのチップ、条件なし。好きなだけ購入できます。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "일회성 팁, 조건 없음. 원하는 만큼 구매하세요."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Engangs drikkepenger, ingen betingelser. Kjøp så mange du vil."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Eenmalige fooien, geen voorwaarden. Koop er zoveel als je wilt."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Jednorazowe napiwki, bez zobowiązań. Kup tyle, ile chcesz."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Gorjetas únicas, sem compromissos. Compre quantas quiser."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Gorjetas únicas, sem compromissos. Compre quantas quiser."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Bacșișuri unice, fără condiții. Cumpără câte vrei."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Разовые чаевые, без обязательств. Покупайте сколько хотите."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Jednorazové prepitné, bez záväzkov. Kúpte si, koľko chcete."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Engångsdricks, inga villkor. Köp så många du vill."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Tek seferlik bahşişler, hiçbir şart yok. İstediğiniz kadar satın alın."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "Одноразові чайові, без зобов'язань. Купуйте скільки завгодно."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "一次性小费，没有附加条件。想买多少就买多少。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "One-time tips, no strings attached. Buy as many as you like."
+            "state" : "translated",
+            "value" : "一次性小費，沒有附加條件。想買多少就買多少。"
           }
         }
       }
@@ -31656,14 +31656,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Děkujeme!"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Tak!"
           }
         },
         "de" : {
@@ -31674,8 +31674,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Ευχαριστούμε!"
           }
         },
         "en" : {
@@ -31686,128 +31686,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "¡Gracias!"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Kiitos!"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Merci !"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Hvala!"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Köszönjük!"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Grazie!"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "ありがとうございます！"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "감사합니다!"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Takk!"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Bedankt!"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Dziękujemy!"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Obrigado!"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Obrigado!"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Mulțumim!"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Спасибо!"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Ďakujeme!"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Tack!"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Teşekkürler!"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "Дякуємо!"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "谢谢！"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thank you!"
+            "state" : "translated",
+            "value" : "謝謝！"
           }
         }
       }
@@ -31818,14 +31818,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Dýška"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Drikkepenge"
           }
         },
         "de" : {
@@ -31836,8 +31836,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Φιλοδώρημα"
           }
         },
         "en" : {
@@ -31848,128 +31848,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Propinas"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Juomarahat"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Pourboires"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Napojnica"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Borravaló"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Mance"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "チップ"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "팁"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Drikkepenger"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Fooi"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Napiwki"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Gorjetas"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Gorjetas"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Bacșiș"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Чаевые"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Prepitné"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Dricks"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Bahşişler"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "Чайові"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "小费"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Tip Jar"
+            "state" : "translated",
+            "value" : "小費"
           }
         }
       }
