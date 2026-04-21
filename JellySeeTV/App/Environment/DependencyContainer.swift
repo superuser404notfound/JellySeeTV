@@ -18,6 +18,7 @@ final class DependencyContainer {
     let cloudSyncService: CloudSyncServiceProtocol
     let playbackPreferences: PlaybackPreferences
     let storeKitService: StoreKitServiceProtocol
+    let appearancePreferences: AppearancePreferences
 
     let seerrClient: SeerrClient
     let seerrServerDiscoveryService: SeerrServerDiscoveryServiceProtocol
@@ -47,6 +48,7 @@ final class DependencyContainer {
         self.cloudSyncService = CloudSyncService()
         self.playbackPreferences = PlaybackPreferences()
         self.storeKitService = StoreKitService()
+        self.appearancePreferences = AppearancePreferences()
 
         self.seerrClient = SeerrClient(httpClient: httpClient)
         self.seerrServerDiscoveryService = SeerrServerDiscoveryService(httpClient: httpClient)

@@ -11,6 +11,9 @@ struct JellySeeTVApp: App {
                 .environment(\.appState, appState)
                 .environment(\.dependencies, dependencies)
                 .preferredColorScheme(.dark)
+                .tint(dependencies.appearancePreferences.effectiveAccent(
+                    isSupporter: dependencies.storeKitService.isSupporter
+                ).color)
         }
     }
 }

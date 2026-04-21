@@ -94,6 +94,14 @@ struct SettingsView: View {
             }
 
             SettingsTile(
+                icon: "paintpalette",
+                title: "settings.appearance.title",
+                subtitle: "settings.appearance.subtitle.short"
+            ) {
+                AppearanceSettingsView()
+            }
+
+            SettingsTile(
                 icon: "heart",
                 title: "settings.support.title",
                 subtitle: "settings.support.subtitle"
