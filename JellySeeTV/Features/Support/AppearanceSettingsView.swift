@@ -12,13 +12,14 @@ struct AppearanceSettingsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 32) {
+            VStack(spacing: 32) {
                 Text(String(
                     localized: "settings.appearance.title",
                     defaultValue: "Appearance"
                 ))
                 .font(.largeTitle)
                 .fontWeight(.bold)
+                .frame(maxWidth: .infinity)
 
                 header
                 if isSupporter {
@@ -27,7 +28,6 @@ struct AppearanceSettingsView: View {
                     lockedCard
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 60)
             .padding(.horizontal, 80)
         }

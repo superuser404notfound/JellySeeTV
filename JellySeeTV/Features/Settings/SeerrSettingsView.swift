@@ -22,10 +22,11 @@ struct SeerrSettingsView: View {
     var body: some View {
         ZStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 32) {
+                VStack(spacing: 32) {
                     Text("settings.seerr.title")
                         .font(.largeTitle)
                         .fontWeight(.bold)
+                        .frame(maxWidth: .infinity)
                         .padding(.bottom, 8)
 
                     if appState.isSeerrConnected {
@@ -38,8 +39,8 @@ struct SeerrSettingsView: View {
                         }
                     }
                 }
-                .frame(maxWidth: 720, alignment: .leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: 720)
+                .frame(maxWidth: .infinity)
                 .padding(.vertical, 60)
                 .padding(.horizontal, 80)
             }

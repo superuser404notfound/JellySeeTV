@@ -208,6 +208,11 @@ struct TechCard<Content: View>: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(isFocused ? .white.opacity(0.1) : .white.opacity(0.05))
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(.tint, lineWidth: 3)
+                .opacity(isFocused ? 1 : 0)
+        )
         .scaleEffect(isFocused ? 1.03 : 1.0)
         .animation(.easeInOut(duration: 0.15), value: isFocused)
         .focusable()

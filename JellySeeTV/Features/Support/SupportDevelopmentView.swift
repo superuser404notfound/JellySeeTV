@@ -17,20 +17,20 @@ struct SupportDevelopmentView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 48) {
+            VStack(spacing: 48) {
                 Text(String(
                     localized: "settings.support.title",
                     defaultValue: "Support Development"
                 ))
                 .font(.largeTitle)
                 .fontWeight(.bold)
+                .frame(maxWidth: .infinity)
 
                 header
                 tipJarSection
                 supporterPackSection
                 restoreButton
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 60)
             .padding(.horizontal, 80)
         }

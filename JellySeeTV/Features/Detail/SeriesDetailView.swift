@@ -495,16 +495,25 @@ struct SeasonTabButtonStyle: ButtonStyle {
     @Environment(\.isFocused) private var isFocused
 
     func makeBody(configuration: Configuration) -> some View {
-        // Stroke is back now that onMoveCommand primes focusedSeasonID
-        // before tvOS resolves the up-move — focus lands on the
-        // correct tab directly, no wrong-tab-first teleport for the
-        // stroke to visualise. If this ever flashes again, the
-        // onMoveCommand intervention has regressed, not this.
+        // Asymmetric animation on the stroke: 50 ms delay on fade-in,
+        // zero delay on fade-out. If any residual wrong-tab-first
+        // transition slips past the onMoveCommand prime (first entry
+        // into the view, an edge-case direction), the stroke simply
+        // never becomes visible on the wrong tab — the 50 ms window
+        // is enough for the DispatchQueue fallback to land focus on
+        // the right tab first. Between-tab navigation still feels
+        // instant because 50 ms is sub-perceptual.
         configuration.label
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isFocused ? 1 : 0)
+                    .animation(
+                        isFocused
+                            ? .easeIn(duration: 0.15).delay(0.05)
+                            : .easeOut(duration: 0.1),
+                        value: isFocused
+                    )
             )
             .scaleEffect(isFocused ? 1.05 : 1.0)
             .animation(.easeInOut(duration: 0.15), value: isFocused)
