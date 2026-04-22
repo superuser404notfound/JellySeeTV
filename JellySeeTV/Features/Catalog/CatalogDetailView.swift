@@ -22,17 +22,15 @@ struct CatalogDetailView: View {
     @State private var selectedProfileID: Int?
     @State private var selectedRootFolder: String?
 
-    /// Explicit focus anchors on the profile / root-folder dropdown
-    /// labels. Without them, when a SwiftUI Menu closes on tvOS the
-    /// focus engine spends up to ~1s figuring out where to send focus
-    /// next — during that gap a Menu-button press is interpreted as
-    /// "no navigation left to pop" and exits the app instead of
-    /// popping back to the catalog. An explicit @FocusState anchor on
-    /// the label plus `.focusSection()` around the group gives the
-    /// engine a clear return target, keeping the app in the detail
-    /// view while the dropdown animates closed.
-    private enum PickerFocus: Hashable { case profile, rootFolder }
-    @FocusState private var pickerFocus: PickerFocus?
+    /// Presentation state for the picker sheets. SwiftUI's `Menu`
+    /// hands focus off to a system-controlled overlay that the focus
+    /// engine unwinds oddly on tvOS — during the ~1s close animation
+    /// a Menu-button press escaped up the navigation stack and
+    /// exited the app. `.fullScreenCover` is self-contained: the
+    /// cover owns its focus environment, the Menu-button dismisses
+    /// only the cover, and nothing leaks into the parent.
+    @State private var isProfilePickerPresented = false
+    @State private var isRootFolderPickerPresented = false
 
     var body: some View {
         ZStack {
@@ -152,7 +150,6 @@ struct CatalogDetailView: View {
                     profilePicker(details: details)
                     rootFolderPicker(details: details)
                 }
-                .focusSection()
             }
         }
     }
@@ -163,18 +160,8 @@ struct CatalogDetailView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Menu {
-                ForEach(details.profiles) { profile in
-                    Button {
-                        selectedProfileID = profile.id
-                    } label: {
-                        if profile.id == selectedProfileID {
-                            Label(profile.name, systemImage: "checkmark")
-                        } else {
-                            Text(profile.name)
-                        }
-                    }
-                }
+            Button {
+                isProfilePickerPresented = true
             } label: {
                 HStack {
                     Text(selectedProfileName(details: details))
@@ -189,7 +176,21 @@ struct CatalogDetailView: View {
                 .frame(maxWidth: .infinity)
                 .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
             }
-            .focused($pickerFocus, equals: .profile)
+            .buttonStyle(CatalogPickerButtonStyle())
+            .fullScreenCover(isPresented: $isProfilePickerPresented) {
+                CatalogPickerSheet(
+                    title: String(localized: "catalog.request.qualityProfile", defaultValue: "Quality profile"),
+                    options: details.profiles.map { .init(id: "\($0.id)", label: $0.name) },
+                    selectedID: selectedProfileID.map(String.init),
+                    onSelect: { rawID in
+                        if let id = Int(rawID) {
+                            selectedProfileID = id
+                        }
+                        isProfilePickerPresented = false
+                    },
+                    onCancel: { isProfilePickerPresented = false }
+                )
+            }
         }
         .frame(maxWidth: .infinity)
     }
@@ -200,18 +201,8 @@ struct CatalogDetailView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Menu {
-                ForEach(details.rootFolders) { folder in
-                    Button {
-                        selectedRootFolder = folder.path
-                    } label: {
-                        if folder.path == selectedRootFolder {
-                            Label(folder.path, systemImage: "checkmark")
-                        } else {
-                            Text(folder.path)
-                        }
-                    }
-                }
+            Button {
+                isRootFolderPickerPresented = true
             } label: {
                 HStack {
                     Text(selectedRootFolder ?? String(localized: "catalog.request.rootFolder.default", defaultValue: "Default"))
@@ -228,7 +219,19 @@ struct CatalogDetailView: View {
                 .frame(maxWidth: .infinity)
                 .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
             }
-            .focused($pickerFocus, equals: .rootFolder)
+            .buttonStyle(CatalogPickerButtonStyle())
+            .fullScreenCover(isPresented: $isRootFolderPickerPresented) {
+                CatalogPickerSheet(
+                    title: String(localized: "catalog.request.rootFolder", defaultValue: "Root folder"),
+                    options: details.rootFolders.map { .init(id: $0.path, label: $0.path) },
+                    selectedID: selectedRootFolder,
+                    onSelect: { path in
+                        selectedRootFolder = path
+                        isRootFolderPickerPresented = false
+                    },
+                    onCancel: { isRootFolderPickerPresented = false }
+                )
+            }
         }
         .frame(maxWidth: .infinity)
     }
@@ -516,6 +519,12 @@ private struct SeasonChip: View {
             .padding(.vertical, 10)
             .background(background, in: Capsule())
         }
+        // Without an explicit ButtonStyle, tvOS layers its own
+        // default focus halo on top of our Capsule background —
+        // the user sees two concentric outlines. Custom style
+        // that does scale + accent stroke matches the rest of
+        // the app's focus treatment instead.
+        .buttonStyle(SeasonChipButtonStyle())
         .disabled(isAvailable)
     }
 
@@ -528,5 +537,114 @@ private struct SeasonChip: View {
         if isAvailable { return AnyShapeStyle(.green.opacity(0.2)) }
         if isSelected { return AnyShapeStyle(.tint.opacity(0.35)) }
         return AnyShapeStyle(.white.opacity(0.1))
+    }
+}
+
+private struct SeasonChipButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .overlay(
+                Capsule()
+                    .strokeBorder(.tint, lineWidth: 3)
+                    .opacity(isFocused ? 1 : 0)
+            )
+            .scaleEffect(isFocused ? 1.05 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
+    }
+}
+
+// MARK: - Picker Button Style
+
+private struct CatalogPickerButtonStyle: ButtonStyle {
+    @Environment(\.isFocused) private var isFocused
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(.tint, lineWidth: 3)
+                    .opacity(isFocused ? 1 : 0)
+            )
+            .scaleEffect(isFocused ? 1.02 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isFocused)
+    }
+}
+
+// MARK: - Picker Sheet
+
+/// Full-screen picker for the profile / root-folder dropdowns.
+/// `.fullScreenCover` gives the sheet its own focus environment —
+/// the Menu-button dismisses only this modal, no chance of
+/// propagating up to the navigation stack and accidentally
+/// exiting the app (which is what happened with SwiftUI `Menu`
+/// on tvOS during its close animation).
+private struct CatalogPickerSheet: View {
+    struct Option: Identifiable {
+        let id: String
+        let label: String
+    }
+
+    let title: String
+    let options: [Option]
+    let selectedID: String?
+    let onSelect: (String) -> Void
+    let onCancel: () -> Void
+
+    @FocusState private var focusedID: String?
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.9).ignoresSafeArea()
+
+            VStack(spacing: 32) {
+                Text(title)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.top, 60)
+
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(options) { option in
+                            Button {
+                                onSelect(option.id)
+                            } label: {
+                                HStack {
+                                    Text(option.label)
+                                        .font(.body)
+                                        .fontWeight(.medium)
+                                    Spacer()
+                                    if option.id == selectedID {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(.tint)
+                                    }
+                                }
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 18)
+                                .frame(maxWidth: .infinity)
+                                .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+                            }
+                            .buttonStyle(CatalogPickerButtonStyle())
+                            .focused($focusedID, equals: option.id)
+                        }
+                    }
+                    .frame(maxWidth: 720)
+                    .padding(.horizontal, 80)
+                    .padding(.bottom, 60)
+                }
+            }
+        }
+        // Menu-button dismisses the sheet; tvOS would otherwise
+        // eat the press against an empty focus environment.
+        .onExitCommand {
+            onCancel()
+        }
+        .onAppear {
+            // Focus the currently-selected option on appear, or the
+            // first one if nothing's selected — so the back-press gap
+            // never hits an empty focus.
+            focusedID = selectedID ?? options.first?.id
+        }
     }
 }
