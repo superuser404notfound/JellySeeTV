@@ -557,8 +557,8 @@ struct EpisodeLandscapeCard: View {
                         VStack {
                             Spacer()
                             ZStack(alignment: .leading) {
-                                Rectangle().fill(.ultraThinMaterial).frame(height: 4)
-                                Rectangle().fill(Color.white.opacity(0.9)).frame(width: geo.size.width * pct / 100, height: 4)
+                                Rectangle().fill(.ultraThinMaterial).frame(height: 8)
+                                Rectangle().fill(Color.white.opacity(0.9)).frame(width: geo.size.width * pct / 100, height: 8)
                             }
                         }
                     }
