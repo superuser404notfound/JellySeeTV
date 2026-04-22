@@ -437,12 +437,25 @@ final class PlayerHostController: UIViewController {
 
     // MARK: - Pan (Touchpad Scrubbing)
 
+    private enum PanAxis { case undetermined, horizontal, vertical }
+
     private var lastDropdownStep: CGFloat = 0
+    private var panAxis: PanAxis = .undetermined
+    private var verticalStepFired = false
+
+    /// Travel (pt) before we commit a pan to one axis. Low enough to
+    /// feel responsive, high enough that a slightly-diagonal horizontal
+    /// swipe doesn't accidentally trigger vertical navigation.
+    private static let panAxisCommitThreshold: CGFloat = 40
+    /// Travel (pt) on the committed vertical axis before we fire an
+    /// up/down — one fire per gesture, matching the single-shot feel
+    /// of pressing the arrow keys.
+    private static let verticalFireThreshold: CGFloat = 150
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
         if viewModel.isDropdownOpen {
             // Vertical swipe navigates dropdown items.
-            // Uses total translation divided into steps — each 80pt of
+            // Uses total translation divided into steps — each 120pt of
             // cumulative movement = one item. Prevents over-scrolling
             // on fast swipes.
             switch gesture.state {
@@ -462,18 +475,52 @@ final class PlayerHostController: UIViewController {
             default:
                 break
             }
-        } else {
-            // Horizontal swipe scrubs timeline
-            switch gesture.state {
-            case .changed:
+            return
+        }
+
+        // Lock the pan to a dominant axis on first meaningful movement
+        // and then act accordingly. Horizontal is scrubbing; vertical
+        // mirrors the arrow-key navigation (up to the transport row,
+        // down back to the progress bar). Before, *any* pan — even
+        // near-vertical — fed its x-component into scrub(), so an
+        // up-swipe would nudge the timeline by a few seconds for no
+        // reason.
+        switch gesture.state {
+        case .began:
+            panAxis = .undetermined
+            verticalStepFired = false
+        case .changed:
+            let t = gesture.translation(in: view)
+
+            if panAxis == .undetermined {
+                let absX = abs(t.x)
+                let absY = abs(t.y)
+                if max(absX, absY) >= Self.panAxisCommitThreshold {
+                    panAxis = absX > absY ? .horizontal : .vertical
+                }
+            }
+
+            switch panAxis {
+            case .horizontal:
                 let width = max(view.bounds.width, 1)
-                let normalized = gesture.translation(in: view).x / width
-                viewModel.scrub(delta: normalized)
-            case .ended, .cancelled:
-                viewModel.scrubPanEnded()
-            default:
+                viewModel.scrub(delta: t.x / width)
+            case .vertical:
+                guard !verticalStepFired,
+                      abs(t.y) >= Self.verticalFireThreshold
+                else { return }
+                verticalStepFired = true
+                if t.y < 0 { upPressed() } else { downPressed() }
+            case .undetermined:
                 break
             }
+        case .ended, .cancelled:
+            if panAxis == .horizontal {
+                viewModel.scrubPanEnded()
+            }
+            panAxis = .undetermined
+            verticalStepFired = false
+        default:
+            break
         }
     }
 }
