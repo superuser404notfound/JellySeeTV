@@ -606,15 +606,30 @@ final class PlayerViewModel {
     /// Outro equivalent to `updateIntroVisibility` — no Skip Outro UI
     /// button today, so this only has to handle the auto-skip path.
     /// Fires once per episode the moment playback crosses into the
-    /// outro range, seeks to outro.endSeconds. The next-episode flow
-    /// then picks up via the remaining-time fallback branch (we're
-    /// within 30 s of playback end after the seek).
+    /// outro range.
+    ///
+    /// Two variants depending on which combination of preferences is
+    /// active:
+    ///
+    /// - autoSkipOutro + autoplayNextEpisode + next episode ready →
+    ///   skip straight to the next episode. Keeping the 10 s
+    ///   next-episode countdown on top of a user who explicitly
+    ///   asked to skip outros is a contradiction.
+    /// - Anything else (e.g. next episode still fetching, or
+    ///   autoplayNextEpisode off): seek to outro.endSeconds and let
+    ///   the regular next-episode flow pick up from there.
     func updateOutroAutoSkip(time: Double) {
         guard let seg = outroSegment,
               preferences.autoSkipOutro,
               !didAutoSkipCurrentOutro else { return }
-        if time >= seg.startSeconds {
-            didAutoSkipCurrentOutro = true
+        guard time >= seg.startSeconds else { return }
+        didAutoSkipCurrentOutro = true
+
+        if preferences.autoplayNextEpisode, nextEpisode != nil {
+            Task { @MainActor [weak self] in
+                await self?.playNextEpisode()
+            }
+        } else {
             Task { await player.seek(to: seg.endSeconds) }
         }
     }
