@@ -372,23 +372,46 @@ struct SeriesDetailView: View {
                 .focused($focusBridgeActive)
                 .onChange(of: focusBridgeActive) { _, active in
                     guard active else { return }
+                    // Hop via DispatchQueue on both branches. A
+                    // synchronous @FocusState write from inside the
+                    // bridge's onChange lands in the same runloop
+                    // cycle as tvOS is processing the focus move that
+                    // just put us here — the down case (episode row
+                    // is huge) loses the race and takes two swipes;
+                    // the up case happens to win because the season
+                    // bar is small enough that the geographic picker
+                    // doesn't fight back. Deferring one tick lets the
+                    // write land unambiguously after the bridge has
+                    // taken focus, so one swipe is always enough.
                     switch lastFocusedArea {
                     case .episode:
-                        focusedSeasonID = vm.selectedSeasonID
+                        let target = vm.selectedSeasonID
+                        DispatchQueue.main.async {
+                            focusedSeasonID = target
+                        }
                     case .season:
-                        if let current = vm.currentEpisodeID,
-                           vm.episodes.contains(where: { $0.id == current }) {
-                            focusedEpisodeID = current
-                        } else if let first = vm.episodes.first {
-                            focusedEpisodeID = first.id
+                        let target: String? = {
+                            if let current = vm.currentEpisodeID,
+                               vm.episodes.contains(where: { $0.id == current }) {
+                                return current
+                            }
+                            return vm.episodes.first?.id
+                        }()
+                        if let target {
+                            DispatchQueue.main.async {
+                                focusedEpisodeID = target
+                            }
                         }
                     case .none:
                         // First time anything inside this section
-                        // gets focus (e.g. NavigationStack push). Send
-                        // focus to the selected season as a sensible
-                        // default — user can press down to reach the
-                        // episodes from there.
-                        focusedSeasonID = vm.selectedSeasonID
+                        // gets focus (e.g. NavigationStack push).
+                        // Send focus to the selected season as a
+                        // sensible default — user can press down to
+                        // reach the episodes from there.
+                        let target = vm.selectedSeasonID
+                        DispatchQueue.main.async {
+                            focusedSeasonID = target
+                        }
                     }
                 }
 
