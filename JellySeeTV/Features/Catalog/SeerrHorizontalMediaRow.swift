@@ -23,8 +23,8 @@ struct SeerrHorizontalMediaRow: View {
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, media in
                         FocusableCard {
                             onItemSelected?(media)
-                        } content: { _ in
-                            SeerrMediaCard(media: media)
+                        } content: { isFocused in
+                            SeerrMediaCard(media: media, isFocused: isFocused)
                         }
                         .onAppear {
                             if index >= items.count - prefetchThreshold {
