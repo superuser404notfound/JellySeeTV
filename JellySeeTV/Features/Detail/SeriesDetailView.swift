@@ -356,6 +356,21 @@ struct SeriesDetailView: View {
                                 }
                                 .buttonStyle(EpisodeCardButtonStyle())
                                 .focused($focusedEpisodeID, equals: episode.id)
+                                // Prime the season-bar target *before* the
+                                // move resolves. Without this, swiping up
+                                // from a far-right episode (outside the
+                                // horizontal span of the season tabs) lets
+                                // tvOS's geographic picker skip the bar
+                                // entirely and land on the TechInfoBox /
+                                // overview textbox above. Writing
+                                // focusedSeasonID synchronously here puts
+                                // an explicit focus target on the table
+                                // when the engine resolves the up-move.
+                                .onMoveCommand { direction in
+                                    if direction == .up {
+                                        focusedSeasonID = vm.selectedSeasonID
+                                    }
+                                }
                                 .id(episode.id)
                                 .contextMenu {
                                     Button {
