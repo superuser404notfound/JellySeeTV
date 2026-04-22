@@ -13,6 +13,7 @@ struct SeriesDetailView: View {
     @State private var playFromBeginning = false
     @FocusState private var focusedSeasonID: String?
     @FocusState private var focusedEpisodeID: String?
+    @FocusState private var focusBridgeActive: Bool
     @State private var episodeRedirectDone = false
     /// Sticky flag: set when the episode row had focus so that the
     /// season bar's onChange can tell "user scrolled up from episodes"
@@ -22,6 +23,13 @@ struct SeriesDetailView: View {
     /// geographically above the last focused episode, which may be
     /// two seasons away from what's actually being shown.
     @State private var episodesHadFocus = false
+    /// Tracks the last focused region inside the season + episode
+    /// block. The invisible focus bridge between the two rows reads
+    /// this to decide which direction a cross-row focus jump came
+    /// from, without having to inspect @FocusState during the
+    /// transition (which is already nil by that point).
+    @State private var lastFocusedArea: FocusArea = .none
+    private enum FocusArea { case none, season, episode }
 
     let item: JellyfinItem
 
@@ -325,6 +333,9 @@ struct SeriesDetailView: View {
                         }
                     }
                     episodesHadFocus = false
+                    if newID != nil {
+                        lastFocusedArea = .season
+                    }
                     if let focusedID = focusedSeasonID {
                         withAnimation { proxy.scrollTo(focusedID, anchor: .center) }
                     }
@@ -335,6 +346,7 @@ struct SeriesDetailView: View {
                 .onChange(of: focusedEpisodeID) { _, newEpisode in
                     if newEpisode != nil {
                         episodesHadFocus = true
+                        lastFocusedArea = .episode
                     }
                 }
                 .onChange(of: vm.selectedSeasonID) { _, newID in
@@ -342,6 +354,43 @@ struct SeriesDetailView: View {
                     withAnimation { proxy.scrollTo(newID, anchor: .center) }
                 }
             }
+
+            // Invisible focus bridge between the season bar and the
+            // episode row. Spans the full width (same as the episode
+            // row) so an up-swipe from a far-right episode — where
+            // the actual season tabs don't line up geographically —
+            // lands here *before* tvOS's picker continues upward into
+            // the overview textbox or the tech-info cards. Once
+            // focused, the bridge redirects based on which row the
+            // user came from; the target tab / episode gets focus on
+            // the next SwiftUI cycle and the invisible one-pixel
+            // bridge is never actually visible on screen.
+            Color.clear
+                .frame(maxWidth: .infinity)
+                .frame(height: 1)
+                .focusable()
+                .focused($focusBridgeActive)
+                .onChange(of: focusBridgeActive) { _, active in
+                    guard active else { return }
+                    switch lastFocusedArea {
+                    case .episode:
+                        focusedSeasonID = vm.selectedSeasonID
+                    case .season:
+                        if let current = vm.currentEpisodeID,
+                           vm.episodes.contains(where: { $0.id == current }) {
+                            focusedEpisodeID = current
+                        } else if let first = vm.episodes.first {
+                            focusedEpisodeID = first.id
+                        }
+                    case .none:
+                        // First time anything inside this section
+                        // gets focus (e.g. NavigationStack push). Send
+                        // focus to the selected season as a sensible
+                        // default — user can press down to reach the
+                        // episodes from there.
+                        focusedSeasonID = vm.selectedSeasonID
+                    }
+                }
 
             if !vm.episodes.isEmpty {
                 ScrollViewReader { episodeProxy in
