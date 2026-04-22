@@ -255,6 +255,11 @@ struct TransportBar: View {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(isFocused ? .white.opacity(0.2) : .clear)
                 )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(.tint, lineWidth: 3)
+                        .opacity(isFocused ? 1 : 0)
+                )
                 .scaleEffect(isFocused ? 1.05 : 1.0)
         }
     }
@@ -270,16 +275,22 @@ struct TransportBar: View {
             let knobSize: CGFloat = active ? 22 : 14
 
             ZStack(alignment: .leading) {
+                // Unplayed track — stays white so the contrast against
+                // the played portion reads clearly regardless of which
+                // accent color the user picked.
                 Capsule()
                     .fill(.white.opacity(0.2))
                     .frame(height: trackHeight)
 
+                // Played portion + scrub knob both follow the active
+                // tint so the progress bar visually agrees with the
+                // accent color the rest of the focused UI uses.
                 Capsule()
-                    .fill(.white)
+                    .fill(.tint)
                     .frame(width: knobX, height: trackHeight)
 
                 Circle()
-                    .fill(.white)
+                    .fill(.tint)
                     .frame(width: knobSize, height: knobSize)
                     .shadow(color: .black.opacity(0.4), radius: 3, y: 1)
                     .offset(x: knobX - knobSize / 2)
