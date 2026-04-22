@@ -88,4 +88,14 @@ final class AppearancePreferences {
     func effectiveAccent(isSupporter: Bool) -> AccentChoice {
         isSupporter ? accentChoice : .system
     }
+
+    /// The Color to pass into SwiftUI's `.tint(_:)`. Returns `nil` for
+    /// the `.system` case so we don't override SwiftUI's default tint
+    /// with a self-referential `Color.accentColor` — which, if the
+    /// `AccentColor.colorset` ever ends up empty or stale, resolves to
+    /// white and makes every tinted button unreadable.
+    func effectiveTint(isSupporter: Bool) -> Color? {
+        let choice = effectiveAccent(isSupporter: isSupporter)
+        return choice == .system ? nil : choice.color
+    }
 }

@@ -22,6 +22,13 @@ struct SeriesDetailView: View {
     /// geographically above the last focused episode, which may be
     /// two seasons away from what's actually being shown.
     @State private var episodesHadFocus = false
+    /// Decouples "request season redirect" from its own
+    /// `@FocusState` onChange. tvOS drops focus writes that happen
+    /// synchronously (or even via Task.sleep) inside the same
+    /// onChange cycle, so we park the target here and let a
+    /// separate onChange handler apply it on the next SwiftUI
+    /// update tick — which the focus engine reliably honors.
+    @State private var pendingSeasonFocus: String?
 
     let item: JellyfinItem
 
@@ -310,30 +317,29 @@ struct SeriesDetailView: View {
                     let wrongTab = newID != vm.selectedSeasonID
 
                     if cameFromOutside && wrongTab {
+                        // Scroll the target into view immediately so even if
+                        // the focus write below somehow gets dropped, the
+                        // user visually lands near the intended season.
                         let target = vm.selectedSeasonID
-                        // Task + Task.sleep is more reliable than
-                        // DispatchQueue.main.async for @FocusState writes on
-                        // tvOS — the runloop-hop via DispatchQueue sometimes
-                        // lands in the same cycle that triggered the onChange
-                        // and the focus write is silently dropped. A proper
-                        // await hop survives the focus-engine's debounce.
-                        Task { @MainActor in
-                            try? await Task.sleep(for: .milliseconds(16))
-                            focusedSeasonID = target
-                        }
-                        // Deliberately do NOT reset episodesHadFocus here —
-                        // if the async focus write is ever dropped, the flag
-                        // must still be true so the next focus change into
-                        // the bar will retry the redirect.
+                        withAnimation { proxy.scrollTo(target, anchor: .center) }
+                        // Hand the redirect off to the pendingSeasonFocus
+                        // onChange — writing focusedSeasonID directly here
+                        // (sync or via Task.sleep) gets silently swallowed.
+                        pendingSeasonFocus = target
                         return
                     }
 
-                    // Genuine tab-to-tab navigation (or the redirect above
+                    // Genuine tab-to-tab navigation (or the redirect below
                     // succeeded and re-entered this onChange on the right
                     // season). Consume the flag and catch the scroll up.
                     episodesHadFocus = false
                     withAnimation { proxy.scrollTo(newID, anchor: .center) }
                     episodeRedirectDone = false
+                }
+                .onChange(of: pendingSeasonFocus) { _, target in
+                    guard let target else { return }
+                    focusedSeasonID = target
+                    pendingSeasonFocus = nil
                 }
                 .onChange(of: focusedEpisodeID) { _, newEpisode in
                     if newEpisode != nil {
