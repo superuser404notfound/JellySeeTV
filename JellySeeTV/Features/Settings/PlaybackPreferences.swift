@@ -80,11 +80,6 @@ final class PlaybackPreferences {
             + baseLanguages
     }
 
-    /// Back-compat shim for callers that still reference the old combined
-    /// list. Resolves to the audio ordering (with "Auto" leading).
-    @available(*, deprecated, message: "Use audioLanguageChoices or subtitleLanguageChoices")
-    static var languageChoices: [LanguageChoice] { audioLanguageChoices }
-
     struct LanguageChoice: Hashable, Sendable {
         /// ISO 639-2/B code as Jellyfin uses it (e.g. "deu", "eng"),
         /// or nil for "use the stream's default / current logic".
