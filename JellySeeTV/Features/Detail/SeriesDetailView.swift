@@ -489,12 +489,9 @@ struct EpisodeCardButtonStyle: ButtonStyle {
     @Environment(\.isFocused) private var isFocused
 
     func makeBody(configuration: Configuration) -> some View {
+        // Stroke is drawn inside EpisodeLandscapeCard so it hugs the
+        // thumbnail only, not the title/runtime row below.
         configuration.label
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isFocused ? 1 : 0)
-            )
             .scaleEffect(isFocused ? 1.05 : 1.0)
             .shadow(color: .black.opacity(isFocused ? 0.4 : 0), radius: 20, y: 10)
             .animation(.easeInOut(duration: 0.2), value: isFocused)
@@ -524,6 +521,12 @@ struct EpisodeLandscapeCard: View {
     var isSelected: Bool = false
     var isCurrent: Bool = false
 
+    /// Propagates from the surrounding Button's focus state. When true,
+    /// the accent-colored stroke overrides the selected/current hues so
+    /// the user always sees a clear focus marker — but only on the
+    /// thumbnail, never around the title text below.
+    @Environment(\.isFocused) private var isFocused
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .bottomLeading) {
@@ -544,7 +547,8 @@ struct EpisodeLandscapeCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(borderColor, lineWidth: isCurrent ? 3 : 2)
+                        .strokeBorder(strokeStyle, lineWidth: strokeWidth)
+                        .animation(.easeInOut(duration: 0.2), value: isFocused)
                 )
 
                 if let pct = episode.userData?.playedPercentage, pct > 0 {
@@ -553,7 +557,7 @@ struct EpisodeLandscapeCard: View {
                             Spacer()
                             ZStack(alignment: .leading) {
                                 Rectangle().fill(.ultraThinMaterial).frame(height: 4)
-                                Rectangle().fill(.tint).frame(width: geo.size.width * pct / 100, height: 4)
+                                Rectangle().fill(Color.white.opacity(0.9)).frame(width: geo.size.width * pct / 100, height: 4)
                             }
                         }
                     }
@@ -594,9 +598,19 @@ struct EpisodeLandscapeCard: View {
         }
     }
 
-    private var borderColor: Color {
-        if isSelected { return .accentColor.opacity(0.8) }
-        if isCurrent { return .green.opacity(0.8) }
-        return .clear
+    /// Focus stroke beats selected and current — when the user is
+    /// interacting with the card, that trumps whatever state it's in.
+    /// AnyShapeStyle lets us mix the tint ShapeStyle (focus) with plain
+    /// Color values (selected/current) behind the same .strokeBorder.
+    private var strokeStyle: AnyShapeStyle {
+        if isFocused { return AnyShapeStyle(TintShapeStyle.tint) }
+        if isSelected { return AnyShapeStyle(Color.accentColor.opacity(0.8)) }
+        if isCurrent { return AnyShapeStyle(Color.green.opacity(0.8)) }
+        return AnyShapeStyle(Color.clear)
+    }
+
+    private var strokeWidth: CGFloat {
+        if isFocused { return 3 }
+        return isCurrent ? 3 : 2
     }
 }

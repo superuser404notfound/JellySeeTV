@@ -10,6 +10,12 @@ struct MediaCard: View {
     let imageURL: URL?
     let style: MediaCardStyle
 
+    /// Propagates from the nearest focusable parent (FocusableCard's
+    /// `.focusable()` or the surrounding Button). Drives the
+    /// accent-colored stroke around the poster image only — the title
+    /// text below stays outside the outline on purpose.
+    @Environment(\.isFocused) private var isFocused
+
     private var cardWidth: CGFloat {
         switch style {
         case .poster: 220
@@ -57,6 +63,12 @@ struct MediaCard: View {
         .overlay(alignment: .bottom) {
             progressOverlay
         }
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(.tint, lineWidth: 3)
+                .opacity(isFocused ? 1 : 0)
+                .animation(.easeInOut(duration: 0.2), value: isFocused)
+        )
     }
 
     private var itemInfo: some View {
@@ -107,7 +119,7 @@ struct MediaCard: View {
                             .fill(.ultraThinMaterial)
                             .frame(height: 4)
                         Rectangle()
-                            .fill(.tint)
+                            .fill(Color.white.opacity(0.9))
                             .frame(width: geo.size.width * playedPercentage / 100, height: 4)
                     }
                 }
