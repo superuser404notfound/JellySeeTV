@@ -246,25 +246,9 @@ struct CatalogDetailView: View {
 
     private func seasonSelection(seasons: [SeerrSeason]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("catalog.seasons.select")
-                    .font(.title3)
-                    .fontWeight(.semibold)
-
-                Spacer()
-
-                if hasSelectableSeasons(in: seasons) {
-                    Button {
-                        toggleAllSeasons(seasons)
-                    } label: {
-                        Text(allSelectableSeasonsSelected(in: seasons)
-                            ? "catalog.seasons.deselectAll"
-                            : "catalog.seasons.selectAll")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                    }
-                }
-            }
+            Text("catalog.seasons.select")
+                .font(.title3)
+                .fontWeight(.semibold)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -274,6 +258,17 @@ struct CatalogDetailView: View {
                             isSelected: selectedSeasons.contains(season.seasonNumber),
                             isAvailable: isSeasonAvailable(season),
                             toggle: { toggleSeason(season) }
+                        )
+                    }
+
+                    // Select-all sits as the last chip in the row so a
+                    // down-swipe from the overview above lands on a
+                    // season chip first, not on this affordance —
+                    // users expect to arrive on the primary actions.
+                    if hasSelectableSeasons(in: seasons) {
+                        SelectAllChip(
+                            isAllSelected: allSelectableSeasonsSelected(in: seasons),
+                            toggle: { toggleAllSeasons(seasons) }
                         )
                     }
                 }
@@ -537,6 +532,27 @@ private struct SeasonChip: View {
         if isAvailable { return AnyShapeStyle(.green.opacity(0.2)) }
         if isSelected { return AnyShapeStyle(.tint.opacity(0.35)) }
         return AnyShapeStyle(.white.opacity(0.1))
+    }
+}
+
+private struct SelectAllChip: View {
+    let isAllSelected: Bool
+    let toggle: () -> Void
+
+    var body: some View {
+        Button(action: toggle) {
+            HStack(spacing: 6) {
+                Image(systemName: isAllSelected ? "xmark.circle" : "checkmark.circle")
+                    .font(.caption)
+                Text(isAllSelected ? "catalog.seasons.deselectAll" : "catalog.seasons.selectAll")
+                    .font(.body)
+                    .fontWeight(.medium)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(.white.opacity(0.08), in: Capsule())
+        }
+        .buttonStyle(SeasonChipButtonStyle())
     }
 }
 

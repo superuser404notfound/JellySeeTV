@@ -310,10 +310,32 @@ final class PlayerViewModel {
                 player.selectAudioTrack(index: chosenAudio.id)
             }
 
-            // Subtitle preference: if the user picked a language, enable
-            // the matching stream automatically. No preference → leave off.
-            if let preferredSub = preferences.preferredSubtitleLanguage,
-               let match = subtitleStreams.first(where: { $0.language == preferredSub }) {
+            // Subtitle preference resolved in three passes:
+            //
+            // 1. If the user picked a preferred subtitle language, use
+            //    that (explicit preference always wins).
+            // 2. Otherwise, if autoSubtitleForForeignAudio is on AND the
+            //    chosen audio isn't in the preferred audio language,
+            //    fall back to subtitles in the preferred audio language
+            //    — the "Netflix convention": German audio missing →
+            //    English audio plays → German subs on top.
+            // 3. No match → leave off.
+            let preferredSubLang: String? = {
+                if let explicit = preferences.preferredSubtitleLanguage {
+                    return explicit
+                }
+                let preferredAudio = preferences.preferredAudioLanguage
+                let audioIsForeign = preferredAudio != nil
+                    && chosenAudio?.language != preferredAudio
+                if preferences.autoSubtitleForForeignAudio,
+                   audioIsForeign,
+                   let preferredAudio {
+                    return preferredAudio
+                }
+                return nil
+            }()
+            if let preferredSubLang,
+               let match = subtitleStreams.first(where: { $0.language == preferredSubLang }) {
                 selectSubtitleTrack(id: match.index)
             }
 

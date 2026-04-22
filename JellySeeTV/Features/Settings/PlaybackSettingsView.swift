@@ -72,6 +72,7 @@ struct PlaybackSettingsView: View {
                     icon: "speaker.wave.2",
                     title: "settings.playback.preferredAudio",
                     subtitle: "settings.playback.preferredAudio.subtitle",
+                    choices: PlaybackPreferences.audioLanguageChoices,
                     selection: Binding(
                         get: { prefs.preferredAudioLanguage },
                         set: { prefs.preferredAudioLanguage = $0 }
@@ -82,9 +83,20 @@ struct PlaybackSettingsView: View {
                     icon: "captions.bubble",
                     title: "settings.playback.preferredSubtitle",
                     subtitle: "settings.playback.preferredSubtitle.subtitle",
+                    choices: PlaybackPreferences.subtitleLanguageChoices,
                     selection: Binding(
                         get: { prefs.preferredSubtitleLanguage },
                         set: { prefs.preferredSubtitleLanguage = $0 }
+                    )
+                )
+
+                boolRow(
+                    icon: "captions.bubble.fill",
+                    title: "settings.playback.autoSubtitleForeign",
+                    subtitle: "settings.playback.autoSubtitleForeign.subtitle",
+                    value: Binding(
+                        get: { prefs.autoSubtitleForForeignAudio },
+                        set: { prefs.autoSubtitleForForeignAudio = $0 }
                     )
                 )
             }
@@ -162,9 +174,9 @@ struct PlaybackSettingsView: View {
         icon: String,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey,
+        choices: [PlaybackPreferences.LanguageChoice],
         selection: Binding<String?>
     ) -> some View {
-        let choices = PlaybackPreferences.languageChoices
         let choiceBinding = Binding<PlaybackPreferences.LanguageChoice>(
             get: { choices.first(where: { $0.code == selection.wrappedValue }) ?? choices[0] },
             set: { selection.wrappedValue = $0.code }

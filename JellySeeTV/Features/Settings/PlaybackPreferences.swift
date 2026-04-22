@@ -21,6 +21,7 @@ final class PlaybackPreferences {
         static let preferredAudioLanguage = "playback.preferredAudioLanguage"
         static let preferredSubtitleLanguage = "playback.preferredSubtitleLanguage"
         static let autoSkipIntro = "playback.autoSkipIntro"
+        static let autoSubtitleForForeignAudio = "playback.autoSubtitleForForeignAudio"
     }
 
     // MARK: - Allowed Values
@@ -28,16 +29,60 @@ final class PlaybackPreferences {
     /// 0 = disabled (countdown doesn't appear), otherwise countdown seconds.
     static let countdownChoices: [Int] = [0, 5, 10, 15]
     static let skipIntervalChoices: [Int] = [5, 10, 15, 30]
-    static let languageChoices: [LanguageChoice] = [
-        LanguageChoice(code: nil,    short: "Auto", titleKey: "settings.playback.language.auto"),
-        LanguageChoice(code: "deu",  short: "DE",   titleKey: "settings.playback.language.deu"),
-        LanguageChoice(code: "eng",  short: "EN",   titleKey: "settings.playback.language.eng"),
-        LanguageChoice(code: "fra",  short: "FR",   titleKey: "settings.playback.language.fra"),
-        LanguageChoice(code: "spa",  short: "ES",   titleKey: "settings.playback.language.spa"),
-        LanguageChoice(code: "ita",  short: "IT",   titleKey: "settings.playback.language.ita"),
-        LanguageChoice(code: "jpn",  short: "JA",   titleKey: "settings.playback.language.jpn"),
-        LanguageChoice(code: "zho",  short: "ZH",   titleKey: "settings.playback.language.zho"),
+
+    /// Shared language options — alphabetical by display name. ISO 639-2/B
+    /// bibliographic codes (Jellyfin's convention: "deu" not "ger", "cze"
+    /// not "ces", etc.).
+    private static let baseLanguages: [LanguageChoice] = [
+        LanguageChoice(code: "ara", short: "AR",  titleKey: "settings.playback.language.ara"),
+        LanguageChoice(code: "chi", short: "ZH",  titleKey: "settings.playback.language.zho"),
+        LanguageChoice(code: "cze", short: "CS",  titleKey: "settings.playback.language.ces"),
+        LanguageChoice(code: "dan", short: "DA",  titleKey: "settings.playback.language.dan"),
+        LanguageChoice(code: "dut", short: "NL",  titleKey: "settings.playback.language.nld"),
+        LanguageChoice(code: "eng", short: "EN",  titleKey: "settings.playback.language.eng"),
+        LanguageChoice(code: "fin", short: "FI",  titleKey: "settings.playback.language.fin"),
+        LanguageChoice(code: "fre", short: "FR",  titleKey: "settings.playback.language.fra"),
+        LanguageChoice(code: "ger", short: "DE",  titleKey: "settings.playback.language.deu"),
+        LanguageChoice(code: "gre", short: "EL",  titleKey: "settings.playback.language.ell"),
+        LanguageChoice(code: "heb", short: "HE",  titleKey: "settings.playback.language.heb"),
+        LanguageChoice(code: "hin", short: "HI",  titleKey: "settings.playback.language.hin"),
+        LanguageChoice(code: "hun", short: "HU",  titleKey: "settings.playback.language.hun"),
+        LanguageChoice(code: "ind", short: "ID",  titleKey: "settings.playback.language.ind"),
+        LanguageChoice(code: "ita", short: "IT",  titleKey: "settings.playback.language.ita"),
+        LanguageChoice(code: "jpn", short: "JA",  titleKey: "settings.playback.language.jpn"),
+        LanguageChoice(code: "kor", short: "KO",  titleKey: "settings.playback.language.kor"),
+        LanguageChoice(code: "nor", short: "NO",  titleKey: "settings.playback.language.nor"),
+        LanguageChoice(code: "pol", short: "PL",  titleKey: "settings.playback.language.pol"),
+        LanguageChoice(code: "por", short: "PT",  titleKey: "settings.playback.language.por"),
+        LanguageChoice(code: "rum", short: "RO",  titleKey: "settings.playback.language.ron"),
+        LanguageChoice(code: "rus", short: "RU",  titleKey: "settings.playback.language.rus"),
+        LanguageChoice(code: "spa", short: "ES",  titleKey: "settings.playback.language.spa"),
+        LanguageChoice(code: "swe", short: "SV",  titleKey: "settings.playback.language.swe"),
+        LanguageChoice(code: "tha", short: "TH",  titleKey: "settings.playback.language.tha"),
+        LanguageChoice(code: "tur", short: "TR",  titleKey: "settings.playback.language.tur"),
+        LanguageChoice(code: "ukr", short: "UK",  titleKey: "settings.playback.language.ukr"),
+        LanguageChoice(code: "vie", short: "VI",  titleKey: "settings.playback.language.vie"),
     ]
+
+    /// Audio pref dropdown — "Auto" first, then the shared alphabetical list.
+    static var audioLanguageChoices: [LanguageChoice] {
+        [LanguageChoice(code: nil, short: "Auto", titleKey: "settings.playback.language.auto")]
+            + baseLanguages
+    }
+
+    /// Subtitle pref dropdown — "Off" first (renamed from "Auto" to avoid
+    /// confusion with audio: Auto for audio means "pick a sensible track,"
+    /// for subtitles it reads as "I don't know, figure it out," when the
+    /// user's intent is actually "don't show any subtitles").
+    static var subtitleLanguageChoices: [LanguageChoice] {
+        [LanguageChoice(code: nil, short: "Off", titleKey: "settings.playback.language.off")]
+            + baseLanguages
+    }
+
+    /// Back-compat shim for callers that still reference the old combined
+    /// list. Resolves to the audio ordering (with "Auto" leading).
+    @available(*, deprecated, message: "Use audioLanguageChoices or subtitleLanguageChoices")
+    static var languageChoices: [LanguageChoice] { audioLanguageChoices }
 
     struct LanguageChoice: Hashable, Sendable {
         /// ISO 639-2/B code as Jellyfin uses it (e.g. "deu", "eng"),
@@ -75,6 +120,15 @@ final class PlaybackPreferences {
         didSet { store.set(preferredSubtitleLanguage, forKey: Keys.preferredSubtitleLanguage) }
     }
 
+    /// Auto-enable subtitles when the playing audio track isn't in the
+    /// user's preferred audio language. Default ON because that mirrors
+    /// the streaming-app convention (Netflix et al.) — if the user wants
+    /// German and the episode only has English, they almost always want
+    /// German subs on top. Flip off for users who don't want subs ever.
+    var autoSubtitleForForeignAudio: Bool {
+        didSet { store.set(autoSubtitleForForeignAudio, forKey: Keys.autoSubtitleForForeignAudio) }
+    }
+
     // MARK: - Init
 
     private let store: UserDefaults
@@ -87,5 +141,6 @@ final class PlaybackPreferences {
         self.skipIntervalSeconds = store.object(forKey: Keys.skipIntervalSeconds) as? Int ?? 10
         self.preferredAudioLanguage = store.string(forKey: Keys.preferredAudioLanguage)
         self.preferredSubtitleLanguage = store.string(forKey: Keys.preferredSubtitleLanguage)
+        self.autoSubtitleForForeignAudio = store.object(forKey: Keys.autoSubtitleForForeignAudio) as? Bool ?? true
     }
 }
