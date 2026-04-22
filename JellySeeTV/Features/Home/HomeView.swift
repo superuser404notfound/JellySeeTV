@@ -95,7 +95,6 @@ struct HomeView: View {
                 }
             }
             .padding(.vertical, 40)
-            .id(vm.reloadID)
         }
     }
 

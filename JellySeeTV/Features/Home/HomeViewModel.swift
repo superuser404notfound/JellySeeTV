@@ -8,7 +8,6 @@ final class HomeViewModel {
     var errorMessage: String?
     var rowConfigs: [HomeRowConfig] = []
     var needsReload = false
-    var reloadID = UUID()
 
     private let libraryService: JellyfinLibraryServiceProtocol
     private let imageService: JellyfinImageService
@@ -59,10 +58,13 @@ final class HomeViewModel {
                 }
             }
 
-            // Atomic swap -- old images stay visible until new data is ready
+            // Atomic swap -- old images stay visible until new data is ready.
+            // ForEach diffs by HomeRowData.id (stable) so AsyncImage
+            // subviews are reused when rows are refetched; no .id() on the
+            // LazyVStack, which would otherwise recreate the whole subtree
+            // and force every AsyncImage back into its empty phase.
             rows = newRows
             tagRows = newTagRows
-            reloadID = UUID()
             isLoading = false
         } catch {
             errorMessage = error.localizedDescription
