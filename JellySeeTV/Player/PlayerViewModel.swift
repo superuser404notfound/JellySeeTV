@@ -97,6 +97,12 @@ final class PlayerViewModel {
     /// subscriber from re-triggering the skip in the brief window before
     /// the seek actually moves currentTime past introEnd.
     var didAutoSkipCurrentIntro: Bool = false
+    /// Mirrors `didAutoSkipCurrentIntro` for the outro segment. Set the
+    /// first tick after playback crosses into the outro range; prevents
+    /// the auto-skip from firing repeatedly while currentTime ticks
+    /// through the couple of seconds between the marker and the seek
+    /// landing on outro.endSeconds.
+    var didAutoSkipCurrentOutro: Bool = false
 
     // MARK: - Dependencies
 
@@ -430,6 +436,7 @@ final class PlayerViewModel {
                 guard let self else { return }
                 self.playbackTime = time
                 self.updateIntroVisibility(time: time)
+                self.updateOutroAutoSkip(time: time)
                 self.checkForNextEpisode()
                 let dur = self.effectiveDuration
                 let remaining = dur - time
@@ -596,12 +603,29 @@ final class PlayerViewModel {
         Task { await player.seek(to: seg.endSeconds) }
     }
 
+    /// Outro equivalent to `updateIntroVisibility` — no Skip Outro UI
+    /// button today, so this only has to handle the auto-skip path.
+    /// Fires once per episode the moment playback crosses into the
+    /// outro range, seeks to outro.endSeconds. The next-episode flow
+    /// then picks up via the remaining-time fallback branch (we're
+    /// within 30 s of playback end after the seek).
+    func updateOutroAutoSkip(time: Double) {
+        guard let seg = outroSegment,
+              preferences.autoSkipOutro,
+              !didAutoSkipCurrentOutro else { return }
+        if time >= seg.startSeconds {
+            didAutoSkipCurrentOutro = true
+            Task { await player.seek(to: seg.endSeconds) }
+        }
+    }
+
     /// Fetch intro + outro markers once on startup. Safe if the server
     /// doesn't expose the endpoint — service returns an empty struct
     /// and the features simply stay off (no Skip Intro button, normal
     /// 30 s fallback trigger for the next-episode overlay).
     func loadEpisodeSegments() async {
         didAutoSkipCurrentIntro = false
+        didAutoSkipCurrentOutro = false
         do {
             let segments = try await playbackService.getEpisodeSegments(itemID: item.id)
             introSegment = segments.intro

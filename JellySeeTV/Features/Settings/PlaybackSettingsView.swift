@@ -36,6 +36,16 @@ struct PlaybackSettingsView: View {
                     )
                 )
 
+                boolRow(
+                    icon: "forward.end.alt.fill",
+                    title: "settings.playback.autoSkipOutro",
+                    subtitle: "settings.playback.autoSkipOutro.subtitle",
+                    value: Binding(
+                        get: { prefs.autoSkipOutro },
+                        set: { prefs.autoSkipOutro = $0 }
+                    )
+                )
+
                 // Next-episode countdown length deliberately not a user
                 // setting. Netflix/Prime/Disney+ all hardcode something
                 // in the 8–12 s range; users who only saw the "10 s"

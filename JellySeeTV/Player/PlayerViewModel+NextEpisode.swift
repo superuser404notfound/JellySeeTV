@@ -149,6 +149,7 @@ extension PlayerViewModel {
         outroSegment = nil
         isInsideIntro = false
         didAutoSkipCurrentIntro = false
+        didAutoSkipCurrentOutro = false
 
         // Start new
         await startPlayback()

@@ -21,6 +21,7 @@ final class PlaybackPreferences {
         static let preferredAudioLanguage = "playback.preferredAudioLanguage"
         static let preferredSubtitleLanguage = "playback.preferredSubtitleLanguage"
         static let autoSkipIntro = "playback.autoSkipIntro"
+        static let autoSkipOutro = "playback.autoSkipOutro"
         static let autoSubtitleForForeignAudio = "playback.autoSubtitleForForeignAudio"
     }
 
@@ -104,6 +105,10 @@ final class PlaybackPreferences {
         didSet { store.set(autoSkipIntro, forKey: Keys.autoSkipIntro) }
     }
 
+    var autoSkipOutro: Bool {
+        didSet { store.set(autoSkipOutro, forKey: Keys.autoSkipOutro) }
+    }
+
     var nextEpisodeCountdownSeconds: Int {
         didSet { store.set(nextEpisodeCountdownSeconds, forKey: Keys.nextEpisodeCountdownSeconds) }
     }
@@ -137,6 +142,7 @@ final class PlaybackPreferences {
         self.store = store
         self.autoplayNextEpisode = store.object(forKey: Keys.autoplayNextEpisode) as? Bool ?? true
         self.autoSkipIntro = store.object(forKey: Keys.autoSkipIntro) as? Bool ?? false
+        self.autoSkipOutro = store.object(forKey: Keys.autoSkipOutro) as? Bool ?? false
         self.nextEpisodeCountdownSeconds = store.object(forKey: Keys.nextEpisodeCountdownSeconds) as? Int ?? 10
         self.skipIntervalSeconds = store.object(forKey: Keys.skipIntervalSeconds) as? Int ?? 10
         self.preferredAudioLanguage = store.string(forKey: Keys.preferredAudioLanguage)
