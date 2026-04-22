@@ -127,7 +127,7 @@ struct MediaCard: View {
                             .frame(height: 8)
                         Rectangle()
                             .fill(Color.white.opacity(0.9))
-                            .frame(width: geo.size.width * playedPercentage / 100, height: 4)
+                            .frame(width: geo.size.width * playedPercentage / 100, height: 8)
                     }
                 }
             }
