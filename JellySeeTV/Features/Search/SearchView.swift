@@ -119,7 +119,7 @@ struct SearchView: View {
                     ForEach(items) { item in
                         FocusableCard {
                             selectedJellyfinItem = item
-                        } content: { _ in
+                        } content: { isFocused in
                             MediaCard(
                                 item: item,
                                 imageURL: dependencies.jellyfinImageService.imageURL(
@@ -128,7 +128,8 @@ struct SearchView: View {
                                     tag: item.imageTags?.primary,
                                     maxWidth: 440
                                 ),
-                                style: .poster
+                                style: .poster,
+                                isFocused: isFocused
                             )
                         }
                     }

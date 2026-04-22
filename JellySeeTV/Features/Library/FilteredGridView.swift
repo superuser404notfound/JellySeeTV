@@ -51,7 +51,8 @@ struct FilteredGridView: View {
                         } label: {
                             MediaCard(
                                 item: item,
-                                imageURL: dependencies.jellyfinImageService.posterURL(for: item)
+                                imageURL: dependencies.jellyfinImageService.posterURL(for: item),
+                                isFocused: focusedItemID == item.id
                             )
                         }
                         .buttonStyle(GridCardButtonStyle())

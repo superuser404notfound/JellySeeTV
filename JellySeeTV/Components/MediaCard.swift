@@ -10,11 +10,12 @@ struct MediaCard: View {
     let imageURL: URL?
     let style: MediaCardStyle
 
-    /// Propagates from the nearest focusable parent (FocusableCard's
-    /// `.focusable()` or the surrounding Button). Drives the
-    /// accent-colored stroke around the poster image only — the title
-    /// text below stays outside the outline on purpose.
-    @Environment(\.isFocused) private var isFocused
+    /// Set by the caller — either forwarded from `FocusableCard`'s
+    /// content closure or derived from a surrounding `@FocusState`
+    /// (`focusedID == item.id`). tvOS's `@Environment(\.isFocused)`
+    /// doesn't propagate reliably through Button labels, so we pass
+    /// it explicitly.
+    let isFocused: Bool
 
     private var cardWidth: CGFloat {
         switch style {
@@ -30,10 +31,16 @@ struct MediaCard: View {
         }
     }
 
-    init(item: JellyfinItem, imageURL: URL?, style: MediaCardStyle = .poster) {
+    init(
+        item: JellyfinItem,
+        imageURL: URL?,
+        style: MediaCardStyle = .poster,
+        isFocused: Bool = false
+    ) {
         self.item = item
         self.imageURL = imageURL
         self.style = style
+        self.isFocused = isFocused
     }
 
     var body: some View {

@@ -366,7 +366,8 @@ struct SeriesDetailView: View {
                                         episode: episode,
                                         imageURL: dependencies.jellyfinImageService.episodeThumbnailURL(for: episode),
                                         isSelected: selectedEpisode?.id == episode.id,
-                                        isCurrent: vm.currentEpisodeID == episode.id
+                                        isCurrent: vm.currentEpisodeID == episode.id,
+                                        isFocused: focusedEpisodeID == episode.id
                                     )
                                 }
                                 .buttonStyle(EpisodeCardButtonStyle())
@@ -521,11 +522,11 @@ struct EpisodeLandscapeCard: View {
     var isSelected: Bool = false
     var isCurrent: Bool = false
 
-    /// Propagates from the surrounding Button's focus state. When true,
-    /// the accent-colored stroke overrides the selected/current hues so
-    /// the user always sees a clear focus marker — but only on the
-    /// thumbnail, never around the title text below.
-    @Environment(\.isFocused) private var isFocused
+    /// Set by the caller based on the surrounding `@FocusState`
+    /// (`focusedEpisodeID == episode.id`). Drives the accent-colored
+    /// focus stroke on the thumbnail — `@Environment(\.isFocused)` in
+    /// a Button label is unreliable on tvOS, so we pass it explicitly.
+    var isFocused: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {

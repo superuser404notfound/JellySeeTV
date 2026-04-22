@@ -19,11 +19,12 @@ struct HorizontalMediaRow: View {
                     ForEach(items) { item in
                         FocusableCard {
                             onItemSelected?(item)
-                        } content: { _ in
+                        } content: { isFocused in
                             MediaCard(
                                 item: item,
                                 imageURL: imageURLProvider(item),
-                                style: cardStyle
+                                style: cardStyle,
+                                isFocused: isFocused
                             )
                         }
                     }
