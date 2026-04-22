@@ -1,0 +1,98 @@
+{
+  "identifier" : "0CC0FFEE",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "2AC0FFEE00000001",
+      "localizations" : [
+        {
+          "description" : "A small thank-you. Unlocks nothing.",
+          "displayName" : "Coffee Tip",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Kleines Trinkgeld. Nichts wird freigeschaltet.",
+          "displayName" : "Kaffee-Trinkgeld",
+          "locale" : "de_DE"
+        }
+      ],
+      "productID" : "de.superuser404.JellySeeTV.tip.coffee",
+      "referenceName" : "Coffee Tip",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "2AC0FFEE00000002",
+      "localizations" : [
+        {
+          "description" : "A medium thank-you. Unlocks nothing.",
+          "displayName" : "Beer Tip",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Mittleres Trinkgeld. Nichts wird freigeschaltet.",
+          "displayName" : "Bier-Trinkgeld",
+          "locale" : "de_DE"
+        }
+      ],
+      "productID" : "de.superuser404.JellySeeTV.tip.beer",
+      "referenceName" : "Beer Tip",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "2AC0FFEE00000003",
+      "localizations" : [
+        {
+          "description" : "A big thank-you. Unlocks nothing.",
+          "displayName" : "Pizza Tip",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Großes Trinkgeld. Nichts wird freigeschaltet.",
+          "displayName" : "Pizza-Trinkgeld",
+          "locale" : "de_DE"
+        }
+      ],
+      "productID" : "de.superuser404.JellySeeTV.tip.pizza",
+      "referenceName" : "Pizza Tip",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "2AC0FFEE00000004",
+      "localizations" : [
+        {
+          "description" : "Unlocks cosmetic extras: splash, badge, colors.",
+          "displayName" : "Supporter Pack",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Kosmetische Extras: Splash, Abzeichen, Farben.",
+          "displayName" : "Supporter-Paket",
+          "locale" : "de_DE"
+        }
+      ],
+      "productID" : "de.superuser404.JellySeeTV.supporter.pack",
+      "referenceName" : "Supporter Pack",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
