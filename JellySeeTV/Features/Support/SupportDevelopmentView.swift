@@ -89,21 +89,7 @@ struct SupportDevelopmentView: View {
                 .foregroundStyle(.secondary)
             }
 
-            if service.tipProducts.isEmpty {
-                loadingCard
-            } else {
-                VStack(spacing: 4) {
-                    ForEach(service.tipProducts, id: \.id) { product in
-                        TipJarRow(
-                            product: product,
-                            isPurchasing: purchasing == product.id,
-                            isAnyPurchasing: purchasing != nil
-                        ) {
-                            await purchase(product)
-                        }
-                    }
-                }
-            }
+            productsSection(for: .tips)
         }
     }
 
@@ -124,14 +110,50 @@ struct SupportDevelopmentView: View {
                 .foregroundStyle(.secondary)
             }
 
-            SupporterPackRow(
-                product: service.supporterPackProduct,
-                isUnlocked: service.isSupporter,
-                isPurchasing: purchasing == service.supporterPackProduct?.id,
-                isAnyPurchasing: purchasing != nil
-            ) {
-                if let product = service.supporterPackProduct {
-                    await purchase(product)
+            productsSection(for: .pack)
+        }
+    }
+
+    private enum ProductSection { case tips, pack }
+
+    @ViewBuilder
+    private func productsSection(for kind: ProductSection) -> some View {
+        if !service.hasLoadedProducts {
+            loadingCard
+        } else if let message = service.lastLoadError {
+            unavailableCard(reason: .loadError(message))
+        } else {
+            switch kind {
+            case .tips:
+                if service.tipProducts.isEmpty {
+                    unavailableCard(reason: .empty)
+                } else {
+                    VStack(spacing: 4) {
+                        ForEach(service.tipProducts, id: \.id) { product in
+                            TipJarRow(
+                                product: product,
+                                isPurchasing: purchasing == product.id,
+                                isAnyPurchasing: purchasing != nil
+                            ) {
+                                await purchase(product)
+                            }
+                        }
+                    }
+                }
+            case .pack:
+                if service.supporterPackProduct == nil && !service.isSupporter {
+                    unavailableCard(reason: .empty)
+                } else {
+                    SupporterPackRow(
+                        product: service.supporterPackProduct,
+                        isUnlocked: service.isSupporter,
+                        isPurchasing: purchasing == service.supporterPackProduct?.id,
+                        isAnyPurchasing: purchasing != nil
+                    ) {
+                        if let product = service.supporterPackProduct {
+                            await purchase(product)
+                        }
+                    }
                 }
             }
         }
@@ -173,6 +195,62 @@ struct SupportDevelopmentView: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(.white.opacity(0.05))
         )
+    }
+
+    private enum UnavailableReason {
+        case empty
+        case loadError(String)
+    }
+
+    private func unavailableCard(reason: UnavailableReason) -> some View {
+        let title: String
+        let detail: String
+        switch reason {
+        case .empty:
+            title = String(
+                localized: "support.unavailable.title",
+                defaultValue: "Products not available"
+            )
+            // Sandbox-testing hint is the one users will actually need —
+            // on tvOS this is almost always the cause when a dev build
+            // sees an empty product list.
+            detail = String(
+                localized: "support.unavailable.subtitle",
+                defaultValue: "Sign in with a Sandbox Tester account or wait for Apple to approve the in-app purchases. Tap to retry."
+            )
+        case .loadError(let message):
+            title = String(
+                localized: "support.unavailable.errorTitle",
+                defaultValue: "Couldn't reach the App Store"
+            )
+            detail = message
+        }
+
+        return Button {
+            Task { await service.loadProducts() }
+        } label: {
+            HStack(alignment: .top, spacing: 20) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.yellow)
+                    .padding(.top, 2)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(title)
+                        .font(.body)
+                        .fontWeight(.semibold)
+                    Text(detail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "arrow.clockwise")
+                    .font(.body)
+                    .foregroundStyle(.tint)
+            }
+            .padding(20)
+        }
+        .buttonStyle(SettingsTileButtonStyle())
     }
 
     private func statusBanner(_ message: StatusMessage) -> some View {

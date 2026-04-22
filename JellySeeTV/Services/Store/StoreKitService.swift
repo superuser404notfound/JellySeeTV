@@ -27,6 +27,7 @@ protocol StoreKitServiceProtocol: AnyObject {
     var tipProducts: [Product] { get }
     var supporterPackProduct: Product? { get }
     var hasLoadedProducts: Bool { get }
+    var lastLoadError: String? { get }
 
     func loadProducts() async
     func purchase(_ product: Product) async throws -> PurchaseOutcome
@@ -51,7 +52,14 @@ final class StoreKitService: StoreKitServiceProtocol {
     private(set) var isSupporter: Bool
     private(set) var tipProducts: [Product] = []
     private(set) var supporterPackProduct: Product?
+    /// True once a `Product.products(for:)` call has completed — regardless
+    /// of whether it returned products or failed. The UI uses this to tell
+    /// "still loading" apart from "loaded and the App Store gave us nothing".
     private(set) var hasLoadedProducts: Bool = false
+    /// Short human-readable message for the last load failure, surfaced in
+    /// the UI so the user doesn't stare at a spinner forever when StoreKit
+    /// has a network error or the products aren't approved yet.
+    private(set) var lastLoadError: String?
 
     // MARK: - Private
 
@@ -94,12 +102,17 @@ final class StoreKitService: StoreKitServiceProtocol {
 
             self.tipProducts = tips
             self.supporterPackProduct = pack
-            self.hasLoadedProducts = true
+            self.lastLoadError = nil
         } catch {
             #if DEBUG
             print("[StoreKit] loadProducts failed: \(error)")
             #endif
+            self.lastLoadError = error.localizedDescription
         }
+        // Always flip so the UI can exit the loading state even when the
+        // App Store call failed or returned an empty product list (common
+        // before IAP review or on accounts that can't see the products).
+        self.hasLoadedProducts = true
     }
 
     // MARK: - Purchasing
