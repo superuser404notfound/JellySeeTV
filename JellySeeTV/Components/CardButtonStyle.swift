@@ -8,8 +8,18 @@ struct FocusableCard<Content: View>: View {
 
     @FocusState private var isFocused: Bool
 
+    /// Corner radius of the cards this wrapper sits around. Both the
+    /// poster/landscape MediaCard clipShape and the GenreCard clipShape
+    /// use 12 — keep this in lockstep if either changes.
+    private let cornerRadius: CGFloat = 12
+
     var body: some View {
         content(isFocused)
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(.tint, lineWidth: 3)
+                    .opacity(isFocused ? 1 : 0)
+            )
             .focusable()
             .focused($isFocused)
             .onLongPressGesture(minimumDuration: 0) {
