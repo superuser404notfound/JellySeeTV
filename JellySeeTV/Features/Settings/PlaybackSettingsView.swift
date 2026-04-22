@@ -36,21 +36,13 @@ struct PlaybackSettingsView: View {
                     )
                 )
 
-                valueRow(
-                    icon: "timer",
-                    title: "settings.playback.nextEpCountdown",
-                    subtitle: "settings.playback.nextEpCountdown.subtitle",
-                    options: PlaybackPreferences.countdownChoices,
-                    selection: Binding(
-                        get: { prefs.nextEpisodeCountdownSeconds },
-                        set: { prefs.nextEpisodeCountdownSeconds = $0 }
-                    ),
-                    label: { seconds in
-                        seconds == 0
-                            ? String(localized: "settings.playback.countdown.off", defaultValue: "Off")
-                            : "\(seconds) s"
-                    }
-                )
+                // Next-episode countdown length deliberately not a user
+                // setting. Netflix/Prime/Disney+ all hardcode something
+                // in the 8–12 s range; users who only saw the "10 s"
+                // option in the old picker correctly guessed the other
+                // values felt pointless. `autoplayNextEpisode` above is
+                // the real knob — on = 10 s countdown then advance,
+                // off = overlay stays up until the user picks.
 
                 sectionHeader("settings.playback.section.controls")
 

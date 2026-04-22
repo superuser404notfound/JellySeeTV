@@ -86,14 +86,10 @@ extension PlayerViewModel {
             return
         }
 
-        // If the user set countdown to 0, skip straight to the next episode.
-        let configured = preferences.nextEpisodeCountdownSeconds
-        guard configured > 0 else {
-            Task { @MainActor [weak self] in await self?.playNextEpisode() }
-            return
-        }
-
-        nextEpisodeCountdown = configured
+        // Fixed at 10 s — same as every major streaming app. The old
+        // user-configurable picker (0 / 5 / 10 / 15) was too much UI
+        // for too little real-world benefit.
+        nextEpisodeCountdown = 10
         isCountdownActive = true
         nextEpisodeTimer?.cancel()
         nextEpisodeTimer = Task {
