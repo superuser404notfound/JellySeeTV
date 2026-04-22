@@ -22,6 +22,18 @@ struct CatalogDetailView: View {
     @State private var selectedProfileID: Int?
     @State private var selectedRootFolder: String?
 
+    /// Explicit focus anchors on the profile / root-folder dropdown
+    /// labels. Without them, when a SwiftUI Menu closes on tvOS the
+    /// focus engine spends up to ~1s figuring out where to send focus
+    /// next — during that gap a Menu-button press is interpreted as
+    /// "no navigation left to pop" and exits the app instead of
+    /// popping back to the catalog. An explicit @FocusState anchor on
+    /// the label plus `.focusSection()` around the group gives the
+    /// engine a clear return target, keeping the app in the detail
+    /// view while the dropdown animates closed.
+    private enum PickerFocus: Hashable { case profile, rootFolder }
+    @FocusState private var pickerFocus: PickerFocus?
+
     var body: some View {
         ZStack {
             DetailBackdrop(imageURL: SeerrImageURL.backdrop(path: backdropPath))
@@ -140,6 +152,7 @@ struct CatalogDetailView: View {
                     profilePicker(details: details)
                     rootFolderPicker(details: details)
                 }
+                .focusSection()
             }
         }
     }
@@ -176,6 +189,7 @@ struct CatalogDetailView: View {
                 .frame(maxWidth: .infinity)
                 .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
             }
+            .focused($pickerFocus, equals: .profile)
         }
         .frame(maxWidth: .infinity)
     }
@@ -214,6 +228,7 @@ struct CatalogDetailView: View {
                 .frame(maxWidth: .infinity)
                 .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
             }
+            .focused($pickerFocus, equals: .rootFolder)
         }
         .frame(maxWidth: .infinity)
     }
