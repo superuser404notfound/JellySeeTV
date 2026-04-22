@@ -300,27 +300,40 @@ struct SeriesDetailView: View {
                     .padding(.vertical, 12)
                 }
                 .onChange(of: focusedSeasonID) { oldID, newID in
-                    // Three cases where we force focus back to the current
-                    // season: (a) first entry from above (oldID == nil),
-                    // (b) return from the episode row below (episodesHadFocus),
-                    // (c) fall-through from some other section.
+                    guard let newID else { return }
+
+                    // Two cases where we force focus back to the current
+                    // season instead of wherever tvOS's geographic picker
+                    // landed: first entry into the view, or focus returning
+                    // from the episode row below.
                     let cameFromOutside = oldID == nil || episodesHadFocus
-                    if cameFromOutside, let newID, newID != vm.selectedSeasonID {
+                    let wrongTab = newID != vm.selectedSeasonID
+
+                    if cameFromOutside && wrongTab {
                         let target = vm.selectedSeasonID
-                        // Defer to the next runloop tick — setting
-                        // @FocusState synchronously inside its own onChange
-                        // gets silently dropped on tvOS.
-                        DispatchQueue.main.async {
+                        // Task + Task.sleep is more reliable than
+                        // DispatchQueue.main.async for @FocusState writes on
+                        // tvOS — the runloop-hop via DispatchQueue sometimes
+                        // lands in the same cycle that triggered the onChange
+                        // and the focus write is silently dropped. A proper
+                        // await hop survives the focus-engine's debounce.
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .milliseconds(16))
                             focusedSeasonID = target
                         }
+                        // Deliberately do NOT reset episodesHadFocus here —
+                        // if the async focus write is ever dropped, the flag
+                        // must still be true so the next focus change into
+                        // the bar will retry the redirect.
+                        return
                     }
+
+                    // Genuine tab-to-tab navigation (or the redirect above
+                    // succeeded and re-entered this onChange on the right
+                    // season). Consume the flag and catch the scroll up.
                     episodesHadFocus = false
-                    if let focusedID = focusedSeasonID {
-                        withAnimation { proxy.scrollTo(focusedID, anchor: .center) }
-                    }
-                    if newID != nil {
-                        episodeRedirectDone = false
-                    }
+                    withAnimation { proxy.scrollTo(newID, anchor: .center) }
+                    episodeRedirectDone = false
                 }
                 .onChange(of: focusedEpisodeID) { _, newEpisode in
                     if newEpisode != nil {
