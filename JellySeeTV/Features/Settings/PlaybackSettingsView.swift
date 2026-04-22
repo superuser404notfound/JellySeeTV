@@ -242,6 +242,11 @@ private struct ValuePickerRow<Value: Hashable>: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(focused ? Color.white.opacity(0.15) : Color.white.opacity(0.04))
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(.tint, lineWidth: 3)
+                .opacity(focused ? 1 : 0)
+        )
         .scaleEffect(focused ? 1.015 : 1.0)
         .shadow(color: .black.opacity(focused ? 0.3 : 0), radius: 14, y: 6)
         .focusable(true)

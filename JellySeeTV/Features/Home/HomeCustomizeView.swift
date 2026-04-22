@@ -105,6 +105,16 @@ struct HomeCustomizeView: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(movingType == config.type ? Color.accentColor.opacity(0.6) : .clear, lineWidth: 2)
                             )
+                            .overlay(
+                                // Accent focus stroke — same 3pt treatment
+                                // as the rest of the app's focusable cards.
+                                // Layered on top of the "moving" indicator
+                                // above; when both apply the focus stroke
+                                // dominates (fully opaque, thicker).
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(.tint, lineWidth: 3)
+                                    .opacity(isFocused ? 1 : 0)
+                            )
                         }
 
                         FocusableIcon(

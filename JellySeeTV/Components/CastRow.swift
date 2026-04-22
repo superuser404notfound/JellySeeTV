@@ -48,6 +48,17 @@ struct CastCard: View {
             }
             .frame(width: 100, height: 100)
             .clipShape(Circle())
+            .overlay(
+                // Circular accent-color stroke for focus, drawn just
+                // outside the portrait edge so the avatar itself stays
+                // uncropped. Matches the outer-stroke pattern used for
+                // media cards; Circle keeps the ring concentric with
+                // the round clip without any corner-radius fiddling.
+                Circle()
+                    .strokeBorder(.tint, lineWidth: 3)
+                    .padding(-3)
+                    .opacity(isFocused ? 1 : 0)
+            )
 
             VStack(spacing: 2) {
                 Text(person.name)
