@@ -22,7 +22,12 @@ struct SeerrSettingsView: View {
     var body: some View {
         ZStack {
             ScrollView {
-                VStack(spacing: 32) {
+                VStack(alignment: .leading, spacing: 32) {
+                    Text("settings.seerr.title")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.bottom, 8)
+
                     if appState.isSeerrConnected {
                         connectedState
                     } else {
@@ -33,8 +38,8 @@ struct SeerrSettingsView: View {
                         }
                     }
                 }
-                .frame(maxWidth: 720)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: 720, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 60)
                 .padding(.horizontal, 80)
             }
@@ -47,8 +52,11 @@ struct SeerrSettingsView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: showSuccess)
-        .navigationTitle(Text("settings.seerr.title"))
         .toolbar(.hidden, for: .tabBar)
+        // Inline header only — the floating tvOS nav-title sits behind
+        // the scrolling content and looks like a ghost when the user
+        // scrolls past it. Matches PlaybackSettingsView.
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear(perform: bootstrap)
     }
 

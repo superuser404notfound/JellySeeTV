@@ -12,7 +12,14 @@ struct AppearanceSettingsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 32) {
+            VStack(alignment: .leading, spacing: 32) {
+                Text(String(
+                    localized: "settings.appearance.title",
+                    defaultValue: "Appearance"
+                ))
+                .font(.largeTitle)
+                .fontWeight(.bold)
+
                 header
                 if isSupporter {
                     accentPicker
@@ -20,13 +27,13 @@ struct AppearanceSettingsView: View {
                     lockedCard
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 60)
             .padding(.horizontal, 80)
         }
-        .navigationTitle(Text(String(
-            localized: "settings.appearance.title",
-            defaultValue: "Appearance"
-        )))
+        // Inline largeTitle only; the floating nav-title otherwise
+        // sits behind the scroll content. Matches PlaybackSettingsView.
+        .toolbar(.hidden, for: .navigationBar)
     }
 
     // MARK: - Header
