@@ -275,6 +275,13 @@ struct SeriesDetailView: View {
     // MARK: - Season Section
 
     private func seasonSection(vm: DetailViewModel) -> some View {
+        // .focusSection keeps up/down moves within the season + episode
+        // block. Without it, a far-right episode's up-swipe bypasses the
+        // season bar entirely (no tab is geographically above it) and
+        // lands on the overview textbox one section up. The section
+        // modifier tells tvOS "prefer staying inside this region," so
+        // the up-swipe falls onto a season tab instead — our
+        // onMoveCommand redirect then snaps it to the selected one.
         VStack(alignment: .leading, spacing: 20) {
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -428,6 +435,7 @@ struct SeriesDetailView: View {
                 }
             }
         }
+        .focusSection()
     }
 
     private func scrollToCurrentEpisode(proxy: ScrollViewProxy, vm: DetailViewModel) {
