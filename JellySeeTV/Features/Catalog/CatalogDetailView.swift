@@ -260,23 +260,25 @@ struct CatalogDetailView: View {
                             toggle: { toggleSeason(season) }
                         )
                     }
-
-                    // Select-all sits as the last chip in the row so a
-                    // down-swipe from the overview above lands on a
-                    // season chip first, not on this affordance —
-                    // users expect to arrive on the primary actions.
-                    if hasSelectableSeasons(in: seasons) {
-                        SelectAllChip(
-                            isAllSelected: allSelectableSeasonsSelected(in: seasons),
-                            toggle: { toggleAllSeasons(seasons) }
-                        )
-                    }
                 }
                 // Horizontal padding leaves room for the focus-scale grow
                 // on the first and last chips — without it the leftmost
                 // season gets its halo clipped by the scroll-view edge.
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
+            }
+
+            // Select-all sits *below* the horizontal chip row rather
+            // than as its last peer — for series with many seasons
+            // the user would otherwise have to scroll all the way to
+            // the right to reach it. Below-the-row keeps it always
+            // one down-swipe away.
+            if hasSelectableSeasons(in: seasons) {
+                SelectAllChip(
+                    isAllSelected: allSelectableSeasonsSelected(in: seasons),
+                    toggle: { toggleAllSeasons(seasons) }
+                )
+                .padding(.leading, 20)
             }
         }
     }
