@@ -85,8 +85,10 @@ final class PlayerViewModel {
     var hasFetchedNextEpisode = false
     var nextEpisodeCancelled = false
 
-    // Intro skip — populated from Jellyfin Media Segments / intro-skipper plugin
+    // Intro skip + outro-aware next-episode trigger — both populated
+    // from Jellyfin Media Segments / intro-skipper plugin in one call.
     var introSegment: MediaSegment?
+    var outroSegment: MediaSegment?
     /// True while playbackTime is inside the intro range. UI shows the
     /// Skip Intro button whenever this is true, regardless of whether
     /// the transport controls are open.
@@ -326,7 +328,7 @@ final class PlayerViewModel {
             // playback start if the server is slow or doesn't expose
             // the endpoint. Once the marker lands the next time tick
             // will flip isInsideIntro on naturally.
-            Task { [weak self] in await self?.loadIntroSegment() }
+            Task { [weak self] in await self?.loadEpisodeSegments() }
 
         } catch {
             errorMessage = error.localizedDescription
@@ -548,18 +550,22 @@ final class PlayerViewModel {
         Task { await player.seek(to: seg.endSeconds) }
     }
 
-    /// Fetch the intro marker once on startup. Safe if the server
-    /// doesn't expose the endpoint — service returns nil and the
-    /// button simply never appears.
-    func loadIntroSegment() async {
+    /// Fetch intro + outro markers once on startup. Safe if the server
+    /// doesn't expose the endpoint — service returns an empty struct
+    /// and the features simply stay off (no Skip Intro button, normal
+    /// 30 s fallback trigger for the next-episode overlay).
+    func loadEpisodeSegments() async {
         didAutoSkipCurrentIntro = false
         do {
-            introSegment = try await playbackService.getIntroSegment(itemID: item.id)
+            let segments = try await playbackService.getEpisodeSegments(itemID: item.id)
+            introSegment = segments.intro
+            outroSegment = segments.outro
         } catch {
             #if DEBUG
-            print("[IntroSkip] Fetch failed: \(error)")
+            print("[MediaSegments] Fetch failed: \(error)")
             #endif
             introSegment = nil
+            outroSegment = nil
         }
     }
 

@@ -6,8 +6,20 @@ extension PlayerViewModel {
     func checkForNextEpisode() {
         let dur = effectiveDuration
         let remaining = dur - playbackTime
-        guard dur > 0, remaining < 30, remaining > 0,
-              !hasFetchedNextEpisode else { return }
+        guard dur > 0, remaining > 0, !hasFetchedNextEpisode else { return }
+
+        // If the server gave us an outro marker (Jellyfin 10.10+ or the
+        // intro-skipper plugin picked it up), start the next-episode
+        // countdown as soon as the outro begins — that's usually where
+        // credits roll and the episode is effectively over. Otherwise
+        // fall back to the hardcoded 30 s-before-end threshold.
+        let shouldFetch: Bool
+        if let outro = outroSegment {
+            shouldFetch = playbackTime >= outro.startSeconds
+        } else {
+            shouldFetch = remaining < 30
+        }
+        guard shouldFetch else { return }
 
         guard item.seriesId != nil else { return }
 
@@ -137,6 +149,7 @@ extension PlayerViewModel {
         playbackTime = 0
         resumePositionTicks = 0
         introSegment = nil
+        outroSegment = nil
         isInsideIntro = false
         didAutoSkipCurrentIntro = false
 

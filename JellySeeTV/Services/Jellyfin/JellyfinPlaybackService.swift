@@ -8,7 +8,7 @@ protocol JellyfinPlaybackServiceProtocol: Sendable {
     func reportPlaybackStopped(_ report: PlaybackStopReport) async throws
     func getNextEpisode(seriesID: String, userID: String) async throws -> JellyfinItem?
     func getEpisodes(seriesID: String, seasonID: String, userID: String) async throws -> [JellyfinItem]
-    func getIntroSegment(itemID: String) async throws -> MediaSegment?
+    func getEpisodeSegments(itemID: String) async throws -> EpisodeSegments
     func buildStreamURL(itemID: String, mediaSourceID: String, container: String?, isStatic: Bool) -> URL?
     func buildSubtitleURL(itemID: String, mediaSourceID: String, streamIndex: Int, format: String) -> URL?
     func buildTranscodeURL(relativePath: String) -> URL?
@@ -127,19 +127,22 @@ final class JellyfinPlaybackService: JellyfinPlaybackServiceProtocol {
         return response.items
     }
 
-    /// Ask the server for intro markers on an item. Returns nil if the
-    /// server doesn't expose the endpoint (Jellyfin pre-10.10 without
-    /// the intro-skipper plugin → 404), or if no intro was detected.
-    func getIntroSegment(itemID: String) async throws -> MediaSegment? {
+    /// Ask the server for intro + outro markers on an item in one call.
+    /// Returns an empty struct if the server doesn't expose the endpoint
+    /// (Jellyfin pre-10.10 without the intro-skipper plugin → 404) or if
+    /// no matching segments were detected.
+    func getEpisodeSegments(itemID: String) async throws -> EpisodeSegments {
         do {
             let response: MediaSegmentsResponse = try await client.request(
                 endpoint: JellyfinEndpoint.mediaSegments(itemID: itemID),
                 responseType: MediaSegmentsResponse.self
             )
-            return response.items.first(where: { $0.type == .intro })
+            return EpisodeSegments(
+                intro: response.items.first(where: { $0.type == .intro }),
+                outro: response.items.first(where: { $0.type == .outro })
+            )
         } catch APIError.httpError(let status, _) where status == 404 {
-            // Server doesn't expose MediaSegments — feature just stays off.
-            return nil
+            return EpisodeSegments(intro: nil, outro: nil)
         }
     }
 
