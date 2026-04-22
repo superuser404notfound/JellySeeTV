@@ -34,6 +34,11 @@ struct GlassButtonStyle: ButtonStyle {
                 Capsule()
                     .fill(backgroundFill)
             )
+            .overlay(
+                Capsule()
+                    .strokeBorder(.tint, lineWidth: 3)
+                    .opacity(isFocused ? 1 : 0)
+            )
             .scaleEffect(isFocused ? 1.08 : (configuration.isPressed ? 0.95 : 1.0))
             .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 10, y: 5)
             .animation(.easeInOut(duration: 0.15), value: isFocused)

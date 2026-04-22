@@ -98,6 +98,11 @@ struct GridCardButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(.tint, lineWidth: 3)
+                    .opacity(isFocused ? 1 : 0)
+            )
             .scaleEffect(isFocused ? 1.05 : 1.0)
             .shadow(color: .black.opacity(isFocused ? 0.4 : 0), radius: 20, y: 10)
             .animation(.easeInOut(duration: 0.2), value: isFocused)

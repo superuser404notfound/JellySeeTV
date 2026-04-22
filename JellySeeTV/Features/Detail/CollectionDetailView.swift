@@ -210,6 +210,11 @@ struct CollectionRowButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isFocused ? .white.opacity(0.12) : .white.opacity(0.05))
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(.tint, lineWidth: 3)
+                    .opacity(isFocused ? 1 : 0)
+            )
             .scaleEffect(isFocused ? 1.02 : 1.0)
             .animation(.easeInOut(duration: 0.15), value: isFocused)
     }
