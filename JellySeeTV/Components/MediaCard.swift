@@ -71,8 +71,13 @@ struct MediaCard: View {
             progressOverlay
         }
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            // Outer stroke — padding(-3) pushes the overlay frame 3pt
+            // past the image edge, so the border sits *around* the card
+            // rather than eating into it. Outer corner radius is
+            // card radius + stroke width so the curve stays concentric.
+            RoundedRectangle(cornerRadius: 15)
                 .strokeBorder(.tint, lineWidth: 3)
+                .padding(-3)
                 .opacity(isFocused ? 1 : 0)
                 .animation(.easeInOut(duration: 0.2), value: isFocused)
         )
@@ -124,10 +129,10 @@ struct MediaCard: View {
                     ZStack(alignment: .leading) {
                         Rectangle()
                             .fill(.ultraThinMaterial)
-                            .frame(height: 8)
+                            .frame(height: 4)
                         Rectangle()
                             .fill(Color.white.opacity(0.9))
-                            .frame(width: geo.size.width * playedPercentage / 100, height: 8)
+                            .frame(width: geo.size.width * playedPercentage / 100, height: 4)
                     }
                 }
             }

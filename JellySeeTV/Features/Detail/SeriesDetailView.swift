@@ -547,8 +547,12 @@ struct EpisodeLandscapeCard: View {
                 .frame(width: 360, height: 202)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    // Outer stroke — same pattern as MediaCard. Keeps
+                    // the thumbnail itself clean (no inner bite) and
+                    // leaves the 4pt progress bar fully visible.
+                    RoundedRectangle(cornerRadius: 12 + strokeWidth)
                         .strokeBorder(strokeStyle, lineWidth: strokeWidth)
+                        .padding(-strokeWidth)
                         .animation(.easeInOut(duration: 0.2), value: isFocused)
                 )
 
@@ -557,8 +561,8 @@ struct EpisodeLandscapeCard: View {
                         VStack {
                             Spacer()
                             ZStack(alignment: .leading) {
-                                Rectangle().fill(.ultraThinMaterial).frame(height: 8)
-                                Rectangle().fill(Color.white.opacity(0.9)).frame(width: geo.size.width * pct / 100, height: 8)
+                                Rectangle().fill(.ultraThinMaterial).frame(height: 4)
+                                Rectangle().fill(Color.white.opacity(0.9)).frame(width: geo.size.width * pct / 100, height: 4)
                             }
                         }
                     }
