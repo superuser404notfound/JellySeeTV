@@ -2,6 +2,10 @@ import SwiftUI
 
 struct SeerrMediaCard: View {
     let media: SeerrMedia
+    /// Set by the caller from `FocusableCard`'s content closure, same
+    /// pattern as `MediaCard`. Drives the accent-colored focus stroke
+    /// around the poster.
+    var isFocused: Bool = false
 
     private let cardWidth: CGFloat = 220
     private let cardHeight: CGFloat = 330
@@ -36,6 +40,16 @@ struct SeerrMediaCard: View {
                     .padding(8)
             }
         }
+        .overlay(
+            // Outer accent stroke — same pattern as MediaCard. The
+            // poster itself stays uncropped and the title text below
+            // sits outside the ring.
+            RoundedRectangle(cornerRadius: 15)
+                .strokeBorder(.tint, lineWidth: 3)
+                .padding(-3)
+                .opacity(isFocused ? 1 : 0)
+                .animation(.easeInOut(duration: 0.2), value: isFocused)
+        )
     }
 
     private var itemInfo: some View {

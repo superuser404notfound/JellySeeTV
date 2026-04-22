@@ -157,8 +157,8 @@ struct SearchView: View {
                     ForEach(items) { media in
                         FocusableCard {
                             selectedSeerrMedia = media
-                        } content: { _ in
-                            SeerrMediaCard(media: media)
+                        } content: { isFocused in
+                            SeerrMediaCard(media: media, isFocused: isFocused)
                         }
                     }
                 }

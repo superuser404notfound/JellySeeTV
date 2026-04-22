@@ -442,6 +442,7 @@ final class PlayerHostController: UIViewController {
     private var lastDropdownStep: CGFloat = 0
     private var panAxis: PanAxis = .undetermined
     private var verticalStepFired = false
+    private var horizontalStepFired = false
 
     /// Travel (pt) before we commit a pan to one axis. Low enough to
     /// feel responsive, high enough that a slightly-diagonal horizontal
@@ -451,6 +452,10 @@ final class PlayerHostController: UIViewController {
     /// up/down — one fire per gesture, matching the single-shot feel
     /// of pressing the arrow keys.
     private static let verticalFireThreshold: CGFloat = 150
+    /// Travel (pt) on a horizontal swipe before we fire left/right when
+    /// the swipe is being used for transport-button navigation rather
+    /// than scrubbing — same single-shot behaviour as vertical.
+    private static let horizontalFireThreshold: CGFloat = 150
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
         if viewModel.isDropdownOpen {
@@ -479,16 +484,22 @@ final class PlayerHostController: UIViewController {
         }
 
         // Lock the pan to a dominant axis on first meaningful movement
-        // and then act accordingly. Horizontal is scrubbing; vertical
-        // mirrors the arrow-key navigation (up to the transport row,
-        // down back to the progress bar). Before, *any* pan — even
-        // near-vertical — fed its x-component into scrub(), so an
-        // up-swipe would nudge the timeline by a few seconds for no
-        // reason.
+        // and then act accordingly. Vertical is always arrow-key-style
+        // navigation. Horizontal is *conditional*:
+        //   - progress bar focused, or controls hidden → scrub timeline
+        //   - any other transport control focused → single-shot
+        //     left/right navigation between control buttons
+        // This lets users swipe between Skip Intro / Audio / Subs /
+        // Speed without the pan being interpreted as a scrub.
+        let horizontalScrubs =
+            !viewModel.showControls
+            || viewModel.controlsFocus == .progressBar
+
         switch gesture.state {
         case .began:
             panAxis = .undetermined
             verticalStepFired = false
+            horizontalStepFired = false
         case .changed:
             let t = gesture.translation(in: view)
 
@@ -502,8 +513,16 @@ final class PlayerHostController: UIViewController {
 
             switch panAxis {
             case .horizontal:
-                let width = max(view.bounds.width, 1)
-                viewModel.scrub(delta: t.x / width)
+                if horizontalScrubs {
+                    let width = max(view.bounds.width, 1)
+                    viewModel.scrub(delta: t.x / width)
+                } else {
+                    guard !horizontalStepFired,
+                          abs(t.x) >= Self.horizontalFireThreshold
+                    else { return }
+                    horizontalStepFired = true
+                    if t.x < 0 { leftPressed() } else { rightPressed() }
+                }
             case .vertical:
                 guard !verticalStepFired,
                       abs(t.y) >= Self.verticalFireThreshold
@@ -514,11 +533,15 @@ final class PlayerHostController: UIViewController {
                 break
             }
         case .ended, .cancelled:
-            if panAxis == .horizontal {
+            // Only finalise a scrub when the pan was actually scrubbing —
+            // horizontal-into-navigation doesn't touch the timeline, so
+            // no scrubPanEnded() to commit or cancel.
+            if panAxis == .horizontal && horizontalScrubs {
                 viewModel.scrubPanEnded()
             }
             panAxis = .undetermined
             verticalStepFired = false
+            horizontalStepFired = false
         default:
             break
         }
