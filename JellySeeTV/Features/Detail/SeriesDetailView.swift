@@ -487,12 +487,17 @@ struct SeasonTabButtonStyle: ButtonStyle {
     @Environment(\.isFocused) private var isFocused
 
     func makeBody(configuration: Configuration) -> some View {
+        // Deliberately *no* accent-color stroke here, even though every
+        // other ButtonStyle in the app has one. The reason: the
+        // redirect we do on up-swipe from episodes goes
+        //   wrong tab → (DispatchQueue.main.async tick) → right tab
+        // — which flashes a 3pt stroke visibly teleporting across the
+        // bar. Scale + lighter background + the existing accent
+        // underline (drawn inside SeasonTab itself for the selected
+        // state) are enough focus cues for a text tab; the thick
+        // outline was the thing that made the otherwise-subtle
+        // redirect glaringly obvious.
         configuration.label
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isFocused ? 1 : 0)
-            )
             .scaleEffect(isFocused ? 1.05 : 1.0)
             .animation(.easeInOut(duration: 0.15), value: isFocused)
     }
