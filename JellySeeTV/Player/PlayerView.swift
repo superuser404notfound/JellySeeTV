@@ -91,8 +91,15 @@ final class PlayerHostController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
 
-        // Video layer
+        // Video layer — set the frame before attaching so we don't
+        // hand the compositor a layer at 0×0. viewDidLayoutSubviews
+        // keeps it in sync after this, but the *first* frame the
+        // decoder emits has already been routed to this layer by
+        // then, and on an unlaidout layer that frame is dropped —
+        // the screen stays black until a seek re-primes the pipeline.
         let layer = viewModel.player.videoLayer
+        view.layoutIfNeeded()
+        layer.frame = view.bounds
         view.layer.addSublayer(layer)
         hostedVideoLayer = layer
 
@@ -179,6 +186,14 @@ final class PlayerHostController: UIViewController {
 
     private func swapVideoLayer(to newLayer: CALayer) {
         hostedVideoLayer?.removeFromSuperlayer()
+        // Force layout before reading view.bounds — swapVideoLayer can
+        // fire during the initial load while viewDidLayoutSubviews
+        // hasn't run yet, and view.bounds is still the nominal value
+        // from when the modal was presented. Inserting a layer with a
+        // zero-sized frame hides it until the next layout pass, and
+        // by then the decoder has already fed the first frame into
+        // the void — leaving the screen black until a seek re-primes.
+        view.layoutIfNeeded()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         newLayer.frame = view.bounds
