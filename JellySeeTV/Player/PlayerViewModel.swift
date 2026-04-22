@@ -397,19 +397,21 @@ final class PlayerViewModel {
                     self.isPlaying = false
                 case .idle:
                     self.isPlaying = false
-                    // Demux EOF — start 10s countdown for next episode.
-                    // The demux reads ahead 15-20s, so player.$currentTime
-                    // may never reach the final seconds (Combine only fires
-                    // on value changes). Cap at 10 so the overlay text is
-                    // always visible.
+                    // Demux EOF — safety net countdown start for cases
+                    // where player.$currentTime never fires near the
+                    // end (Combine only emits on value changes, and
+                    // the demux's 15–20 s look-ahead means currentTime
+                    // can stall a few seconds short of duration). Cap
+                    // at 10 s so the overlay copy stays readable even
+                    // if the real remaining is tiny.
                     if self.hasStartedPlaying,
                        self.nextEpisode != nil,
                        !self.nextEpisodeCancelled,
                        self.nextEpisodeTimer == nil {
                         let remaining = self.effectiveDuration - self.playbackTime
-                        self.nextEpisodeCountdown = min(10, max(1, Int(ceil(max(0, remaining)))))
+                        let seconds = min(10, max(1, Int(ceil(max(0, remaining)))))
                         self.showNextEpisodeOverlay = true
-                        self.startNextEpisodeCountdown()
+                        self.startNextEpisodeCountdown(from: seconds)
                     }
                 case .loading:
                     if !self.hasStartedPlaying { self.isLoading = true }
@@ -432,14 +434,36 @@ final class PlayerViewModel {
                 let dur = self.effectiveDuration
                 let remaining = dur - time
                 if self.nextEpisode != nil && !self.nextEpisodeCancelled && dur > 0 && remaining > 0 {
-                    // Show overlay at 30s remaining
-                    if !self.showNextEpisodeOverlay && remaining < 30 {
-                        self.showNextEpisodeOverlay = true
-                    }
-                    // Start countdown when ≤10s remaining (synced to actual remaining time)
-                    if remaining <= 10 && self.nextEpisodeTimer == nil && self.showNextEpisodeOverlay {
-                        self.nextEpisodeCountdown = max(1, Int(ceil(remaining)))
-                        self.startNextEpisodeCountdown()
+                    // Two separate UI-visibility flows depending on
+                    // whether the server gave us an outro marker.
+                    //
+                    // Outro available:
+                    //   Credits typically run 2–3 minutes. Show the
+                    //   overlay the moment we cross outro.startSeconds
+                    //   and fire a fixed 10 s countdown — transition
+                    //   happens well before the episode naturally ends,
+                    //   cutting through the credits.
+                    //
+                    // No outro:
+                    //   Fall back to "show at 30 s, countdown at 10 s
+                    //   remaining, synced to the clock." Countdown
+                    //   hits 0 right at playback end — seamless
+                    //   transition that doesn't cut anything off.
+                    if let outro = self.outroSegment {
+                        let pastOutroStart = time >= outro.startSeconds
+                        if pastOutroStart && !self.showNextEpisodeOverlay {
+                            self.showNextEpisodeOverlay = true
+                        }
+                        if pastOutroStart, self.nextEpisodeTimer == nil, self.showNextEpisodeOverlay {
+                            self.startNextEpisodeCountdown()
+                        }
+                    } else {
+                        if !self.showNextEpisodeOverlay && remaining < 30 {
+                            self.showNextEpisodeOverlay = true
+                        }
+                        if remaining <= 10, self.nextEpisodeTimer == nil, self.showNextEpisodeOverlay {
+                            self.startNextEpisodeCountdown(from: Int(ceil(remaining)))
+                        }
                     }
                 }
                 guard !self.isScrubbing else { return }

@@ -77,7 +77,11 @@ extension PlayerViewModel {
         }
     }
 
-    func startNextEpisodeCountdown() {
+    /// Starts the auto-advance timer. `from` defaults to 10 s — that's
+    /// the outro-based flow where we've got minutes of credits to burn
+    /// through. The no-outro fallback passes the actual remaining
+    /// seconds so the countdown hits 0 exactly at playback end.
+    func startNextEpisodeCountdown(from seconds: Int = 10) {
         // If autoplay is disabled, still show the overlay (so the user
         // can pick next manually) but skip the timer that auto-transitions.
         guard preferences.autoplayNextEpisode else {
@@ -86,10 +90,7 @@ extension PlayerViewModel {
             return
         }
 
-        // Fixed at 10 s — same as every major streaming app. The old
-        // user-configurable picker (0 / 5 / 10 / 15) was too much UI
-        // for too little real-world benefit.
-        nextEpisodeCountdown = 10
+        nextEpisodeCountdown = max(1, seconds)
         isCountdownActive = true
         nextEpisodeTimer?.cancel()
         nextEpisodeTimer = Task {
