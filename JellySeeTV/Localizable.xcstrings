@@ -2456,14 +2456,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Ze serveru nejsou vidět žádní uživatelé. Přihlaste se ručně."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Ingen brugere synlige fra serveren. Log ind manuelt i stedet."
           }
         },
         "de" : {
@@ -2474,8 +2474,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Δεν εμφανίζονται χρήστες από τον διακομιστή. Συνδεθείτε χειροκίνητα."
           }
         },
         "en" : {
@@ -2486,128 +2486,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "No hay usuarios visibles del servidor. Inicia sesión manualmente."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Palvelimelta ei näy käyttäjiä. Kirjaudu sisään manuaalisesti."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Aucun utilisateur visible depuis le serveur. Connectez-vous manuellement."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Sa servera nisu vidljivi korisnici. Prijavite se ručno."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Nincsenek látható felhasználók a szerveren. Jelentkezz be kézzel."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Nessun utente visibile dal server. Accedi manualmente."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "サーバーから表示できるユーザーがいません。手動でサインインしてください。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "서버에서 표시 가능한 사용자가 없습니다. 수동으로 로그인하세요."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Ingen brukere er synlige fra serveren. Logg inn manuelt i stedet."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Geen gebruikers zichtbaar vanaf de server. Meld je handmatig aan."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Brak widocznych użytkowników z serwera. Zaloguj się ręcznie."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Nenhum usuário visível no servidor. Entre manualmente."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Nenhum utilizador visível no servidor. Inicie sessão manualmente."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Niciun utilizator vizibil de pe server. Conectează-te manual."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Пользователи на сервере не отображаются. Войдите вручную."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Zo servera nie sú viditeľní žiadni používatelia. Prihláste sa manuálne."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Inga användare synliga från servern. Logga in manuellt istället."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "Sunucudan görünür kullanıcı yok. Manuel olarak giriş yap."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "На сервері не видно користувачів. Увійдіть вручну."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "服务器中没有可见用户。请手动登录。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "No users visible from the server. Sign in manually instead."
+            "state" : "translated",
+            "value" : "伺服器中沒有可見使用者。請手動登入。"
           }
         }
       }
@@ -2618,14 +2618,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Přihlásit se jiným účtem"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Log ind med en anden konto"
           }
         },
         "de" : {
@@ -2636,8 +2636,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Σύνδεση με άλλο λογαριασμό"
           }
         },
         "en" : {
@@ -2648,128 +2648,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Iniciar sesión con otra cuenta"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Kirjaudu toisella tilillä"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Se connecter avec un autre compte"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Prijavi se drugim računom"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Bejelentkezés másik fiókkal"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Accedi con un altro account"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "別のアカウントでサインイン"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "다른 계정으로 로그인"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Logg inn med en annen konto"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Aanmelden met een ander account"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Zaloguj się innym kontem"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Entrar com outra conta"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Iniciar sessão com outra conta"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Conectare cu alt cont"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Войти с другой учётной записью"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Prihlásiť sa iným účtom"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Logga in med ett annat konto"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Farklı bir hesapla giriş yap"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "Увійти з іншим обліковим записом"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "使用其他账号登录"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in with a different account"
+            "state" : "translated",
+            "value" : "使用其他帳號登入"
           }
         }
       }
@@ -2780,14 +2780,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Přihlásit se"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Log ind"
           }
         },
         "de" : {
@@ -2798,8 +2798,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Σύνδεση"
           }
         },
         "en" : {
@@ -2810,128 +2810,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Iniciar sesión"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Kirjaudu sisään"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Se connecter"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Prijava"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Bejelentkezés"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Accedi"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "サインイン"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "로그인"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Logg inn"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Aanmelden"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Zaloguj się"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Entrar"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Iniciar sessão"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Conectare"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Войти"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Prihlásiť sa"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Logga in"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Giriş yap"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "Увійти"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "登录"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Sign in"
+            "state" : "translated",
+            "value" : "登入"
           }
         }
       }
@@ -2942,14 +2942,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Kdo se dívá?"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Hvem ser med?"
           }
         },
         "de" : {
@@ -2960,8 +2960,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Ποιος παρακολουθεί;"
           }
         },
         "en" : {
@@ -2972,128 +2972,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "¿Quién está viendo?"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Kuka katsoo?"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Qui regarde ?"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Tko gleda?"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Ki néz?"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Chi sta guardando?"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "誰が観ますか？"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "누가 시청하나요?"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Hvem ser på?"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Wie kijkt er?"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Kto ogląda?"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Quem está assistindo?"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Quem está a ver?"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Cine se uită?"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Кто смотрит?"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Kto pozerá?"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Vem tittar?"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Kim izliyor?"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "Хто дивиться?"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "谁在观看？"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Who's watching?"
+            "state" : "translated",
+            "value" : "誰在觀看？"
           }
         }
       }
@@ -22444,14 +22444,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Outra automaticky přeskočit"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Spring outros over automatisk"
           }
         },
         "de" : {
@@ -22462,8 +22462,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Αυτόματη παράλειψη outro"
           }
         },
         "en" : {
@@ -22474,128 +22474,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Saltar outros automáticamente"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Ohita lopputekstit automaattisesti"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Sauter les outros automatiquement"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Automatski preskoči outro"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Outrók automatikus kihagyása"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Salta automaticamente i finali"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "アウトロを自動スキップ"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "아웃트로 자동 건너뛰기"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Hopp over outroer automatisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Outros automatisch overslaan"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Automatycznie pomijaj outra"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Pular finais automaticamente"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Saltar finais automaticamente"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Sări automat outro-urile"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Автопропуск концовок"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Automaticky preskočiť outro"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Hoppa över outros automatiskt"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Outroları otomatik atla"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "Автоматично пропускати кінцівки"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "自动跳过片尾"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Auto-skip outros"
+            "state" : "translated",
+            "value" : "自動跳過片尾"
           }
         }
       }
@@ -22606,14 +22606,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Při zjištění značky outra přeskočit titulky."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Spring forbi rulleteksterne, når outro-markøren registreres."
           }
         },
         "de" : {
@@ -22624,8 +22624,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Παράλειψη των τίτλων όταν εντοπιστεί ο δείκτης outro."
           }
         },
         "en" : {
@@ -22636,128 +22636,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Salta los créditos cuando se detecte el marcador del outro."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Ohita lopputekstit, kun outro-merkki havaitaan."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Saute le générique de fin lorsque le marqueur d'outro est détecté."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Preskoči odjavnu špicu kada se otkrije oznaka outra."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Ugorja át a stáblistát, amikor az outro-jelölés érzékelhető."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Salta i titoli di coda quando viene rilevato il marcatore di outro."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "アウトロマーカーが検出されたらクレジットをスキップします。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "아웃트로 마커가 감지되면 크레딧을 건너뜁니다."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Hopp forbi rulleteksten når outro-markøren oppdages."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Spring voorbij de aftiteling wanneer de outro-marker wordt gedetecteerd."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Pomiń napisy końcowe po wykryciu znacznika outra."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Pular os créditos quando o marcador de outro for detectado."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Saltar os créditos quando o marcador de outro for detetado."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Sare peste generic când este detectat marcajul de outro."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Пропустить титры при обнаружении метки концовки."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Pri zistení značky outra preskočiť titulky."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Hoppa över eftertexterna när outro-markören upptäcks."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Outro işaretçisi algılandığında jenerik atlanır."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "Пропустити титри, коли виявлено маркер кінцівки."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "检测到片尾标记时跳过演职员表。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Jump past the credits when the outro marker is detected."
+            "state" : "translated",
+            "value" : "偵測到片尾標記時跳過演職員表。"
           }
         }
       }
@@ -24379,14 +24379,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Vypnuto"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Fra"
           }
         },
         "de" : {
@@ -24397,8 +24397,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Ανενεργό"
           }
         },
         "en" : {
@@ -24409,128 +24409,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Desactivado"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Pois"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Désactivé"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Isključeno"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Ki"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Off"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "オフ"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "끔"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Av"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Uit"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Wyłączone"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Desativado"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Desativado"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Dezactivat"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Выкл."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Vypnuté"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Av"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Kapalı"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "Вимк."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "关闭"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Off"
+            "state" : "translated",
+            "value" : "關閉"
           }
         }
       }
@@ -24541,14 +24541,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabisk"
           }
         },
         "de" : {
@@ -24559,8 +24559,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Αραβικά"
           }
         },
         "en" : {
@@ -24571,128 +24571,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Árabe"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabia"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabe"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arapski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arab"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabo"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "アラビア語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "아랍어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabisch"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Árabe"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Árabe"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabă"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Арабский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arabiska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Arapça"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "Арабська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "阿拉伯语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Arabic"
+            "state" : "translated",
+            "value" : "阿拉伯語"
           }
         }
       }
@@ -24703,14 +24703,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Čeština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Tjekkisk"
           }
         },
         "de" : {
@@ -24721,8 +24721,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Τσεχικά"
           }
         },
         "en" : {
@@ -24733,128 +24733,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Checo"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Tšekki"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Tchèque"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Češki"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Cseh"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Ceco"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "チェコ語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "체코어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Tsjekkisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Tsjechisch"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Czeski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Tcheco"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Checo"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Cehă"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Чешский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Čeština"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Tjeckiska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Çekçe"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "Чеська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "捷克语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Czech"
+            "state" : "translated",
+            "value" : "捷克語"
           }
         }
       }
@@ -24865,14 +24865,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Dánština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Dansk"
           }
         },
         "de" : {
@@ -24883,8 +24883,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Δανικά"
           }
         },
         "en" : {
@@ -24895,128 +24895,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Danés"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Tanska"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Danois"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Danski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Dán"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Danese"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "デンマーク語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "덴마크어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Dansk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Deens"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Duński"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Dinamarquês"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Dinamarquês"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Daneză"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Датский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Dánčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Danska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Danca"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "Данська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "丹麦语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Danish"
+            "state" : "translated",
+            "value" : "丹麥語"
           }
         }
       }
@@ -25027,14 +25027,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Řečtina"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Græsk"
           }
         },
         "de" : {
@@ -25045,8 +25045,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Ελληνικά"
           }
         },
         "en" : {
@@ -25057,128 +25057,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Griego"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Kreikka"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Grec"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Grčki"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Görög"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Greco"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "ギリシャ語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "그리스어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Gresk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Grieks"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Grecki"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Grego"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Grego"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Greacă"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Греческий"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Gréčtina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Grekiska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Yunanca"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "Грецька"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "希腊语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Greek"
+            "state" : "translated",
+            "value" : "希臘語"
           }
         }
       }
@@ -25189,14 +25189,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finsk"
           }
         },
         "de" : {
@@ -25207,8 +25207,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Φινλανδικά"
           }
         },
         "en" : {
@@ -25219,128 +25219,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finés"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Suomi"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finnois"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finn"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finlandese"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "フィンランド語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "핀란드어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finsk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Fins"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Fiński"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finlandês"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finlandês"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finlandeză"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Финский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Fínčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Finska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Fince"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "Фінська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "芬兰语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Finnish"
+            "state" : "translated",
+            "value" : "芬蘭語"
           }
         }
       }
@@ -25351,14 +25351,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebrejština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebraisk"
           }
         },
         "de" : {
@@ -25369,8 +25369,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Εβραϊκά"
           }
         },
         "en" : {
@@ -25381,128 +25381,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebreo"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Heprea"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hébreu"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebrejski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Héber"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Ebraico"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "ヘブライ語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "히브리어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebraisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebreeuws"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebrajski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebraico"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebraico"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Ebraică"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Иврит"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebrejčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Hebreiska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "İbranice"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "Іврит"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "希伯来语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hebrew"
+            "state" : "translated",
+            "value" : "希伯來語"
           }
         }
       }
@@ -25513,13 +25513,13 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Hindština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
@@ -25531,8 +25531,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Χίντι"
           }
         },
         "en" : {
@@ -25543,128 +25543,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Hindski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "ヒンディー語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "힌디어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Híndi"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Híndi"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Хинди"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Hindčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Hindi"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Hintçe"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "Гінді"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "印地语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hindi"
+            "state" : "translated",
+            "value" : "印地語"
           }
         }
       }
@@ -25675,14 +25675,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Maďarština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Ungarsk"
           }
         },
         "de" : {
@@ -25693,8 +25693,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Ουγγρικά"
           }
         },
         "en" : {
@@ -25705,128 +25705,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Húngaro"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Unkari"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Hongrois"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Mađarski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Magyar"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Ungherese"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "ハンガリー語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "헝가리어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Ungarsk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Hongaars"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Węgierski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Húngaro"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Húngaro"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Maghiară"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Венгерский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Maďarčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Ungerska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Macarca"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "Угорська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "匈牙利语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Hungarian"
+            "state" : "translated",
+            "value" : "匈牙利語"
           }
         }
       }
@@ -25837,14 +25837,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonéština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonesisk"
           }
         },
         "de" : {
@@ -25855,8 +25855,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Ινδονησιακά"
           }
         },
         "en" : {
@@ -25867,128 +25867,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonesio"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonesia"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonésien"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonezijski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonéz"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonesiano"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "インドネシア語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "인도네시아어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonesisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonesisch"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonezyjski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonésio"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonésio"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indoneziană"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Индонезийский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonézština"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Indonesiska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Endonezce"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "Індонезійська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "印尼语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Indonesian"
+            "state" : "translated",
+            "value" : "印尼語"
           }
         }
       }
@@ -25999,14 +25999,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Korejština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Koreansk"
           }
         },
         "de" : {
@@ -26017,8 +26017,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Κορεατικά"
           }
         },
         "en" : {
@@ -26029,128 +26029,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Coreano"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Korea"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Coréen"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Korejski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Koreai"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Coreano"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "韓国語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "한국어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Koreansk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Koreaans"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Koreański"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Coreano"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Coreano"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Coreeană"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Корейский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Kórejčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Koreanska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Korece"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "Корейська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "韩语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Korean"
+            "state" : "translated",
+            "value" : "韓語"
           }
         }
       }
@@ -26161,14 +26161,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Nizozemština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Hollandsk"
           }
         },
         "de" : {
@@ -26179,8 +26179,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Ολλανδικά"
           }
         },
         "en" : {
@@ -26191,128 +26191,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Neerlandés"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Hollanti"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Néerlandais"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Nizozemski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Holland"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Olandese"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "オランダ語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "네덜란드어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Nederlandsk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Nederlands"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Niderlandzki"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Holandês"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Neerlandês"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Olandeză"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Нидерландский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Holandčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Nederländska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Felemenkçe"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "Нідерландська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "荷兰语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Dutch"
+            "state" : "translated",
+            "value" : "荷蘭語"
           }
         }
       }
@@ -26323,14 +26323,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norsk"
           }
         },
         "de" : {
@@ -26341,8 +26341,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Νορβηγικά"
           }
         },
         "en" : {
@@ -26353,128 +26353,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Noruego"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norja"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norvégien"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norveški"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norvég"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norvegese"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "ノルウェー語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "노르웨이어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norsk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Noors"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norweski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norueguês"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norueguês"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norvegiană"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Норвежский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Nórčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Norveççe"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "Норвезька"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "挪威语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Norwegian"
+            "state" : "translated",
+            "value" : "挪威語"
           }
         }
       }
@@ -26485,14 +26485,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polsk"
           }
         },
         "de" : {
@@ -26503,8 +26503,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Πολωνικά"
           }
         },
         "en" : {
@@ -26515,128 +26515,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polaco"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Puola"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polonais"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Poljski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Lengyel"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polacco"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "ポーランド語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "폴란드어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polsk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Pools"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polonês"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polaco"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Poloneză"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Польский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Poľština"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Polska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Lehçe"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "Польська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "波兰语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Polish"
+            "state" : "translated",
+            "value" : "波蘭語"
           }
         }
       }
@@ -26647,14 +26647,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugalština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugisisk"
           }
         },
         "de" : {
@@ -26665,8 +26665,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Πορτογαλικά"
           }
         },
         "en" : {
@@ -26677,128 +26677,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugués"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugali"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugais"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugalski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugál"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portoghese"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "ポルトガル語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "포르투갈어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugisisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugees"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugalski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Português"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Português"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugheză"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Португальский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugalčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portugisiska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Portekizce"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "Португальська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "葡萄牙语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Portuguese"
+            "state" : "translated",
+            "value" : "葡萄牙語"
           }
         }
       }
@@ -26809,14 +26809,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumunština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumænsk"
           }
         },
         "de" : {
@@ -26827,8 +26827,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Ρουμανικά"
           }
         },
         "en" : {
@@ -26839,128 +26839,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumano"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Romania"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Roumain"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumunjski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Román"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumeno"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "ルーマニア語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "루마니아어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumensk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Roemeens"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumuński"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Romeno"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Romeno"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Română"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Румынский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumunčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumänska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Rumence"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "Румунська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "罗马尼亚语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Romanian"
+            "state" : "translated",
+            "value" : "羅馬尼亞語"
           }
         }
       }
@@ -26971,14 +26971,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Ruština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Russisk"
           }
         },
         "de" : {
@@ -26989,8 +26989,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Ρωσικά"
           }
         },
         "en" : {
@@ -27001,128 +27001,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Ruso"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Venäjä"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Russe"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Ruski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Orosz"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Russo"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "ロシア語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "러시아어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Russisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Russisch"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Rosyjski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Russo"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Russo"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Rusă"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Русский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Ruština"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Ryska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Rusça"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "Російська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "俄语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Russian"
+            "state" : "translated",
+            "value" : "俄語"
           }
         }
       }
@@ -27133,14 +27133,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Švédština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Svensk"
           }
         },
         "de" : {
@@ -27151,8 +27151,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Σουηδικά"
           }
         },
         "en" : {
@@ -27163,128 +27163,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Sueco"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Ruotsi"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Suédois"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Švedski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Svéd"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Svedese"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "スウェーデン語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "스웨덴어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Svensk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Zweeds"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Szwedzki"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Sueco"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Sueco"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Suedeză"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Шведский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Švédčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Svenska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "İsveççe"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "Шведська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "瑞典语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Swedish"
+            "state" : "translated",
+            "value" : "瑞典語"
           }
         }
       }
@@ -27295,13 +27295,13 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Thajština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Thai"
           }
         },
@@ -27313,8 +27313,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Ταϊλανδικά"
           }
         },
         "en" : {
@@ -27325,128 +27325,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Tailandés"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Thai"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Thaï"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Tajlandski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Thai"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Tailandese"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "タイ語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "태국어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Thai"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Thais"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Tajski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Tailandês"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Tailandês"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Thailandeză"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Тайский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Thajčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Thai"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Tayca"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "Тайська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "泰语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Thai"
+            "state" : "translated",
+            "value" : "泰語"
           }
         }
       }
@@ -27457,14 +27457,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turečtina"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Tyrkisk"
           }
         },
         "de" : {
@@ -27475,8 +27475,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Τουρκικά"
           }
         },
         "en" : {
@@ -27487,128 +27487,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turco"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turkki"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turc"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Török"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turco"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "トルコ語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "터키어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Tyrkisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turks"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turecki"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turco"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turco"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turcă"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Турецкий"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turečtina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Turkiska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Türkçe"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "Турецька"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "土耳其语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Turkish"
+            "state" : "translated",
+            "value" : "土耳其語"
           }
         }
       }
@@ -27619,14 +27619,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukrajinština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukrainsk"
           }
         },
         "de" : {
@@ -27637,8 +27637,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ουκρανικά"
           }
         },
         "en" : {
@@ -27649,128 +27649,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ucraniano"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukraina"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukrainien"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukrajinski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukrán"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ucraino"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "ウクライナ語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "우크라이나어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukrainsk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Oekraïens"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukraiński"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ucraniano"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ucraniano"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ucraineană"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Украинский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukrajinčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukrainska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Ukraynaca"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "Українська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "乌克兰语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Ukrainian"
+            "state" : "translated",
+            "value" : "烏克蘭語"
           }
         }
       }
@@ -27781,14 +27781,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamština"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamesisk"
           }
         },
         "de" : {
@@ -27799,8 +27799,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Βιετναμικά"
           }
         },
         "en" : {
@@ -27811,128 +27811,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamita"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnam"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamien"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vijetnamski"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnami"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamita"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "ベトナム語"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "베트남어"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamesisk"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamees"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Wietnamski"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamita"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamita"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnameză"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Вьетнамский"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamčina"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamesiska"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "Vietnamca"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "В'єтнамська"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "越南语"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Vietnamese"
+            "state" : "translated",
+            "value" : "越南語"
           }
         }
       }
@@ -27943,14 +27943,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Titulky pro cizí jazyk"
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Undertekster ved fremmedsproget lyd"
           }
         },
         "de" : {
@@ -27961,8 +27961,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Υπότιτλοι για ξενόγλωσσο ήχο"
           }
         },
         "en" : {
@@ -27973,128 +27973,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Subtítulos para audio en otro idioma"
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Tekstitykset vieraskielisellä äänellä"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Sous-titres pour audio étranger"
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Titlovi za strani audio"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Felirat idegen nyelvű hanghoz"
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Sottotitoli per audio in lingua straniera"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "外国語音声に字幕を表示"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "외국어 오디오 자막"
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Undertekster ved fremmedspråklig lyd"
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Ondertitels bij vreemdtalige audio"
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Napisy do obcojęzycznego dźwięku"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Legendas para áudio em outro idioma"
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Legendas para áudio em língua estrangeira"
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Subtitrări pentru audio străin"
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Субтитры для иностранного аудио"
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Titulky pre cudzojazyčný zvuk"
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Undertexter vid främmande språk"
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Yabancı sesli içerikler için altyazı"
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "Субтитри для іншомовного аудіо"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "外语音轨的字幕"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Subtitles for foreign audio"
+            "state" : "translated",
+            "value" : "外語音軌的字幕"
           }
         }
       }
@@ -28105,14 +28105,14 @@
       "localizations" : {
         "cs" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Automaticky zobrazit titulky, pokud přehrávaný zvuk není ve vašem preferovaném jazyce."
           }
         },
         "da" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Vis automatisk undertekster, når den afspillende lyd ikke er på dit foretrukne sprog."
           }
         },
         "de" : {
@@ -28123,8 +28123,8 @@
         },
         "el" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Εμφανίζει αυτόματα τους υπότιτλους όταν ο αναπαραγόμενος ήχος δεν είναι στη γλώσσα προτίμησής σας."
           }
         },
         "en" : {
@@ -28135,128 +28135,128 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Muestra subtítulos automáticamente cuando el audio reproducido no está en tu idioma preferido."
           }
         },
         "fi" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Näyttää tekstitykset automaattisesti, kun toistettava ääniraita ei ole haluamallasi kielellä."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Affiche automatiquement les sous-titres lorsque la piste audio n'est pas dans votre langue préférée."
           }
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Automatski prikazuje titlove kada reproducirani audio nije na željenom jeziku."
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Automatikusan megjeleníti a feliratot, ha a lejátszott hangsáv nem a kedvenc nyelveden van."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Mostra automaticamente i sottotitoli quando l'audio in riproduzione non è nella tua lingua preferita."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "再生中のオーディオトラックが優先言語でない場合、字幕を自動表示します。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "재생 중인 오디오 트랙이 선호 언어가 아닐 때 자막을 자동 표시합니다."
           }
         },
         "nb" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Viser automatisk undertekster når avspillingsspråket ikke er ditt foretrukne språk."
           }
         },
         "nl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Toont automatisch ondertitels wanneer de afgespeelde audio niet in je voorkeurstaal is."
           }
         },
         "pl" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Automatycznie wyświetla napisy, gdy odtwarzany dźwięk nie jest w preferowanym języku."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Mostra legendas automaticamente quando o áudio reproduzido não está no seu idioma preferido."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Mostra legendas automaticamente quando o áudio reproduzido não está no seu idioma preferido."
           }
         },
         "ro" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Afișează automat subtitrările când pista audio redată nu este în limba preferată."
           }
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Автоматически показывать субтитры, когда воспроизводимая дорожка не на предпочитаемом языке."
           }
         },
         "sk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Automaticky zobraziť titulky, keď prehrávaný zvuk nie je vo vašom preferovanom jazyku."
           }
         },
         "sv" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Visar automatiskt undertexter när det uppspelade ljudspåret inte är på ditt föredragna språk."
           }
         },
         "tr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Çalan ses parçası tercih ettiğin dilde değilse altyazıları otomatik gösterir."
           }
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "Автоматично показувати субтитри, коли аудіодоріжка не вашою мовою."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "当播放的音频不是您偏好的语言时，自动显示字幕。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Automatically show subtitles when the playing audio track isn't in your preferred language."
+            "state" : "translated",
+            "value" : "當播放的音訊不是您偏好的語言時，自動顯示字幕。"
           }
         }
       }
