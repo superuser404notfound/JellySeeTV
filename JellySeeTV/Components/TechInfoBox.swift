@@ -1,7 +1,20 @@
 import SwiftUI
 
+/// Collects per-card heights via PreferenceKey so every TechCard in a
+/// horizontal strip can size itself to the tallest sibling — no clip,
+/// no ragged heights. Reduce picks the max so the preference bubbles
+/// up the tallest intrinsic size from the children.
+private struct TechCardMaxHeightKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 struct TechInfoBox: View {
     let item: JellyfinItem
+
+    @State private var maxCardHeight: CGFloat = 0
 
     private var videoStream: MediaStream? {
         item.mediaStreams?.first { $0.type == .video }
@@ -27,7 +40,7 @@ struct TechInfoBox: View {
                 .padding(.horizontal, 50)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
+                HStack(alignment: .top, spacing: 16) {
                     if let video = videoStream { videoCard(video) }
                     if let audio = audioStreams.first { audioCard(audio) }
                     if let source = mediaSource { fileCard(source) }
@@ -37,12 +50,18 @@ struct TechInfoBox: View {
                 .padding(.vertical, 12)
             }
         }
+        .onPreferenceChange(TechCardMaxHeightKey.self) { newValue in
+            // Grow-only: once we've seen the tallest card, stick with
+            // that height so cards that repopulate with fewer rows
+            // don't cause the whole strip to shrink mid-scroll.
+            if newValue > maxCardHeight { maxCardHeight = newValue }
+        }
     }
 
     // MARK: - Video
 
     private func videoCard(_ video: MediaStream) -> some View {
-        TechCard(icon: "film", title: "detail.tech.video") {
+        TechCard(icon: "film", title: "detail.tech.video", height: maxCardHeight) {
             if let w = video.width, let h = video.height {
                 TechRow(label: "detail.tech.resolution", value: "\(w)×\(h)")
             }
@@ -62,7 +81,7 @@ struct TechInfoBox: View {
     // MARK: - Audio
 
     private func audioCard(_ audio: MediaStream) -> some View {
-        TechCard(icon: "speaker.wave.2", title: "detail.tech.audio") {
+        TechCard(icon: "speaker.wave.2", title: "detail.tech.audio", height: maxCardHeight) {
             if let codec = audio.codec?.uppercased() {
                 TechRow(label: "detail.tech.codec", value: codec)
             }
@@ -81,7 +100,7 @@ struct TechInfoBox: View {
     // MARK: - File
 
     private func fileCard(_ source: MediaSource) -> some View {
-        TechCard(icon: "doc", title: "detail.tech.file") {
+        TechCard(icon: "doc", title: "detail.tech.file", height: maxCardHeight) {
             if let container = source.container?.uppercased() {
                 TechRow(label: "detail.tech.format", value: container)
             }
@@ -100,7 +119,7 @@ struct TechInfoBox: View {
     // MARK: - Subtitles
 
     private func subtitleCard() -> some View {
-        TechCard(icon: "captions.bubble", title: "detail.tech.subtitles") {
+        TechCard(icon: "captions.bubble", title: "detail.tech.subtitles", height: maxCardHeight) {
             TechRow(label: "detail.tech.tracks", value: "\(subtitleStreams.count)")
 
             ForEach(subtitleStreams.prefix(4)) { sub in
@@ -153,6 +172,11 @@ struct TechInfoBox: View {
 struct TechCard<Content: View>: View {
     let icon: String
     let title: LocalizedStringKey
+    /// Shared height pulled from the parent's PreferenceKey. 0 on the
+    /// first layout pass — the inner `.frame(height: nil)` lets the
+    /// card size to its natural content so the preference can report
+    /// back. Second pass uses the measured maximum.
+    let height: CGFloat
     @ViewBuilder let content: () -> Content
 
     @FocusState private var isFocused: Bool
@@ -166,7 +190,20 @@ struct TechCard<Content: View>: View {
             content()
         }
         .padding(24)
-        .frame(width: 380, height: 260, alignment: .topLeading)
+        .frame(width: 380, alignment: .topLeading)
+        .background(
+            GeometryReader { geo in
+                // Report this card's natural laid-out height upward —
+                // the parent collects the max and feeds it back via
+                // the `height` parameter so every card renders at the
+                // tallest sibling's size.
+                Color.clear.preference(
+                    key: TechCardMaxHeightKey.self,
+                    value: geo.size.height
+                )
+            }
+        )
+        .frame(height: height > 0 ? height : nil, alignment: .topLeading)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(isFocused ? .white.opacity(0.1) : .white.opacity(0.05))
