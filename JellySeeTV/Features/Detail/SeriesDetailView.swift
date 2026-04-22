@@ -21,16 +21,13 @@ struct SeriesDetailView: View {
     /// scrolls back up — without it, tvOS lands on whichever tab is
     /// geographically above the last focused episode, which may be
     /// two seasons away from what's actually being shown.
-    /// True while focus is somewhere inside the season bar. Drives
-    /// the selective-focusability trick that kills the focus-snap
-    /// problem at its root: when focus is *outside* the bar, only
-    /// the currently-selected season's tab is focusable, so any
-    /// up-swipe from the episode row has no choice but to land on
-    /// it. Flipped to true by the season-bar onChange the moment
-    /// focus arrives, which makes every other tab focusable again
-    /// so the user can left/right-navigate between seasons
-    /// normally. Flipped back to false when focus leaves the bar.
-    @State private var inSeasonBar = false
+    /// Fallback trampoline for when the `focusScope` +
+    /// `prefersDefaultFocus` hint doesn't catch a re-entry — we park
+    /// the target here and a separate onChange applies the focus
+    /// write on the next SwiftUI update tick (same-cycle writes get
+    /// silently dropped by tvOS).
+    @State private var pendingSeasonFocus: String?
+    @Namespace private var seasonBarScope
 
     let item: JellyfinItem
 
@@ -300,17 +297,16 @@ struct SeriesDetailView: View {
                                 }
                             )
                             .id(season.id)
-                            // The heart of the fix: tabs other than
-                            // the current season are un-focusable
-                            // until focus is already inside the bar.
-                            // tvOS's focus engine therefore has only
-                            // one valid target to pick when the user
-                            // swipes up from episodes, no matter how
-                            // the geometry lines up — and there's no
-                            // redirect logic to race against.
-                            .focusable(
-                                inSeasonBar
-                                    || vm.selectedSeasonID == season.id
+                            // Tell the focus engine that the currently-
+                            // playing season's tab is the preferred
+                            // target when focus enters this scope —
+                            // kills the 1–2 frame flash where tvOS's
+                            // geographic picker would briefly focus the
+                            // wrong tab before our redirect snapped it
+                            // back.
+                            .prefersDefaultFocus(
+                                vm.selectedSeasonID == season.id,
+                                in: seasonBarScope
                             )
                         }
                     }
@@ -320,12 +316,31 @@ struct SeriesDetailView: View {
                     .padding(.horizontal, 50)
                     .padding(.vertical, 12)
                 }
-                .onChange(of: focusedSeasonID) { _, newID in
-                    inSeasonBar = newID != nil
-                    if let newID {
-                        withAnimation { proxy.scrollTo(newID, anchor: .center) }
-                        episodeRedirectDone = false
+                .focusScope(seasonBarScope)
+                .onChange(of: focusedSeasonID) { oldID, newID in
+                    guard let newID else { return }
+
+                    // Fallback: if prefersDefaultFocus didn't catch this
+                    // re-entry (Apple only guarantees first-entry
+                    // behaviour on some tvOS builds), snap to the
+                    // correct tab. oldID == nil means focus just came
+                    // in from outside the bar — the only moment we
+                    // need to override. Genuine tab-to-tab navigation
+                    // has oldID != nil and is left alone.
+                    if oldID == nil, newID != vm.selectedSeasonID {
+                        let target = vm.selectedSeasonID
+                        withAnimation { proxy.scrollTo(target, anchor: .center) }
+                        pendingSeasonFocus = target
+                        return
                     }
+
+                    withAnimation { proxy.scrollTo(newID, anchor: .center) }
+                    episodeRedirectDone = false
+                }
+                .onChange(of: pendingSeasonFocus) { _, target in
+                    guard let target else { return }
+                    focusedSeasonID = target
+                    pendingSeasonFocus = nil
                 }
                 .onChange(of: vm.selectedSeasonID) { _, newID in
                     episodeRedirectDone = false
