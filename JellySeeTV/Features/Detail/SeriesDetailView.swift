@@ -454,23 +454,16 @@ struct SeasonTab: View {
 
     var body: some View {
         Button { action() } label: {
-            VStack(spacing: 6) {
-                Text(name)
-                    .font(.subheadline)
-                    .fontWeight(isSelected ? .bold : .regular)
-                    .foregroundStyle(isSelected ? .primary : .secondary)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(isSelected ? Color.accentColor : .clear)
-                    .frame(height: 3)
-                    .padding(.horizontal, 12)
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(tabBackground)
-            )
+            Text(name)
+                .font(.subheadline)
+                .fontWeight(isSelected ? .bold : .regular)
+                .foregroundStyle(isSelected ? .primary : .secondary)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(tabBackground)
+                )
         }
         .buttonStyle(SeasonTabButtonStyle())
         .focused(focusedID, equals: id)
