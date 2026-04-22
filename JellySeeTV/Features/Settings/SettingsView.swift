@@ -24,14 +24,8 @@ struct SettingsView: View {
 
     private var profileHeader: some View {
         VStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 100, height: 100)
-                Text(initials)
-                    .font(.system(size: 36, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.primary)
-            }
+            avatar
+                .frame(width: 120, height: 120)
 
             HStack(spacing: 10) {
                 Text(appState.activeUser?.name ?? "")
@@ -54,6 +48,38 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    /// User avatar — loads from the Jellyfin server when a
+    /// `primaryImageTag` is set, falls back to initials otherwise.
+    /// Same treatment as the UserPicker card so the user recognises
+    /// themselves consistently across the app.
+    @ViewBuilder
+    private var avatar: some View {
+        if let user = appState.activeUser,
+           let url = dependencies.jellyfinImageService.userProfileImageURL(
+               userID: user.id,
+               tag: user.primaryImageTag
+           ) {
+            AsyncCachedImage(url: url) { image in
+                image.resizable().aspectRatio(contentMode: .fill)
+            } placeholder: {
+                initialsCircle
+            }
+            .clipShape(Circle())
+        } else {
+            initialsCircle
+        }
+    }
+
+    private var initialsCircle: some View {
+        ZStack {
+            Circle()
+                .fill(.ultraThinMaterial)
+            Text(initials)
+                .font(.system(size: 44, weight: .semibold, design: .rounded))
+                .foregroundStyle(.primary)
+        }
     }
 
     private var initials: String {

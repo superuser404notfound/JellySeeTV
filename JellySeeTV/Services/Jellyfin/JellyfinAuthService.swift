@@ -5,6 +5,7 @@ protocol JellyfinAuthServiceProtocol: Sendable {
     func initiateQuickConnect() async throws -> QuickConnectInitResponse
     func checkQuickConnect(secret: String) async throws -> Bool
     func authenticateWithQuickConnect(secret: String) async throws -> JellyfinAuthResponse
+    func getPublicUsers() async throws -> [JellyfinUser]
 }
 
 final class JellyfinAuthService: JellyfinAuthServiceProtocol {
@@ -40,6 +41,17 @@ final class JellyfinAuthService: JellyfinAuthServiceProtocol {
         try await client.request(
             endpoint: JellyfinEndpoint.quickConnectAuthenticate(secret: secret),
             responseType: JellyfinAuthResponse.self
+        )
+    }
+
+    /// Returns the list of user accounts visible on the server's login
+    /// screen. Servers with "Show users on login screen" disabled (or
+    /// pre-10.x) return an empty array — callers should fall back to a
+    /// manual username field in that case.
+    func getPublicUsers() async throws -> [JellyfinUser] {
+        try await client.request(
+            endpoint: JellyfinEndpoint.publicUsers,
+            responseType: [JellyfinUser].self
         )
     }
 }

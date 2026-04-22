@@ -30,12 +30,19 @@ final class LoginViewModel {
 
     init(
         server: JellyfinServer,
+        preSelectedUser: JellyfinUser? = nil,
         dependencies: DependencyContainer
     ) {
         self.server = server
         self.authService = dependencies.jellyfinAuthService
         self.keychainService = dependencies.keychainService
         self.dependencies = dependencies
+        // Pre-fill the username when the caller already picked a user
+        // from the `/Users/Public` list — avoids re-typing and leaves
+        // the password field as the only thing left to touch.
+        if let preSelectedUser {
+            self.username = preSelectedUser.name
+        }
         dependencies.jellyfinClient.baseURL = server.url
     }
 

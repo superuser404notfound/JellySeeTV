@@ -58,7 +58,7 @@ struct ServerDiscoveryView: View {
                     .frame(maxWidth: 500)
                     .navigationDestination(isPresented: Bindable(vm).showLogin) {
                         if let server = vm.discoveredServer {
-                            LoginView(server: server)
+                            UserPickerView(server: server)
                         }
                     }
                 }

@@ -90,6 +90,15 @@ final class JellyfinImageService {
         return URL(string: "\(base)/Items/\(personID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90")
     }
 
+    /// User avatar (`/Users/{id}/Images/Primary`). Differs from
+    /// `imageURL(itemID:…)` in the URL prefix — items live under
+    /// `/Items`, users under `/Users`. Returns nil when the user has
+    /// no profile picture set so the UI can fall back to initials.
+    func userProfileImageURL(userID: String, tag: String?, maxWidth: Int = 240) -> URL? {
+        guard let base = baseURL(), let tag else { return nil }
+        return URL(string: "\(base)/Users/\(userID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90")
+    }
+
     func studioLogoURL(studioName: String, maxWidth: Int = 400) -> URL? {
         guard let base = baseURL() else { return nil }
         let encoded = studioName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? studioName

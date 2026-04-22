@@ -3,6 +3,7 @@ import Foundation
 enum JellyfinEndpoint: APIEndpoint {
     // Server
     case publicInfo
+    case publicUsers
 
     // Auth
     case authenticateByName(username: String, password: String)
@@ -49,6 +50,8 @@ enum JellyfinEndpoint: APIEndpoint {
         switch self {
         case .publicInfo:
             "/System/Info/Public"
+        case .publicUsers:
+            "/Users/Public"
         case .authenticateByName:
             "/Users/AuthenticateByName"
         case .quickConnectInitiate:
@@ -213,7 +216,7 @@ enum JellyfinEndpoint: APIEndpoint {
 
     var requiresAuth: Bool {
         switch self {
-        case .publicInfo, .authenticateByName, .quickConnectInitiate, .quickConnectCheck:
+        case .publicInfo, .publicUsers, .authenticateByName, .quickConnectInitiate, .quickConnectCheck:
             false
         default:
             true
