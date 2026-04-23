@@ -26,8 +26,25 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
-    nonisolated init(session: URLSession = .shared) {
-        self.session = session
+    nonisolated init(session: URLSession? = nil) {
+        // Cookie handling is done manually by each client (Seerr sets
+        // connect.sid, Jellyfin uses header-based auth). If we let
+        // URLSession.shared auto-persist cookies in HTTPCookieStorage,
+        // a stale connect.sid from an expired Seerr session keeps
+        // getting attached to every request — including the fresh
+        // /auth/jellyfin POST — which Seerr then rejects with 401
+        // before looking at the credentials. Using a dedicated session
+        // with cookies disabled keeps our manual header the single
+        // source of truth.
+        if let session {
+            self.session = session
+        } else {
+            let config = URLSessionConfiguration.default
+            config.httpCookieAcceptPolicy = .never
+            config.httpShouldSetCookies = false
+            config.httpCookieStorage = nil
+            self.session = URLSession(configuration: config)
+        }
 
         self.encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
