@@ -207,7 +207,18 @@ struct UserPickerView: View {
         // host.
         dependencies.jellyfinClient.baseURL = server.url
         do {
-            users = try await dependencies.jellyfinAuthService.getPublicUsers()
+            let fetched = try await dependencies.jellyfinAuthService.getPublicUsers()
+            // Hide profiles that are already remembered for this
+            // server — re-adding them would just overwrite the same
+            // entry, which is confusing when the user explicitly
+            // came here to *add another* profile. On first-time
+            // login the remembered list is empty so this is a
+            // no-op. A user who wants to re-authenticate a stale
+            // token can forget the profile first (long-press).
+            let remembered = Set(
+                dependencies.listRememberedUsers(serverID: server.id).map(\.id)
+            )
+            users = fetched.filter { !remembered.contains($0.id) }
         } catch {
             errorMessage = error.localizedDescription
         }
