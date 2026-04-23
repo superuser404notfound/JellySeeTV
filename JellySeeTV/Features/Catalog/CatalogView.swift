@@ -65,7 +65,7 @@ struct CatalogView: View {
     }
 
     private var notConnectedState: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 24) {
             Image(systemName: "tray.and.arrow.down")
                 .font(.system(size: 60))
                 .foregroundStyle(.secondary)
@@ -76,6 +76,29 @@ struct CatalogView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 600)
+
+            // Quick-jump into the Seerr setup flow so first-time
+            // users aren't left staring at an empty state with no
+            // obvious path forward. Pushed inside the Catalog's own
+            // NavigationStack — tapping back returns to the tab.
+            NavigationLink {
+                SeerrSettingsView()
+                    .toolbar(.hidden, for: .tabBar)
+            } label: {
+                Label {
+                    Text(String(
+                        localized: "catalog.empty.noServer.setup",
+                        defaultValue: "Set up Seerr"
+                    ))
+                } icon: {
+                    Image(systemName: "arrow.right.circle")
+                }
+                .font(.body)
+                .fontWeight(.medium)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 16)
+            }
+            .padding(.top, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(40)
