@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum AppTab: String, CaseIterable, Sendable {
     case home
@@ -27,6 +28,16 @@ enum AppTab: String, CaseIterable, Sendable {
 
 struct TabRootView: View {
     @State private var selectedTab: AppTab = .home
+    @Environment(\.dependencies) private var dependencies
+
+    /// Resolved accent color for the tab-bar icons. Falls back to the
+    /// asset-catalog accent when the user is on `.system`, so the icons
+    /// never render as plain white.
+    private var iconColor: Color {
+        dependencies.appearancePreferences.effectiveTint(
+            isSupporter: dependencies.storeKitService.isSupporter
+        ) ?? Color.accentColor
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -34,19 +45,29 @@ struct TabRootView: View {
                 Tab(value: tab) {
                     tabContent(for: tab)
                 } label: {
-                    // Explicit icon tint so the top tab-bar symbol picks up
-                    // the active accent color instead of rendering in the
-                    // monochrome system default. Inherits the global
-                    // `.tint(...)` set on the WindowGroup.
                     Label {
                         Text(tab.labelKey)
                     } icon: {
-                        Image(systemName: tab.systemImage)
-                            .foregroundStyle(.tint)
+                        // tvOS re-tints SF Symbols inside Tab labels,
+                        // ignoring SwiftUI's .foregroundStyle. Baking the
+                        // color into a UIImage with .alwaysOriginal is
+                        // the only rendering mode the tab bar respects.
+                        tabIcon(name: tab.systemImage, color: iconColor)
                     }
                 }
             }
         }
+    }
+
+    private func tabIcon(name: String, color: Color) -> Image {
+        guard let base = UIImage(systemName: name) else {
+            return Image(systemName: name)
+        }
+        let tinted = base.withTintColor(
+            UIColor(color),
+            renderingMode: .alwaysOriginal
+        )
+        return Image(uiImage: tinted)
     }
 
     @ViewBuilder
