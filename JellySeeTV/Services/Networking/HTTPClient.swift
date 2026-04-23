@@ -43,6 +43,20 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
             config.httpCookieAcceptPolicy = .never
             config.httpShouldSetCookies = false
             config.httpCookieStorage = nil
+
+            // No response caching for API traffic. URLSession's
+            // default shared cache is disk-backed, so a Jellyfin
+            // response to /Items/Latest or /Users/{id}/Items that
+            // came back with a permissive Cache-Control header
+            // would continue serving stale data across app
+            // restarts — newly added movies and episodes stayed
+            // invisible until the cache naturally evicted. Blob
+            // sizes for JSON are small; always hitting the network
+            // is the right tradeoff for a "feels current"
+            // experience. Image caching lives in AsyncCachedImage
+            // on a separate session and is unaffected.
+            config.urlCache = nil
+            config.requestCachePolicy = .reloadIgnoringLocalCacheData
             self.session = URLSession(configuration: config)
         }
 
