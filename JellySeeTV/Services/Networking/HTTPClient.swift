@@ -86,27 +86,10 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
         case 200...299:
             return (data, httpResponse)
         case 401:
-            throw APIError.unauthorized(message: Self.extractErrorMessage(from: data))
+            throw APIError.unauthorized(message: APIError.extractErrorMessage(from: data))
         default:
             throw APIError.httpError(statusCode: httpResponse.statusCode, data: data)
         }
-    }
-
-    /// Best-effort decode of a Jellyseerr/Jellyfin JSON error body.
-    /// Returns the `message` or `error` field as plain text, falling
-    /// back to a truncated raw body so the user at least sees what
-    /// the server said instead of a generic "Authentication required".
-    private static func extractErrorMessage(from data: Data) -> String? {
-        guard !data.isEmpty else { return nil }
-        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let message = (json["message"] as? String) ?? (json["error"] as? String),
-           !message.isEmpty {
-            return message
-        }
-        let trimmed = String(data: data, encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let trimmed, !trimmed.isEmpty else { return nil }
-        return String(trimmed.prefix(200))
     }
 
     private func buildRequest(

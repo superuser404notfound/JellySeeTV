@@ -442,24 +442,8 @@ struct SeerrSettingsView: View {
             // attempt would fail with "invalid URL" before even reaching
             // the server.
             dependencies.seerrClient.sessionCookie = nil
-            loginError = seerrErrorMessage(from: error)
+            loginError = error.localizedDescription
         }
-    }
-
-    private func seerrErrorMessage(from error: Error) -> String {
-        // Surface the server's message body so failed /auth/jellyfin calls
-        // tell the user *why* (e.g. "Media server has not been set up yet",
-        // "Incorrect credentials") rather than a generic "Server error (500)".
-        if case APIError.httpError(let statusCode, let data) = error,
-           let data, let body = String(data: data, encoding: .utf8), !body.isEmpty {
-            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let message = (json["message"] as? String) ?? (json["error"] as? String) {
-                return "HTTP \(statusCode) · \(message)"
-            }
-            let trimmed = body.prefix(200)
-            return "HTTP \(statusCode) · \(trimmed)"
-        }
-        return error.localizedDescription
     }
 
     private func logout() async {
