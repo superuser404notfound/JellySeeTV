@@ -35,7 +35,8 @@ struct SettingsView: View {
                 if dependencies.storeKitService.isSupporter {
                     Image("PremiumBadge")
                         .resizable()
-                        .frame(width: 24, height: 24)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 44, height: 44)
                         .accessibilityLabel(Text(String(
                             localized: "support.pack.unlocked",
                             defaultValue: "Unlocked"
