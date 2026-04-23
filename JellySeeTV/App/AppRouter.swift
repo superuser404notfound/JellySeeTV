@@ -11,10 +11,19 @@ struct AppRouter: View {
     /// the player would show the launch splash again.
     @State private var hasRestored = false
 
+    /// Non-nil while the launch-time profile picker is armed: the
+    /// restore found a valid session + at least one remembered
+    /// profile, and the user either set launchBehavior=.showPicker
+    /// or has no default profile pinned. Picking a profile flips
+    /// isAuthenticated=true which hides the picker automatically.
+    @State private var launchPickerServer: JellyfinServer?
+
     var body: some View {
         ZStack {
             if appState.isAuthenticated {
                 TabRootView()
+            } else if let server = launchPickerServer {
+                LaunchProfilePickerView(server: server)
             } else {
                 ServerDiscoveryView()
             }
@@ -77,14 +86,54 @@ struct AppRouter: View {
         // primaryImageTag is optional in the keychain — users without
         // a custom avatar never had one persisted. Missing = initials.
         let imageTag = try? dependencies.keychainService.loadString(for: "activeUserImageTag")
-        let user = JellyfinUser(
+        let restored = JellyfinUser(
             id: userID,
             name: userName,
             serverID: server.id,
             hasPassword: nil,
             primaryImageTag: imageTag
         )
-        appState.setAuthenticated(server: server, user: user)
+
+        // Multi-profile routing. Four possible outcomes:
+        //
+        // - .useDefault + defaultUserID points at a remembered
+        //   profile → restore that one (switchToUser if it differs
+        //   from the last-active one).
+        // - .showPicker + remembered profiles exist → arm the
+        //   launch picker; don't setAuthenticated yet.
+        // - Launch mode says "default" but the default is missing /
+        //   was forgotten → fall back to the picker if we have
+        //   something to pick from.
+        // - Single-profile install or nothing remembered → the
+        //   original behavior: restore and auto-enter the app.
+        let remembered = dependencies.listRememberedUsers(serverID: server.id)
+        let prefs = dependencies.authPreferences
+
+        let shouldUseDefault = prefs.launchBehavior == .useDefault
+            && prefs.defaultUserID.flatMap { id in remembered.first { $0.id == id } } != nil
+
+        if shouldUseDefault,
+           let defaultID = prefs.defaultUserID,
+           let target = remembered.first(where: { $0.id == defaultID }) {
+            if target.id != userID {
+                try? dependencies.switchToUser(target, server: server)
+            }
+            let user = JellyfinUser(
+                id: target.id,
+                name: target.name,
+                serverID: server.id,
+                hasPassword: nil,
+                primaryImageTag: target.imageTag
+            )
+            appState.setAuthenticated(server: server, user: user)
+        } else if !remembered.isEmpty {
+            launchPickerServer = server
+            // Fall through — Seerr restore is independent of which
+            // Jellyfin profile ends up active and we want that state
+            // ready by the time the user taps a profile.
+        } else {
+            appState.setAuthenticated(server: server, user: restored)
+        }
 
         if let seerrServer = dependencies.restoreSeerrSession() {
             if let seerrUser = try? await dependencies.seerrAuthService.currentUser() {
