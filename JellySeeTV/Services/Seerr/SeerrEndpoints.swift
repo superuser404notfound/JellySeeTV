@@ -16,7 +16,7 @@ enum SeerrEndpoint: APIEndpoint {
     case tvDetail(tmdbID: Int)
 
     case createRequest(body: SeerrCreateRequestBody)
-    case myRequests(take: Int, skip: Int)
+    case myRequests(userID: Int, take: Int, skip: Int)
 
     case radarrServers
     case radarrDetails(serverID: Int)
@@ -63,13 +63,16 @@ enum SeerrEndpoint: APIEndpoint {
                 URLQueryItem(name: "page", value: String(page)),
             ]
 
-        case .myRequests(let take, let skip):
+        case .myRequests(let userID, let take, let skip):
             return [
                 URLQueryItem(name: "take", value: String(take)),
                 URLQueryItem(name: "skip", value: String(skip)),
                 URLQueryItem(name: "filter", value: "all"),
                 URLQueryItem(name: "sort", value: "added"),
-                URLQueryItem(name: "requestedBy", value: "me"),
+                // Jellyseerr's requestedBy filter compares against an
+                // integer user ID directly — "me" was a bad guess that
+                // silently matched zero requests on every call.
+                URLQueryItem(name: "requestedBy", value: String(userID)),
             ]
 
         default:

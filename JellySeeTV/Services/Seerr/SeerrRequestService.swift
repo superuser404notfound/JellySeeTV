@@ -10,7 +10,7 @@ protocol SeerrRequestServiceProtocol: Sendable {
         rootFolder: String?,
         languageProfileID: Int?
     ) async throws -> SeerrRequest
-    func myRequests(take: Int, skip: Int) async throws -> SeerrRequestsResult
+    func myRequests(userID: Int, take: Int, skip: Int) async throws -> SeerrRequestsResult
 }
 
 @MainActor
@@ -45,9 +45,9 @@ final class SeerrRequestService: SeerrRequestServiceProtocol {
         )
     }
 
-    func myRequests(take: Int = 50, skip: Int = 0) async throws -> SeerrRequestsResult {
+    func myRequests(userID: Int, take: Int = 50, skip: Int = 0) async throws -> SeerrRequestsResult {
         try await client.request(
-            endpoint: SeerrEndpoint.myRequests(take: take, skip: skip),
+            endpoint: SeerrEndpoint.myRequests(userID: userID, take: take, skip: skip),
             responseType: SeerrRequestsResult.self
         )
     }

@@ -9,6 +9,12 @@ final class HomeViewModel {
     var rowConfigs: [HomeRowConfig] = []
     var needsReload = false
 
+    /// Timestamp of the last successful loadContent(). Used by the
+    /// view's onAppear to decide whether enough time has passed to
+    /// refresh — otherwise new server-side content (Latest Movies,
+    /// Latest Series, etc.) never shows up until the app restarts.
+    var lastLoadedAt: Date?
+
     private let libraryService: JellyfinLibraryServiceProtocol
     private let imageService: JellyfinImageService
     private let userID: String
@@ -66,6 +72,7 @@ final class HomeViewModel {
             rows = newRows
             tagRows = newTagRows
             isLoading = false
+            lastLoadedAt = .now
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false

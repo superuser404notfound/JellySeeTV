@@ -46,9 +46,12 @@ struct CatalogView: View {
         }
         .onAppear(perform: bootstrap)
         .onChange(of: selectedSection) { _, newValue in
-            if newValue == .myRequests, let vm = viewModel, vm.myRequests.isEmpty {
-                Task { await vm.loadMyRequests() }
-            }
+            guard newValue == .myRequests,
+                  let vm = viewModel,
+                  vm.myRequests.isEmpty,
+                  let userID = appState.activeSeerrUser?.id
+            else { return }
+            Task { await vm.loadMyRequests(userID: userID) }
         }
     }
 

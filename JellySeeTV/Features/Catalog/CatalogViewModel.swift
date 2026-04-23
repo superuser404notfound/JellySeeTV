@@ -102,13 +102,17 @@ final class CatalogViewModel {
         }
     }
 
-    func loadMyRequests() async {
+    func loadMyRequests(userID: Int) async {
         isLoadingRequests = true
         errorMessage = nil
         defer { isLoadingRequests = false }
 
         do {
-            let result = try await requestService.myRequests(take: 50, skip: 0)
+            let result = try await requestService.myRequests(
+                userID: userID,
+                take: 50,
+                skip: 0
+            )
             myRequests = result.results
         } catch {
             errorMessage = error.localizedDescription

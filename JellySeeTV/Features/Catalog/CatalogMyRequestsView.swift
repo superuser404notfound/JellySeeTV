@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CatalogMyRequestsView: View {
+    @Environment(\.appState) private var appState
     @Bindable var viewModel: CatalogViewModel
 
     var body: some View {
@@ -8,6 +9,8 @@ struct CatalogMyRequestsView: View {
             if viewModel.isLoadingRequests && viewModel.myRequests.isEmpty {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let error = viewModel.errorMessage, viewModel.myRequests.isEmpty {
+                errorState(message: error)
             } else if viewModel.myRequests.isEmpty {
                 emptyState
             } else {
@@ -32,6 +35,25 @@ struct CatalogMyRequestsView: View {
             Text("catalog.empty.noRequests")
                 .font(.headline)
                 .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func errorState(message: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundStyle(.secondary)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 600)
+            Button("home.retry") {
+                guard let userID = appState.activeSeerrUser?.id else { return }
+                Task { await viewModel.loadMyRequests(userID: userID) }
+            }
+            .padding(.top, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

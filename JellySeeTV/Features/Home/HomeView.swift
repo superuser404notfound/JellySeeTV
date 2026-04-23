@@ -7,6 +7,10 @@ struct HomeView: View {
     @State private var selectedItem: JellyfinItem?
     @State private var selectedFilter: FilterDestination?
 
+    /// How long the home feed is considered fresh before a revisit
+    /// triggers an automatic reload.
+    private static let refreshStaleSeconds: TimeInterval = 60
+
     var body: some View {
         NavigationStack {
             Group {
@@ -51,6 +55,14 @@ struct HomeView: View {
                 Task { await viewModel?.loadContent() }
             } else if viewModel?.needsReload == true {
                 viewModel?.needsReload = false
+                Task { await viewModel?.loadContent() }
+            } else if let last = viewModel?.lastLoadedAt,
+                      Date().timeIntervalSince(last) > Self.refreshStaleSeconds {
+                // Pick up new server-side content (Latest Movies,
+                // Latest Series, …) when the user comes back to Home
+                // after a while. 60 s is tight enough that fresh
+                // additions show up quickly and loose enough that
+                // rapid tab-hopping doesn't spam the server.
                 Task { await viewModel?.loadContent() }
             }
         }
