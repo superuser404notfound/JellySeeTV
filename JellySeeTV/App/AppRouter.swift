@@ -74,12 +74,15 @@ struct AppRouter: View {
             return
         }
 
+        // primaryImageTag is optional in the keychain — users without
+        // a custom avatar never had one persisted. Missing = initials.
+        let imageTag = try? dependencies.keychainService.loadString(for: "activeUserImageTag")
         let user = JellyfinUser(
             id: userID,
             name: userName,
             serverID: server.id,
             hasPassword: nil,
-            primaryImageTag: nil
+            primaryImageTag: imageTag
         )
         appState.setAuthenticated(server: server, user: user)
 

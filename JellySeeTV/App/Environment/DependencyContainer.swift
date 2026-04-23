@@ -89,6 +89,17 @@ final class DependencyContainer {
         try keychainService.save(user.id, for: KeychainKeys.userID(serverID: server.id))
         try keychainService.save(user.name, for: "activeUserName")
 
+        // Persist the avatar image tag so Settings can render the
+        // profile picture across cold launches instead of falling
+        // back to initials. If the user has no custom avatar, clear
+        // any previously-stored tag so a removed image doesn't
+        // linger and 404 on every restore.
+        if let tag = user.primaryImageTag, !tag.isEmpty {
+            try keychainService.save(tag, for: "activeUserImageTag")
+        } else {
+            try? keychainService.delete(for: "activeUserImageTag")
+        }
+
         if let password, !password.isEmpty {
             try keychainService.save(password, for: KeychainKeys.jellyfinPassword(serverID: server.id))
         }
@@ -116,6 +127,7 @@ final class DependencyContainer {
             try keychainService.delete(for: KeychainKeys.jellyfinPassword(serverID: decoded.id))
         }
         try keychainService.delete(for: "activeServer")
+        try? keychainService.delete(for: "activeUserImageTag")
 
         jellyfinClient.baseURL = nil
         jellyfinClient.accessToken = nil
