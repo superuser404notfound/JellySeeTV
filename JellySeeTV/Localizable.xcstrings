@@ -6174,164 +6174,326 @@
         }
       }
     },
-    "catalog.request.movie": {
-      "comment": "Label for a movie request row",
+    "catalog.request.loadingTitle": {
+      "comment": "Placeholder title while the request's media detail loads",
       "extractionState": "manual",
       "localizations": {
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Žádost o film"
+            "value": "Načítání…"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Filmanmodning"
+            "value": "Indlæser…"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Filmanfrage"
+            "value": "Lade…"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Αίτημα ταινίας"
+            "value": "Φόρτωση…"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Movie Request"
+            "value": "Loading…"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solicitud de película"
+            "value": "Cargando…"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elokuvapyyntö"
+            "value": "Ladataan…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demande de film"
+            "value": "Chargement…"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zahtjev za film"
+            "value": "Učitavanje…"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Filmkérés"
+            "value": "Betöltés…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Richiesta film"
+            "value": "Caricamento…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "映画リクエスト"
+            "value": "読み込み中…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "영화 요청"
+            "value": "로딩 중…"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Filmforespørsel"
+            "value": "Laster inn…"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Filmaanvraag"
+            "value": "Laden…"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prośba o film"
+            "value": "Ładowanie…"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solicitação de filme"
+            "value": "Carregando…"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pedido de filme"
+            "value": "A carregar…"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solicitare film"
+            "value": "Se încarcă…"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Запрос фильма"
+            "value": "Загрузка…"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Žiadosť o film"
+            "value": "Načítava sa…"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Filmförfrågan"
+            "value": "Laddar…"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Film isteği"
+            "value": "Yükleniyor…"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Запит фільму"
+            "value": "Завантаження…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "电影请求"
+            "value": "加载中…"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "電影請求"
+            "value": "載入中…"
+          }
+        }
+      }
+    },
+    "catalog.request.movie": {
+      "comment": "Short type label for movie requests",
+      "extractionState": "manual",
+      "localizations": {
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ταινία"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movie"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Película"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elokuva"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "hr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "映画"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "영화"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filme"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filme"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фильм"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Film"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фільм"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "电影"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "電影"
           }
         }
       }
@@ -7147,163 +7309,163 @@
       }
     },
     "catalog.request.tv": {
-      "comment": "Label for a TV request row",
+      "comment": "Short type label for series requests",
       "extractionState": "manual",
       "localizations": {
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Žádost o seriál"
+            "value": "Seriál"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Serieanmodning"
+            "value": "Serie"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Serienanfrage"
+            "value": "Serie"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Αίτημα σειράς"
+            "value": "Σειρά"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Series Request"
+            "value": "Series"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solicitud de serie"
+            "value": "Serie"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sarjapyyntö"
+            "value": "Sarja"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Demande de série"
+            "value": "Série"
           }
         },
         "hr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zahtjev za seriju"
+            "value": "Serija"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sorozatkérés"
+            "value": "Sorozat"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Richiesta serie"
+            "value": "Serie"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "シリーズリクエスト"
+            "value": "シリーズ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "시리즈 요청"
+            "value": "시리즈"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Serieforespørsel"
+            "value": "Serie"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Serieaanvraag"
+            "value": "Serie"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prośba o serial"
+            "value": "Serial"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solicitação de série"
+            "value": "Série"
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pedido de série"
+            "value": "Série"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solicitare serial"
+            "value": "Serial"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Запрос сериала"
+            "value": "Сериал"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Žiadosť o seriál"
+            "value": "Seriál"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Serieförfrågan"
+            "value": "Serie"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dizi isteği"
+            "value": "Dizi"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Запит серіалу"
+            "value": "Серіал"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "剧集请求"
+            "value": "剧集"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "影集請求"
+            "value": "影集"
           }
         }
       }

@@ -17,7 +17,12 @@ struct CatalogMyRequestsView: View {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(viewModel.myRequests) { request in
-                            SeerrRequestRow(request: request)
+                            SeerrRequestRow(
+                                request: request,
+                                title: viewModel.title(for: request),
+                                year: viewModel.year(for: request),
+                                posterURL: viewModel.posterURL(for: request)
+                            )
                         }
                     }
                     .padding(.horizontal, 50)
@@ -61,18 +66,41 @@ struct CatalogMyRequestsView: View {
 
 private struct SeerrRequestRow: View {
     let request: SeerrRequest
+    let title: String?
+    let year: String?
+    let posterURL: URL?
 
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .frame(width: 36)
-                .foregroundStyle(.tint)
+        HStack(spacing: 20) {
+            poster
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(resolvedTitle)
                     .font(.body)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+
+                HStack(spacing: 10) {
+                    Image(systemName: typeIcon)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text(typeLabel)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    if let year {
+                        Text("·").foregroundStyle(.tertiary)
+                        Text(year)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text("·").foregroundStyle(.tertiary)
+                    Text("#\(request.id)")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .monospacedDigit()
+                }
+
                 HStack(spacing: 8) {
                     SeerrRequestStatusBadge(status: request.status)
                     if let mediaStatus = request.media?.status {
@@ -83,14 +111,40 @@ private struct SeerrRequestRow: View {
 
             Spacer()
         }
-        .padding(20)
+        .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(.white.opacity(0.05))
         )
     }
 
-    private var icon: String {
+    @ViewBuilder
+    private var poster: some View {
+        if let posterURL {
+            AsyncCachedImage(url: posterURL) { image in
+                image.resizable().aspectRatio(contentMode: .fill)
+            } placeholder: {
+                placeholderPoster
+            }
+            .frame(width: 64, height: 96)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else {
+            placeholderPoster
+                .frame(width: 64, height: 96)
+        }
+    }
+
+    private var placeholderPoster: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.white.opacity(0.08))
+            Image(systemName: typeIcon)
+                .font(.title3)
+                .foregroundStyle(.tint)
+        }
+    }
+
+    private var typeIcon: String {
         switch request.type {
         case .movie: "film"
         case .tv: "tv"
@@ -98,15 +152,26 @@ private struct SeerrRequestRow: View {
         }
     }
 
-    private var title: String {
-        let typeLabel: String = switch request.type {
+    private var typeLabel: String {
+        switch request.type {
         case .movie:
-            String(localized: "catalog.request.movie", defaultValue: "Movie Request")
+            String(localized: "catalog.request.movie", defaultValue: "Movie")
         case .tv:
-            String(localized: "catalog.request.tv", defaultValue: "Series Request")
+            String(localized: "catalog.request.tv", defaultValue: "Series")
         case .person:
             ""
         }
-        return "\(typeLabel) · #\(request.id)"
+    }
+
+    /// Show the real title once the detail fetch returns; fall back
+    /// to a neutral placeholder that doesn't pretend to be final
+    /// content (the old "Movie Request · #42" pretended to be a
+    /// title row and looked like a bug).
+    private var resolvedTitle: String {
+        if let title, !title.isEmpty { return title }
+        return String(
+            localized: "catalog.request.loadingTitle",
+            defaultValue: "Loading…"
+        )
     }
 }

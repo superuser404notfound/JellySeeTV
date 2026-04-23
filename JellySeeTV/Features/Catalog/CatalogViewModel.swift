@@ -19,19 +19,60 @@ final class CatalogViewModel {
     var popularTV = PagedSection()
     var myRequests: [SeerrRequest] = []
 
+    /// Per-request enrichment keyed by tmdbID. Populated in the
+    /// background after loadMyRequests returns so the list can
+    /// switch from "#42" placeholders to "Dune · 2021" with a
+    /// poster as soon as the detail calls come back.
+    var requestMovieDetails: [Int: SeerrMovieDetail] = [:]
+    var requestTVDetails: [Int: SeerrTVDetail] = [:]
+
     var isLoadingDiscover = false
     var isLoadingRequests = false
     var errorMessage: String?
 
     private let discoverService: SeerrDiscoverServiceProtocol
     private let requestService: SeerrRequestServiceProtocol
+    private let mediaService: SeerrMediaServiceProtocol
 
     init(
         discoverService: SeerrDiscoverServiceProtocol,
-        requestService: SeerrRequestServiceProtocol
+        requestService: SeerrRequestServiceProtocol,
+        mediaService: SeerrMediaServiceProtocol
     ) {
         self.discoverService = discoverService
         self.requestService = requestService
+        self.mediaService = mediaService
+    }
+
+    // MARK: - Request enrichment
+
+    func title(for request: SeerrRequest) -> String? {
+        guard let tmdbID = request.media?.tmdbId else { return nil }
+        switch request.type {
+        case .movie:  return requestMovieDetails[tmdbID]?.title
+        case .tv:     return requestTVDetails[tmdbID]?.name
+        case .person: return nil
+        }
+    }
+
+    func year(for request: SeerrRequest) -> String? {
+        guard let tmdbID = request.media?.tmdbId else { return nil }
+        switch request.type {
+        case .movie:  return requestMovieDetails[tmdbID]?.displayYear
+        case .tv:     return requestTVDetails[tmdbID]?.displayYear
+        case .person: return nil
+        }
+    }
+
+    func posterURL(for request: SeerrRequest) -> URL? {
+        guard let tmdbID = request.media?.tmdbId else { return nil }
+        let path: String?
+        switch request.type {
+        case .movie:  path = requestMovieDetails[tmdbID]?.posterPath
+        case .tv:     path = requestTVDetails[tmdbID]?.posterPath
+        case .person: path = nil
+        }
+        return SeerrImageURL.poster(path: path, size: .w342)
     }
 
     func loadDiscover() async {
@@ -114,8 +155,51 @@ final class CatalogViewModel {
                 skip: 0
             )
             myRequests = result.results
+            // Kick off the enrichment in the background — the list
+            // renders immediately with placeholder titles and swaps
+            // to real metadata as each detail fetch returns.
+            Task { await enrichRequestMetadata(for: result.results) }
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func enrichRequestMetadata(for requests: [SeerrRequest]) async {
+        // Deduplicate the tmdbIDs we haven't already enriched, then
+        // fire all the detail fetches in parallel. Each row's view
+        // body reads through requestMovieDetails / requestTVDetails
+        // and updates when the corresponding entry lands.
+        var movieIDs = Set<Int>()
+        var tvIDs = Set<Int>()
+        for request in requests {
+            guard let tmdbID = request.media?.tmdbId else { continue }
+            switch request.type {
+            case .movie:
+                if requestMovieDetails[tmdbID] == nil { movieIDs.insert(tmdbID) }
+            case .tv:
+                if requestTVDetails[tmdbID] == nil { tvIDs.insert(tmdbID) }
+            case .person:
+                break
+            }
+        }
+
+        await withTaskGroup(of: Void.self) { group in
+            for id in movieIDs {
+                group.addTask { [weak self] in
+                    guard let detail = try? await self?.mediaService.movieDetail(tmdbID: id) else { return }
+                    await MainActor.run {
+                        self?.requestMovieDetails[id] = detail
+                    }
+                }
+            }
+            for id in tvIDs {
+                group.addTask { [weak self] in
+                    guard let detail = try? await self?.mediaService.tvDetail(tmdbID: id) else { return }
+                    await MainActor.run {
+                        self?.requestTVDetails[id] = detail
+                    }
+                }
+            }
         }
     }
 

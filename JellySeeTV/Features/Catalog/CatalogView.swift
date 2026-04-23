@@ -60,7 +60,8 @@ struct CatalogView: View {
         if viewModel == nil {
             let vm = CatalogViewModel(
                 discoverService: dependencies.seerrDiscoverService,
-                requestService: dependencies.seerrRequestService
+                requestService: dependencies.seerrRequestService,
+                mediaService: dependencies.seerrMediaService
             )
             viewModel = vm
             Task { await vm.loadDiscover() }

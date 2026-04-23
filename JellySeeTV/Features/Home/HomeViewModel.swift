@@ -93,15 +93,19 @@ final class HomeViewModel {
                 items = response.items
 
             case .latestMovies:
-                // Use /Items (not /Items/Latest) so BoxSet members don't
-                // collapse into a single representative — Jellyfin's
-                // Latest endpoint folds franchise movies (John Wick 1-4)
-                // into one card even with GroupItems=false. DateCreated
-                // desc gives us the same "newly added" semantics without
-                // the grouping surprise.
-                let movieLibID = libraries.first { $0.libraryType == .movies }?.id
+                // /Items across ALL accessible libraries — filtering by
+                // IncludeItemTypes=[.movie] is enough, and dropping the
+                // ParentId filter means users with multiple movie
+                // libraries (Movies + Documentaries + Kids …) see fresh
+                // content from every source instead of just the first
+                // one that `libraries.first { ... }` happened to pick.
+                //
+                // DateCreated desc stays: a movie's DateCreated is set
+                // when the file is first imported, which is what
+                // "newly added" means for single-file items. BoxSet
+                // collapse is force-disabled in ItemQuery so John Wick
+                // 1-4 stay as individual cards.
                 let query = ItemQuery(
-                    parentID: movieLibID,
                     includeItemTypes: [.movie],
                     sortBy: "DateCreated",
                     sortOrder: "Descending",
@@ -111,13 +115,29 @@ final class HomeViewModel {
                 items = response.items
 
             case .latestShows:
-                // Shows stay on /Items/Latest: its built-in grouping is
-                // what we *want* here — show the series when a new
-                // episode lands, not the raw episode with its own title
-                // and screenshot. Using a DateCreated query here would
-                // surface individual episodes instead of series.
-                let showLibID = libraries.first { $0.libraryType == .tvshows }?.id
-                items = try await libraryService.getLatestMedia(userID: userID, parentID: showLibID, limit: 16)
+                // Same ParentId-free treatment as movies so a user
+                // with multiple TV libraries (Shows + Anime + Kids …)
+                // isn't silently limited to one of them.
+                //
+                // Sort key is DateLastContentAdded (not DateCreated):
+                // for a Series item, Jellyfin sets DateLastContentAdded
+                // to when the *most recent episode* was imported. This
+                // bubbles a long-running show to the top whenever a new
+                // episode lands AND treats freshly-added series
+                // naturally — for a brand-new series every episode is
+                // recent, so its DateLastContentAdded matches. Using
+                // DateCreated would only track when the series folder
+                // was first detected, so fresh episodes on older shows
+                // would sink. /Items/Latest (old path) has its own
+                // weighted ranking that's opaque and sometimes wrong.
+                let query = ItemQuery(
+                    includeItemTypes: [.series],
+                    sortBy: "DateLastContentAdded",
+                    sortOrder: "Descending",
+                    limit: 16
+                )
+                let response = try await libraryService.getItems(userID: userID, query: query)
+                items = response.items
 
             case .allMovies:
                 let query = ItemQuery(
