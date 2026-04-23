@@ -38,7 +38,6 @@ struct UserPickerView: View {
                 emptyState
             } else {
                 userGrid
-                manualLoginButton
             }
         }
         .padding(.horizontal, 80)
@@ -80,16 +79,24 @@ struct UserPickerView: View {
     // MARK: - User Grid
 
     private var userGrid: some View {
+        // Manual-login button lives INSIDE the ScrollView so the tvOS
+        // focus engine can walk off the last grid row straight into
+        // it — when the button sat as a sibling below the ScrollView,
+        // downward focus got trapped at the bottom of the grid.
         ScrollView {
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: 200), spacing: 32)],
-                spacing: 40
-            ) {
-                ForEach(users) { user in
-                    UserPickerCard(user: user, server: server) {
-                        selectedUser = user
+            VStack(spacing: 40) {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 200), spacing: 32)],
+                    spacing: 40
+                ) {
+                    ForEach(users) { user in
+                        UserPickerCard(user: user, server: server) {
+                            selectedUser = user
+                        }
                     }
                 }
+
+                manualLoginButton
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 20)
