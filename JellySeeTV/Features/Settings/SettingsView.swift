@@ -95,12 +95,13 @@ struct SettingsView: View {
     // MARK: - Settings List
 
     private var settingsList: some View {
-        // Ordered by mental model rather than chronology:
-        //   1. Identity      (Profile)
-        //   2. Personalisation (Appearance)
-        //   3. Content layout  (Home)
-        //   4. Media behavior  (Playback)
-        //   5. Integrations    (Seerr)
+        // Ordered by how often users actually reach for each tile:
+        //   1. Identity       (Profile)
+        //   2. Content layout (Home)
+        //   3. Media behavior (Playback)
+        //   4. Personalisation (Appearance — supporter-gated, lives
+        //                       deeper than the always-free tiles)
+        //   5. Integrations   (Seerr)
         //   6. Meta / give-back (Support)
         VStack(spacing: 4) {
             SettingsTile(
@@ -109,14 +110,6 @@ struct SettingsView: View {
                 subtitle: "settings.profile.subtitle"
             ) {
                 ProfileSettingsView()
-            }
-
-            SettingsTile(
-                icon: "paintpalette",
-                title: "settings.appearance.title",
-                subtitle: "settings.appearance.subtitle.short"
-            ) {
-                AppearanceSettingsView()
             }
 
             SettingsTile(
@@ -133,6 +126,14 @@ struct SettingsView: View {
                 subtitle: "settings.playback.subtitle"
             ) {
                 PlaybackSettingsView()
+            }
+
+            SettingsTile(
+                icon: "paintpalette",
+                title: "settings.appearance.title",
+                subtitle: "settings.appearance.subtitle.short"
+            ) {
+                AppearanceSettingsView()
             }
 
             SettingsTile(
