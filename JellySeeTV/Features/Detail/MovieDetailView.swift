@@ -31,7 +31,10 @@ struct MovieDetailView: View {
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
                     preferences: dependencies.playbackPreferences,
-                    cachedPlaybackInfo: viewModel?.cachedPlaybackInfo
+                    cachedPlaybackInfo: viewModel?.cachedPlaybackInfo,
+                    tintColor: dependencies.appearancePreferences.effectiveTint(
+                        isSupporter: dependencies.storeKitService.isSupporter
+                    )
                 )
                 .allowsHitTesting(false)
             }

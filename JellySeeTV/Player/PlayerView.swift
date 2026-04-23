@@ -17,6 +17,10 @@ struct PlayerLauncher: UIViewControllerRepresentable {
     let userID: String
     let preferences: PlaybackPreferences
     var cachedPlaybackInfo: PlaybackInfoResponse?
+    /// Accent color the overlay should tint with. Nil falls back to the
+    /// asset-catalog default. Threaded through by callers because the
+    /// WindowGroup `.tint(...)` does not cross into the UIKit modal.
+    var tintColor: Color?
 
     func makeUIViewController(context: Context) -> PlayerLauncherHostVC {
         PlayerLauncherHostVC()
@@ -32,11 +36,15 @@ struct PlayerLauncher: UIViewControllerRepresentable {
                 preferences: preferences,
                 cachedPlaybackInfo: cachedPlaybackInfo
             )
-            let playerVC = PlayerHostController(viewModel: vm, onDismiss: {
-                host.dismiss(animated: false) {
-                    isPresented = false
+            let playerVC = PlayerHostController(
+                viewModel: vm,
+                tintColor: tintColor,
+                onDismiss: {
+                    host.dismiss(animated: false) {
+                        isPresented = false
+                    }
                 }
-            })
+            )
             playerVC.modalPresentationStyle = .fullScreen
             host.present(playerVC, animated: false)
         } else if !isPresented, host.presentedViewController != nil {
@@ -66,6 +74,7 @@ final class PlayerLauncherHostVC: UIViewController {
 @MainActor
 final class PlayerHostController: UIViewController {
     private let viewModel: PlayerViewModel
+    private let tintColor: Color?
     private let onDismiss: () -> Void
 
     private var hasLaunched = false
@@ -79,8 +88,13 @@ final class PlayerHostController: UIViewController {
     /// that AetherEngine no longer feeds.
     private var hostedVideoLayer: CALayer?
 
-    init(viewModel: PlayerViewModel, onDismiss: @escaping () -> Void) {
+    init(
+        viewModel: PlayerViewModel,
+        tintColor: Color? = nil,
+        onDismiss: @escaping () -> Void
+    ) {
         self.viewModel = viewModel
+        self.tintColor = tintColor
         self.onDismiss = onDismiss
         super.init(nibName: nil, bundle: nil)
     }
@@ -113,8 +127,11 @@ final class PlayerHostController: UIViewController {
             }
         }
 
-        // SwiftUI overlays (display-only)
+        // SwiftUI overlays (display-only). `.tint(...)` has to be
+        // applied here because this hosted view lives in a UIKit modal —
+        // the WindowGroup tint set on JellySeeTVApp never reaches it.
         let overlay = PlayerOverlayView(viewModel: viewModel)
+            .tint(tintColor)
         let hosting = UIHostingController(rootView: overlay)
         hosting.view.backgroundColor = .clear
         hosting.view.isUserInteractionEnabled = false

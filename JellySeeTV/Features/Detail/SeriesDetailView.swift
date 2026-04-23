@@ -106,7 +106,10 @@ struct SeriesDetailView: View {
                     preferences: dependencies.playbackPreferences,
                     cachedPlaybackInfo: playItem.flatMap { ep in
                         (viewModel?.currentEpisodeID == ep.id) ? viewModel?.cachedPlaybackInfo : nil
-                    }
+                    },
+                    tintColor: dependencies.appearancePreferences.effectiveTint(
+                        isSupporter: dependencies.storeKitService.isSupporter
+                    )
                 )
                 .allowsHitTesting(false)
             }
