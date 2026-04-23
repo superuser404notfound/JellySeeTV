@@ -5,7 +5,7 @@ protocol JellyfinLibraryServiceProtocol: Sendable {
     func getItems(userID: String, query: ItemQuery) async throws -> JellyfinItemsResponse
     func getResumeItems(userID: String, mediaType: String, limit: Int) async throws -> JellyfinItemsResponse
     func getNextUp(userID: String, seriesID: String?, limit: Int) async throws -> JellyfinItemsResponse
-    func getLatestMedia(userID: String, parentID: String?, limit: Int) async throws -> [JellyfinItem]
+    func getLatestMedia(userID: String, parentID: String?, includeItemTypes: [ItemType]?, limit: Int) async throws -> [JellyfinItem]
     func getGenres(userID: String) async throws -> [NamedItem]
     func getStudios(userID: String) async throws -> [NamedItem]
 }
@@ -54,9 +54,14 @@ final class JellyfinLibraryService: JellyfinLibraryServiceProtocol {
         )
     }
 
-    func getLatestMedia(userID: String, parentID: String?, limit: Int) async throws -> [JellyfinItem] {
+    func getLatestMedia(userID: String, parentID: String?, includeItemTypes: [ItemType]?, limit: Int) async throws -> [JellyfinItem] {
         try await client.request(
-            endpoint: JellyfinEndpoint.latestMedia(userID: userID, parentID: parentID, limit: limit),
+            endpoint: JellyfinEndpoint.latestMedia(
+                userID: userID,
+                parentID: parentID,
+                includeItemTypes: includeItemTypes,
+                limit: limit
+            ),
             responseType: [JellyfinItem].self
         )
     }

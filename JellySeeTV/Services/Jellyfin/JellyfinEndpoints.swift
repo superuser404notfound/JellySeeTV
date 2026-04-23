@@ -21,7 +21,7 @@ enum JellyfinEndpoint: APIEndpoint {
     case itemDetail(userID: String, itemID: String)
     case resumeItems(userID: String, mediaType: String, limit: Int)
     case nextUp(userID: String, seriesID: String?, limit: Int)
-    case latestMedia(userID: String, parentID: String?, limit: Int)
+    case latestMedia(userID: String, parentID: String?, includeItemTypes: [ItemType]?, limit: Int)
     case seasons(seriesID: String, userID: String)
     case episodes(seriesID: String, seasonID: String, userID: String)
     case similarItems(itemID: String, userID: String, limit: Int)
@@ -70,7 +70,7 @@ enum JellyfinEndpoint: APIEndpoint {
             "/Users/\(userID)/Items/Resume"
         case .nextUp:
             "/Shows/NextUp"
-        case .latestMedia(let userID, _, _):
+        case .latestMedia(let userID, _, _, _):
             "/Users/\(userID)/Items/Latest"
         case .seasons(let seriesID, _):
             "/Shows/\(seriesID)/Seasons"
@@ -137,13 +137,24 @@ enum JellyfinEndpoint: APIEndpoint {
             }
             return items
 
-        case .latestMedia(_, let parentID, let limit):
+        case .latestMedia(_, let parentID, let includeItemTypes, let limit):
             var items = [
                 URLQueryItem(name: "Limit", value: String(limit)),
                 URLQueryItem(name: "Fields", value: Self.defaultFields),
             ]
             if let parentID {
                 items.append(URLQueryItem(name: "ParentId", value: parentID))
+            }
+            if let includeItemTypes {
+                // Filter /Items/Latest to one specific item type —
+                // without it, dropping ParentId means the row
+                // aggregates movies + series + music in a random
+                // jumble instead of feeding a typed "Latest Movies"
+                // or "Latest Shows" row.
+                items.append(URLQueryItem(
+                    name: "IncludeItemTypes",
+                    value: includeItemTypes.map(\.rawValue).joined(separator: ",")
+                ))
             }
             return items
 

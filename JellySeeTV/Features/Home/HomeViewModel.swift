@@ -97,31 +97,25 @@ final class HomeViewModel {
                 // order the Jellyfin web UI shows is what JellySeeTV
                 // shows. ParentId omitted so users with multiple
                 // movie libraries (Movies + Documentaries + Kids …)
-                // see fresh content from every source.
-                //
-                // Tradeoff vs. the previous /Items + DateCreated
-                // approach: /Items/Latest folds franchise BoxSet
-                // members into one representative card (John Wick
-                // 1-4 → one entry). Accepted as the cost of parity;
-                // user explicitly preferred matching Jellyfin's
-                // ordering over keeping franchise films separate.
+                // see fresh content from every source; without the
+                // parent-id hint we MUST pass IncludeItemTypes=Movie,
+                // otherwise Jellyfin returns a mix of movies,
+                // series, and music jumbled into one row.
                 items = try await libraryService.getLatestMedia(
                     userID: userID,
                     parentID: nil,
+                    includeItemTypes: [.movie],
                     limit: 16
                 )
 
             case .latestShows:
-                // /Items/Latest across ALL libraries (no ParentId
-                // filter) so multi-library users aren't pinned to
-                // one. Using the native endpoint — instead of a
-                // manual SortBy=DateLastContentAdded query — keeps
-                // parity with Jellyfin's own "Latest" ordering: users
-                // who see a specific order in the Jellyfin web UI
-                // will see the same here.
+                // Same treatment as latestMovies — /Items/Latest
+                // across every accessible library, typed down to
+                // Series so we don't get movies/music mixed in.
                 items = try await libraryService.getLatestMedia(
                     userID: userID,
                     parentID: nil,
+                    includeItemTypes: [.series],
                     limit: 16
                 )
 
