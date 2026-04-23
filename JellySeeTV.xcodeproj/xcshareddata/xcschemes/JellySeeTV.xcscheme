@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1700"
+   LastUpgradeVersion = "2640"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -50,7 +50,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
-         identifier = "../../../StoreKitConfig.storekit">
+         identifier = "../StoreKitConfig.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
