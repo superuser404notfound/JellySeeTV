@@ -60,10 +60,17 @@ struct TabRootView: View {
     }
 
     private func tabIcon(name: String, color: Color) -> Image {
-        guard let base = UIImage(systemName: name) else {
+        // Match the native tvOS tab-bar symbol weight/size. Without an
+        // explicit configuration, UIImage(systemName:) falls back to a
+        // smaller default than the tab bar would request for a raw
+        // SwiftUI Image — the icons end up visibly shrunken.
+        let config = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
+        let base = UIImage(systemName: name, withConfiguration: config)
+            ?? UIImage(systemName: name)
+        guard let symbol = base else {
             return Image(systemName: name)
         }
-        let tinted = base.withTintColor(
+        let tinted = symbol.withTintColor(
             UIColor(color),
             renderingMode: .alwaysOriginal
         )
