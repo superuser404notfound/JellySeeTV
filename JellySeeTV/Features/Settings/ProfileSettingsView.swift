@@ -91,6 +91,15 @@ struct ProfileSettingsView: View {
             Text(message)
         }
         .onAppear(perform: refresh)
+        .onReceive(NotificationCenter.default.publisher(for: .loginDidComplete)) { _ in
+            // LoginView just flipped activeUser to the brand-new
+            // profile. Pop the add-profile stack (LoginView +
+            // UserPickerView) back to ProfileSettings so the
+            // "Currently signed in" card updates visibly and the
+            // user isn't stranded on a stale success checkmark.
+            navigateToAddProfile = false
+            refresh()
+        }
     }
 
     // MARK: - Current

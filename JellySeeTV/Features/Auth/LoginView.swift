@@ -233,6 +233,13 @@ struct LoginView: View {
             try? await Task.sleep(for: .seconds(1.5))
             guard let result = vm.authResult else { return }
             appState.setAuthenticated(server: result.server, user: result.user)
+            // Tell anyone who pushed this view that we're done.
+            // Initial-login flows (ServerDiscoveryView → …) don't
+            // need this — AppRouter swaps its root when
+            // isAuthenticated flips — but the "Add another profile"
+            // branch from ProfileSettingsView stays mounted on top
+            // of TabRootView until the push is popped.
+            NotificationCenter.default.post(name: .loginDidComplete, object: nil)
         }
     }
 }

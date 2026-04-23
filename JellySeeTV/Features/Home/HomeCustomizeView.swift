@@ -302,6 +302,12 @@ extension Notification.Name {
     /// Continue Watching / Next Up so the user sees their new
     /// progress as soon as they're back.
     static let playbackProgressDidChange = Notification.Name("playbackProgressDidChange")
+    /// Fires after LoginView completes (password or Quick Connect).
+    /// ProfileSettingsView listens so it can pop its "Add another
+    /// profile" navigation branch — without it, the login success
+    /// screen hangs because the user was already authenticated
+    /// before and AppRouter doesn't tear down TabRootView.
+    static let loginDidComplete = Notification.Name("loginDidComplete")
 }
 
 // MARK: - Storage
