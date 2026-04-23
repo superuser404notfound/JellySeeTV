@@ -22,7 +22,10 @@ enum APIError: LocalizedError, Sendable {
             String(localized: "error.invalidResponse", defaultValue: "Invalid server response")
         case .httpError(let statusCode, let data):
             if let message = Self.extractErrorMessage(from: data) {
-                "HTTP \(statusCode) · \(message)"
+                String(
+                    localized: "error.httpError.withMessage",
+                    defaultValue: "HTTP \(statusCode) · \(message)"
+                )
             } else {
                 String(localized: "error.httpError", defaultValue: "Server error (\(statusCode))")
             }
