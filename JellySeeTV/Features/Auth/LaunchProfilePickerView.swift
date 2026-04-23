@@ -32,7 +32,11 @@ struct LaunchProfilePickerView: View {
             .padding(.vertical, 60)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationDestination(isPresented: $navigateToAddProfile) {
-                LoginView(server: server, preSelectedUser: nil)
+                // UserPickerView shows the server's public users with
+                // avatars — mirrors the normal login entry point so a
+                // second profile feels like "pick another user" rather
+                // than "type username+password from scratch".
+                UserPickerView(server: server)
             }
             .confirmationDialog(
                 String(localized: "profile.forget.title",

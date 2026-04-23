@@ -42,7 +42,12 @@ struct ProfileSettingsView: View {
         .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(isPresented: $navigateToAddProfile) {
             if let server = appState.activeServer {
-                LoginView(server: server, preSelectedUser: nil)
+                // Route through UserPickerView so the user sees the
+                // server's public profiles with avatars instead of an
+                // empty username field. If the server has the public
+                // user list disabled, UserPickerView falls back to the
+                // manual sign-in field by itself.
+                UserPickerView(server: server)
             }
         }
         .confirmationDialog(
