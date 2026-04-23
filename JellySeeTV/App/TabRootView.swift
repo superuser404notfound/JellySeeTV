@@ -34,7 +34,16 @@ struct TabRootView: View {
                 Tab(value: tab) {
                     tabContent(for: tab)
                 } label: {
-                    Label(tab.labelKey, systemImage: tab.systemImage)
+                    // Explicit icon tint so the top tab-bar symbol picks up
+                    // the active accent color instead of rendering in the
+                    // monochrome system default. Inherits the global
+                    // `.tint(...)` set on the WindowGroup.
+                    Label {
+                        Text(tab.labelKey)
+                    } icon: {
+                        Image(systemName: tab.systemImage)
+                            .foregroundStyle(.tint)
+                    }
                 }
             }
         }

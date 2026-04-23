@@ -17,11 +17,18 @@ final class AppearancePreferences {
 
     enum AccentChoice: String, CaseIterable, Identifiable, Sendable {
         case system   // Default, free for everyone
+        // Warm family
         case gold
+        case sunset
         case rose
-        case amethyst
-        case mint
         case crimson
+        // Cool family
+        case ocean
+        case mint
+        case emerald
+        // Purple family
+        case amethyst
+        case lavender
 
         var id: String { rawValue }
 
@@ -35,27 +42,41 @@ final class AppearancePreferences {
                 String(localized: "appearance.accent.system",   defaultValue: "System Blue")
             case .gold:
                 String(localized: "appearance.accent.gold",     defaultValue: "Gold")
+            case .sunset:
+                String(localized: "appearance.accent.sunset",   defaultValue: "Sunset")
             case .rose:
                 String(localized: "appearance.accent.rose",     defaultValue: "Rose")
-            case .amethyst:
-                String(localized: "appearance.accent.amethyst", defaultValue: "Amethyst")
-            case .mint:
-                String(localized: "appearance.accent.mint",     defaultValue: "Mint")
             case .crimson:
                 String(localized: "appearance.accent.crimson",  defaultValue: "Crimson")
+            case .ocean:
+                String(localized: "appearance.accent.ocean",    defaultValue: "Ocean")
+            case .mint:
+                String(localized: "appearance.accent.mint",     defaultValue: "Mint")
+            case .emerald:
+                String(localized: "appearance.accent.emerald",  defaultValue: "Emerald")
+            case .amethyst:
+                String(localized: "appearance.accent.amethyst", defaultValue: "Amethyst")
+            case .lavender:
+                String(localized: "appearance.accent.lavender", defaultValue: "Lavender")
             }
         }
 
         /// Hex chosen to work against the dark Liquid-Glass backdrop —
-        /// punchy but not neon. Swatches render straight from these.
+        /// punchy but not neon, all sitting around L≈0.65–0.75 so text
+        /// drawn on top in `.tint` stays legible. Swatches render
+        /// straight from these.
         var color: Color {
             switch self {
             case .system:   .accentColor
             case .gold:     Color(red: 0.98, green: 0.79, blue: 0.35)
+            case .sunset:   Color(red: 1.00, green: 0.60, blue: 0.30)
             case .rose:     Color(red: 0.99, green: 0.57, blue: 0.70)
-            case .amethyst: Color(red: 0.69, green: 0.50, blue: 0.95)
-            case .mint:     Color(red: 0.40, green: 0.87, blue: 0.70)
             case .crimson:  Color(red: 0.94, green: 0.35, blue: 0.40)
+            case .ocean:    Color(red: 0.30, green: 0.78, blue: 0.88)
+            case .mint:     Color(red: 0.40, green: 0.87, blue: 0.70)
+            case .emerald:  Color(red: 0.30, green: 0.80, blue: 0.50)
+            case .amethyst: Color(red: 0.69, green: 0.50, blue: 0.95)
+            case .lavender: Color(red: 0.78, green: 0.68, blue: 0.98)
             }
         }
     }
