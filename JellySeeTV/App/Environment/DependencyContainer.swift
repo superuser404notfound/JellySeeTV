@@ -19,6 +19,7 @@ final class DependencyContainer {
     let playbackPreferences: PlaybackPreferences
     let storeKitService: StoreKitServiceProtocol
     let appearancePreferences: AppearancePreferences
+    let authPreferences: AuthPreferences
 
     let seerrClient: SeerrClient
     let seerrServerDiscoveryService: SeerrServerDiscoveryServiceProtocol
@@ -49,6 +50,7 @@ final class DependencyContainer {
         self.playbackPreferences = PlaybackPreferences()
         self.storeKitService = StoreKitService()
         self.appearancePreferences = AppearancePreferences()
+        self.authPreferences = AuthPreferences()
 
         self.seerrClient = SeerrClient(httpClient: httpClient)
         self.seerrServerDiscoveryService = SeerrServerDiscoveryService(httpClient: httpClient)
@@ -106,6 +108,96 @@ final class DependencyContainer {
 
         jellyfinClient.baseURL = server.url
         jellyfinClient.accessToken = token
+
+        // Add/update this user in the remembered-profiles list for
+        // the server so the user can later switch to any previous
+        // profile without re-authenticating.
+        try rememberUser(
+            RememberedUser(
+                id: user.id,
+                serverID: server.id,
+                name: user.name,
+                imageTag: user.primaryImageTag,
+                token: token
+            )
+        )
+    }
+
+    // MARK: - Remembered Profiles
+
+    /// All profiles for a server whose token we have cached. Sorted
+    /// by most-recently-added first so fresh logins float to the top
+    /// of pickers.
+    func listRememberedUsers(serverID: String) -> [RememberedUser] {
+        guard let data = try? keychainService.loadData(
+            for: KeychainKeys.rememberedUsers(serverID: serverID)
+        ) else { return [] }
+        let users = (try? JSONDecoder().decode([RememberedUser].self, from: data)) ?? []
+        return users.sorted { $0.addedAt > $1.addedAt }
+    }
+
+    /// Upsert — replaces any existing entry with the same user ID so
+    /// re-logins refresh the token and avatar tag instead of
+    /// stacking duplicates.
+    func rememberUser(_ user: RememberedUser) throws {
+        var users = listRememberedUsers(serverID: user.serverID)
+            .filter { $0.id != user.id }
+        users.append(user)
+        let data = try JSONEncoder().encode(users)
+        try keychainService.save(
+            data,
+            for: KeychainKeys.rememberedUsers(serverID: user.serverID)
+        )
+    }
+
+    /// Drop one profile from the remembered list. Called from the
+    /// profile-picker's long-press menu. Leaves the active session
+    /// alone — the caller decides whether to switch afterwards.
+    func forgetUser(id: String, serverID: String) throws {
+        let remaining = listRememberedUsers(serverID: serverID)
+            .filter { $0.id != id }
+        if remaining.isEmpty {
+            try? keychainService.delete(
+                for: KeychainKeys.rememberedUsers(serverID: serverID)
+            )
+        } else {
+            let data = try JSONEncoder().encode(remaining)
+            try keychainService.save(
+                data,
+                for: KeychainKeys.rememberedUsers(serverID: serverID)
+            )
+        }
+    }
+
+    /// Swap to an already-remembered profile. Re-uses the cached
+    /// token, updates the active-session keychain entries, and
+    /// reconfigures the HTTP client. Drops the cached Jellyfin
+    /// password (which is keyed per-server, not per-user) so the
+    /// Seerr auto-fill doesn't pre-fill the previous user's
+    /// password onto the new user.
+    func switchToUser(_ remembered: RememberedUser, server: JellyfinServer) throws {
+        let serverData = try JSONEncoder().encode(server)
+        try keychainService.save(serverData, for: "activeServer")
+        try keychainService.save(
+            remembered.token,
+            for: KeychainKeys.accessToken(serverID: server.id)
+        )
+        try keychainService.save(
+            remembered.id,
+            for: KeychainKeys.userID(serverID: server.id)
+        )
+        try keychainService.save(remembered.name, for: "activeUserName")
+
+        if let tag = remembered.imageTag, !tag.isEmpty {
+            try keychainService.save(tag, for: "activeUserImageTag")
+        } else {
+            try? keychainService.delete(for: "activeUserImageTag")
+        }
+
+        try? keychainService.delete(for: KeychainKeys.jellyfinPassword(serverID: server.id))
+
+        jellyfinClient.baseURL = server.url
+        jellyfinClient.accessToken = remembered.token
     }
 
     func loadJellyfinPassword() -> String? {
@@ -125,6 +217,13 @@ final class DependencyContainer {
            let decoded = try? JSONDecoder().decode(JellyfinServer.self, from: server) {
             try keychainService.delete(for: KeychainKeys.accessToken(serverID: decoded.id))
             try keychainService.delete(for: KeychainKeys.jellyfinPassword(serverID: decoded.id))
+            // Full logout = nuke every remembered profile for this
+            // server too. Profile pruning at a finer granularity
+            // happens via forgetUser() from the picker's long-press
+            // menu.
+            try? keychainService.delete(
+                for: KeychainKeys.rememberedUsers(serverID: decoded.id)
+            )
         }
         try keychainService.delete(for: "activeServer")
         try? keychainService.delete(for: "activeUserImageTag")

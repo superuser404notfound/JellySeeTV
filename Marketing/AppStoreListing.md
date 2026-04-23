@@ -244,17 +244,39 @@ When the build goes for **External** TestFlight (Internal Testing skips review),
 → **Yes** (the app requires signing into a Jellyfin server)
 
 ### Demo Account / Test Notes
+
+
 ```
-JellySeeTV is a media player for self-hosted Jellyfin servers. Apple's reviewers cannot sign into the user's private server, but the app's startup, authentication UI, and core navigation can be exercised without playback by:
+JellySeeTV is a media player for self-hosted Jellyfin servers. The app requires the user to point it at their own Jellyfin instance — there is no built-in content, no first-party servers, and no in-app purchases.                                                                                                                                                
+   
+To exercise the app, please use the official Jellyfin demo server, which is publicly available and intentionally provided for testing purposes:                                   
+                                                         
+    Server URL: https://demo.jellyfin.org/stable                                                                                                                                    
+    Username:   demo                                     
+    Password:   (leave empty — the demo account has no password)                                                                                                                    
+                                                         
+Steps to test:                                                                                                                                                                    
+1. Launch the app. The Server Discovery screen appears.
+2. Choose "Add Server Manually" (auto-discovery only finds servers on the local network, which is not the case here).                                                             
+3. Enter the server URL above.                                                                                                                                                    
+4. Enter the username "demo" and leave the password field empty.                                                                                                                  
+5. The library loads. You can browse Movies, Series, search, open a detail view, and start playback.                                                                              
+                                                                                                                                                                                    
+The Jellyseerr (catalog/request) features and Dolby Atmos passthrough cannot be exercised against the demo server, as it does not have those services configured. Apart from that,
+the full app flow is testable.                                                                                                                                                   
+                                                                                                                                                                                    
+If the demo server is unreachable for any reason, please contact superuser404@tuta.com and I will provide temporary credentials to a private Jellyfin instance for review         
+purposes.
+                                                                                                                                                                                    
+Additional notes:                                      
+  - The app collects no user data. The Privacy Manifest in the bundle confirms zero tracking and zero data collection.
+  - All credentials entered by the user are stored in the system Keychain only.                                                                                                     
+  - Source code is publicly auditable at https://github.com/superuser404notfound/JellySeeTV
+  - The video engine (FFmpeg + VideoToolbox + AVPlayer) is split into a separate LGPL-3.0 package: https://github.com/superuser404notfound/AetherEngine                             
 
-1. Launching the app — the server discovery / login screen appears immediately
-2. Tapping "Add Server Manually" — the URL/credentials input UI shows
-3. The app gracefully handles invalid server URLs and shows a clear error
-
-If a working test environment is required, we can provide temporary read-only credentials to a private Jellyfin instance — please contact superuser404@tuta.com for access.
-
-The app contains no in-app purchases, no advertising, no telemetry, and no user tracking. Source code is publicly auditable at https://github.com/superuser404notfound/JellySeeTV
+Thank you for reviewing.
 ```
+
 
 ### 
 
@@ -278,11 +300,13 @@ TEST TEXT -----
 
 Welcome to JellySeeTV — public beta!                                                                                                                                        
                                                                                 
-  JellySeeTV is a native Apple TV client for self-hosted Jellyfin servers, with built-in Seerr/Jellyseerr integration for browsing and requesting media. Direct Play, real HDR10 /  
-  Dolby Vision, real Dolby Atmos. Open source (MIT).                            
+JellySeeTV is a native Apple TV client for self-hosted Jellyfin servers, with built-in Seerr/Jellyseerr integration for browsing and requesting media. Direct Play, real HDR10 /  
+Dolby Vision, real Dolby Atmos. Open source (MIT).                            
                                                                                                                                                                                     
-  Note for Apple Reviewer: this app requires a Jellyfin server, which the user must self-host. Without server access the login screen, server discovery flow and error handling can 
-  still be exercised. If a working test environment is needed, please contact superuser404@tuta.com for temporary read-only credentials to a private Jellyfin instance.
+Note for Apple Reviewer: this app requires a Jellyfin server, which the user must self-host.
+Without server access the login screen, server discovery flow and error handling can 
+still be exercised. If a working test environment is needed, please contact superuser404@tuta.com
+for temporary read-only credentials to a private Jellyfin instance.
                                                                                                                                                                                     
   What to focus on for this build:                                                                                                                                                  
   • Server discovery + login (auto-discovery on the local network, plus manual URL entry)                                                                                           
@@ -291,8 +315,9 @@ Welcome to JellySeeTV — public beta!
   • Seerr integration — browse trending, request a movie or series, status display                                                                                                  
   • Resume + auto-play next episode for series                                                                                                                                      
                                                                                                                                                                                     
-  Known limitations: HDR display switching depends on the TV model and the Match Content setting. TestFlight builds expire after 90 days.                                           
+Known limitations: HDR display switching depends on the TV model and the Match Content setting.
+TestFlight builds expire after 90 days.                                           
                                                                                 
-  Full tester guide and how to file bugs: https://github.com/superuser404notfound/JellySeeTV/blob/main/BETA.md                                                                      
+Full tester guide and how to file bugs: https://github.com/superuser404notfound/JellySeeTV/blob/main/BETA.md                                                                      
                                                                                                                                                                                     
-  Source code: https://github.com/superuser404notfound/JellySeeTV
+Source code: https://github.com/superuser404notfound/JellySeeTV

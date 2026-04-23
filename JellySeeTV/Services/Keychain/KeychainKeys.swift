@@ -19,6 +19,13 @@ enum KeychainKeys {
         "jellyfinPassword_\(serverID)"
     }
 
+    /// JSON-encoded `[RememberedUser]` array for one server. All
+    /// profile-switching state lives under this single blob so
+    /// adds/removes are atomic writes.
+    static func rememberedUsers(serverID: String) -> String {
+        "rememberedUsers_\(serverID)"
+    }
+
     static let seerrServer = "seerrServer"
 
     static func seerrSession(serverID: String) -> String {
