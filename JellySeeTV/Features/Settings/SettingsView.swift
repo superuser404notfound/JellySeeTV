@@ -97,6 +97,14 @@ struct SettingsView: View {
     private var settingsList: some View {
         VStack(spacing: 4) {
             SettingsTile(
+                icon: "person.2",
+                title: "settings.profile.title",
+                subtitle: profileSubtitle
+            ) {
+                ProfileSettingsView()
+            }
+
+            SettingsTile(
                 icon: "square.grid.2x2",
                 title: "settings.home.customize",
                 subtitle: "settings.home.customizeSubtitle"
@@ -140,6 +148,14 @@ struct SettingsView: View {
 
     private var seerrSubtitle: LocalizedStringKey {
         appState.isSeerrConnected ? "settings.seerr.subtitle.connected" : "settings.seerr.subtitle.notConnected"
+    }
+
+    /// Subtitle that surfaces remembered-profile count so users know
+    /// at a glance whether there's anything to switch to.
+    private var profileSubtitle: LocalizedStringKey {
+        let count = appState.activeServer
+            .map { dependencies.listRememberedUsers(serverID: $0.id).count } ?? 0
+        return count > 1 ? "settings.profile.subtitle.multi" : "settings.profile.subtitle.single"
     }
 
     // MARK: - Server Info
