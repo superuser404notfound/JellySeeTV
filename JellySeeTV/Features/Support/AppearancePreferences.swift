@@ -65,9 +65,15 @@ final class AppearancePreferences {
         /// punchy but not neon, all sitting around L≈0.65–0.75 so text
         /// drawn on top in `.tint` stays legible. Swatches render
         /// straight from these.
+        ///
+        /// `.system` hard-codes the asset-catalog accent RGB rather
+        /// than `Color.accentColor`, because the semantic value
+        /// follows the current `.tint(...)` in the environment —
+        /// otherwise the swatch would shift with whatever custom
+        /// color is active and stop reading as "System Blue".
         var color: Color {
             switch self {
-            case .system:   .accentColor
+            case .system:   Color(red: 0.00, green: 0.478, blue: 1.00)
             case .gold:     Color(red: 0.98, green: 0.79, blue: 0.35)
             case .sunset:   Color(red: 1.00, green: 0.60, blue: 0.30)
             case .rose:     Color(red: 0.99, green: 0.57, blue: 0.70)
