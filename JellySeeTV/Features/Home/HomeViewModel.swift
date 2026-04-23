@@ -115,29 +115,18 @@ final class HomeViewModel {
                 items = response.items
 
             case .latestShows:
-                // Same ParentId-free treatment as movies so a user
-                // with multiple TV libraries (Shows + Anime + Kids …)
-                // isn't silently limited to one of them.
-                //
-                // Sort key is DateLastContentAdded (not DateCreated):
-                // for a Series item, Jellyfin sets DateLastContentAdded
-                // to when the *most recent episode* was imported. This
-                // bubbles a long-running show to the top whenever a new
-                // episode lands AND treats freshly-added series
-                // naturally — for a brand-new series every episode is
-                // recent, so its DateLastContentAdded matches. Using
-                // DateCreated would only track when the series folder
-                // was first detected, so fresh episodes on older shows
-                // would sink. /Items/Latest (old path) has its own
-                // weighted ranking that's opaque and sometimes wrong.
-                let query = ItemQuery(
-                    includeItemTypes: [.series],
-                    sortBy: "DateLastContentAdded",
-                    sortOrder: "Descending",
+                // /Items/Latest across ALL libraries (no ParentId
+                // filter) so multi-library users aren't pinned to
+                // one. Using the native endpoint — instead of a
+                // manual SortBy=DateLastContentAdded query — keeps
+                // parity with Jellyfin's own "Latest" ordering: users
+                // who see a specific order in the Jellyfin web UI
+                // will see the same here.
+                items = try await libraryService.getLatestMedia(
+                    userID: userID,
+                    parentID: nil,
                     limit: 16
                 )
-                let response = try await libraryService.getItems(userID: userID, query: query)
-                items = response.items
 
             case .allMovies:
                 let query = ItemQuery(
