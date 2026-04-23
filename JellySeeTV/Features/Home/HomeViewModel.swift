@@ -93,26 +93,23 @@ final class HomeViewModel {
                 items = response.items
 
             case .latestMovies:
-                // /Items across ALL accessible libraries — filtering by
-                // IncludeItemTypes=[.movie] is enough, and dropping the
-                // ParentId filter means users with multiple movie
-                // libraries (Movies + Documentaries + Kids …) see fresh
-                // content from every source instead of just the first
-                // one that `libraries.first { ... }` happened to pick.
+                // Native /Items/Latest for Jellyfin parity — whatever
+                // order the Jellyfin web UI shows is what JellySeeTV
+                // shows. ParentId omitted so users with multiple
+                // movie libraries (Movies + Documentaries + Kids …)
+                // see fresh content from every source.
                 //
-                // DateCreated desc stays: a movie's DateCreated is set
-                // when the file is first imported, which is what
-                // "newly added" means for single-file items. BoxSet
-                // collapse is force-disabled in ItemQuery so John Wick
-                // 1-4 stay as individual cards.
-                let query = ItemQuery(
-                    includeItemTypes: [.movie],
-                    sortBy: "DateCreated",
-                    sortOrder: "Descending",
+                // Tradeoff vs. the previous /Items + DateCreated
+                // approach: /Items/Latest folds franchise BoxSet
+                // members into one representative card (John Wick
+                // 1-4 → one entry). Accepted as the cost of parity;
+                // user explicitly preferred matching Jellyfin's
+                // ordering over keeping franchise films separate.
+                items = try await libraryService.getLatestMedia(
+                    userID: userID,
+                    parentID: nil,
                     limit: 16
                 )
-                let response = try await libraryService.getItems(userID: userID, query: query)
-                items = response.items
 
             case .latestShows:
                 // /Items/Latest across ALL libraries (no ParentId
