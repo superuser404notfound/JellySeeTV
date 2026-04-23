@@ -83,12 +83,15 @@ struct UserPickerView: View {
         // horizontally — .adaptive stretched to full width and pinned
         // a single demo-server user to the left edge.
         //
-        // The manual-login button sits in its own .focusSection() so
-        // the tvOS focus engine treats it as a reachable region below
-        // the grid instead of trapping focus inside the LazyVGrid.
+        // Both the grid and the manual-login button sit in their own
+        // .focusSection() blocks. That gives the tvOS focus engine two
+        // peer regions: it picks the upper one (grid) for initial
+        // focus and lets ↓ walk into the button. Without the grid's
+        // section the button stole initial focus because it was the
+        // only explicit section on screen.
         let columnCount = max(1, min(users.count, 5))
         return ScrollView {
-            VStack(spacing: 56) {
+            VStack(spacing: 120) {
                 HStack(spacing: 0) {
                     Spacer(minLength: 0)
                     LazyVGrid(
@@ -106,6 +109,7 @@ struct UserPickerView: View {
                     }
                     Spacer(minLength: 0)
                 }
+                .focusSection()
 
                 manualLoginButton
                     .focusSection()
