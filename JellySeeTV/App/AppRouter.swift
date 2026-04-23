@@ -94,6 +94,26 @@ struct AppRouter: View {
             primaryImageTag: imageTag
         )
 
+        // Migrate pre-0.3.0 sessions into the remembered-profiles
+        // list. Legacy installs only persisted the active session —
+        // without this, the "Add another profile" flow would show
+        // the currently signed-in user in the picker (since no
+        // remembered entry existed to filter by).
+        if let token = try? dependencies.keychainService.loadString(
+            for: KeychainKeys.accessToken(serverID: server.id)
+        ), !dependencies.listRememberedUsers(serverID: server.id)
+            .contains(where: { $0.id == userID }) {
+            try? dependencies.rememberUser(
+                RememberedUser(
+                    id: userID,
+                    serverID: server.id,
+                    name: userName,
+                    imageTag: imageTag,
+                    token: token
+                )
+            )
+        }
+
         // Multi-profile routing. Four possible outcomes:
         //
         // - .useDefault + defaultUserID points at a remembered
