@@ -64,7 +64,7 @@ struct TabRootView: View {
         // explicit configuration, UIImage(systemName:) falls back to a
         // smaller default than the tab bar would request for a raw
         // SwiftUI Image — the icons end up visibly shrunken.
-        let config = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
+        let config = UIImage.SymbolConfiguration(pointSize: 32, weight: .regular)
         let base = UIImage(systemName: name, withConfiguration: config)
             ?? UIImage(systemName: name)
         guard let symbol = base else {
