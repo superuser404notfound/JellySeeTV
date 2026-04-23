@@ -146,12 +146,15 @@ struct AppRouter: View {
                 primaryImageTag: target.imageTag
             )
             appState.setAuthenticated(server: server, user: user)
-        } else if !remembered.isEmpty {
+        } else if remembered.count > 1 {
             launchPickerServer = server
             // Fall through — Seerr restore is independent of which
             // Jellyfin profile ends up active and we want that state
             // ready by the time the user taps a profile.
         } else {
+            // Single-profile install (or nothing remembered yet).
+            // Enter the app directly — no point showing a picker
+            // with one card on it.
             appState.setAuthenticated(server: server, user: restored)
         }
 
