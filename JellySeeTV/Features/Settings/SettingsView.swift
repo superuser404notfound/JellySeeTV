@@ -95,6 +95,13 @@ struct SettingsView: View {
     // MARK: - Settings List
 
     private var settingsList: some View {
+        // Ordered by mental model rather than chronology:
+        //   1. Identity      (Profile)
+        //   2. Personalisation (Appearance)
+        //   3. Content layout  (Home)
+        //   4. Media behavior  (Playback)
+        //   5. Integrations    (Seerr)
+        //   6. Meta / give-back (Support)
         VStack(spacing: 4) {
             SettingsTile(
                 icon: "person.2",
@@ -102,6 +109,14 @@ struct SettingsView: View {
                 subtitle: "settings.profile.subtitle"
             ) {
                 ProfileSettingsView()
+            }
+
+            SettingsTile(
+                icon: "paintpalette",
+                title: "settings.appearance.title",
+                subtitle: "settings.appearance.subtitle.short"
+            ) {
+                AppearanceSettingsView()
             }
 
             SettingsTile(
@@ -126,14 +141,6 @@ struct SettingsView: View {
                 subtitle: seerrSubtitle
             ) {
                 SeerrSettingsView()
-            }
-
-            SettingsTile(
-                icon: "paintpalette",
-                title: "settings.appearance.title",
-                subtitle: "settings.appearance.subtitle.short"
-            ) {
-                AppearanceSettingsView()
             }
 
             SettingsTile(
