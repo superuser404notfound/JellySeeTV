@@ -281,6 +281,7 @@ final class PlayerHostController: UIViewController {
         if viewModel.isDropdownOpen { return }
         if viewModel.showControls && viewModel.controlsFocus != .progressBar {
             stepTransportFocus(direction: -1)
+            viewModel.scheduleControlsHide()
         } else {
             viewModel.seekJumpByConfiguredInterval(direction: -1)
         }
@@ -290,6 +291,7 @@ final class PlayerHostController: UIViewController {
         if viewModel.isDropdownOpen { return }
         if viewModel.showControls && viewModel.controlsFocus != .progressBar {
             stepTransportFocus(direction: 1)
+            viewModel.scheduleControlsHide()
         } else {
             viewModel.seekJumpByConfiguredInterval(direction: 1)
         }
@@ -324,8 +326,9 @@ final class PlayerHostController: UIViewController {
                 else if hasAudio { viewModel.controlsFocus = .audioButton }
                 else if hasSubs { viewModel.controlsFocus = .subtitleButton }
                 else { viewModel.controlsFocus = .speedButton }
+                viewModel.scheduleControlsHide()
             case .skipIntroButton, .audioButton, .subtitleButton, .speedButton:
-                break
+                viewModel.scheduleControlsHide()
             }
         } else {
             viewModel.showControlsTemporarily()
@@ -338,6 +341,7 @@ final class PlayerHostController: UIViewController {
         } else if viewModel.showControls {
             if viewModel.controlsFocus != .progressBar {
                 viewModel.controlsFocus = .progressBar
+                viewModel.scheduleControlsHide()
             } else {
                 viewModel.hideControls()
             }
