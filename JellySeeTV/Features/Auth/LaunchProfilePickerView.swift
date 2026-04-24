@@ -161,8 +161,35 @@ struct LaunchProfilePickerView: View {
                 primaryImageTag: user.imageTag
             )
             appState.setAuthenticated(server: server, user: jf)
+
+            // Restore this profile's own remembered Seerr session.
+            // If the target profile never signed into Seerr, Seerr
+            // stays disconnected and the Catalog tab shows the "set
+            // up Seerr" empty state.
+            Task { await restoreSeerrForProfile(userID: user.id, serverID: server.id) }
         } catch {
             switchError = error.localizedDescription
+        }
+    }
+
+    private func restoreSeerrForProfile(userID: String, serverID: String) async {
+        guard let seerrServer = dependencies.restoreSeerrSession(
+            forJellyfinUserID: userID,
+            jellyfinServerID: serverID
+        ) else {
+            try? dependencies.clearSeerrSession()
+            appState.disconnectSeerr()
+            return
+        }
+        if let seerrUser = try? await dependencies.seerrAuthService.currentUser() {
+            appState.setSeerrConnected(server: seerrServer, user: seerrUser)
+        } else {
+            dependencies.forgetRememberedSeerr(
+                forJellyfinUserID: userID,
+                jellyfinServerID: serverID
+            )
+            try? dependencies.clearSeerrSession()
+            appState.disconnectSeerr()
         }
     }
 

@@ -158,10 +158,27 @@ struct AppRouter: View {
             appState.setAuthenticated(server: server, user: restored)
         }
 
-        if let seerrServer = dependencies.restoreSeerrSession() {
+        // Seerr restore — prefer the profile-scoped session when the
+        // active user has one saved, fall back to the global
+        // last-used entry so legacy (pre-0.3.0) Seerr logins still
+        // come back on first upgrade.
+        let activeUserID = appState.activeUser?.id
+        let activeServerID = appState.activeServer?.id
+        let scopedSeerrServer: SeerrServer? = {
+            guard let uid = activeUserID, let sid = activeServerID else { return nil }
+            return dependencies.restoreSeerrSession(forJellyfinUserID: uid, jellyfinServerID: sid)
+        }()
+        let seerrServer = scopedSeerrServer ?? dependencies.restoreSeerrSession()
+        if let seerrServer {
             if let seerrUser = try? await dependencies.seerrAuthService.currentUser() {
                 appState.setSeerrConnected(server: seerrServer, user: seerrUser)
             } else {
+                // Only forget the profile-scoped entry when it was the
+                // one that failed — keeps other profiles' sessions
+                // untouched.
+                if scopedSeerrServer != nil, let uid = activeUserID, let sid = activeServerID {
+                    dependencies.forgetRememberedSeerr(forJellyfinUserID: uid, jellyfinServerID: sid)
+                }
                 try? dependencies.clearSeerrSession()
             }
         }

@@ -31,4 +31,11 @@ enum KeychainKeys {
     static func seerrSession(serverID: String) -> String {
         "seerrSession_\(serverID)"
     }
+
+    /// JSON-encoded `RememberedSeerrSession` for a specific Jellyfin
+    /// profile. Lets profile switching restore each user's own Seerr
+    /// login instead of forcing them to re-auth on every swap.
+    static func rememberedSeerr(jellyfinServerID: String, jellyfinUserID: String) -> String {
+        "rememberedSeerr_\(jellyfinServerID)_\(jellyfinUserID)"
+    }
 }

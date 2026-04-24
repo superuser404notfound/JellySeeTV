@@ -167,6 +167,9 @@ final class DependencyContainer {
                 for: KeychainKeys.rememberedUsers(serverID: serverID)
             )
         }
+        // Drop the profile-scoped Seerr session too so a forgotten
+        // user doesn't leave a dangling Seerr cookie in the keychain.
+        forgetRememberedSeerr(forJellyfinUserID: id, jellyfinServerID: serverID)
     }
 
     /// Swap to an already-remembered profile. Re-uses the cached
@@ -199,13 +202,12 @@ final class DependencyContainer {
         jellyfinClient.baseURL = server.url
         jellyfinClient.accessToken = remembered.token
 
-        // Seerr sessions are personal to the Jellyfin user that
-        // originally logged in — carrying one over would let the
-        // new profile see the old user's Seerr requests + watchlist.
-        // Drop it so the Catalog tab reverts to the "set up Seerr"
-        // state and the new user authenticates with their own
-        // Jellyseerr account.
-        try clearSeerrSession()
+        // Seerr is handled separately by the caller via
+        // restoreSeerrSession(forJellyfinUserID:jellyfinServerID:).
+        // Keeping it out of switchToUser means a profile that has
+        // its own remembered Seerr session picks it back up on
+        // switch, while a profile with no Seerr history correctly
+        // lands on the "set up Seerr" empty state.
     }
 
     func loadJellyfinPassword() -> String? {
@@ -225,6 +227,15 @@ final class DependencyContainer {
            let decoded = try? JSONDecoder().decode(JellyfinServer.self, from: server) {
             try keychainService.delete(for: KeychainKeys.accessToken(serverID: decoded.id))
             try keychainService.delete(for: KeychainKeys.jellyfinPassword(serverID: decoded.id))
+            // Before we forget the remembered profile list, tear
+            // down every profile's per-user Seerr session — otherwise
+            // they linger in the keychain as orphaned blobs.
+            for remembered in listRememberedUsers(serverID: decoded.id) {
+                forgetRememberedSeerr(
+                    forJellyfinUserID: remembered.id,
+                    jellyfinServerID: decoded.id
+                )
+            }
             // Full logout = nuke every remembered profile for this
             // server too. Profile pruning at a finer granularity
             // happens via forgetUser() from the picker's long-press
@@ -256,13 +267,76 @@ final class DependencyContainer {
         return server
     }
 
-    func saveSeerrSession(server: SeerrServer) throws {
+    func saveSeerrSession(
+        server: SeerrServer,
+        forJellyfinUserID jellyfinUserID: String? = nil,
+        jellyfinServerID: String? = nil
+    ) throws {
         let serverData = try JSONEncoder().encode(server)
         try keychainService.save(serverData, for: KeychainKeys.seerrServer)
         if let cookie = seerrClient.sessionCookie {
             try keychainService.save(cookie, for: KeychainKeys.seerrSession(serverID: server.id))
         }
         seerrClient.baseURL = server.url
+
+        // Additionally persist a per-(Jellyfin-user) copy so profile
+        // switching can restore the right Seerr session for each
+        // profile. Skipped when either ID is missing — callers pass
+        // both when they can (SeerrSettingsView has the full app
+        // state), nothing when the login happens outside of any
+        // Jellyfin-user context.
+        if let jellyfinUserID, let jellyfinServerID, let cookie = seerrClient.sessionCookie {
+            let remembered = RememberedSeerrSession(
+                jellyfinUserID: jellyfinUserID,
+                jellyfinServerID: jellyfinServerID,
+                seerrServer: server,
+                cookie: cookie
+            )
+            let data = try JSONEncoder().encode(remembered)
+            try keychainService.save(
+                data,
+                for: KeychainKeys.rememberedSeerr(
+                    jellyfinServerID: jellyfinServerID,
+                    jellyfinUserID: jellyfinUserID
+                )
+            )
+        }
+    }
+
+    /// Restore the Seerr session that belongs to a specific Jellyfin
+    /// profile. Returns the SeerrServer on success so the caller can
+    /// kick off `seerrAuthService.currentUser()` and surface the
+    /// result to AppState. Returns nil when the profile has no
+    /// remembered Seerr session, in which case the caller should
+    /// clear Seerr state.
+    func restoreSeerrSession(
+        forJellyfinUserID jellyfinUserID: String,
+        jellyfinServerID: String
+    ) -> SeerrServer? {
+        let key = KeychainKeys.rememberedSeerr(
+            jellyfinServerID: jellyfinServerID,
+            jellyfinUserID: jellyfinUserID
+        )
+        guard let data = try? keychainService.loadData(for: key),
+              let remembered = try? JSONDecoder().decode(RememberedSeerrSession.self, from: data)
+        else {
+            return nil
+        }
+        seerrClient.baseURL = remembered.seerrServer.url
+        seerrClient.sessionCookie = remembered.cookie
+        return remembered.seerrServer
+    }
+
+    /// Per-profile Seerr forget — used when a stored Seerr session
+    /// fails to restore (server rotated, cookie expired, user
+    /// revoked). Leaves other profiles' sessions alone.
+    func forgetRememberedSeerr(forJellyfinUserID jellyfinUserID: String, jellyfinServerID: String) {
+        try? keychainService.delete(
+            for: KeychainKeys.rememberedSeerr(
+                jellyfinServerID: jellyfinServerID,
+                jellyfinUserID: jellyfinUserID
+            )
+        )
     }
 
     func clearSeerrSession() throws {

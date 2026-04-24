@@ -304,8 +304,40 @@ struct ProfileSettingsView: View {
             )
             appState.setAuthenticated(server: server, user: jf)
             refresh()
+
+            // Carry the Seerr session for this profile across the
+            // switch — each Jellyfin user has their own Seerr login
+            // saved separately in the keychain. If the stored cookie
+            // turns out to be invalid we drop it and fall back to a
+            // disconnected state; the user re-auths once and it
+            // sticks from then on.
+            Task { await restoreSeerrForSwitchedProfile(userID: user.id, serverID: server.id) }
         } catch {
             actionError = error.localizedDescription
+        }
+    }
+
+    private func restoreSeerrForSwitchedProfile(userID: String, serverID: String) async {
+        guard let seerrServer = dependencies.restoreSeerrSession(
+            forJellyfinUserID: userID,
+            jellyfinServerID: serverID
+        ) else {
+            try? dependencies.clearSeerrSession()
+            appState.disconnectSeerr()
+            return
+        }
+        if let seerrUser = try? await dependencies.seerrAuthService.currentUser() {
+            appState.setSeerrConnected(server: seerrServer, user: seerrUser)
+        } else {
+            // Stored cookie no longer valid — forget just this
+            // profile's entry so the user only has to re-auth
+            // Seerr once, not wipe every remembered profile.
+            dependencies.forgetRememberedSeerr(
+                forJellyfinUserID: userID,
+                jellyfinServerID: serverID
+            )
+            try? dependencies.clearSeerrSession()
+            appState.disconnectSeerr()
         }
     }
 

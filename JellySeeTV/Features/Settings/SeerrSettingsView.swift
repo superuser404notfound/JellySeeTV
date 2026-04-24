@@ -428,7 +428,14 @@ struct SeerrSettingsView: View {
                 username: username,
                 password: password
             )
-            try dependencies.saveSeerrSession(server: server)
+            // Tie the Seerr session to the currently active Jellyfin
+            // profile so a future switchToUser can restore it without
+            // the user re-authenticating.
+            try dependencies.saveSeerrSession(
+                server: server,
+                forJellyfinUserID: appState.activeUser?.id,
+                jellyfinServerID: appState.activeServer?.id
+            )
             passwordText = ""
             showSuccess = true
 
