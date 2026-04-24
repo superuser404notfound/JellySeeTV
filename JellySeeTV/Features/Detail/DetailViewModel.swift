@@ -190,9 +190,15 @@ final class DetailViewModel {
         guard item.type == .boxSet else { return }
 
         do {
+            // Chronological: oldest first. Franchise box-sets (Iron
+            // Man → Avengers, Harry Potter 1 → 8) read naturally
+            // left-to-right in release order — SortName would give
+            // "Avengers" before "Iron Man" and defeat the point of a
+            // collection. PremiereDate is the original theatrical /
+            // first-air date Jellyfin stamps on each item.
             let query = ItemQuery(
                 parentID: item.id,
-                sortBy: "SortName",
+                sortBy: "PremiereDate,ProductionYear,SortName",
                 sortOrder: "Ascending",
                 limit: 50
             )
