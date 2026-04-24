@@ -226,7 +226,7 @@ struct SeriesDetailView: View {
                 )
 
                 if !isShowingEpisode {
-                    TrailerButton(source: .jellyfin(vm.item))
+                    TrailerButton(trailer: vm.trailer)
                 }
 
                 if !isShowingEpisode {

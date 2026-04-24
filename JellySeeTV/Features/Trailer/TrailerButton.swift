@@ -1,47 +1,34 @@
 import SwiftUI
 
-/// Reusable trailer action across detail views. Resolves the best
-/// available source on appear, then renders a button that:
-///   - plays local trailers through AetherEngine (same player as
-///     regular content), or
-///   - hands YouTube trailers off to the external YouTube app with
-///     a QR-code sheet as the fallback for when the OS can't open
-///     the URL.
-///
-/// When no trailer is available for the item, the button renders
-/// nothing — keeps the detail view's action row uncluttered.
+/// Pure presentational button that renders a trailer action when
+/// its owner has resolved a source, and hides itself otherwise.
+/// Resolution happens in the enclosing view model — Detail /
+/// Catalog view models call their TrailerService and publish into
+/// an observable `trailer` property. Keeping the resolve out of
+/// the view makes the state machine visible (a single @Observable
+/// property) and means SwiftUI doesn't have to re-synchronize an
+/// async `.task` against item refreshes.
 struct TrailerButton: View {
-
-    enum Source {
-        case jellyfin(JellyfinItem)
-        case seerr(tmdbID: Int, mediaType: SeerrMediaType, title: String?)
-    }
-
-    let source: Source
+    let trailer: TrailerSource?
 
     @Environment(\.appState) private var appState
     @Environment(\.dependencies) private var dependencies
 
-    @State private var resolved: TrailerSource?
     @State private var showPlayer = false
     @State private var showQR = false
     @State private var qrTarget: (url: URL, title: String?)?
 
     var body: some View {
         Group {
-            switch resolved {
+            switch trailer {
             case .local, .youtube:
                 button
             case .unavailable, .none:
                 EmptyView()
             }
         }
-        .task(id: sourceID) {
-            resolved = nil
-            resolved = await resolve()
-        }
         .overlay {
-            if case .local(let trailerItem) = resolved,
+            if case .local(let trailerItem) = trailer,
                let userID = appState.activeUser?.id {
                 PlayerLauncher(
                     isPresented: $showPlayer,
@@ -65,9 +52,6 @@ struct TrailerButton: View {
         }
     }
 
-    // MARK: - Button
-
-    @ViewBuilder
     private var button: some View {
         GlassActionButton(
             title: "trailer.play",
@@ -77,10 +61,8 @@ struct TrailerButton: View {
         }
     }
 
-    // MARK: - Actions
-
     private func handleTap() async {
-        switch resolved {
+        switch trailer {
         case .local:
             showPlayer = true
         case .youtube(_, let url, let title):
@@ -93,43 +75,6 @@ struct TrailerButton: View {
             }
         case .unavailable, .none:
             break
-        }
-    }
-
-    // MARK: - Resolution
-
-    /// Task-id has to include the trailer-relevant fields, not just
-    /// the item ID: JellyfinItem's Hashable is keyed only on `id`, so
-    /// `.task(id:)` wouldn't re-fire when DetailViewModel swaps in the
-    /// detail-loaded item (same id, now with populated remoteTrailers).
-    /// Without the trailer counts baked into the id, the resolver ran
-    /// once against the list-stub version that has no trailer
-    /// metadata and latched on .unavailable — button never appeared.
-    private var sourceID: String {
-        switch source {
-        case .jellyfin(let item):
-            let remote = item.remoteTrailers?.count ?? 0
-            let local = item.localTrailerCount ?? 0
-            return "jf-\(item.id)-r\(remote)-l\(local)"
-        case .seerr(let tmdbID, let type, _):
-            return "seerr-\(type.rawValue)-\(tmdbID)"
-        }
-    }
-
-    private func resolve() async -> TrailerSource {
-        let service = TrailerService(
-            libraryService: dependencies.jellyfinLibraryService,
-            mediaService: dependencies.seerrMediaService
-        )
-        switch source {
-        case .jellyfin(let item):
-            return await service.resolveTrailer(for: item)
-        case .seerr(let tmdbID, let mediaType, let title):
-            return await service.resolveTrailer(
-                forTMDBID: tmdbID,
-                mediaType: mediaType,
-                fallbackTitle: title
-            )
         }
     }
 }

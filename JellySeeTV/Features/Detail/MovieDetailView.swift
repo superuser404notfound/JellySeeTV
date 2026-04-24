@@ -60,6 +60,7 @@ struct MovieDetailView: View {
                     itemService: dependencies.jellyfinItemService,
                     imageService: dependencies.jellyfinImageService,
                     userID: userID,
+                    libraryService: dependencies.jellyfinLibraryService,
                     playbackService: dependencies.jellyfinPlaybackService
                 )
                 Task { await viewModel?.loadFullDetail() }
@@ -159,7 +160,7 @@ struct MovieDetailView: View {
                     )
                 }
 
-                TrailerButton(source: .jellyfin(vm.item))
+                TrailerButton(trailer: vm.trailer)
 
                 if vm.item.type != .episode {
                     GlassActionButton(

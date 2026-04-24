@@ -14,6 +14,12 @@ final class DetailViewModel {
     var isLoading = false
     var cachedPlaybackInfo: PlaybackInfoResponse?
 
+    /// Resolved once per detail load — the TrailerButton observes
+    /// this and renders itself only once a concrete source lands.
+    /// `nil` = resolution hasn't run yet; `.unavailable` = confirmed
+    /// nothing to play.
+    var trailer: TrailerSource?
+
     private let itemService: JellyfinItemServiceProtocol
     private let libraryService: JellyfinLibraryServiceProtocol?
     private let playbackService: JellyfinPlaybackServiceProtocol?
@@ -86,6 +92,11 @@ final class DetailViewModel {
             similarItems = similar.items
         }
 
+        // Resolve trailer against the refreshed detail item — this
+        // is where RemoteTrailers finally lands (Fields omitted it
+        // from list queries prior to the detail fetch).
+        await resolveTrailer()
+
         // Load content (depends on item type from detail response)
         if itemType == .series {
             await loadSeasons()
@@ -96,6 +107,48 @@ final class DetailViewModel {
         }
 
         isLoading = false
+    }
+
+    /// Resolve this item's best-available trailer once the detail
+    /// payload has landed. Writes into the observable `trailer`
+    /// property, which the TrailerButton binds to.
+    func resolveTrailer() async {
+        let localCount = item.localTrailerCount ?? 0
+        let remoteCount = item.remoteTrailers?.count ?? 0
+
+        #if DEBUG
+        print("[Trailer] item=\(item.name) localCount=\(localCount) remoteCount=\(remoteCount) remotes=\(item.remoteTrailers?.map(\.url) ?? [])")
+        #endif
+
+        if localCount > 0, let libraryService {
+            if let first = try? await libraryService.getLocalTrailers(itemID: item.id).first {
+                trailer = .local(first)
+                #if DEBUG
+                print("[Trailer] resolved .local \(first.id)")
+                #endif
+                return
+            }
+        }
+
+        if let remote = item.remoteTrailers?
+            .compactMap({ YouTubeURL.parse(from: $0.url) })
+            .first {
+            let name = item.remoteTrailers?.first?.name ?? item.name
+            trailer = .youtube(
+                videoKey: remote.videoKey,
+                watchURL: remote.watchURL,
+                title: name
+            )
+            #if DEBUG
+            print("[Trailer] resolved .youtube \(remote.videoKey)")
+            #endif
+            return
+        }
+
+        trailer = .unavailable
+        #if DEBUG
+        print("[Trailer] resolved .unavailable")
+        #endif
     }
 
     func loadSeasons() async {

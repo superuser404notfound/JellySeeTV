@@ -7,6 +7,7 @@ struct CatalogDetailView: View {
 
     @State private var movieDetail: SeerrMovieDetail?
     @State private var tvDetail: SeerrTVDetail?
+    @State private var trailer: TrailerSource?
     @State private var isLoading = true
     @State private var errorMessage: String?
 
@@ -128,13 +129,10 @@ struct CatalogDetailView: View {
             }
 
             // Trailer button — shown only when Jellyseerr's
-            // relatedVideos has a YouTube trailer for this item;
-            // resolves async so we don't block the overview render.
-            TrailerButton(source: .seerr(
-                tmdbID: media.id,
-                mediaType: media.mediaType,
-                title: displayTitle
-            ))
+            // relatedVideos has a YouTube trailer for this item.
+            // The resolution happens in load(); this is purely a
+            // binding.
+            TrailerButton(trailer: trailer)
 
             if media.mediaType == .tv, let seasons = availableSeasons, !seasons.isEmpty {
                 seasonSelection(seasons: seasons)
@@ -443,10 +441,50 @@ struct CatalogDetailView: View {
             return
         }
 
+        resolveTrailer()
+
         // Load service config in the background — best-effort. If it
         // fails (admin hasn't configured Radarr/Sonarr, user lacks
         // permission), we silently fall back to Seerr's server defaults.
         await loadServiceConfig()
+    }
+
+    /// Pick the first YouTube-sited trailer out of the detail
+    /// response's relatedVideos. Falls back to any YouTube video
+    /// when no explicit `type == "Trailer"` exists.
+    private func resolveTrailer() {
+        let videos: [SeerrVideo]?
+        switch media.mediaType {
+        case .movie:  videos = movieDetail?.relatedVideos
+        case .tv:     videos = tvDetail?.relatedVideos
+        case .person: videos = nil
+        }
+
+        #if DEBUG
+        print("[Trailer] seerr id=\(media.id) type=\(media.mediaType.rawValue) videoCount=\(videos?.count ?? -1) ytTrailers=\(videos?.filter { $0.isYouTube && $0.isTrailer }.count ?? 0)")
+        #endif
+
+        guard let videos else { trailer = .unavailable; return }
+
+        if let t = videos.first(where: { $0.isTrailer && $0.isYouTube }),
+           let y = YouTubeURL.from(key: t.key) {
+            trailer = .youtube(
+                videoKey: y.videoKey,
+                watchURL: y.watchURL,
+                title: t.name ?? displayTitle
+            )
+            return
+        }
+        if let any = videos.first(where: { $0.isYouTube }),
+           let y = YouTubeURL.from(key: any.key) {
+            trailer = .youtube(
+                videoKey: y.videoKey,
+                watchURL: y.watchURL,
+                title: any.name ?? displayTitle
+            )
+            return
+        }
+        trailer = .unavailable
     }
 
     private func loadServiceConfig() async {
