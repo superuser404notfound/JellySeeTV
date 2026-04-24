@@ -269,6 +269,10 @@ struct ProfileSettingsView: View {
     private func switchTo(_ user: RememberedUser, server: JellyfinServer) {
         do {
             try dependencies.switchToUser(user, server: server)
+            // Cached images were fetched with the previous profile's
+            // token, which might not resolve against the server under
+            // the new user's permissions. Force-refresh by clearing.
+            ImageCache.shared.clear()
             let jf = JellyfinUser(
                 id: user.id,
                 name: user.name,

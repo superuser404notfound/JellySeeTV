@@ -127,6 +127,9 @@ struct LaunchProfilePickerView: View {
     private func select(_ user: RememberedUser) {
         do {
             try dependencies.switchToUser(user, server: server)
+            // Drop cached thumbnails — they were fetched under the
+            // old profile's token which may no longer resolve.
+            ImageCache.shared.clear()
             let jf = JellyfinUser(
                 id: user.id,
                 name: user.name,
