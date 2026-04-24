@@ -312,8 +312,48 @@ struct ProfileSettingsView: View {
             // disconnected state; the user re-auths once and it
             // sticks from then on.
             Task { await restoreSeerrForSwitchedProfile(userID: user.id, serverID: server.id) }
+            // Refresh the user's details from the server so a nil or
+            // stale PrimaryImageTag in the RememberedUser gets
+            // backfilled. Older entries (pre backfill-from-picker
+            // fix) and legacy migrations sometimes landed with
+            // imageTag=nil even though the user has a Jellyfin
+            // avatar.
+            Task { await refreshUserDetails(userID: user.id, serverID: server.id) }
         } catch {
             actionError = error.localizedDescription
+        }
+    }
+
+    private func refreshUserDetails(userID: String, serverID: String) async {
+        guard let fresh = try? await dependencies.jellyfinAuthService.getUser(id: userID) else {
+            return
+        }
+        // Only update if something useful changed, and only while
+        // the user is still the active profile (user may have
+        // switched again before the fetch returned).
+        guard appState.activeUser?.id == userID else { return }
+        if appState.activeUser?.primaryImageTag != fresh.primaryImageTag {
+            appState.activeUser = fresh
+            try? dependencies.keychainService.save(
+                fresh.primaryImageTag ?? "",
+                for: "activeUserImageTag"
+            )
+            // Also update the RememberedUser so subsequent switches
+            // already have the right tag without another network
+            // round-trip.
+            if let existing = dependencies.listRememberedUsers(serverID: serverID)
+                .first(where: { $0.id == userID }) {
+                try? dependencies.rememberUser(
+                    RememberedUser(
+                        id: existing.id,
+                        serverID: existing.serverID,
+                        name: fresh.name,
+                        imageTag: fresh.primaryImageTag,
+                        token: existing.token,
+                        addedAt: existing.addedAt
+                    )
+                )
+            }
         }
     }
 

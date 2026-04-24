@@ -172,6 +172,20 @@ struct AppRouter: View {
         if let seerrServer {
             if let seerrUser = try? await dependencies.seerrAuthService.currentUser() {
                 appState.setSeerrConnected(server: seerrServer, user: seerrUser)
+
+                // Legacy bridge: if we restored via the global
+                // pre-0.3.0 keychain entry (scopedSeerrServer was
+                // nil), persist a per-user copy for the active
+                // profile so the next profile switch can bring this
+                // session back. Without this, pre-0.3.0 Seerr users
+                // would have to re-authenticate after every switch.
+                if scopedSeerrServer == nil, let uid = activeUserID, let sid = activeServerID {
+                    try? dependencies.saveSeerrSession(
+                        server: seerrServer,
+                        forJellyfinUserID: uid,
+                        jellyfinServerID: sid
+                    )
+                }
             } else {
                 // Only forget the profile-scoped entry when it was the
                 // one that failed — keeps other profiles' sessions

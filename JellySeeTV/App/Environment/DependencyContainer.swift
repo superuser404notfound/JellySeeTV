@@ -42,9 +42,14 @@ final class DependencyContainer {
         self.jellyfinLibraryService = JellyfinLibraryService(client: jellyfinClient)
         self.jellyfinItemService = JellyfinItemService(client: jellyfinClient)
         self.jellyfinSearchService = JellyfinSearchService(client: jellyfinClient)
-        self.jellyfinImageService = JellyfinImageService(baseURLProvider: { [weak jellyfinClient] in
-            jellyfinClient?.baseURL
-        })
+        self.jellyfinImageService = JellyfinImageService(
+            baseURLProvider: { [weak jellyfinClient] in
+                jellyfinClient?.baseURL
+            },
+            accessTokenProvider: { [weak jellyfinClient] in
+                jellyfinClient?.accessToken
+            }
+        )
         self.jellyfinPlaybackService = JellyfinPlaybackService(client: jellyfinClient)
         self.cloudSyncService = CloudSyncService()
         self.playbackPreferences = PlaybackPreferences()

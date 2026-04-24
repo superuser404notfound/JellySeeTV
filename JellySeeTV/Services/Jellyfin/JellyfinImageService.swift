@@ -10,9 +10,14 @@ enum ImageType: String, Sendable {
 
 final class JellyfinImageService {
     private let baseURL: () -> URL?
+    private let accessToken: () -> String?
 
-    init(baseURLProvider: @escaping () -> URL?) {
+    init(
+        baseURLProvider: @escaping () -> URL?,
+        accessTokenProvider: @escaping () -> String? = { nil }
+    ) {
         self.baseURL = baseURLProvider
+        self.accessToken = accessTokenProvider
     }
 
     func imageURL(
@@ -31,6 +36,16 @@ final class JellyfinImageService {
         if let maxWidth { queryItems.append("maxWidth=\(maxWidth)") }
         if let maxHeight { queryItems.append("maxHeight=\(maxHeight)") }
         queryItems.append("quality=90")
+        // api_key lets servers with "require authentication for
+        // images" configured (default on modern Jellyfin) serve
+        // these URLs to SwiftUI's AsyncImage — AsyncImage uses the
+        // shared URLSession and doesn't carry our Authorization
+        // header. Including the token also invalidates the cached
+        // URL cleanly when the user switches profiles, so stale
+        // 401s from a previous profile's token don't linger.
+        if let token = accessToken() {
+            queryItems.append("api_key=\(token)")
+        }
 
         if !queryItems.isEmpty {
             path += "?" + queryItems.joined(separator: "&")
@@ -87,7 +102,9 @@ final class JellyfinImageService {
 
     func personImageURL(personID: String, tag: String?, maxWidth: Int = 200) -> URL? {
         guard let base = baseURL(), let tag else { return nil }
-        return URL(string: "\(base)/Items/\(personID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90")
+        var url = "\(base)/Items/\(personID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90"
+        if let token = accessToken() { url += "&api_key=\(token)" }
+        return URL(string: url)
     }
 
     /// User avatar (`/Users/{id}/Images/Primary`). Differs from
@@ -96,12 +113,16 @@ final class JellyfinImageService {
     /// no profile picture set so the UI can fall back to initials.
     func userProfileImageURL(userID: String, tag: String?, maxWidth: Int = 240) -> URL? {
         guard let base = baseURL(), let tag else { return nil }
-        return URL(string: "\(base)/Users/\(userID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90")
+        var url = "\(base)/Users/\(userID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90"
+        if let token = accessToken() { url += "&api_key=\(token)" }
+        return URL(string: url)
     }
 
     func studioLogoURL(studioName: String, maxWidth: Int = 400) -> URL? {
         guard let base = baseURL() else { return nil }
         let encoded = studioName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? studioName
-        return URL(string: "\(base)/Studios/\(encoded)/Images/Primary?maxWidth=\(maxWidth)&quality=90")
+        var url = "\(base)/Studios/\(encoded)/Images/Primary?maxWidth=\(maxWidth)&quality=90"
+        if let token = accessToken() { url += "&api_key=\(token)" }
+        return URL(string: url)
     }
 }

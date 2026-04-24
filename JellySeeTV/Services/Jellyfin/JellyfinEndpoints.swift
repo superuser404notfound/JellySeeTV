@@ -7,6 +7,7 @@ enum JellyfinEndpoint: APIEndpoint {
 
     // Auth
     case authenticateByName(username: String, password: String)
+    case userDetail(userID: String)
 
     // Quick Connect
     case quickConnectInitiate
@@ -54,6 +55,8 @@ enum JellyfinEndpoint: APIEndpoint {
             "/Users/Public"
         case .authenticateByName:
             "/Users/AuthenticateByName"
+        case .userDetail(let userID):
+            "/Users/\(userID)"
         case .quickConnectInitiate:
             "/QuickConnect/Initiate"
         case .quickConnectCheck:

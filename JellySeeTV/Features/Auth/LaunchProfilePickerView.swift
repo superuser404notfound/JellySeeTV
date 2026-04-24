@@ -167,8 +167,37 @@ struct LaunchProfilePickerView: View {
             // stays disconnected and the Catalog tab shows the "set
             // up Seerr" empty state.
             Task { await restoreSeerrForProfile(userID: user.id, serverID: server.id) }
+            // Backfill a missing PrimaryImageTag from the server so
+            // the Settings avatar switches to the actual picture
+            // instead of staying on the initials.
+            Task { await refreshUserDetails(userID: user.id, serverID: server.id) }
         } catch {
             switchError = error.localizedDescription
+        }
+    }
+
+    private func refreshUserDetails(userID: String, serverID: String) async {
+        guard let fresh = try? await dependencies.jellyfinAuthService.getUser(id: userID) else { return }
+        guard appState.activeUser?.id == userID else { return }
+        if appState.activeUser?.primaryImageTag != fresh.primaryImageTag {
+            appState.activeUser = fresh
+            try? dependencies.keychainService.save(
+                fresh.primaryImageTag ?? "",
+                for: "activeUserImageTag"
+            )
+            if let existing = dependencies.listRememberedUsers(serverID: serverID)
+                .first(where: { $0.id == userID }) {
+                try? dependencies.rememberUser(
+                    RememberedUser(
+                        id: existing.id,
+                        serverID: existing.serverID,
+                        name: fresh.name,
+                        imageTag: fresh.primaryImageTag,
+                        token: existing.token,
+                        addedAt: existing.addedAt
+                    )
+                )
+            }
         }
     }
 

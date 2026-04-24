@@ -6,6 +6,7 @@ protocol JellyfinAuthServiceProtocol: Sendable {
     func checkQuickConnect(secret: String) async throws -> Bool
     func authenticateWithQuickConnect(secret: String) async throws -> JellyfinAuthResponse
     func getPublicUsers() async throws -> [JellyfinUser]
+    func getUser(id: String) async throws -> JellyfinUser
 }
 
 final class JellyfinAuthService: JellyfinAuthServiceProtocol {
@@ -52,6 +53,18 @@ final class JellyfinAuthService: JellyfinAuthServiceProtocol {
         try await client.request(
             endpoint: JellyfinEndpoint.publicUsers,
             responseType: [JellyfinUser].self
+        )
+    }
+
+    /// Fetch an authenticated user's full record — unlike
+    /// /Users/Public this needs a valid access token and returns the
+    /// user even when "show on login screen" is disabled. Used after
+    /// a profile switch to backfill fields (PrimaryImageTag, …)
+    /// that some Jellyfin versions omit on the auth response.
+    func getUser(id: String) async throws -> JellyfinUser {
+        try await client.request(
+            endpoint: JellyfinEndpoint.userDetail(userID: id),
+            responseType: JellyfinUser.self
         )
     }
 }
