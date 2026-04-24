@@ -10,7 +10,6 @@ struct ProfileSettingsView: View {
 
     @State private var rememberedUsers: [RememberedUser] = []
     @State private var navigateToAddProfile = false
-    @State private var pendingForget: RememberedUser?
     @State private var actionError: String?
 
     private var authPreferences: AuthPreferences {
@@ -49,31 +48,6 @@ struct ProfileSettingsView: View {
                 // manual sign-in field by itself.
                 UserPickerView(server: server)
             }
-        }
-        .confirmationDialog(
-            String(localized: "profile.forget.title",
-                   defaultValue: "Remove this profile?"),
-            isPresented: Binding(
-                get: { pendingForget != nil },
-                set: { if !$0 { pendingForget = nil } }
-            ),
-            titleVisibility: .visible,
-            presenting: pendingForget
-        ) { user in
-            Button(role: .destructive) {
-                forget(user)
-            } label: {
-                Text(String(localized: "profile.forget.confirm",
-                            defaultValue: "Remove \(user.name)"))
-            }
-            Button(role: .cancel) { pendingForget = nil } label: {
-                Text(String(localized: "common.cancel", defaultValue: "Cancel"))
-            }
-        } message: { _ in
-            Text(String(
-                localized: "profile.forget.message",
-                defaultValue: "You'll need to sign in again the next time you pick this profile."
-            ))
         }
         .alert(
             String(localized: "profile.switch.failed.title",
@@ -170,7 +144,7 @@ struct ProfileSettingsView: View {
                                 user: user,
                                 server: server,
                                 onSelect: { switchTo(user, server: server) },
-                                onLongPress: { pendingForget = user }
+                                onLongPress: { forget(user) }
                             )
                         }
                     }
@@ -413,7 +387,6 @@ struct ProfileSettingsView: View {
         } catch {
             actionError = error.localizedDescription
         }
-        pendingForget = nil
     }
 }
 

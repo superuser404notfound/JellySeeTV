@@ -15,7 +15,6 @@ struct LaunchProfilePickerView: View {
 
     @State private var rememberedUsers: [RememberedUser] = []
     @State private var navigateToAddProfile = false
-    @State private var pendingForget: RememberedUser?
     @State private var switchError: String?
 
     var body: some View {
@@ -37,31 +36,6 @@ struct LaunchProfilePickerView: View {
                 // second profile feels like "pick another user" rather
                 // than "type username+password from scratch".
                 UserPickerView(server: server)
-            }
-            .confirmationDialog(
-                String(localized: "profile.forget.title",
-                       defaultValue: "Remove this profile?"),
-                isPresented: Binding(
-                    get: { pendingForget != nil },
-                    set: { if !$0 { pendingForget = nil } }
-                ),
-                titleVisibility: .visible,
-                presenting: pendingForget
-            ) { user in
-                Button(role: .destructive) {
-                    forget(user)
-                } label: {
-                    Text(String(localized: "profile.forget.confirm",
-                                defaultValue: "Remove \(user.name)"))
-                }
-                Button(role: .cancel) { pendingForget = nil } label: {
-                    Text(String(localized: "common.cancel", defaultValue: "Cancel"))
-                }
-            } message: { _ in
-                Text(String(
-                    localized: "profile.forget.message",
-                    defaultValue: "You'll need to sign in again the next time you pick this profile."
-                ))
             }
             .alert(
                 String(localized: "profile.switch.failed.title",
@@ -119,7 +93,7 @@ struct LaunchProfilePickerView: View {
                         user: user,
                         server: server,
                         onSelect: { select(user) },
-                        onLongPress: { pendingForget = user }
+                        onLongPress: { forget(user) }
                     )
                 }
             }
@@ -249,7 +223,6 @@ struct LaunchProfilePickerView: View {
         do {
             try dependencies.forgetUser(id: user.id, serverID: server.id)
             rememberedUsers = dependencies.listRememberedUsers(serverID: server.id)
-            pendingForget = nil
 
             // If the user forgot the defaultUserID, clear the default
             // so launch behavior doesn't try to restore a ghost.
@@ -291,8 +264,19 @@ struct RememberedProfileCard: View {
         }
         .buttonStyle(.plain)
         .focused($isFocused)
-        .onLongPressGesture {
-            onLongPress()
+        // tvOS-native: long-pressing a focusable button opens a
+        // context menu instead of firing both the primary action
+        // and a secondary gesture on release. Tapping "Remove"
+        // inside the menu is the explicit confirmation — one extra
+        // click to protect against accidental deletion.
+        .contextMenu {
+            Button(role: .destructive, action: onLongPress) {
+                Label(
+                    String(localized: "profile.forget.confirm.short",
+                           defaultValue: "Remove profile"),
+                    systemImage: "trash"
+                )
+            }
         }
     }
 
