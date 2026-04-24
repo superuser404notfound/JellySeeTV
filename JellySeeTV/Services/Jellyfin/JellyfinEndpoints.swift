@@ -128,6 +128,14 @@ enum JellyfinEndpoint: APIEndpoint {
         case .items(_, let query):
             return query.toQueryItems()
 
+        case .itemDetail:
+            // /Users/{id}/Items/{id} otherwise omits the extended
+            // `Fields` (including RemoteTrailers, which the Trailer
+            // button needs to resolve YouTube URLs for a detail
+            // item). defaultFields is our standard "give me enough
+            // to render a rich detail view" set.
+            return [URLQueryItem(name: "Fields", value: Self.defaultFields)]
+
         case .resumeItems(_, let mediaType, let limit):
             return [
                 URLQueryItem(name: "MediaTypes", value: mediaType),
