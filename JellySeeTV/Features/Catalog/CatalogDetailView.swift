@@ -127,6 +127,15 @@ struct CatalogDetailView: View {
                 }
             }
 
+            // Trailer button — shown only when Jellyseerr's
+            // relatedVideos has a YouTube trailer for this item;
+            // resolves async so we don't block the overview render.
+            TrailerButton(source: .seerr(
+                tmdbID: media.id,
+                mediaType: media.mediaType,
+                title: displayTitle
+            ))
+
             if media.mediaType == .tv, let seasons = availableSeasons, !seasons.isEmpty {
                 seasonSelection(seasons: seasons)
             }

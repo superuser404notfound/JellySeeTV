@@ -27,6 +27,7 @@ enum JellyfinEndpoint: APIEndpoint {
     case seasons(seriesID: String, userID: String)
     case episodes(seriesID: String, seasonID: String, userID: String)
     case similarItems(itemID: String, userID: String, limit: Int)
+    case localTrailers(itemID: String)
 
     // Genres & Studios
     case genres(userID: String)
@@ -84,6 +85,8 @@ enum JellyfinEndpoint: APIEndpoint {
             "/Shows/\(seriesID)/Episodes"
         case .similarItems(let itemID, _, _):
             "/Items/\(itemID)/Similar"
+        case .localTrailers(let itemID):
+            "/Items/\(itemID)/LocalTrailers"
         case .genres:
             "/Genres"
         case .studios:
@@ -240,7 +243,7 @@ enum JellyfinEndpoint: APIEndpoint {
         }
     }
 
-    static let defaultFields = "Overview,Genres,People,Studios,MediaStreams,MediaSources,CommunityRating,OfficialRating,ImageTags,BackdropImageTags,ParentBackdropImageTags,SeriesPrimaryImageTag,ProviderIds"
+    static let defaultFields = "Overview,Genres,People,Studios,MediaStreams,MediaSources,CommunityRating,OfficialRating,ImageTags,BackdropImageTags,ParentBackdropImageTags,SeriesPrimaryImageTag,ProviderIds,RemoteTrailers"
 }
 
 struct ItemQuery: Sendable {

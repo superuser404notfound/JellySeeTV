@@ -226,6 +226,10 @@ struct SeriesDetailView: View {
                 )
 
                 if !isShowingEpisode {
+                    TrailerButton(source: .jellyfin(vm.item))
+                }
+
+                if !isShowingEpisode {
                     GlassActionButton(
                         title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",
                         systemImage: vm.isFavorite ? "heart.fill" : "heart",

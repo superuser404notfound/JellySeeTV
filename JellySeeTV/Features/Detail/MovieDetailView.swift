@@ -159,6 +159,8 @@ struct MovieDetailView: View {
                     )
                 }
 
+                TrailerButton(source: .jellyfin(vm.item))
+
                 if vm.item.type != .episode {
                     GlassActionButton(
                         title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",

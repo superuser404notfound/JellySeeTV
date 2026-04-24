@@ -33,6 +33,15 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
     let childCount: Int?
     let seriesPrimaryImageTag: String?
     let providerIds: [String: String]?
+    /// Non-zero when the Jellyfin library has trailer files bundled
+    /// with the item (e.g. `Movie-trailer.mp4` next to the main file).
+    /// Local trailers stream through our own AetherEngine player —
+    /// no external service needed.
+    let localTrailerCount: Int?
+    /// YouTube / Vimeo links scraped from TMDB/TVDB metadata. Only
+    /// returned when the API request asks for `RemoteTrailers` in
+    /// Fields.
+    let remoteTrailers: [RemoteTrailer]?
 
     /// TMDB identifier if Jellyfin has it (used to correlate with Seerr
     /// catalog entries — dedup in search, route from detail-view
@@ -77,6 +86,8 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
         case childCount = "ChildCount"
         case seriesPrimaryImageTag = "SeriesPrimaryImageTag"
         case providerIds = "ProviderIds"
+        case localTrailerCount = "LocalTrailerCount"
+        case remoteTrailers = "RemoteTrailers"
     }
 
     /// Create a copy with updated userData
@@ -113,6 +124,8 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
         self.childCount = item.childCount
         self.seriesPrimaryImageTag = item.seriesPrimaryImageTag
         self.providerIds = item.providerIds
+        self.localTrailerCount = item.localTrailerCount
+        self.remoteTrailers = item.remoteTrailers
     }
 
     /// Create a minimal series stub for navigation
@@ -149,6 +162,8 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
         self.childCount = nil
         self.seriesPrimaryImageTag = nil
         self.providerIds = nil
+        self.localTrailerCount = nil
+        self.remoteTrailers = nil
     }
 
     static func == (lhs: JellyfinItem, rhs: JellyfinItem) -> Bool {
@@ -177,6 +192,20 @@ enum ItemType: String, Codable, Sendable {
         let container = try decoder.singleValueContainer()
         let rawValue = try container.decode(String.self)
         self = ItemType(rawValue: rawValue) ?? .unknown
+    }
+}
+
+/// Jellyfin's remote-trailer reference. Usually a YouTube URL
+/// (`https://www.youtube.com/watch?v=…`) scraped from TMDB/TVDB.
+/// The app passes the URL to the TrailerService, which opens it in
+/// the external YouTube app or falls back to a QR code on screen.
+struct RemoteTrailer: Codable, Sendable, Equatable, Hashable {
+    let url: String
+    let name: String?
+
+    enum CodingKeys: String, CodingKey {
+        case url = "Url"
+        case name = "Name"
     }
 }
 
