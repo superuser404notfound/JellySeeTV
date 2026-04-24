@@ -177,28 +177,51 @@ struct LaunchProfilePickerView: View {
     }
 
     private func refreshUserDetails(userID: String, serverID: String) async {
-        guard let fresh = try? await dependencies.jellyfinAuthService.getUser(id: userID) else { return }
+        let tag = await fetchFreshImageTag(for: userID)
         guard appState.activeUser?.id == userID else { return }
-        if appState.activeUser?.primaryImageTag != fresh.primaryImageTag {
-            appState.activeUser = fresh
-            try? dependencies.keychainService.save(
-                fresh.primaryImageTag ?? "",
-                for: "activeUserImageTag"
-            )
-            if let existing = dependencies.listRememberedUsers(serverID: serverID)
-                .first(where: { $0.id == userID }) {
-                try? dependencies.rememberUser(
-                    RememberedUser(
-                        id: existing.id,
-                        serverID: existing.serverID,
-                        name: fresh.name,
-                        imageTag: fresh.primaryImageTag,
-                        token: existing.token,
-                        addedAt: existing.addedAt
-                    )
-                )
-            }
+        guard let current = appState.activeUser else { return }
+        guard current.primaryImageTag != tag else { return }
+
+        let fresh = JellyfinUser(
+            id: current.id,
+            name: current.name,
+            serverID: current.serverID,
+            hasPassword: current.hasPassword,
+            primaryImageTag: tag
+        )
+        appState.activeUser = fresh
+        if let tag, !tag.isEmpty {
+            try? dependencies.keychainService.save(tag, for: "activeUserImageTag")
+        } else {
+            try? dependencies.keychainService.delete(for: "activeUserImageTag")
         }
+        if let existing = dependencies.listRememberedUsers(serverID: serverID)
+            .first(where: { $0.id == userID }) {
+            try? dependencies.rememberUser(
+                RememberedUser(
+                    id: existing.id,
+                    serverID: existing.serverID,
+                    name: fresh.name,
+                    imageTag: tag,
+                    token: existing.token,
+                    addedAt: existing.addedAt
+                )
+            )
+        }
+    }
+
+    private func fetchFreshImageTag(for userID: String) async -> String? {
+        if let me = try? await dependencies.jellyfinAuthService.getCurrentUser(),
+           me.id == userID,
+           let tag = me.primaryImageTag, !tag.isEmpty {
+            return tag
+        }
+        if let publicUsers = try? await dependencies.jellyfinAuthService.getPublicUsers(),
+           let match = publicUsers.first(where: { $0.id == userID }),
+           let tag = match.primaryImageTag, !tag.isEmpty {
+            return tag
+        }
+        return nil
     }
 
     private func restoreSeerrForProfile(userID: String, serverID: String) async {

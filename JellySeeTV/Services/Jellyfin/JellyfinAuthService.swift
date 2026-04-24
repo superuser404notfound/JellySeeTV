@@ -6,7 +6,7 @@ protocol JellyfinAuthServiceProtocol: Sendable {
     func checkQuickConnect(secret: String) async throws -> Bool
     func authenticateWithQuickConnect(secret: String) async throws -> JellyfinAuthResponse
     func getPublicUsers() async throws -> [JellyfinUser]
-    func getUser(id: String) async throws -> JellyfinUser
+    func getCurrentUser() async throws -> JellyfinUser
 }
 
 final class JellyfinAuthService: JellyfinAuthServiceProtocol {
@@ -56,14 +56,14 @@ final class JellyfinAuthService: JellyfinAuthServiceProtocol {
         )
     }
 
-    /// Fetch an authenticated user's full record — unlike
-    /// /Users/Public this needs a valid access token and returns the
-    /// user even when "show on login screen" is disabled. Used after
-    /// a profile switch to backfill fields (PrimaryImageTag, …)
-    /// that some Jellyfin versions omit on the auth response.
-    func getUser(id: String) async throws -> JellyfinUser {
+    /// Fetch the currently authenticated user's full record via
+    /// /Users/Me. More reliable than /Users/{id} because it doesn't
+    /// depend on the caller having admin permission to query another
+    /// user's details — Me always resolves to whoever the current
+    /// access token represents.
+    func getCurrentUser() async throws -> JellyfinUser {
         try await client.request(
-            endpoint: JellyfinEndpoint.userDetail(userID: id),
+            endpoint: JellyfinEndpoint.currentUser,
             responseType: JellyfinUser.self
         )
     }

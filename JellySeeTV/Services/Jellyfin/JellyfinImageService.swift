@@ -28,30 +28,50 @@ final class JellyfinImageService {
         maxHeight: Int? = nil
     ) -> URL? {
         guard let base = baseURL() else { return nil }
+        return Self.buildURL(
+            base: base,
+            path: "/Items/\(itemID)/Images/\(imageType.rawValue)",
+            tag: tag,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+            token: accessToken()
+        )
+    }
 
-        var path = "\(base)/Items/\(itemID)/Images/\(imageType.rawValue)"
+    /// Single place that assembles a Jellyfin image URL. Uses
+    /// absoluteString + manual concatenation (instead of just
+    /// "\(base)") so a baseURL with a trailing slash doesn't
+    /// produce a double-slashed path that some proxies reject, and
+    /// threads every auth token through two query-param casings
+    /// (`api_key` classic + `ApiKey` 10.9+) to satisfy every
+    /// Jellyfin version.
+    private static func buildURL(
+        base: URL,
+        path: String,
+        tag: String?,
+        maxWidth: Int?,
+        maxHeight: Int?,
+        token: String?
+    ) -> URL? {
+        var baseString = base.absoluteString
+        while baseString.hasSuffix("/") { baseString.removeLast() }
+        let leadingPath = path.hasPrefix("/") ? path : "/\(path)"
 
         var queryItems: [String] = []
         if let tag { queryItems.append("tag=\(tag)") }
         if let maxWidth { queryItems.append("maxWidth=\(maxWidth)") }
         if let maxHeight { queryItems.append("maxHeight=\(maxHeight)") }
         queryItems.append("quality=90")
-        // api_key lets servers with "require authentication for
-        // images" configured (default on modern Jellyfin) serve
-        // these URLs to SwiftUI's AsyncImage — AsyncImage uses the
-        // shared URLSession and doesn't carry our Authorization
-        // header. Including the token also invalidates the cached
-        // URL cleanly when the user switches profiles, so stale
-        // 401s from a previous profile's token don't linger.
-        if let token = accessToken() {
+        if let token {
             queryItems.append("api_key=\(token)")
+            queryItems.append("ApiKey=\(token)")
         }
 
+        var raw = baseString + leadingPath
         if !queryItems.isEmpty {
-            path += "?" + queryItems.joined(separator: "&")
+            raw += "?" + queryItems.joined(separator: "&")
         }
-
-        return URL(string: path)
+        return URL(string: raw)
     }
 
     func backdropURL(for item: JellyfinItem, maxWidth: Int = 1920) -> URL? {
@@ -102,9 +122,14 @@ final class JellyfinImageService {
 
     func personImageURL(personID: String, tag: String?, maxWidth: Int = 200) -> URL? {
         guard let base = baseURL(), let tag else { return nil }
-        var url = "\(base)/Items/\(personID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90"
-        if let token = accessToken() { url += "&api_key=\(token)" }
-        return URL(string: url)
+        return Self.buildURL(
+            base: base,
+            path: "/Items/\(personID)/Images/Primary",
+            tag: tag,
+            maxWidth: maxWidth,
+            maxHeight: nil,
+            token: accessToken()
+        )
     }
 
     /// User avatar (`/Users/{id}/Images/Primary`). Differs from
@@ -113,16 +138,26 @@ final class JellyfinImageService {
     /// no profile picture set so the UI can fall back to initials.
     func userProfileImageURL(userID: String, tag: String?, maxWidth: Int = 240) -> URL? {
         guard let base = baseURL(), let tag else { return nil }
-        var url = "\(base)/Users/\(userID)/Images/Primary?tag=\(tag)&maxWidth=\(maxWidth)&quality=90"
-        if let token = accessToken() { url += "&api_key=\(token)" }
-        return URL(string: url)
+        return Self.buildURL(
+            base: base,
+            path: "/Users/\(userID)/Images/Primary",
+            tag: tag,
+            maxWidth: maxWidth,
+            maxHeight: nil,
+            token: accessToken()
+        )
     }
 
     func studioLogoURL(studioName: String, maxWidth: Int = 400) -> URL? {
         guard let base = baseURL() else { return nil }
         let encoded = studioName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? studioName
-        var url = "\(base)/Studios/\(encoded)/Images/Primary?maxWidth=\(maxWidth)&quality=90"
-        if let token = accessToken() { url += "&api_key=\(token)" }
-        return URL(string: url)
+        return Self.buildURL(
+            base: base,
+            path: "/Studios/\(encoded)/Images/Primary",
+            tag: nil,
+            maxWidth: maxWidth,
+            maxHeight: nil,
+            token: accessToken()
+        )
     }
 }
