@@ -98,10 +98,21 @@ struct TrailerButton: View {
 
     // MARK: - Resolution
 
+    /// Task-id has to include the trailer-relevant fields, not just
+    /// the item ID: JellyfinItem's Hashable is keyed only on `id`, so
+    /// `.task(id:)` wouldn't re-fire when DetailViewModel swaps in the
+    /// detail-loaded item (same id, now with populated remoteTrailers).
+    /// Without the trailer counts baked into the id, the resolver ran
+    /// once against the list-stub version that has no trailer
+    /// metadata and latched on .unavailable — button never appeared.
     private var sourceID: String {
         switch source {
-        case .jellyfin(let item): "jf-\(item.id)"
-        case .seerr(let tmdbID, let type, _): "seerr-\(type.rawValue)-\(tmdbID)"
+        case .jellyfin(let item):
+            let remote = item.remoteTrailers?.count ?? 0
+            let local = item.localTrailerCount ?? 0
+            return "jf-\(item.id)-r\(remote)-l\(local)"
+        case .seerr(let tmdbID, let type, _):
+            return "seerr-\(type.rawValue)-\(tmdbID)"
         }
     }
 
