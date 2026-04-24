@@ -64,6 +64,21 @@ struct CatalogView: View {
             selectedMedia = nil
             selectedSection = .discover
         }
+        .onChange(of: appState.isSeerrConnected) { _, connected in
+            // Seerr just came online (initial setup or post-switch
+            // re-auth). .onAppear already ran when the tab first
+            // mounted and bailed out of bootstrap because there was
+            // no connection yet, so nothing else would kick the load
+            // without this trigger — the user saw an endless spinner
+            // until they tab-hopped away and back.
+            if connected {
+                bootstrap()
+            } else {
+                viewModel = nil
+                selectedMedia = nil
+                selectedSection = .discover
+            }
+        }
     }
 
     private func bootstrap() {
