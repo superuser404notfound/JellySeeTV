@@ -53,6 +53,17 @@ struct CatalogView: View {
             else { return }
             Task { await vm.loadMyRequests(userID: userID) }
         }
+        .onChange(of: appState.activeUser?.id) { _, _ in
+            // Profile switch — the Jellyfin user changed, so any
+            // cached Seerr state (discover sections tied to the old
+            // account's permissions, My Requests cached for the
+            // previous Seerr user) is stale. Reset the view model so
+            // bootstrap() rebuilds it once Seerr is reconnected for
+            // the new profile.
+            viewModel = nil
+            selectedMedia = nil
+            selectedSection = .discover
+        }
     }
 
     private func bootstrap() {

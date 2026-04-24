@@ -198,6 +198,14 @@ final class DependencyContainer {
 
         jellyfinClient.baseURL = server.url
         jellyfinClient.accessToken = remembered.token
+
+        // Seerr sessions are personal to the Jellyfin user that
+        // originally logged in — carrying one over would let the
+        // new profile see the old user's Seerr requests + watchlist.
+        // Drop it so the Catalog tab reverts to the "set up Seerr"
+        // state and the new user authenticates with their own
+        // Jellyseerr account.
+        try clearSeerrSession()
     }
 
     func loadJellyfinPassword() -> String? {

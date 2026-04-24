@@ -79,6 +79,22 @@ struct HomeView: View {
             // Next Up reflect it as soon as the user is back here.
             Task { await viewModel?.loadContent() }
         }
+        .onChange(of: appState.activeUser?.id) { _, newValue in
+            // Profile switch — tear down the old HomeViewModel so the
+            // next .onAppear rebuilds it with the new userID. Leaving
+            // the old one around would keep loading content for the
+            // previous profile's permissions + watch state.
+            guard let userID = newValue else {
+                viewModel = nil
+                return
+            }
+            viewModel = HomeViewModel(
+                libraryService: dependencies.jellyfinLibraryService,
+                imageService: dependencies.jellyfinImageService,
+                userID: userID
+            )
+            Task { await viewModel?.loadContent() }
+        }
     }
 
     private func contentView(vm: HomeViewModel) -> some View {
