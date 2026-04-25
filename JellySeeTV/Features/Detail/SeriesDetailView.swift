@@ -30,6 +30,14 @@ struct SeriesDetailView: View {
     /// transition (which is already nil by that point).
     @State private var lastFocusedArea: FocusArea = .none
     private enum FocusArea { case none, season, episode }
+    /// When the bridge transitions from season → episode, it writes
+    /// the desired episode id here. The episode-row's ScrollViewReader
+    /// observes the change, scrolls to that id (so the LazyHStack
+    /// materialises the card if the list was scrolled away), then
+    /// writes focusedEpisodeID. Without this round-trip, a write to
+    /// focusedEpisodeID for a card outside the rendered window was a
+    /// silent no-op — that's the right-side-takes-two-clicks case.
+    @State private var pendingEpisodeFocus: String?
 
     let item: JellyfinItem
 
@@ -116,28 +124,27 @@ struct SeriesDetailView: View {
         }
         .onChange(of: showPlayer) { _, isPlaying in
             if !isPlaying {
-                // Restore focus to the episode that was just played.
+                // Restore focus to the just-played episode.
                 //
-                // Two failure modes the previous version hit:
-                //   1. focusedEpisodeID often still held ep.id from
-                //      the tap that opened the player, so writing
-                //      ep.id again was a no-op (same value → no
-                //      onChange → no focus move) and tvOS's
-                //      modal-dismiss restoration sent focus to the
-                //      geographically-prominent Play button.
-                //   2. The 0.1 s delay landed *during* the dismiss
-                //      animation, before tvOS finished assigning
-                //      default focus to the Play button — the order
-                //      flipped randomly and our write lost.
+                // Two-step write with no inter-step delay: the
+                // intermediate nil forces a real state transition
+                // (focusedEpisodeID often still held ep.id from
+                // the tap that opened the player, so writing the
+                // same value back was a no-op). dispatch_async
+                // schedules the second write one runloop tick
+                // later, which SwiftUI batches into the same
+                // render cycle as the nil — the user never sees
+                // an intermediate "no focus" or Play-button flash.
                 //
-                // Fix: force a real state transition with an
-                // intermediate nil, then defer the ep.id write to
-                // 0.35 s — well after the dismiss animation settles
-                // so we're writing onto a stable focus state, not
-                // racing tvOS's restoration pass.
+                // The previous 0.35 s defer DID work, but produced
+                // the visible jump-to-Play-then-down-to-episode the
+                // user reported. Going as fast as possible avoids
+                // it; if tvOS's modal-dismiss restoration ever
+                // clobbers us in practice, we'll add a tiny
+                // belt-and-suspenders second write.
                 if let ep = playItem {
                     focusedEpisodeID = nil
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    DispatchQueue.main.async {
                         focusedEpisodeID = ep.id
                     }
                 }
@@ -424,7 +431,18 @@ struct SeriesDetailView: View {
                             return vm.episodes.first?.id
                         }()
                         if let target {
-                            defer1Tick { focusedEpisodeID = target }
+                            // Hand-off through pendingEpisodeFocus so
+                            // the episode-row ScrollViewReader can
+                            // scroll the target into view (LazyHStack
+                            // only renders visible cards) before the
+                            // .focused write — otherwise a write to a
+                            // not-yet-materialised card vanishes and
+                            // the user has to press down a second
+                            // time. Symptom only showed up when the
+                            // episode list was scrolled away (e.g.
+                            // user navigated up from a far-right
+                            // episode card).
+                            defer1Tick { pendingEpisodeFocus = target }
                         }
                     case .none:
                         // First time anything inside this section
@@ -521,6 +539,23 @@ struct SeriesDetailView: View {
                                vm.episodes.contains(where: { $0.id == currentID }) {
                                 focusedEpisodeID = currentID
                             }
+                        }
+                    }
+                    .onChange(of: pendingEpisodeFocus) { _, target in
+                        guard let target else { return }
+                        // Scroll the target into the LazyHStack
+                        // viewport so its .focused modifier exists
+                        // when we write focusedEpisodeID. Without
+                        // the scroll, the write silently failed for
+                        // a card that had been scrolled out of the
+                        // rendered window — that was the right-side
+                        // 2-press case.
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            episodeProxy.scrollTo(target, anchor: .center)
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                            focusedEpisodeID = target
+                            pendingEpisodeFocus = nil
                         }
                     }
                     .onAppear {
