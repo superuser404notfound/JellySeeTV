@@ -5,6 +5,7 @@ struct CatalogView: View {
     @Environment(\.dependencies) private var dependencies
     @State private var viewModel: CatalogViewModel?
     @State private var selectedMedia: SeerrMedia?
+    @State private var selectedFilter: CatalogFilter?
     @State private var selectedSection: Section = .discover
 
     private enum Section: Hashable {
@@ -28,9 +29,11 @@ struct CatalogView: View {
 
                         switch selectedSection {
                         case .discover:
-                            CatalogDiscoverView(viewModel: vm) { media in
-                                selectedMedia = media
-                            }
+                            CatalogDiscoverView(
+                                viewModel: vm,
+                                onSelect: { media in selectedMedia = media },
+                                onSelectFilter: { filter in selectedFilter = filter }
+                            )
                         case .myRequests:
                             CatalogMyRequestsView(viewModel: vm)
                         }
@@ -42,6 +45,9 @@ struct CatalogView: View {
             }
             .navigationDestination(item: $selectedMedia) { media in
                 CatalogDetailView(media: media)
+            }
+            .navigationDestination(item: $selectedFilter) { filter in
+                CatalogFilteredGridView(filter: filter)
             }
         }
         .onAppear(perform: bootstrap)
@@ -62,6 +68,7 @@ struct CatalogView: View {
             // the new profile.
             viewModel = nil
             selectedMedia = nil
+            selectedFilter = nil
             selectedSection = .discover
         }
         .onChange(of: appState.isSeerrConnected) { _, connected in
@@ -76,6 +83,7 @@ struct CatalogView: View {
             } else {
                 viewModel = nil
                 selectedMedia = nil
+                selectedFilter = nil
                 selectedSection = .discover
             }
         }

@@ -19,6 +19,12 @@ final class CatalogViewModel {
     var popularTV = PagedSection()
     var upcomingMovies = PagedSection()
     var upcomingTV = PagedSection()
+    /// Curated, populated genre lists from
+    /// `/discover/genreslider/movie` and `/discover/genreslider/tv`.
+    /// Each entry has a few backdrop paths so the genre tile can
+    /// show a hero image instead of a flat capsule.
+    var movieGenres: [SeerrGenreSlide] = []
+    var tvGenres: [SeerrGenreSlide] = []
     var myRequests: [SeerrRequest] = []
 
     /// Per-request enrichment keyed by tmdbID. Populated in the
@@ -109,6 +115,19 @@ final class CatalogViewModel {
         } catch {
             errorMessage = error.localizedDescription
         }
+
+        // Genre sliders load best-effort in the background — failures
+        // here just hide the genre rows, they don't poison the whole
+        // discover screen.
+        Task { await loadGenres() }
+    }
+
+    private func loadGenres() async {
+        async let movieTask = try? discoverService.movieGenres()
+        async let tvTask = try? discoverService.tvGenres()
+        let (movie, tv) = await (movieTask, tvTask)
+        if let movie { movieGenres = movie }
+        if let tv { tvGenres = tv }
     }
 
     enum DiscoverRow {

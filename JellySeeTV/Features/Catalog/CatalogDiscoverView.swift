@@ -3,6 +3,7 @@ import SwiftUI
 struct CatalogDiscoverView: View {
     @Bindable var viewModel: CatalogViewModel
     var onSelect: (SeerrMedia) -> Void
+    var onSelectFilter: (CatalogFilter) -> Void
 
     var body: some View {
         Group {
@@ -67,6 +68,22 @@ struct CatalogDiscoverView: View {
                                 onNeedsMore: {
                                     Task { await viewModel.loadMore(row: .tv) }
                                 }
+                            )
+                        }
+                        if !viewModel.movieGenres.isEmpty {
+                            CatalogGenreRow(
+                                titleKey: "catalog.section.movieGenres",
+                                genres: viewModel.movieGenres,
+                                kind: .movie,
+                                onSelect: onSelectFilter
+                            )
+                        }
+                        if !viewModel.tvGenres.isEmpty {
+                            CatalogGenreRow(
+                                titleKey: "catalog.section.tvGenres",
+                                genres: viewModel.tvGenres,
+                                kind: .tv,
+                                onSelect: onSelectFilter
                             )
                         }
                     }
