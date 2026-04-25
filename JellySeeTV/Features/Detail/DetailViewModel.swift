@@ -102,21 +102,26 @@ final class DetailViewModel {
         guard item.type == .series else { return }
 
         do {
-            let response = try await itemService.getSeasons(seriesID: item.id, userID: userID)
+            // Seasons + NextUp don't depend on each other — fan them
+            // out so the slowest of the two gates "ready", not the
+            // sum. Same Task.value-not-async-let dance the rest of
+            // this file uses to dodge the task-local allocator
+            // SIGABRT under @MainActor isolation.
+            let seasonsTask = Task { try? await itemService.getSeasons(seriesID: item.id, userID: userID) }
+            let nextUpTask: Task<JellyfinItemsResponse?, Never>? = libraryService.map { libService in
+                Task { try? await libService.getNextUp(userID: userID, seriesID: item.id, limit: 1) }
+            }
+
+            guard let response = await seasonsTask.value else {
+                return
+            }
             seasons = response.items
 
-            // Try to find the current episode via Next Up
             var targetSeasonID: String?
             var targetEpisodeID: String?
-
-            if let libraryService {
-                let nextUp = try? await libraryService.getNextUp(
-                    userID: userID, seriesID: item.id, limit: 1
-                )
-                if let nextEp = nextUp?.items.first {
-                    targetSeasonID = nextEp.seasonId
-                    targetEpisodeID = nextEp.id
-                }
+            if let nextUpTask, let nextEp = await nextUpTask.value?.items.first {
+                targetSeasonID = nextEp.seasonId
+                targetEpisodeID = nextEp.id
             }
 
             // Fallback: no NextUp means no watch history → start at season 1

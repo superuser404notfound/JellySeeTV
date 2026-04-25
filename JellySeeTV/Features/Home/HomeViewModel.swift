@@ -24,7 +24,6 @@ final class HomeViewModel {
     private let libraryService: JellyfinLibraryServiceProtocol
     private let imageService: JellyfinImageService
     private let userID: String
-    private var libraries: [JellyfinLibrary] = []
 
     init(
         libraryService: JellyfinLibraryServiceProtocol,
@@ -44,91 +43,84 @@ final class HomeViewModel {
         }
         errorMessage = nil
 
-        do {
-            libraries = try await libraryService.getLibraries(userID: userID)
+        let enabledRows = rowConfigs
+            .filter(\.isEnabled)
+            .sorted { $0.sortOrder < $1.sortOrder }
 
-            let enabledRows = rowConfigs
-                .filter(\.isEnabled)
-                .sorted { $0.sortOrder < $1.sortOrder }
-
-            // Fan out every row's network call in parallel. The
-            // sequential `for await` walk used to mean each row
-            // started only after the previous one returned, so a
-            // 7-row config took roughly 7× the slowest call. Tasks
-            // come back in completion order, so we tag each result
-            // with the source config and stitch the final ordered
-            // arrays back together at the end.
-            enum RowResult: Sendable {
-                case media(HomeRowData)
-                case tag(HomeTagRowData)
-                case empty(HomeRowType)
-            }
-
-            // Capture row-type predicates on MainActor before crossing
-            // into the task group — HomeRowType is MainActor-isolated
-            // under the project's default-isolation rule, so reading
-            // .isTagRow from a non-isolated closure would otherwise
-            // be rejected.
-            let plan: [(type: HomeRowType, isTag: Bool)] = enabledRows.compactMap { config in
-                if config.type.isDiscoverProviderRow {
-                    // Hardcoded data — nothing to fetch. The HomeView
-                    // renders the row directly from CatalogProviders.
-                    return nil
-                }
-                return (config.type, config.type.isTagRow)
-            }
-
-            let results = await withTaskGroup(of: RowResult.self, returning: [RowResult].self) { group in
-                for entry in plan {
-                    group.addTask { [weak self] in
-                        guard let self else { return .empty(entry.type) }
-                        if entry.isTag {
-                            if let tagRow = await self.loadTagRow(type: entry.type), !tagRow.tags.isEmpty {
-                                return .tag(tagRow)
-                            }
-                        } else {
-                            if let rowData = await self.loadRow(type: entry.type), !rowData.items.isEmpty {
-                                return .media(rowData)
-                            }
-                        }
-                        return .empty(entry.type)
-                    }
-                }
-                var collected: [RowResult] = []
-                for await result in group { collected.append(result) }
-                return collected
-            }
-
-            var newRows: [HomeRowData] = []
-            var newTagRows: [HomeTagRowData] = []
-            for result in results {
-                switch result {
-                case .media(let row): newRows.append(row)
-                case .tag(let row): newTagRows.append(row)
-                case .empty: break
-                }
-            }
-
-            // Atomic swap -- old images stay visible until new data is ready.
-            // ForEach diffs by HomeRowData.id (stable) so AsyncImage
-            // subviews are reused when rows are refetched; no .id() on the
-            // LazyVStack, which would otherwise recreate the whole subtree
-            // and force every AsyncImage back into its empty phase.
-            rows = newRows
-            tagRows = newTagRows
-            isLoading = false
-            lastLoadedAt = .now
-
-            // Best-effort: fan out one Studios query per provider so
-            // the streaming-provider row can render a sample backdrop
-            // from the local library. Failures and gaps in metadata
-            // are tolerated — the tile falls back to the logo-only
-            // style for any provider that doesn't resolve.
-            Task { await loadProviderBackdrops() }
-        } catch {
-            errorMessage = error.localizedDescription
-            isLoading = false
+        // Fan out every row's network call in parallel. The
+        // sequential `for await` walk used to mean each row started
+        // only after the previous one returned, so a 7-row config
+        // took roughly 7× the slowest call. Tasks come back in
+        // completion order; orderedSections() drives display order
+        // from the config sortOrder, so the source arrays don't
+        // need to be ordered.
+        enum RowResult: Sendable {
+            case media(HomeRowData)
+            case tag(HomeTagRowData)
+            case empty
         }
+
+        // Capture row-type predicates on MainActor before crossing
+        // into the task group — HomeRowType is MainActor-isolated
+        // under the project's default-isolation rule, so reading
+        // .isTagRow from a non-isolated closure would otherwise be
+        // rejected.
+        let plan: [(type: HomeRowType, isTag: Bool)] = enabledRows.compactMap { config in
+            if config.type.isDiscoverProviderRow {
+                // Hardcoded data — nothing to fetch. The HomeView
+                // renders the row directly from CatalogProviders.
+                return nil
+            }
+            return (config.type, config.type.isTagRow)
+        }
+
+        let results = await withTaskGroup(of: RowResult.self, returning: [RowResult].self) { group in
+            for entry in plan {
+                group.addTask { [weak self] in
+                    guard let self else { return .empty }
+                    if entry.isTag {
+                        if let tagRow = await self.loadTagRow(type: entry.type), !tagRow.tags.isEmpty {
+                            return .tag(tagRow)
+                        }
+                    } else {
+                        if let rowData = await self.loadRow(type: entry.type), !rowData.items.isEmpty {
+                            return .media(rowData)
+                        }
+                    }
+                    return .empty
+                }
+            }
+            var collected: [RowResult] = []
+            for await result in group { collected.append(result) }
+            return collected
+        }
+
+        var newRows: [HomeRowData] = []
+        var newTagRows: [HomeTagRowData] = []
+        for result in results {
+            switch result {
+            case .media(let row): newRows.append(row)
+            case .tag(let row): newTagRows.append(row)
+            case .empty: break
+            }
+        }
+
+        // Atomic swap -- old images stay visible until new data is ready.
+        // ForEach diffs by HomeRowData.id (stable) so AsyncImage
+        // subviews are reused when rows are refetched; no .id() on the
+        // LazyVStack, which would otherwise recreate the whole subtree
+        // and force every AsyncImage back into its empty phase.
+        rows = newRows
+        tagRows = newTagRows
+        isLoading = false
+        lastLoadedAt = .now
+
+        // Best-effort: fan out one Studios query per provider so
+        // the streaming-provider row can render a sample backdrop
+        // from the local library. Failures and gaps in metadata
+        // are tolerated — the tile falls back to the logo-only
+        // style for any provider that doesn't resolve.
+        Task { await loadProviderBackdrops() }
     }
 
     private func loadProviderBackdrops() async {
