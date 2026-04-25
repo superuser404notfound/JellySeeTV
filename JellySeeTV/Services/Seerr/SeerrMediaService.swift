@@ -3,6 +3,7 @@ import Foundation
 protocol SeerrMediaServiceProtocol: Sendable {
     func movieDetail(tmdbID: Int) async throws -> SeerrMovieDetail
     func tvDetail(tmdbID: Int) async throws -> SeerrTVDetail
+    func tvSeasonDetail(tmdbID: Int, seasonNumber: Int) async throws -> SeerrSeasonDetail
 }
 
 @MainActor
@@ -24,6 +25,13 @@ final class SeerrMediaService: SeerrMediaServiceProtocol {
         try await client.request(
             endpoint: SeerrEndpoint.tvDetail(tmdbID: tmdbID),
             responseType: SeerrTVDetail.self
+        )
+    }
+
+    func tvSeasonDetail(tmdbID: Int, seasonNumber: Int) async throws -> SeerrSeasonDetail {
+        try await client.request(
+            endpoint: SeerrEndpoint.tvSeasonDetail(tmdbID: tmdbID, seasonNumber: seasonNumber),
+            responseType: SeerrSeasonDetail.self
         )
     }
 }

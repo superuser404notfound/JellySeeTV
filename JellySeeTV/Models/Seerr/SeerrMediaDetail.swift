@@ -53,3 +53,29 @@ struct SeerrGenre: Codable, Sendable, Identifiable, Equatable, Hashable {
     let id: Int
     let name: String
 }
+
+/// Per-season detail returned from `/tv/{id}/season/{n}` — used to
+/// render the read-only episode list inside CatalogDetailView. Note
+/// that the request endpoint still only accepts whole seasons; this
+/// payload is informational so the user can preview what they're
+/// asking for before they hit Submit.
+struct SeerrSeasonDetail: Codable, Sendable, Equatable {
+    let id: Int
+    let seasonNumber: Int
+    let name: String?
+    let overview: String?
+    let airDate: String?
+    let episodes: [SeerrEpisode]?
+}
+
+struct SeerrEpisode: Codable, Sendable, Identifiable, Equatable, Hashable {
+    let id: Int
+    let episodeNumber: Int
+    let seasonNumber: Int?
+    let name: String?
+    let overview: String?
+    let stillPath: String?
+    let airDate: String?
+    let voteAverage: Double?
+    let runtime: Int?
+}

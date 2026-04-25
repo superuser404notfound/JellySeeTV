@@ -22,6 +22,7 @@ enum SeerrEndpoint: APIEndpoint {
 
     case movieDetail(tmdbID: Int)
     case tvDetail(tmdbID: Int)
+    case tvSeasonDetail(tmdbID: Int, seasonNumber: Int)
 
     case createRequest(body: SeerrCreateRequestBody)
     case myRequests(userID: Int, take: Int, skip: Int)
@@ -51,6 +52,7 @@ enum SeerrEndpoint: APIEndpoint {
         case .search: "/api/v1/search"
         case .movieDetail(let id): "/api/v1/movie/\(id)"
         case .tvDetail(let id): "/api/v1/tv/\(id)"
+        case .tvSeasonDetail(let id, let n): "/api/v1/tv/\(id)/season/\(n)"
         case .createRequest: "/api/v1/request"
         case .myRequests: "/api/v1/request"
         case .radarrServers: "/api/v1/service/radarr"

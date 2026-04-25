@@ -15,6 +15,18 @@ struct CatalogDetailView: View {
     @State private var didRequest = false
     @State private var requestError: String?
 
+    /// Currently-viewed season inside the season detail block — tab
+    /// selection is independent of the request set so the user can
+    /// browse a season's episodes without committing to request it.
+    @State private var viewedSeasonNumber: Int?
+    /// Per-season episode cache. Populated lazily as the user moves
+    /// between tabs; once a season is fetched we keep it for the
+    /// lifetime of the detail view.
+    @State private var seasonEpisodes: [Int: [SeerrEpisode]] = [:]
+    /// Per-season "loading episodes" markers — drives the spinner
+    /// shown inside the episode strip while a fetch is in flight.
+    @State private var loadingSeasons: Set<Int> = []
+
     // Advanced request options — populated from /service/radarr or
     // /service/sonarr. `nil` means "fall back to Seerr's server default"
     // (which is what happens when the request body omits the field).
@@ -245,41 +257,165 @@ struct CatalogDetailView: View {
     }
 
     private func seasonSelection(seasons: [SeerrSeason]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("catalog.seasons.select")
-                .font(.title3)
-                .fontWeight(.semibold)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(seasons) { season in
-                        SeasonChip(
-                            season: season,
-                            isSelected: selectedSeasons.contains(season.seasonNumber),
-                            isAvailable: isSeasonAvailable(season),
-                            toggle: { toggleSeason(season) }
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("catalog.seasons.select")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                Spacer()
+                if hasSelectableSeasons(in: seasons) {
+                    Button {
+                        toggleAllSeasons(seasons)
+                    } label: {
+                        Label(
+                            allSelectableSeasonsSelected(in: seasons)
+                                ? "catalog.seasons.deselectAll"
+                                : "catalog.seasons.selectAll",
+                            systemImage: allSelectableSeasonsSelected(in: seasons)
+                                ? "minus.circle"
+                                : "plus.circle"
                         )
+                        .font(.caption)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
                     }
+                    .buttonStyle(SeasonChipButtonStyle())
                 }
-                // Horizontal padding leaves room for the focus-scale grow
-                // on the first and last chips — without it the leftmost
-                // season gets its halo clipped by the scroll-view edge.
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
             }
 
-            // Select-all sits *below* the horizontal chip row rather
-            // than as its last peer — for series with many seasons
-            // the user would otherwise have to scroll all the way to
-            // the right to reach it. Below-the-row keeps it always
-            // one down-swipe away.
-            if hasSelectableSeasons(in: seasons) {
-                SelectAllChip(
-                    isAllSelected: allSelectableSeasonsSelected(in: seasons),
-                    toggle: { toggleAllSeasons(seasons) }
-                )
-                .padding(.leading, 20)
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(seasons) { season in
+                            CatalogSeasonTab(
+                                season: season,
+                                isViewed: viewedSeasonNumber == season.seasonNumber,
+                                isSelectedForRequest: selectedSeasons.contains(season.seasonNumber),
+                                isAvailable: isSeasonAvailable(season),
+                                action: { selectSeasonForViewing(season) }
+                            )
+                            .id(season.seasonNumber)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                }
+                .onChange(of: viewedSeasonNumber) { _, newValue in
+                    guard let newValue else { return }
+                    withAnimation { proxy.scrollTo(newValue, anchor: .center) }
+                }
             }
+
+            if let viewed = viewedSeasonNumber,
+               let season = seasons.first(where: { $0.seasonNumber == viewed }) {
+                seasonDetailBlock(season: season)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func seasonDetailBlock(season: SeerrSeason) -> some View {
+        let n = season.seasonNumber
+        let episodes = seasonEpisodes[n]
+        let isAvailable = isSeasonAvailable(season)
+        let isSelected = selectedSeasons.contains(n)
+
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .firstTextBaseline, spacing: 16) {
+                Text(seasonHeading(season: season))
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                Spacer()
+                if isAvailable {
+                    Label("catalog.seasons.alreadyAvailable", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                } else {
+                    Button {
+                        toggleSeason(season)
+                    } label: {
+                        Label(
+                            isSelected
+                                ? "catalog.seasons.removeFromRequest"
+                                : "catalog.seasons.addToRequest",
+                            systemImage: isSelected ? "checkmark.circle.fill" : "plus.circle"
+                        )
+                        .font(.caption)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                    }
+                    .buttonStyle(SeasonChipButtonStyle())
+                }
+            }
+            .padding(.horizontal, 4)
+
+            if let overview = season.overview, !overview.isEmpty {
+                Text(overview)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(3)
+                    .padding(.horizontal, 4)
+            }
+
+            if loadingSeasons.contains(n) && (episodes?.isEmpty ?? true) {
+                HStack {
+                    ProgressView()
+                    Spacer()
+                }
+                .frame(height: 220)
+                .padding(.horizontal, 20)
+            } else if let episodes, !episodes.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 24) {
+                        ForEach(episodes) { ep in
+                            FocusableCard(action: {}) { focused in
+                                SeerrEpisodeCard(episode: ep, isFocused: focused)
+                            }
+                            .id("\(n)-\(ep.episodeNumber)")
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                }
+            } else if !loadingSeasons.contains(n) {
+                Text("catalog.seasons.noEpisodes")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 20)
+            }
+        }
+        .padding(.top, 4)
+    }
+
+    private func seasonHeading(season: SeerrSeason) -> String {
+        let label = String(localized: "catalog.season", defaultValue: "Season")
+        if let name = season.name, !name.isEmpty, name != "\(label) \(season.seasonNumber)" {
+            return "\(label) \(season.seasonNumber) · \(name)"
+        }
+        return "\(label) \(season.seasonNumber)"
+    }
+
+    private func selectSeasonForViewing(_ season: SeerrSeason) {
+        let n = season.seasonNumber
+        viewedSeasonNumber = n
+        guard seasonEpisodes[n] == nil, !loadingSeasons.contains(n) else { return }
+        Task { await loadSeasonEpisodes(seasonNumber: n) }
+    }
+
+    private func loadSeasonEpisodes(seasonNumber: Int) async {
+        guard let tvID = tvDetail?.id else { return }
+        loadingSeasons.insert(seasonNumber)
+        defer { loadingSeasons.remove(seasonNumber) }
+        do {
+            let detail = try await dependencies.seerrMediaService.tvSeasonDetail(
+                tmdbID: tvID,
+                seasonNumber: seasonNumber
+            )
+            seasonEpisodes[seasonNumber] = detail.episodes ?? []
+        } catch {
+            // Best-effort — leave the cache empty so the "no episodes"
+            // copy renders. Surfacing a banner here would compete with
+            // the request-error label for screen real estate.
         }
     }
 
@@ -425,7 +561,21 @@ struct CatalogDetailView: View {
             case .movie:
                 movieDetail = try await dependencies.seerrMediaService.movieDetail(tmdbID: media.id)
             case .tv:
-                tvDetail = try await dependencies.seerrMediaService.tvDetail(tmdbID: media.id)
+                let detail = try await dependencies.seerrMediaService.tvDetail(tmdbID: media.id)
+                tvDetail = detail
+                // Default the tab focus to the lowest-numbered real
+                // season (skip specials/season 0). The episode block
+                // below the tabs needs *some* season selected to have
+                // anything to render — picking one synchronously here
+                // means the user sees content the moment loading ends
+                // instead of an empty space until they tap a tab.
+                if let first = detail.seasons?
+                    .filter({ $0.seasonNumber > 0 })
+                    .sorted(by: { $0.seasonNumber < $1.seasonNumber })
+                    .first {
+                    viewedSeasonNumber = first.seasonNumber
+                    Task { await loadSeasonEpisodes(seasonNumber: first.seasonNumber) }
+                }
             case .person:
                 return
             }
@@ -491,38 +641,38 @@ struct CatalogDetailView: View {
     }
 }
 
-private struct SeasonChip: View {
+/// Season tab used inside the season selection block. The tab is
+/// always selectable for *viewing* — even seasons that are already
+/// available get tabs so the user can preview their episodes — but
+/// the request action is gated separately inside the detail block.
+private struct CatalogSeasonTab: View {
     let season: SeerrSeason
-    let isSelected: Bool
+    let isViewed: Bool
+    let isSelectedForRequest: Bool
     let isAvailable: Bool
-    let toggle: () -> Void
+    let action: () -> Void
 
     var body: some View {
-        Button(action: toggle) {
-            HStack(spacing: 6) {
+        Button(action: action) {
+            HStack(spacing: 8) {
                 if isAvailable {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.caption)
                         .foregroundStyle(.green)
-                } else if isSelected {
-                    Image(systemName: "checkmark")
+                } else if isSelectedForRequest {
+                    Image(systemName: "checkmark.circle.fill")
                         .font(.caption)
+                        .foregroundStyle(.tint)
                 }
                 Text(seasonTitle)
                     .font(.body)
                     .fontWeight(.medium)
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 18)
             .padding(.vertical, 10)
             .background(background, in: Capsule())
         }
-        // Without an explicit ButtonStyle, tvOS layers its own
-        // default focus halo on top of our Capsule background —
-        // the user sees two concentric outlines. Custom style
-        // that does scale + accent stroke matches the rest of
-        // the app's focus treatment instead.
         .buttonStyle(SeasonChipButtonStyle())
-        .disabled(isAvailable)
     }
 
     private var seasonTitle: String {
@@ -531,30 +681,10 @@ private struct SeasonChip: View {
     }
 
     private var background: some ShapeStyle {
-        if isAvailable { return AnyShapeStyle(.green.opacity(0.2)) }
-        if isSelected { return AnyShapeStyle(.tint.opacity(0.35)) }
-        return AnyShapeStyle(.white.opacity(0.1))
-    }
-}
-
-private struct SelectAllChip: View {
-    let isAllSelected: Bool
-    let toggle: () -> Void
-
-    var body: some View {
-        Button(action: toggle) {
-            HStack(spacing: 6) {
-                Image(systemName: isAllSelected ? "xmark.circle" : "checkmark.circle")
-                    .font(.caption)
-                Text(isAllSelected ? "catalog.seasons.deselectAll" : "catalog.seasons.selectAll")
-                    .font(.body)
-                    .fontWeight(.medium)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(.white.opacity(0.08), in: Capsule())
-        }
-        .buttonStyle(SeasonChipButtonStyle())
+        if isViewed { return AnyShapeStyle(.tint.opacity(0.35)) }
+        if isAvailable { return AnyShapeStyle(.green.opacity(0.18)) }
+        if isSelectedForRequest { return AnyShapeStyle(.tint.opacity(0.18)) }
+        return AnyShapeStyle(.white.opacity(0.08))
     }
 }
 
