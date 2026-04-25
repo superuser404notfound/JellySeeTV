@@ -9,7 +9,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/tvOS-26%2B-black?logo=apple">
   <img src="https://img.shields.io/badge/Swift-6.0%2B-F05138?logo=swift&logoColor=white">
-  <img src="https://img.shields.io/badge/license-MIT-lightgrey">
+  <img src="https://img.shields.io/badge/license-GPL--3.0%20%2B%20App%20Store%20Exception-lightgrey">
   <img src="https://img.shields.io/badge/languages-26-blue">
   <img src="https://img.shields.io/badge/status-public%20beta-orange">
 </p>
@@ -29,7 +29,7 @@ No more switching to a phone, opening a web UI, or pinging your homelab admin. S
 
 Most Apple TV media players are closed-source binaries you have to trust. JellySeeTV isn't. Every byte that touches your server is in this repo, your auth tokens stay in your Keychain, and there's no telemetry, no analytics, no third-party SDK phoning home.
 
-JellySeeTV itself is **MIT** — fork it, rebrand it, ship it. The video stack underneath ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) is **LGPL-3.0**, which keeps engine-level improvements flowing back to the community. Both are auditable, buildable from source, and free of any vendor lock-in. Self-host the server, self-build the client — the whole loop is yours.
+JellySeeTV is licensed under **GPL-3.0 with an Apple Store / DRM Exception** — fork it, study it, build your own version, but no one can take it private. Modifications must stay open. The exception clause in the LICENSE keeps the App Store and TestFlight distribution paths legally clean. The video stack underneath ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) is **LGPL-3.0** with the same Apple Store exception, so the engine can be reused in other apps while engine-level improvements flow back to the community. Both are auditable, buildable from source, and free of any vendor lock-in. Self-host the server, self-build the client — the whole loop is yours.
 
 ## Why JellySeeTV
 
@@ -141,4 +141,4 @@ JellySeeTV is vibe-coded — designed and shipped by [Vincent Herbst](https://gi
 
 ## License
 
-[MIT](LICENSE).
+[GPL-3.0 with Apple Store / DRM Exception](LICENSE). The exception clause keeps App Store and TestFlight distribution legally clean while the GPL keeps the source open and forks copyleft.

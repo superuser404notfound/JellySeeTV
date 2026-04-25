@@ -72,7 +72,7 @@ PERSONAL
 • Siri Remote optimized — touch surface scrubbing, click for play/pause, swipe gestures throughout
 
 OPEN SOURCE, END TO END
-JellySeeTV is MIT licensed; the underlying video engine, AetherEngine, is LGPL-3.0. No telemetry. No analytics. No third-party SDKs phoning home. Self-host the server, audit the client.
+JellySeeTV is licensed under GPL-3.0 with an Apple Store / DRM Exception; the underlying video engine, AetherEngine, is LGPL-3.0 with the same exception. No telemetry. No analytics. No third-party SDKs phoning home. Self-host the server, audit the client.
 
 REQUIREMENTS
 • Apple TV 4K (any generation)
@@ -179,7 +179,7 @@ PERSÖNLICH
 • Optimiert für die Siri Remote — Scrubbing über die Touch-Fläche, Klick für Play/Pause, Wisch-Gesten überall
 
 OPEN SOURCE, KOMPLETT
-JellySeeTV ist unter MIT lizenziert; die zugrundeliegende Video-Engine AetherEngine unter LGPL-3.0. Keine Telemetrie. Keine Analytik. Keine Drittanbieter-SDKs, die nach Hause telefonieren. Selbst hosten, selbst auditieren.
+JellySeeTV ist unter GPL-3.0 mit App-Store-/DRM-Exception lizenziert; die zugrundeliegende Video-Engine AetherEngine unter LGPL-3.0 mit derselben Exception. Keine Telemetrie. Keine Analytik. Keine Drittanbieter-SDKs, die nach Hause telefonieren. Selbst hosten, selbst auditieren.
 
 VORAUSSETZUNGEN
 • Apple TV 4K (jede Generation)
@@ -301,7 +301,7 @@ TEST TEXT -----
 Welcome to JellySeeTV — public beta!                                                                                                                                        
                                                                                 
 JellySeeTV is a native Apple TV client for self-hosted Jellyfin servers, with built-in Seerr/Jellyseerr integration for browsing and requesting media. Direct Play, real HDR10 /  
-Dolby Vision, real Dolby Atmos. Open source (MIT).                            
+Dolby Vision, real Dolby Atmos. Open source (GPL-3.0).                        
                                                                                                                                                                                     
 Note for Apple Reviewer: this app requires a Jellyfin server, which the user must self-host.
 Without server access the login screen, server discovery flow and error handling can 

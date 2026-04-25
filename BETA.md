@@ -4,7 +4,7 @@ Thanks for testing JellySeeTV. This page tells you how to get the build, what to
 
 ## What JellySeeTV is
 
-A native Apple TV media player for your own Jellyfin server, with built-in [Seerr](https://github.com/Fallenbagel/jellyseerr) browse + request flow. Direct Play, real HDR10 / Dolby Vision, real Dolby Atmos. Open source ([MIT](LICENSE)), no telemetry.
+A native Apple TV media player for your own Jellyfin server, with built-in [Seerr](https://github.com/Fallenbagel/jellyseerr) browse + request flow. Direct Play, real HDR10 / Dolby Vision, real Dolby Atmos. Open source ([GPL-3.0 with App Store Exception](LICENSE)), no telemetry.
 
 For the long pitch see the [README](README.md).
 

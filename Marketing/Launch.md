@@ -36,7 +36,7 @@ You need an Apple TV 4K running tvOS 26 or later, plus your own Jellyfin server.
 * Real Dolby Atmos via EAC3+JOC passthrough, wrapped as Dolby MAT 2.0 so your AVR's Atmos light actually comes on
 * Built-in Jellyseerr browse and request flow as a first class part of the UI, not a tacked-on link
 * 26 languages
-* MIT licensed, fully open source, no telemetry
+* GPL-3.0 with App Store Exception, fully open source, no telemetry
 
 ## Transparency: this is a vibe-coded project
 
@@ -94,7 +94,7 @@ The vibe-coded disclosure is in every post on purpose. Self-hosted and developer
 
 **Title:**
 ```
-[Beta] JellySeeTV: native tvOS client with built-in Jellyseerr (open source, MIT)
+[Beta] JellySeeTV: native tvOS client with built-in Jellyseerr (open source, GPL-3.0)
 ```
 
 **Body:**
@@ -120,13 +120,13 @@ The Jellyseerr piece is what I personally was missing. I want to browse trending
 * Resume across devices, intro skip, next-episode autoplay
 * Subtitle and audio track switching mid playback
 * 26 languages
-* No telemetry, no analytics, no third-party SDKs. MIT licensed, fully auditable
+* No telemetry, no analytics, no third-party SDKs. GPL-3.0 with App Store Exception, fully auditable
 
 ## A note on how this was built
 
 JellySeeTV is vibe-coded. I built it in close pair-programming with Claude (Anthropic). The architecture, the design decisions, and the review of every commit are mine. The code is open and in the repo precisely so it's not a "trust me bro" situation. If you want to see how a particular feature is structured before installing, look at it directly.
 
-The video engine is split out into its own LGPL-3.0 package ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) so it's reusable and reviewable on its own. The app shell on top is MIT.
+The video engine is split out into its own LGPL-3.0 package ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) so it's reusable and reviewable on its own — both the engine and the app shell ship under copyleft (LGPL / GPL respectively) with an Apple Store / DRM Exception that keeps the App Store and TestFlight distribution paths legally clean.
 
 ## Requirements
 
@@ -151,14 +151,14 @@ Happy to answer technical questions in the thread.
 
 **Title:**
 ```
-[Beta] JellySeeTV: open source native Apple TV client for Jellyfin and Jellyseerr (MIT, no telemetry, vibe-coded but auditable)
+[Beta] JellySeeTV: open source native Apple TV client for Jellyfin and Jellyseerr (GPL-3.0, no telemetry, vibe-coded but auditable)
 ```
 
 **Body:**
 ```markdown
 Hey r/selfhosted,
 
-If you self host Jellyfin and have an Apple TV in the living room, JellySeeTV might be your missing piece. Native tvOS app, MIT licensed, no telemetry, with built-in Jellyseerr integration so you can browse and request from the same UI.
+If you self host Jellyfin and have an Apple TV in the living room, JellySeeTV might be your missing piece. Native tvOS app, GPL-3.0 with App Store Exception, no telemetry, with built-in Jellyseerr integration so you can browse and request from the same UI.
 
 **TestFlight:** https://testflight.apple.com/join/REPLACE_ME
 **Source and audit:** https://github.com/superuser404notfound/JellySeeTV
@@ -170,7 +170,7 @@ If you self host Jellyfin and have an Apple TV in the living room, JellySeeTV mi
 * Jellyseerr request flow built in: browse trending, request, track status, all on the TV
 * Direct Play for HEVC, HEVC Main10, AV1, with HDR10, Dolby Vision, Dolby Atmos
 * Custom FFmpeg + VideoToolbox engine, no VLCKit
-* Open source, MIT, fork it, audit it, ship your own version if you want
+* Open source, GPL-3.0 with App Store Exception, fork it, audit it, ship your own version if you keep it open
 
 ## On vibe-coding, since this community will rightly ask
 
@@ -188,7 +188,7 @@ If you spot something wrong, file an issue or open a PR. The point of being open
 
 For the same reason you self host Jellyfin in the first place. The other Apple TV options are closed source binaries you have to trust. This one isn't.
 
-The video engine ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) is LGPL-3.0 separately so it's reusable. The app shell on top is MIT.
+The video engine ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) is LGPL-3.0 separately so it's reusable. The app shell on top is GPL-3.0. Both carry an App Store / DRM Exception so the App Store and TestFlight distribution paths stay legally clean.
 
 ## Tech stack for the curious
 
@@ -226,7 +226,7 @@ Plus first class Jellyseerr integration if you use that, so you can browse trend
 
 **Requirements:** Apple TV 4K, tvOS 26+, your own Jellyfin server.
 
-It's MIT licensed and fully open source. Code is at https://github.com/superuser404notfound/JellySeeTV. No telemetry, no analytics. The app was built in pair-programming with Claude (Anthropic), with every change reviewed before commit, and the source is open so you can verify what it does before installing.
+It's GPL-3.0 licensed (with an Apple Store Exception so the App Store distribution stays legal) and fully open source. Code is at https://github.com/superuser404notfound/JellySeeTV. No telemetry, no analytics. The app was built in pair-programming with Claude (Anthropic), with every change reviewed before commit, and the source is open so you can verify what it does before installing.
 
 Feedback welcome, particularly on HDR and Dolby Vision behavior across different TV models and Atmos handling on various AVRs. Bug reports go in GitHub Issues.
 ```
@@ -238,7 +238,7 @@ Short version, fits in a single post on either platform:
 ```
 JellySeeTV: open source native Jellyfin client for Apple TV with built-in Jellyseerr is now in public TestFlight beta.
 
-Direct Play, real HDR10, real Dolby Vision, real Dolby Atmos. MIT licensed, no telemetry. Vibe-coded with Claude, every change reviewed, source is open.
+Direct Play, real HDR10, real Dolby Vision, real Dolby Atmos. GPL-3.0 with App Store Exception, no telemetry. Vibe-coded with Claude, every change reviewed, source is open.
 
 TestFlight: https://testflight.apple.com/join/REPLACE_ME
 Source: https://github.com/superuser404notfound/JellySeeTV
