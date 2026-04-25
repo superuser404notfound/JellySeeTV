@@ -6,6 +6,7 @@ struct HomeView: View {
     @State private var viewModel: HomeViewModel?
     @State private var selectedItem: JellyfinItem?
     @State private var selectedFilter: FilterDestination?
+    @State private var selectedCatalogFilter: CatalogFilter?
 
     /// How long the home feed is considered fresh before a revisit
     /// triggers an automatic reload.
@@ -42,6 +43,9 @@ struct HomeView: View {
             }
             .navigationDestination(item: $selectedFilter) { filter in
                 FilteredGridView(title: filter.title, query: filter.query)
+            }
+            .navigationDestination(item: $selectedCatalogFilter) { filter in
+                CatalogFilteredGridView(filter: filter)
             }
         }
         .onAppear {
@@ -119,6 +123,20 @@ struct HomeView: View {
                                 selectedFilter = makeFilter(for: tagData, type: tagRow.type)
                             }
                         )
+
+                    case .discoverProviders:
+                        // Hide when Seerr isn't reachable — tapping a tile
+                        // would push a CatalogFilteredGridView whose first
+                        // call would just spin forever, which is worse
+                        // than not showing the row at all.
+                        if appState.isSeerrConnected {
+                            CatalogProviderRow(
+                                titleKey: HomeRowType.discoverProviders.localizedTitle,
+                                providers: CatalogProviders.networks,
+                                kind: .network,
+                                onSelect: { selectedCatalogFilter = $0 }
+                            )
+                        }
                     }
                 }
             }

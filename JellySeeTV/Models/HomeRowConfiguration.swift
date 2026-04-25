@@ -12,6 +12,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
     case collections
     case favorites
     case genres
+    case discoverProviders
     case allMovies
     case allSeries
     case topRatedMovies
@@ -24,7 +25,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
     var defaultEnabled: Bool {
         switch self {
         case .continueWatching, .nextUp, .latestMovies, .latestShows,
-             .collections, .favorites, .genres:
+             .collections, .favorites, .genres, .discoverProviders:
             true
         default:
             false
@@ -59,6 +60,13 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         }
     }
 
+    /// True for rows whose contents are *not* sourced from Jellyfin —
+    /// today only the Discover (Jellyseerr) streaming-provider row,
+    /// which renders a hardcoded provider list with TMDB logos and
+    /// pushes a Jellyseerr-backed filter grid instead of the local
+    /// FilteredGridView.
+    var isDiscoverProviderRow: Bool { self == .discoverProviders }
+
     var localizedTitle: LocalizedStringKey {
         switch self {
         case .continueWatching: "home.continueWatching"
@@ -74,6 +82,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         case .genres: "home.genres"
         case .studios: "home.studios"
         case .collections: "home.collections"
+        case .discoverProviders: "home.discoverProviders"
         }
     }
 
@@ -92,6 +101,7 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         case .genres: "tag"
         case .studios: "building.2"
         case .collections: "rectangle.stack.fill"
+        case .discoverProviders: "tv.badge.wifi"
         }
     }
 }

@@ -49,6 +49,11 @@ final class HomeViewModel {
             var newTagRows: [HomeTagRowData] = []
 
             for config in enabledRows {
+                if config.type.isDiscoverProviderRow {
+                    // Hardcoded data — nothing to fetch. The HomeView
+                    // renders the row directly from CatalogProviders.
+                    continue
+                }
                 if config.type.isTagRow {
                     if let tagRow = await loadTagRow(type: config.type) {
                         if !tagRow.tags.isEmpty {
@@ -190,7 +195,7 @@ final class HomeViewModel {
                 let response = try await libraryService.getItems(userID: userID, query: query)
                 items = response.items
 
-            case .genres, .studios:
+            case .genres, .studios, .discoverProviders:
                 return nil
             }
 
@@ -277,13 +282,16 @@ final class HomeViewModel {
         rowConfigs = HomeRowConfig.loadFromStorage()
     }
 
-    /// Returns the ordered list of all sections (media rows + tag rows) in config order
+    /// Returns the ordered list of all sections (media rows + tag rows + discover) in config order
     func orderedSections() -> [HomeSection] {
         let enabledConfigs = rowConfigs
             .filter(\.isEnabled)
             .sorted { $0.sortOrder < $1.sortOrder }
 
         return enabledConfigs.compactMap { config in
+            if config.type.isDiscoverProviderRow {
+                return .discoverProviders
+            }
             if config.type.isTagRow {
                 if let tagRow = tagRows.first(where: { $0.type == config.type }) {
                     return .tags(tagRow)
@@ -301,11 +309,13 @@ final class HomeViewModel {
 enum HomeSection: Identifiable {
     case media(HomeRowData)
     case tags(HomeTagRowData)
+    case discoverProviders
 
     var id: String {
         switch self {
         case .media(let data): data.id
         case .tags(let data): data.id
+        case .discoverProviders: "discoverProviders"
         }
     }
 }
