@@ -27,8 +27,26 @@ extension PlayerViewModel {
     }
 
     func scrubPanEnded() {
-        if isScrubbing {
-            scrubStartProgress = scrubProgress
+        guard isScrubbing else { return }
+        scrubStartProgress = scrubProgress
+        // Auto-commit on idle. If the user stops scrubbing without
+        // pressing Select (commit) or Menu (cancel), treat a few
+        // seconds of inactivity as an implicit commit and let the
+        // controls fade out. Without this the player UI sits on
+        // top of the picture indefinitely after a partial scrub.
+        //
+        // `scrub(delta:)` cancels controlsTimer the instant the
+        // user resumes panning, so the timer only fires on real
+        // idle. commitScrub() also kicks off its own follow-on
+        // hide timer, but we've already waited the same 5 s, so
+        // call hideControls directly — the follow-on call later
+        // is a harmless no-op.
+        controlsTimer?.cancel()
+        controlsTimer = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            commitScrub()
+            hideControls()
         }
     }
 
