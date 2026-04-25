@@ -61,7 +61,7 @@ struct GenreCard: View {
                             )
                         )
                 }
-                .frame(width: 300, height: 170)
+                .frame(width: 320, height: 180)
                 .clipped()
 
                 // Dark overlay
@@ -90,7 +90,7 @@ struct GenreCard: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
                 }
             }
-            .frame(width: 300, height: 170)
+            .frame(width: 320, height: 180)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
