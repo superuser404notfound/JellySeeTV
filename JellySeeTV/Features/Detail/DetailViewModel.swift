@@ -133,9 +133,11 @@ final class DetailViewModel {
         }
 
         // 2. iTunes preview MP4 → native AVPlayer, no app switch.
-        //    Only attempt for movies; iTunes' TV coverage is patchy
-        //    and we'd rather fall through to YouTube than show a
-        //    half-broken series-trailer mismatch.
+        //    Movies only; iTunes' TV coverage isn't reliable
+        //    enough to attempt for series. There's no third
+        //    fallback — WebKit isn't on tvOS so YouTube embeds
+        //    are impossible, and the external YouTube app hand-
+        //    off doesn't deep-link to the actual video.
         if item.type == .movie,
            let previewURL = await ITunesTrailerLookup.lookup(
                 title: item.name,
@@ -144,23 +146,6 @@ final class DetailViewModel {
             trailer = .directVideo(url: previewURL, title: item.name)
             #if DEBUG
             print("[Trailer] resolved .directVideo \(previewURL)")
-            #endif
-            return
-        }
-
-        // 3. YouTube via remote trailer URLs → external app /
-        //    QR-code fallback.
-        if let remote = item.remoteTrailers?
-            .compactMap({ YouTubeURL.parse(from: $0.url) })
-            .first {
-            let name = item.remoteTrailers?.first?.name ?? item.name
-            trailer = .youtube(
-                videoKey: remote.videoKey,
-                watchURL: remote.watchURL,
-                title: name
-            )
-            #if DEBUG
-            print("[Trailer] resolved .youtube \(remote.videoKey)")
             #endif
             return
         }

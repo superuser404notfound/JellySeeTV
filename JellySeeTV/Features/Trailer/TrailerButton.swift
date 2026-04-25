@@ -1,29 +1,27 @@
 import SwiftUI
 
-/// Pure presentational button that renders a trailer action when
-/// its owner has resolved a source, and hides itself otherwise.
-/// Resolution happens in the enclosing view model — Detail /
-/// Catalog view models call their TrailerService and publish into
-/// an observable `trailer` property. Keeping the resolve out of
-/// the view makes the state machine visible (a single @Observable
-/// property) and means SwiftUI doesn't have to re-synchronize an
-/// async `.task` against item refreshes.
+/// Pure presentational button. Source resolution lives in the
+/// enclosing view model (DetailViewModel for Jellyfin items,
+/// CatalogDetailView's @State for Seerr items). Two playback
+/// surfaces, both in-app:
+///
+///   .local       → AetherEngine via PlayerLauncher (full quality
+///                  Jellyfin pipeline)
+///   .directVideo → AVPlayerViewController (iTunes preview MP4,
+///                  native tvOS player)
 struct TrailerButton: View {
     let trailer: TrailerSource?
 
     @Environment(\.appState) private var appState
     @Environment(\.dependencies) private var dependencies
 
-    @State private var showPlayer = false
+    @State private var showLocalPlayer = false
     @State private var showDirectVideo = false
-    @State private var directVideoURL: URL?
-    @State private var showQR = false
-    @State private var qrTarget: (url: URL, title: String?)?
 
     var body: some View {
         Group {
             switch trailer {
-            case .local, .directVideo, .youtube:
+            case .local, .directVideo:
                 button
             case .unavailable, .none:
                 EmptyView()
@@ -33,8 +31,8 @@ struct TrailerButton: View {
             if case .local(let trailerItem) = trailer,
                let userID = appState.activeUser?.id {
                 PlayerLauncher(
-                    isPresented: $showPlayer,
-                    item: showPlayer ? trailerItem : nil,
+                    isPresented: $showLocalPlayer,
+                    item: showLocalPlayer ? trailerItem : nil,
                     startFromBeginning: true,
                     playbackService: dependencies.jellyfinPlaybackService,
                     userID: userID,
@@ -48,14 +46,9 @@ struct TrailerButton: View {
             }
         }
         .fullScreenCover(isPresented: $showDirectVideo) {
-            if let directVideoURL {
-                DirectVideoPlayerView(url: directVideoURL)
+            if case .directVideo(let url, _) = trailer {
+                DirectVideoPlayerView(url: url)
                     .ignoresSafeArea()
-            }
-        }
-        .sheet(isPresented: $showQR) {
-            if let qrTarget {
-                TrailerQRFallbackView(watchURL: qrTarget.url, title: qrTarget.title)
             }
         }
     }
@@ -65,25 +58,16 @@ struct TrailerButton: View {
             title: "trailer.play",
             systemImage: "play.rectangle.fill"
         ) {
-            Task { await handleTap() }
+            handleTap()
         }
     }
 
-    private func handleTap() async {
+    private func handleTap() {
         switch trailer {
         case .local:
-            showPlayer = true
-        case .directVideo(let url, _):
-            directVideoURL = url
+            showLocalPlayer = true
+        case .directVideo:
             showDirectVideo = true
-        case .youtube(_, let url, let title):
-            let target = YouTubeURL.parse(from: url.absoluteString)
-                ?? YouTubeURL(videoKey: url.lastPathComponent)
-            let outcome = await TrailerLauncher.open(target)
-            if outcome == .fallbackToQR {
-                qrTarget = (url, title)
-                showQR = true
-            }
         case .unavailable, .none:
             break
         }

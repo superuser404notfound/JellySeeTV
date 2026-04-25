@@ -449,62 +449,28 @@ struct CatalogDetailView: View {
         await loadServiceConfig()
     }
 
-    /// Resolution chain: iTunes (native MP4) → YouTube → unavailable.
-    /// iTunes is preferred because its previewUrl plays through
-    /// AVPlayer with no external-app round-trip; YouTube remains
-    /// the catch-all for items iTunes doesn't list (TV mostly).
+    /// iTunes-only resolution. WebKit isn't on tvOS so an in-app
+    /// YouTube embed isn't possible, and the YouTube TV app
+    /// hand-off doesn't deep-link to the trailer — iTunes
+    /// previewUrl is the one source that plays cleanly inside
+    /// the app. Catalog items the user hasn't downloaded yet have
+    /// no local trailer to fall back on, so the button simply
+    /// hides for movies iTunes doesn't list and for all TV.
     private func resolveTrailer() async {
-        let videos: [SeerrVideo]?
-        let releaseYear: Int?
-        switch media.mediaType {
-        case .movie:
-            videos = movieDetail?.relatedVideos
-            releaseYear = Int((movieDetail?.releaseDate ?? "").prefix(4))
-        case .tv:
-            videos = tvDetail?.relatedVideos
-            releaseYear = Int((tvDetail?.firstAirDate ?? "").prefix(4))
-        case .person:
-            videos = nil
-            releaseYear = nil
+        guard media.mediaType == .movie else {
+            trailer = .unavailable
+            return
         }
+        let releaseYear = Int((movieDetail?.releaseDate ?? "").prefix(4))
 
-        #if DEBUG
-        print("[Trailer] seerr id=\(media.id) type=\(media.mediaType.rawValue) videoCount=\(videos?.count ?? -1) ytTrailers=\(videos?.filter { $0.isYouTube && $0.isTrailer }.count ?? 0)")
-        #endif
-
-        // 1. iTunes — native MP4. Only for movies; iTunes' TV
-        //    storefront entries are by season and rarely carry a
-        //    series-level trailer, so we'd just hit lookup misses.
-        if media.mediaType == .movie,
-           let previewURL = await ITunesTrailerLookup.lookup(
-                title: displayTitle,
-                year: releaseYear
-           ) {
+        if let previewURL = await ITunesTrailerLookup.lookup(
+            title: displayTitle,
+            year: releaseYear
+        ) {
             trailer = .directVideo(url: previewURL, title: displayTitle)
             #if DEBUG
             print("[Trailer] resolved .directVideo \(previewURL)")
             #endif
-            return
-        }
-
-        // 2. YouTube — covers TV and any movie iTunes didn't have.
-        guard let videos else { trailer = .unavailable; return }
-        if let t = videos.first(where: { $0.isTrailer && $0.isYouTube }),
-           let y = YouTubeURL.from(key: t.key) {
-            trailer = .youtube(
-                videoKey: y.videoKey,
-                watchURL: y.watchURL,
-                title: t.name ?? displayTitle
-            )
-            return
-        }
-        if let any = videos.first(where: { $0.isYouTube }),
-           let y = YouTubeURL.from(key: any.key) {
-            trailer = .youtube(
-                videoKey: y.videoKey,
-                watchURL: y.watchURL,
-                title: any.name ?? displayTitle
-            )
             return
         }
         trailer = .unavailable

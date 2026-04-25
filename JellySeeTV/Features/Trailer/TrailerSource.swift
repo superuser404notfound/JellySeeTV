@@ -11,14 +11,11 @@ enum TrailerSource: Sendable, Equatable {
 
     /// A direct video URL (typically iTunes' previewUrl, an MP4
     /// hosted on Apple CDN). AVPlayerViewController plays it
-    /// natively without any external-app round-trip.
+    /// natively. This is the only practical native trailer source
+    /// on tvOS: WebKit isn't available on the platform, so YouTube
+    /// embeds are impossible, and the YouTube TV app's URL hand-off
+    /// only opens its own home screen rather than the trailer.
     case directVideo(url: URL, title: String?)
-
-    /// YouTube video identifier + canonical watch URL. Caller tries
-    /// to open it in the YouTube app first; if `UIApplication.open`
-    /// comes back false, falls back to a QR-code sheet so the user
-    /// can scan with a phone.
-    case youtube(videoKey: String, watchURL: URL, title: String?)
 
     case unavailable
 }
