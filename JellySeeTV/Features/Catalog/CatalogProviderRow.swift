@@ -38,13 +38,14 @@ private struct ProviderTile: View {
     let provider: CatalogProvider
     let action: () -> Void
 
-    @FocusState private var isFocused: Bool
-
     private let width: CGFloat = 280
     private let height: CGFloat = 140
 
     var body: some View {
-        Button(action: action) {
+        // Same reason as GenreTile / SeerrMediaCard / etc. — Button
+        // on tvOS layers a system white halo we can't disable, so we
+        // route through FocusableCard for a consistent tint outline.
+        FocusableCard(action: action) { isFocused in
             ZStack {
                 Color(white: 0.08)
 
@@ -68,12 +69,7 @@ private struct ProviderTile: View {
                     .strokeBorder(.tint, lineWidth: 4)
                     .opacity(isFocused ? 1 : 0)
             )
-            .scaleEffect(isFocused ? 1.06 : 1.0)
-            .shadow(color: .black.opacity(isFocused ? 0.4 : 0), radius: 18, y: 8)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
         }
-        .buttonStyle(.plain)
-        .focused($isFocused)
     }
 
     private var nameLabel: some View {

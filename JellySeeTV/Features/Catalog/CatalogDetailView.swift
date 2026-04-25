@@ -258,30 +258,9 @@ struct CatalogDetailView: View {
 
     private func seasonSelection(seasons: [SeerrSeason]) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("catalog.seasons.select")
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                Spacer()
-                if hasSelectableSeasons(in: seasons) {
-                    Button {
-                        toggleAllSeasons(seasons)
-                    } label: {
-                        Label(
-                            allSelectableSeasonsSelected(in: seasons)
-                                ? "catalog.seasons.deselectAll"
-                                : "catalog.seasons.selectAll",
-                            systemImage: allSelectableSeasonsSelected(in: seasons)
-                                ? "minus.circle"
-                                : "plus.circle"
-                        )
-                        .font(.caption)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                    }
-                    .buttonStyle(SeasonChipButtonStyle())
-                }
-            }
+            Text("catalog.seasons.select")
+                .font(.title3)
+                .fontWeight(.semibold)
 
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -306,6 +285,12 @@ struct CatalogDetailView: View {
                 }
             }
 
+            // Per-season + select-all actions live below the tab row,
+            // left-aligned. Keeping them out of the tab-row header
+            // means the user can scan tabs without two competing
+            // focus targets in the same horizontal slice.
+            seasonActionsRow(seasons: seasons)
+
             if let viewed = viewedSeasonNumber,
                let season = seasons.first(where: { $0.seasonNumber == viewed }) {
                 seasonDetailBlock(season: season)
@@ -314,40 +299,70 @@ struct CatalogDetailView: View {
     }
 
     @ViewBuilder
+    private func seasonActionsRow(seasons: [SeerrSeason]) -> some View {
+        let viewedSeason: SeerrSeason? = viewedSeasonNumber.flatMap { n in
+            seasons.first(where: { $0.seasonNumber == n })
+        }
+        HStack(spacing: 12) {
+            if let season = viewedSeason, !isSeasonAvailable(season) {
+                let isSelected = selectedSeasons.contains(season.seasonNumber)
+                Button {
+                    toggleSeason(season)
+                } label: {
+                    Label(
+                        isSelected
+                            ? "catalog.seasons.removeFromRequest"
+                            : "catalog.seasons.addToRequest",
+                        systemImage: isSelected ? "checkmark.circle.fill" : "plus.circle"
+                    )
+                    .font(.caption)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                }
+                .buttonStyle(SeasonChipButtonStyle())
+            } else if let season = viewedSeason, isSeasonAvailable(season) {
+                Label("catalog.seasons.alreadyAvailable", systemImage: "checkmark.circle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+            }
+            if hasSelectableSeasons(in: seasons) {
+                Button {
+                    toggleAllSeasons(seasons)
+                } label: {
+                    Label(
+                        allSelectableSeasonsSelected(in: seasons)
+                            ? "catalog.seasons.deselectAll"
+                            : "catalog.seasons.selectAll",
+                        systemImage: allSelectableSeasonsSelected(in: seasons)
+                            ? "minus.circle"
+                            : "plus.circle"
+                    )
+                    .font(.caption)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                }
+                .buttonStyle(SeasonChipButtonStyle())
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.leading, 4)
+    }
+
+    @ViewBuilder
     private func seasonDetailBlock(season: SeerrSeason) -> some View {
         let n = season.seasonNumber
         let episodes = seasonEpisodes[n]
-        let isAvailable = isSeasonAvailable(season)
-        let isSelected = selectedSeasons.contains(n)
 
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .firstTextBaseline, spacing: 16) {
-                Text(seasonHeading(season: season))
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                Spacer()
-                if isAvailable {
-                    Label("catalog.seasons.alreadyAvailable", systemImage: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                } else {
-                    Button {
-                        toggleSeason(season)
-                    } label: {
-                        Label(
-                            isSelected
-                                ? "catalog.seasons.removeFromRequest"
-                                : "catalog.seasons.addToRequest",
-                            systemImage: isSelected ? "checkmark.circle.fill" : "plus.circle"
-                        )
-                        .font(.caption)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                    }
-                    .buttonStyle(SeasonChipButtonStyle())
-                }
-            }
-            .padding(.horizontal, 4)
+            // Season heading only — the per-season Add / Already
+            // Available action moved up next to the tab row so it
+            // sits in the same focus column as Select All.
+            Text(seasonHeading(season: season))
+                .font(.title3)
+                .fontWeight(.semibold)
+                .padding(.horizontal, 4)
 
             if let overview = season.overview, !overview.isEmpty {
                 Text(overview)

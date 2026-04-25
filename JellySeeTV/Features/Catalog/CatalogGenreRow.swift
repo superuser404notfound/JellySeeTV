@@ -47,13 +47,16 @@ private struct GenreTile: View {
     let genre: SeerrGenreSlide
     let action: () -> Void
 
-    @FocusState private var isFocused: Bool
-
     private let width: CGFloat = 320
     private let height: CGFloat = 180
 
     var body: some View {
-        Button(action: action) {
+        // FocusableCard rather than Button: tvOS layers a subtle
+        // white system halo on top of every focused .plain button
+        // that we can't suppress, so all focusable cards in the app
+        // route through the same focus primitive that handles its
+        // own scale + shadow + tint outline.
+        FocusableCard(action: action) { isFocused in
             ZStack {
                 if let path = genre.primaryBackdrop,
                    let url = SeerrImageURL.backdrop(path: path, size: .w780) {
@@ -88,12 +91,7 @@ private struct GenreTile: View {
                     .strokeBorder(.tint, lineWidth: 4)
                     .opacity(isFocused ? 1 : 0)
             )
-            .scaleEffect(isFocused ? 1.06 : 1.0)
-            .shadow(color: .black.opacity(isFocused ? 0.4 : 0), radius: 18, y: 8)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
         }
-        .buttonStyle(.plain)
-        .focused($isFocused)
     }
 
     private var fallbackBackground: some View {
