@@ -17,6 +17,8 @@ final class CatalogViewModel {
     var trending = PagedSection()
     var popularMovies = PagedSection()
     var popularTV = PagedSection()
+    var upcomingMovies = PagedSection()
+    var upcomingTV = PagedSection()
     var myRequests: [SeerrRequest] = []
 
     /// Per-request enrichment keyed by tmdbID. Populated in the
@@ -76,8 +78,8 @@ final class CatalogViewModel {
     }
 
     func loadDiscover() async {
-        // First-page bulk load of all three rows in parallel. Subsequent
-        // pages use loadMore(section:) on demand from the UI.
+        // First-page bulk load of every row in parallel. Subsequent
+        // pages use loadMore(row:) on demand from the UI.
         isLoadingDiscover = true
         errorMessage = nil
         defer { isLoadingDiscover = false }
@@ -85,23 +87,32 @@ final class CatalogViewModel {
         trending = PagedSection()
         popularMovies = PagedSection()
         popularTV = PagedSection()
+        upcomingMovies = PagedSection()
+        upcomingTV = PagedSection()
 
         do {
             async let trendingTask = discoverService.trending(page: 1)
             async let moviesTask = discoverService.popularMovies(page: 1)
             async let tvTask = discoverService.popularTV(page: 1)
+            async let upcomingMoviesTask = discoverService.upcomingMovies(page: 1)
+            async let upcomingTVTask = discoverService.upcomingTV(page: 1)
 
-            let (t, m, tv) = try await (trendingTask, moviesTask, tvTask)
+            let (t, m, tv, um, ut) = try await (
+                trendingTask, moviesTask, tvTask,
+                upcomingMoviesTask, upcomingTVTask
+            )
             trending = PagedSection(items: t.results, currentPage: 1, totalPages: t.totalPages)
             popularMovies = PagedSection(items: m.results, currentPage: 1, totalPages: m.totalPages)
             popularTV = PagedSection(items: tv.results, currentPage: 1, totalPages: tv.totalPages)
+            upcomingMovies = PagedSection(items: um.results, currentPage: 1, totalPages: um.totalPages)
+            upcomingTV = PagedSection(items: ut.results, currentPage: 1, totalPages: ut.totalPages)
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
     enum DiscoverRow {
-        case trending, movies, tv
+        case trending, movies, tv, upcomingMovies, upcomingTV
     }
 
     /// Load the next page for a single row. Called by the horizontal row
@@ -125,6 +136,10 @@ final class CatalogViewModel {
                 result = try await discoverService.popularMovies(page: nextPage)
             case .tv:
                 result = try await discoverService.popularTV(page: nextPage)
+            case .upcomingMovies:
+                result = try await discoverService.upcomingMovies(page: nextPage)
+            case .upcomingTV:
+                result = try await discoverService.upcomingTV(page: nextPage)
             }
 
             let existingKeys = Set(section.items.map { key(for: $0) })
@@ -214,6 +229,8 @@ final class CatalogViewModel {
         case .trending: trending
         case .movies: popularMovies
         case .tv: popularTV
+        case .upcomingMovies: upcomingMovies
+        case .upcomingTV: upcomingTV
         }
     }
 
@@ -222,6 +239,8 @@ final class CatalogViewModel {
         case .trending: trending = new
         case .movies: popularMovies = new
         case .tv: popularTV = new
+        case .upcomingMovies: upcomingMovies = new
+        case .upcomingTV: upcomingTV = new
         }
     }
 }

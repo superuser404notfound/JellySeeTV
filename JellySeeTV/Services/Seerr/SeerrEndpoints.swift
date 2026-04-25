@@ -9,6 +9,14 @@ enum SeerrEndpoint: APIEndpoint {
     case discoverTrending(page: Int)
     case discoverMovies(page: Int)
     case discoverTV(page: Int)
+    case discoverUpcomingMovies(page: Int)
+    case discoverUpcomingTV(page: Int)
+    case discoverMoviesByGenre(genreID: Int, page: Int)
+    case discoverTVByGenre(genreID: Int, page: Int)
+    case discoverMoviesByStudio(studioID: Int, page: Int)
+    case discoverTVByNetwork(networkID: Int, page: Int)
+    case genresMovie
+    case genresTV
 
     case search(query: String, page: Int)
 
@@ -32,6 +40,14 @@ enum SeerrEndpoint: APIEndpoint {
         case .discoverTrending: "/api/v1/discover/trending"
         case .discoverMovies: "/api/v1/discover/movies"
         case .discoverTV: "/api/v1/discover/tv"
+        case .discoverUpcomingMovies: "/api/v1/discover/movies/upcoming"
+        case .discoverUpcomingTV: "/api/v1/discover/tv/upcoming"
+        case .discoverMoviesByGenre(let genreID, _): "/api/v1/discover/movies/genre/\(genreID)"
+        case .discoverTVByGenre(let genreID, _): "/api/v1/discover/tv/genre/\(genreID)"
+        case .discoverMoviesByStudio(let studioID, _): "/api/v1/discover/movies/studio/\(studioID)"
+        case .discoverTVByNetwork(let networkID, _): "/api/v1/discover/tv/network/\(networkID)"
+        case .genresMovie: "/api/v1/discover/genreslider/movie"
+        case .genresTV: "/api/v1/discover/genreslider/tv"
         case .search: "/api/v1/search"
         case .movieDetail(let id): "/api/v1/movie/\(id)"
         case .tvDetail(let id): "/api/v1/tv/\(id)"
@@ -54,7 +70,17 @@ enum SeerrEndpoint: APIEndpoint {
 
     var queryItems: [URLQueryItem]? {
         switch self {
-        case .discoverTrending(let page), .discoverMovies(let page), .discoverTV(let page):
+        case .discoverTrending(let page),
+             .discoverMovies(let page),
+             .discoverTV(let page),
+             .discoverUpcomingMovies(let page),
+             .discoverUpcomingTV(let page):
+            return [URLQueryItem(name: "page", value: String(page))]
+
+        case .discoverMoviesByGenre(_, let page),
+             .discoverTVByGenre(_, let page),
+             .discoverMoviesByStudio(_, let page),
+             .discoverTVByNetwork(_, let page):
             return [URLQueryItem(name: "page", value: String(page))]
 
         case .search(let query, let page):

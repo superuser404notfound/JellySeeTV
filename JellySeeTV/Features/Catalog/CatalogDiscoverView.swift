@@ -25,6 +25,28 @@ struct CatalogDiscoverView: View {
                                 }
                             )
                         }
+                        if !viewModel.upcomingMovies.items.isEmpty {
+                            SeerrHorizontalMediaRow(
+                                title: "catalog.section.upcomingMovies",
+                                items: viewModel.upcomingMovies.items,
+                                isLoadingMore: viewModel.upcomingMovies.isLoading,
+                                onItemSelected: onSelect,
+                                onNeedsMore: {
+                                    Task { await viewModel.loadMore(row: .upcomingMovies) }
+                                }
+                            )
+                        }
+                        if !viewModel.upcomingTV.items.isEmpty {
+                            SeerrHorizontalMediaRow(
+                                title: "catalog.section.upcomingShows",
+                                items: viewModel.upcomingTV.items,
+                                isLoadingMore: viewModel.upcomingTV.isLoading,
+                                onItemSelected: onSelect,
+                                onNeedsMore: {
+                                    Task { await viewModel.loadMore(row: .upcomingTV) }
+                                }
+                            )
+                        }
                         if !viewModel.popularMovies.items.isEmpty {
                             SeerrHorizontalMediaRow(
                                 title: "catalog.section.popularMovies",
