@@ -597,43 +597,24 @@ struct CatalogDetailView: View {
                     .sorted()
                 if let first = realSeasons.first {
                     viewedSeasonNumber = first
+                    // Strictly lazy: only the currently-viewed season
+                    // hits the network up front. We tried fanning out
+                    // one tvSeasonDetail per season so tab switches
+                    // would hit the cache, but on shows with 30+
+                    // seasons that fired 30+ parallel HTTP/2 streams
+                    // against a *remote* Jellyseerr — saturating the
+                    // connection pool and starving the still-image
+                    // loads from TMDB so episode artwork wouldn't
+                    // appear after a tab switch. Remote browsing
+                    // wants a different shape than local Jellyfin.
+                    Task { await loadSeasonEpisodes(seasonNumber: first) }
                 }
-                // Fan out one tvSeasonDetail call per season so tab
-                // switches hit the in-memory cache rather than firing
-                // a fresh roundtrip. Best-effort: failures stay silent
-                // and the user can still tap to retry on demand.
-                Task { await prefetchAllSeasonEpisodes(seasons: realSeasons) }
                 return
             case .person:
                 return
             }
         } catch {
             errorMessage = error.localizedDescription
-        }
-    }
-
-    private func prefetchAllSeasonEpisodes(seasons: [Int]) async {
-        guard let tvID = tvDetail?.id else { return }
-        await withTaskGroup(of: (Int, [SeerrEpisode]?).self) { group in
-            for n in seasons {
-                // Skip the ones already cached or in flight from the
-                // synchronous tab-tap path so we don't double-fetch.
-                guard seasonEpisodes[n] == nil, !loadingSeasons.contains(n) else { continue }
-                loadingSeasons.insert(n)
-                group.addTask { [mediaService = dependencies.seerrMediaService] in
-                    let detail = try? await mediaService.tvSeasonDetail(
-                        tmdbID: tvID,
-                        seasonNumber: n
-                    )
-                    return (n, detail?.episodes)
-                }
-            }
-            for await (n, episodes) in group {
-                loadingSeasons.remove(n)
-                if let episodes {
-                    seasonEpisodes[n] = episodes
-                }
-            }
         }
     }
 

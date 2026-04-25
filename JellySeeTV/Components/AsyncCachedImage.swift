@@ -71,8 +71,16 @@ struct AsyncCachedImage<Content: View, Placeholder: View>: View {
         }
 
         let prepared = await Self.fetchAndDecode(request: request)
-        guard let prepared, !Task.isCancelled else { return }
+        guard let prepared else { return }
+        // Persist to cache *before* the cancellation check. A tab
+        // switch (or any upstream `.task(id:)` invalidation) may
+        // cancel us between the successful decode and the @State
+        // write — but the bytes are already in memory. Skipping the
+        // cache here meant the next mount paid the bandwidth + decode
+        // again for the same URL, which on a flaky connection or a
+        // 30-season show with 20 stills per tab adds up fast.
         ImageCache.shared.store(prepared, for: url)
+        guard !Task.isCancelled else { return }
         loaded = prepared
     }
 
