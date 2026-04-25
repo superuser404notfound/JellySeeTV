@@ -25,6 +25,14 @@ final class CatalogViewModel {
     /// show a hero image instead of a flat capsule.
     var movieGenres: [SeerrGenreSlide] = []
     var tvGenres: [SeerrGenreSlide] = []
+    /// Sample backdrop paths per network/studio TMDB id — populated
+    /// in the background after the first discover load by hitting
+    /// `/discover/tv/network/{id}` (or `…/movies/studio/{id}`) with
+    /// page 1 and grabbing the first result's backdrop. Lets the
+    /// provider tiles show a hero image of an actual show on that
+    /// service instead of a flat dark plate.
+    var networkBackdrops: [Int: String] = [:]
+    var studioBackdrops: [Int: String] = [:]
     var myRequests: [SeerrRequest] = []
 
     /// Per-request enrichment keyed by tmdbID. Populated in the
@@ -116,10 +124,11 @@ final class CatalogViewModel {
             errorMessage = error.localizedDescription
         }
 
-        // Genre sliders load best-effort in the background — failures
-        // here just hide the genre rows, they don't poison the whole
-        // discover screen.
+        // Genre sliders + provider backdrops load best-effort in the
+        // background — failures here just leave the rows looking
+        // plain, they don't poison the whole discover screen.
         Task { await loadGenres() }
+        Task { await loadProviderBackdrops() }
     }
 
     private func loadGenres() async {
@@ -129,6 +138,36 @@ final class CatalogViewModel {
         if let movie { movieGenres = movie }
         if let tv { tvGenres = tv }
     }
+
+    private func loadProviderBackdrops() async {
+        // Fan out one network/studio query per provider. Page 1 with
+        // the default sort returns "popular on this service first" —
+        // good enough as a hero image. We only keep the very first
+        // backdrop path; everything else is discarded.
+        await withTaskGroup(of: (kind: ProviderKind, id: Int, backdrop: String?).self) { group in
+            for provider in CatalogProviders.networks {
+                group.addTask { [discoverService] in
+                    let result = try? await discoverService.tvByNetwork(networkID: provider.id, page: 1)
+                    return (.network, provider.id, result?.results.first(where: { $0.backdropPath != nil })?.backdropPath)
+                }
+            }
+            for provider in CatalogProviders.studios {
+                group.addTask { [discoverService] in
+                    let result = try? await discoverService.moviesByStudio(studioID: provider.id, page: 1)
+                    return (.studio, provider.id, result?.results.first(where: { $0.backdropPath != nil })?.backdropPath)
+                }
+            }
+            for await item in group {
+                guard let path = item.backdrop else { continue }
+                switch item.kind {
+                case .network: networkBackdrops[item.id] = path
+                case .studio: studioBackdrops[item.id] = path
+                }
+            }
+        }
+    }
+
+    private enum ProviderKind { case network, studio }
 
     enum DiscoverRow {
         case trending, movies, tv, upcomingMovies, upcomingTV

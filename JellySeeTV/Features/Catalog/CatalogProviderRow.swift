@@ -11,6 +11,12 @@ struct CatalogProviderRow: View {
     /// provider in a Jellyseerr-backed `CatalogFilter`, Home translates
     /// it into a Jellyfin Studios filter against the local library.
     let onSelect: (CatalogProvider) -> Void
+    /// Optional resolver for a sample backdrop per provider. The
+    /// caller decides whether the sample comes from the local
+    /// Jellyfin library (home) or Jellyseerr discover (catalog) — the
+    /// row just renders whatever URL it gets, with a graceful fallback
+    /// to the dark logo-only tile when the lookup returns nil.
+    var backdropFor: (CatalogProvider) -> URL? = { _ in nil }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -22,7 +28,10 @@ struct CatalogProviderRow: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 24) {
                     ForEach(providers) { provider in
-                        ProviderTile(provider: provider) {
+                        ProviderTile(
+                            provider: provider,
+                            backdropURL: backdropFor(provider)
+                        ) {
                             onSelect(provider)
                         }
                     }
@@ -36,6 +45,7 @@ struct CatalogProviderRow: View {
 
 private struct ProviderTile: View {
     let provider: CatalogProvider
+    let backdropURL: URL?
     let action: () -> Void
 
     // Match the genre tile dimensions so provider + genre rows
@@ -50,7 +60,28 @@ private struct ProviderTile: View {
         // route through FocusableCard for a consistent tint outline.
         FocusableCard(action: action) { isFocused in
             ZStack {
-                Color(white: 0.08)
+                if let backdropURL {
+                    AsyncCachedImage(url: backdropURL) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color(white: 0.08)
+                    }
+                    .frame(width: width, height: height)
+                    .clipped()
+
+                    // Slightly heavier than the genre tile gradient
+                    // so the duotone logo on top stays readable even
+                    // against bright backdrops.
+                    LinearGradient(
+                        colors: [.black.opacity(0.55), .black.opacity(0.85)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                } else {
+                    Color(white: 0.08)
+                }
 
                 if let url = SeerrImageURL.duotoneLogo(path: provider.logoPath) {
                     AsyncCachedImage(url: url) { image in

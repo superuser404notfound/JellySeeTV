@@ -91,6 +91,9 @@ struct CatalogDiscoverView: View {
                             providers: CatalogProviders.networks,
                             onSelect: { provider in
                                 onSelectFilter(.tvNetwork(id: provider.id, name: provider.name))
+                            },
+                            backdropFor: { provider in
+                                SeerrImageURL.backdrop(path: viewModel.networkBackdrops[provider.id], size: .w780)
                             }
                         )
                         CatalogProviderRow(
@@ -98,6 +101,9 @@ struct CatalogDiscoverView: View {
                             providers: CatalogProviders.studios,
                             onSelect: { provider in
                                 onSelectFilter(.movieStudio(id: provider.id, name: provider.name))
+                            },
+                            backdropFor: { provider in
+                                SeerrImageURL.backdrop(path: viewModel.studioBackdrops[provider.id], size: .w780)
                             }
                         )
                     }

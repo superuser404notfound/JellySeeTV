@@ -126,6 +126,9 @@ struct HomeView: View {
                             providers: CatalogProviders.networks,
                             onSelect: { provider in
                                 selectedFilter = makeJellyfinFilter(for: provider)
+                            },
+                            backdropFor: { provider in
+                                vm.providerBackdrops[provider.id]
                             }
                         )
                     }

@@ -8,6 +8,12 @@ final class HomeViewModel {
     var errorMessage: String?
     var rowConfigs: [HomeRowConfig] = []
     var needsReload = false
+    /// Sample backdrop URL per streaming-provider TMDB id, populated
+    /// from a one-shot Jellyfin Studios query so each provider tile
+    /// can show a hero image of an actual library item rather than a
+    /// flat dark plate. Empty values are kept as `nil` so the tile
+    /// gracefully falls back to the logo-only style.
+    var providerBackdrops: [Int: URL] = [:]
 
     /// Timestamp of the last successful loadContent(). Used by the
     /// view's onAppear to decide whether enough time has passed to
@@ -78,9 +84,51 @@ final class HomeViewModel {
             tagRows = newTagRows
             isLoading = false
             lastLoadedAt = .now
+
+            // Best-effort: fan out one Studios query per provider so
+            // the streaming-provider row can render a sample backdrop
+            // from the local library. Failures and gaps in metadata
+            // are tolerated — the tile falls back to the logo-only
+            // style for any provider that doesn't resolve.
+            Task { await loadProviderBackdrops() }
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false
+        }
+    }
+
+    private func loadProviderBackdrops() async {
+        let providers = CatalogProviders.networks
+        // Stage 1: collect a sample item per provider in parallel.
+        // imageService isn't Sendable, so URL construction happens
+        // back on MainActor in stage 2 — the task group only carries
+        // the JellyfinItem (which is Sendable) across the boundary.
+        let pairs: [(Int, JellyfinItem)] = await withTaskGroup(
+            of: (Int, JellyfinItem?).self,
+            returning: [(Int, JellyfinItem)].self
+        ) { group in
+            for provider in providers {
+                group.addTask { [libraryService, userID] in
+                    let query = ItemQuery(
+                        includeItemTypes: [.movie, .series],
+                        sortBy: "Random",
+                        limit: 1,
+                        studioNames: provider.jellyfinStudioNames
+                    )
+                    let item = try? await libraryService.getItems(userID: userID, query: query).items.first
+                    return (provider.id, item)
+                }
+            }
+            var collected: [(Int, JellyfinItem)] = []
+            for await (id, item) in group {
+                if let item { collected.append((id, item)) }
+            }
+            return collected
+        }
+        for (id, item) in pairs {
+            if let url = imageService.backdropURL(for: item) ?? imageService.posterURL(for: item) {
+                providerBackdrops[id] = url
+            }
         }
     }
 
