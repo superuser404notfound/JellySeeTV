@@ -366,32 +366,38 @@ struct SeriesDetailView: View {
             // the overview textbox or the tech-info cards. Once
             // focused, the bridge redirects based on which row the
             // user came from; the target tab / episode gets focus on
-            // the next SwiftUI cycle and the invisible one-pixel
-            // bridge is never actually visible on screen.
+            // the next SwiftUI cycle.
+            //
+            // 8pt tall (was 1pt): tvOS's geographic focus picker
+            // sometimes skips ultra-thin focusables when there's a
+            // larger one nearby, which made the season-tab → bridge
+            // hop intermittently miss and the user had to press down
+            // a second time. Eight pixels is enough for the picker
+            // to commit to it reliably and still invisible on screen.
             Color.clear
                 .frame(maxWidth: .infinity)
-                .frame(height: 1)
+                .frame(height: 8)
                 .focusable()
                 .focused($focusBridgeActive)
                 .onChange(of: focusBridgeActive) { _, active in
                     guard active else { return }
-                    // Hop via DispatchQueue on both branches. A
-                    // synchronous @FocusState write from inside the
-                    // bridge's onChange lands in the same runloop
-                    // cycle as tvOS is processing the focus move that
-                    // just put us here — the down case (episode row
-                    // is huge) loses the race and takes two swipes;
-                    // the up case happens to win because the season
-                    // bar is small enough that the geographic picker
-                    // doesn't fight back. Deferring one tick lets the
-                    // write land unambiguously after the bridge has
-                    // taken focus, so one swipe is always enough.
+                    // Defer the @FocusState write past the SwiftUI
+                    // tick that's currently committing the bridge's
+                    // own focus. `.async` (0 delay) won the race
+                    // most of the time but not always — the user
+                    // could feel "down doesn't do anything" on the
+                    // first press and have to hit it again. 30 ms
+                    // is well below the perceptible threshold for
+                    // a remote interaction and consistently lands
+                    // after SwiftUI has finished settling the new
+                    // focus state.
+                    let defer1Tick = { (work: @escaping () -> Void) in
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.03, execute: work)
+                    }
                     switch lastFocusedArea {
                     case .episode:
                         let target = vm.selectedSeasonID
-                        DispatchQueue.main.async {
-                            focusedSeasonID = target
-                        }
+                        defer1Tick { focusedSeasonID = target }
                     case .season:
                         let target: String? = {
                             if let current = vm.currentEpisodeID,
@@ -401,9 +407,7 @@ struct SeriesDetailView: View {
                             return vm.episodes.first?.id
                         }()
                         if let target {
-                            DispatchQueue.main.async {
-                                focusedEpisodeID = target
-                            }
+                            defer1Tick { focusedEpisodeID = target }
                         }
                     case .none:
                         // First time anything inside this section
@@ -412,9 +416,7 @@ struct SeriesDetailView: View {
                         // sensible default — user can press down to
                         // reach the episodes from there.
                         let target = vm.selectedSeasonID
-                        DispatchQueue.main.async {
-                            focusedSeasonID = target
-                        }
+                        defer1Tick { focusedSeasonID = target }
                     }
                 }
 
