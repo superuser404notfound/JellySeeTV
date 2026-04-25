@@ -120,6 +120,8 @@ final class DetailViewModel {
         print("[Trailer] item=\(item.name) localCount=\(localCount) remoteCount=\(remoteCount) remotes=\(item.remoteTrailers?.map(\.url) ?? [])")
         #endif
 
+        // 1. Local Jellyfin trailer file → highest quality, no
+        //    external dependency.
         if localCount > 0, let libraryService {
             if let first = try? await libraryService.getLocalTrailers(itemID: item.id).first {
                 trailer = .local(first)
@@ -130,6 +132,24 @@ final class DetailViewModel {
             }
         }
 
+        // 2. iTunes preview MP4 → native AVPlayer, no app switch.
+        //    Only attempt for movies; iTunes' TV coverage is patchy
+        //    and we'd rather fall through to YouTube than show a
+        //    half-broken series-trailer mismatch.
+        if item.type == .movie,
+           let previewURL = await ITunesTrailerLookup.lookup(
+                title: item.name,
+                year: item.productionYear
+           ) {
+            trailer = .directVideo(url: previewURL, title: item.name)
+            #if DEBUG
+            print("[Trailer] resolved .directVideo \(previewURL)")
+            #endif
+            return
+        }
+
+        // 3. YouTube via remote trailer URLs → external app /
+        //    QR-code fallback.
         if let remote = item.remoteTrailers?
             .compactMap({ YouTubeURL.parse(from: $0.url) })
             .first {

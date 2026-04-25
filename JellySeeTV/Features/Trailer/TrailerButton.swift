@@ -15,13 +15,15 @@ struct TrailerButton: View {
     @Environment(\.dependencies) private var dependencies
 
     @State private var showPlayer = false
+    @State private var showDirectVideo = false
+    @State private var directVideoURL: URL?
     @State private var showQR = false
     @State private var qrTarget: (url: URL, title: String?)?
 
     var body: some View {
         Group {
             switch trailer {
-            case .local, .youtube:
+            case .local, .directVideo, .youtube:
                 button
             case .unavailable, .none:
                 EmptyView()
@@ -45,6 +47,12 @@ struct TrailerButton: View {
                 .allowsHitTesting(false)
             }
         }
+        .fullScreenCover(isPresented: $showDirectVideo) {
+            if let directVideoURL {
+                DirectVideoPlayerView(url: directVideoURL)
+                    .ignoresSafeArea()
+            }
+        }
         .sheet(isPresented: $showQR) {
             if let qrTarget {
                 TrailerQRFallbackView(watchURL: qrTarget.url, title: qrTarget.title)
@@ -65,6 +73,9 @@ struct TrailerButton: View {
         switch trailer {
         case .local:
             showPlayer = true
+        case .directVideo(let url, _):
+            directVideoURL = url
+            showDirectVideo = true
         case .youtube(_, let url, let title):
             let target = YouTubeURL.parse(from: url.absoluteString)
                 ?? YouTubeURL(videoKey: url.lastPathComponent)

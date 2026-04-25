@@ -9,6 +9,11 @@ enum TrailerSource: Sendable, Equatable {
     /// full-quality, no external apps involved.
     case local(JellyfinItem)
 
+    /// A direct video URL (typically iTunes' previewUrl, an MP4
+    /// hosted on Apple CDN). AVPlayerViewController plays it
+    /// natively without any external-app round-trip.
+    case directVideo(url: URL, title: String?)
+
     /// YouTube video identifier + canonical watch URL. Caller tries
     /// to open it in the YouTube app first; if `UIApplication.open`
     /// comes back false, falls back to a QR-code sheet so the user
