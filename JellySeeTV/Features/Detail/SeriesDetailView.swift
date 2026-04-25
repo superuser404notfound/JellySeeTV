@@ -117,10 +117,27 @@ struct SeriesDetailView: View {
         .onChange(of: showPlayer) { _, isPlaying in
             if !isPlaying {
                 // Restore focus to the episode that was just played.
-                // focusedEpisodeID is already bound to episode cards via
-                // .focused($focusedEpisodeID, equals: episode.id)
+                //
+                // Two failure modes the previous version hit:
+                //   1. focusedEpisodeID often still held ep.id from
+                //      the tap that opened the player, so writing
+                //      ep.id again was a no-op (same value → no
+                //      onChange → no focus move) and tvOS's
+                //      modal-dismiss restoration sent focus to the
+                //      geographically-prominent Play button.
+                //   2. The 0.1 s delay landed *during* the dismiss
+                //      animation, before tvOS finished assigning
+                //      default focus to the Play button — the order
+                //      flipped randomly and our write lost.
+                //
+                // Fix: force a real state transition with an
+                // intermediate nil, then defer the ep.id write to
+                // 0.35 s — well after the dismiss animation settles
+                // so we're writing onto a stable focus state, not
+                // racing tvOS's restoration pass.
                 if let ep = playItem {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    focusedEpisodeID = nil
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         focusedEpisodeID = ep.id
                     }
                 }
