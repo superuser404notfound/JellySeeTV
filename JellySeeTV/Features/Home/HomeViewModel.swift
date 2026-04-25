@@ -293,13 +293,7 @@ final class HomeViewModel {
             let cardData: [TagCardData] = tags.map { tag in
                 let item = itemMap[tag.id].flatMap { $0 }
                 let backdropURL = item.flatMap { imageService.backdropURL(for: $0) ?? imageService.posterURL(for: $0) }
-                return TagCardData(
-                    id: tag.id,
-                    name: tag.name,
-                    backdropURL: backdropURL,
-                    logoURL: nil,
-                    isStudio: false
-                )
+                return TagCardData(id: tag.id, name: tag.name, backdropURL: backdropURL)
             }
 
             return HomeTagRowData(type: type, tags: cardData)

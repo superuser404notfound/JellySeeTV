@@ -148,16 +148,4 @@ final class JellyfinImageService {
         )
     }
 
-    func studioLogoURL(studioName: String, maxWidth: Int = 400) -> URL? {
-        guard let base = baseURL() else { return nil }
-        let encoded = studioName.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? studioName
-        return Self.buildURL(
-            base: base,
-            path: "/Studios/\(encoded)/Images/Primary",
-            tag: nil,
-            maxWidth: maxWidth,
-            maxHeight: nil,
-            token: accessToken()
-        )
-    }
 }

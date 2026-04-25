@@ -25,6 +25,11 @@ struct SeerrMedia: Codable, Sendable, Identifiable, Equatable, Hashable {
         return String(raw.prefix(4))
     }
 
+    /// Cross-type stable identifier for dedup + ForEach `.id`. Two
+    /// items can share the same numeric `id` across movie / tv (TMDB
+    /// reuses ids per type), so the media type prefix is required.
+    var stableKey: String { "\(mediaType.rawValue)-\(id)" }
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(mediaType)

@@ -43,7 +43,7 @@ struct CatalogFilteredGridView: View {
                             ) { focused in
                                 SeerrMediaCard(media: media, isFocused: focused)
                             }
-                            .id(itemKey(media))
+                            .id(media.stableKey)
                             .onAppear {
                                 if shouldPaginate(after: media) {
                                     Task { await loadMore() }
@@ -89,7 +89,8 @@ struct CatalogFilteredGridView: View {
         // Trigger when the user scrolls within ~12 items of the end —
         // gives the network call time to land before they hit the
         // bottom of the visible grid.
-        guard let index = items.firstIndex(where: { itemKey($0) == itemKey(media) }) else {
+        let key = media.stableKey
+        guard let index = items.firstIndex(where: { $0.stableKey == key }) else {
             return false
         }
         return index >= items.count - 12
@@ -118,18 +119,14 @@ struct CatalogFilteredGridView: View {
                     .tvByNetwork(networkID: id, page: nextPage)
             }
 
-            let existing = Set(items.map(itemKey))
-            let additions = result.results.filter { !existing.contains(itemKey($0)) }
+            let existing = Set(items.map(\.stableKey))
+            let additions = result.results.filter { !existing.contains($0.stableKey) }
             items.append(contentsOf: additions)
             page = result.page
             totalPages = result.totalPages
         } catch {
             errorMessage = error.localizedDescription
         }
-    }
-
-    private func itemKey(_ media: SeerrMedia) -> String {
-        "\(media.mediaType.rawValue)-\(media.id)"
     }
 
     private func errorState(message: String) -> some View {

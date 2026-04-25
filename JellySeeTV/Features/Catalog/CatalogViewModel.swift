@@ -200,8 +200,8 @@ final class CatalogViewModel {
                 result = try await discoverService.upcomingTV(page: nextPage)
             }
 
-            let existingKeys = Set(section.items.map { key(for: $0) })
-            let additions = result.results.filter { !existingKeys.contains(key(for: $0)) }
+            let existingKeys = Set(section.items.map(\.stableKey))
+            let additions = result.results.filter { !existingKeys.contains($0.stableKey) }
 
             section.items.append(contentsOf: additions)
             section.currentPage = result.page
@@ -277,10 +277,6 @@ final class CatalogViewModel {
     }
 
     // MARK: - Helpers
-
-    private func key(for media: SeerrMedia) -> String {
-        "\(media.mediaType.rawValue)-\(media.id)"
-    }
 
     private func section(for row: DiscoverRow) -> PagedSection {
         switch row {
