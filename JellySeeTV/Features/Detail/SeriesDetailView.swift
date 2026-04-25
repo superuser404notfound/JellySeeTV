@@ -392,36 +392,38 @@ struct SeriesDetailView: View {
             // user came from; the target tab / episode gets focus on
             // the next SwiftUI cycle.
             //
-            // 8pt tall (was 1pt): tvOS's geographic focus picker
-            // sometimes skips ultra-thin focusables when there's a
-            // larger one nearby, which made the season-tab → bridge
-            // hop intermittently miss and the user had to press down
-            // a second time. Eight pixels is enough for the picker
-            // to commit to it reliably and still invisible on screen.
+            // Height: 24pt. The geographic focus picker on tvOS picks
+            // by *proximity*, but it also weights frame size when
+            // proximity ties — sub-10pt focusables get skipped if
+            // there's a much larger one nearby. 1pt missed often,
+            // 8pt was better but still flaky on a fast season-tab →
+            // down sequence. 24pt is reliably picked up. Color.clear
+            // means it's still invisible on screen.
             Color.clear
                 .frame(maxWidth: .infinity)
-                .frame(height: 8)
+                .frame(height: 24)
                 .focusable()
                 .focused($focusBridgeActive)
                 .onChange(of: focusBridgeActive) { _, active in
                     guard active else { return }
-                    // Defer the @FocusState write past the SwiftUI
-                    // tick that's currently committing the bridge's
-                    // own focus. `.async` (0 delay) won the race
-                    // most of the time but not always — the user
-                    // could feel "down doesn't do anything" on the
-                    // first press and have to hit it again. 30 ms
-                    // is well below the perceptible threshold for
-                    // a remote interaction and consistently lands
-                    // after SwiftUI has finished settling the new
-                    // focus state.
-                    let defer1Tick = { (work: @escaping () -> Void) in
+                    // FocusState writes still need a defer past the
+                    // SwiftUI tick currently committing the bridge's
+                    // own focus, otherwise tvOS swallows them — so
+                    // the season case (which writes a FocusState)
+                    // keeps a small delay. The episode case writes
+                    // a plain @State variable (pendingEpisodeFocus)
+                    // that the ScrollViewReader observes; that's
+                    // not subject to the FocusState race, so we
+                    // can fire it immediately and shave off the
+                    // 30 ms latency the user perceived as "fast
+                    // press needs two clicks".
+                    let deferFocusWrite = { (work: @escaping () -> Void) in
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.03, execute: work)
                     }
                     switch lastFocusedArea {
                     case .episode:
                         let target = vm.selectedSeasonID
-                        defer1Tick { focusedSeasonID = target }
+                        deferFocusWrite { focusedSeasonID = target }
                     case .season:
                         let target: String? = {
                             if let current = vm.currentEpisodeID,
@@ -431,18 +433,13 @@ struct SeriesDetailView: View {
                             return vm.episodes.first?.id
                         }()
                         if let target {
-                            // Hand-off through pendingEpisodeFocus so
-                            // the episode-row ScrollViewReader can
-                            // scroll the target into view (LazyHStack
-                            // only renders visible cards) before the
-                            // .focused write — otherwise a write to a
-                            // not-yet-materialised card vanishes and
-                            // the user has to press down a second
-                            // time. Symptom only showed up when the
-                            // episode list was scrolled away (e.g.
-                            // user navigated up from a far-right
-                            // episode card).
-                            defer1Tick { pendingEpisodeFocus = target }
+                            // Immediate — pendingEpisodeFocus is plain
+                            // @State, not FocusState. The receiver in
+                            // the episode-row ScrollViewReader scrolls
+                            // the target into the LazyHStack viewport,
+                            // then writes focusedEpisodeID with its
+                            // own short post-scroll defer.
+                            pendingEpisodeFocus = target
                         }
                     case .none:
                         // First time anything inside this section
@@ -451,7 +448,7 @@ struct SeriesDetailView: View {
                         // sensible default — user can press down to
                         // reach the episodes from there.
                         let target = vm.selectedSeasonID
-                        defer1Tick { focusedSeasonID = target }
+                        deferFocusWrite { focusedSeasonID = target }
                     }
                 }
 
