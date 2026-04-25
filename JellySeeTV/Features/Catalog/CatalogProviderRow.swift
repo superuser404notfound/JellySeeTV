@@ -38,8 +38,11 @@ private struct ProviderTile: View {
     let provider: CatalogProvider
     let action: () -> Void
 
-    private let width: CGFloat = 280
-    private let height: CGFloat = 140
+    // Match the genre tile dimensions so provider + genre rows
+    // line up visually when they sit on the same screen (catalog
+    // discover surface, home page).
+    private let width: CGFloat = 320
+    private let height: CGFloat = 180
 
     var body: some View {
         // Same reason as GenreTile / SeerrMediaCard / etc. — Button
