@@ -86,6 +86,18 @@ struct CatalogDiscoverView: View {
                                 onSelect: onSelectFilter
                             )
                         }
+                        CatalogProviderRow(
+                            titleKey: "catalog.section.networks",
+                            providers: CatalogProviders.networks,
+                            kind: .network,
+                            onSelect: onSelectFilter
+                        )
+                        CatalogProviderRow(
+                            titleKey: "catalog.section.studios",
+                            providers: CatalogProviders.studios,
+                            kind: .studio,
+                            onSelect: onSelectFilter
+                        )
                     }
                     .padding(.vertical, 40)
                 }
