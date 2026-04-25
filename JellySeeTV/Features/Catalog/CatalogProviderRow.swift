@@ -7,10 +7,10 @@ import SwiftUI
 struct CatalogProviderRow: View {
     let titleKey: LocalizedStringKey
     let providers: [CatalogProvider]
-    let kind: Kind
-    let onSelect: (CatalogFilter) -> Void
-
-    enum Kind { case network, studio }
+    /// The destination is decided by the caller — Catalog wraps the
+    /// provider in a Jellyseerr-backed `CatalogFilter`, Home translates
+    /// it into a Jellyfin Studios filter against the local library.
+    let onSelect: (CatalogProvider) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -23,20 +23,13 @@ struct CatalogProviderRow: View {
                 LazyHStack(spacing: 24) {
                     ForEach(providers) { provider in
                         ProviderTile(provider: provider) {
-                            onSelect(filter(for: provider))
+                            onSelect(provider)
                         }
                     }
                 }
                 .padding(.horizontal, 80)
                 .padding(.vertical, 16)
             }
-        }
-    }
-
-    private func filter(for provider: CatalogProvider) -> CatalogFilter {
-        switch kind {
-        case .network: .tvNetwork(id: provider.id, name: provider.name)
-        case .studio: .movieStudio(id: provider.id, name: provider.name)
         }
     }
 }

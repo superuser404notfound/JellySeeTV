@@ -89,14 +89,16 @@ struct CatalogDiscoverView: View {
                         CatalogProviderRow(
                             titleKey: "catalog.section.networks",
                             providers: CatalogProviders.networks,
-                            kind: .network,
-                            onSelect: onSelectFilter
+                            onSelect: { provider in
+                                onSelectFilter(.tvNetwork(id: provider.id, name: provider.name))
+                            }
                         )
                         CatalogProviderRow(
                             titleKey: "catalog.section.studios",
                             providers: CatalogProviders.studios,
-                            kind: .studio,
-                            onSelect: onSelectFilter
+                            onSelect: { provider in
+                                onSelectFilter(.movieStudio(id: provider.id, name: provider.name))
+                            }
                         )
                     }
                     .padding(.vertical, 40)

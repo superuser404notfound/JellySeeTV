@@ -6,7 +6,6 @@ struct HomeView: View {
     @State private var viewModel: HomeViewModel?
     @State private var selectedItem: JellyfinItem?
     @State private var selectedFilter: FilterDestination?
-    @State private var selectedCatalogFilter: CatalogFilter?
 
     /// How long the home feed is considered fresh before a revisit
     /// triggers an automatic reload.
@@ -43,9 +42,6 @@ struct HomeView: View {
             }
             .navigationDestination(item: $selectedFilter) { filter in
                 FilteredGridView(title: filter.title, query: filter.query)
-            }
-            .navigationDestination(item: $selectedCatalogFilter) { filter in
-                CatalogFilteredGridView(filter: filter)
             }
         }
         .onAppear {
@@ -125,23 +121,36 @@ struct HomeView: View {
                         )
 
                     case .discoverProviders:
-                        // Hide when Seerr isn't reachable — tapping a tile
-                        // would push a CatalogFilteredGridView whose first
-                        // call would just spin forever, which is worse
-                        // than not showing the row at all.
-                        if appState.isSeerrConnected {
-                            CatalogProviderRow(
-                                titleKey: HomeRowType.discoverProviders.localizedTitle,
-                                providers: CatalogProviders.networks,
-                                kind: .network,
-                                onSelect: { selectedCatalogFilter = $0 }
-                            )
-                        }
+                        CatalogProviderRow(
+                            titleKey: HomeRowType.discoverProviders.localizedTitle,
+                            providers: CatalogProviders.networks,
+                            onSelect: { provider in
+                                selectedFilter = makeJellyfinFilter(for: provider)
+                            }
+                        )
                     }
                 }
             }
             .padding(.vertical, 40)
         }
+    }
+
+    private func makeJellyfinFilter(for provider: CatalogProvider) -> FilterDestination {
+        // Tap on a Netflix/Disney+/… tile filters the *local* library
+        // by Studio rather than pushing the Jellyseerr discover page.
+        // Multiple aliases are pipe-joined in JellyfinEndpoints, so a
+        // user whose scraper tagged some items "Disney+" and others
+        // "Walt Disney Pictures" gets both in one row.
+        FilterDestination(
+            title: provider.name,
+            query: ItemQuery(
+                includeItemTypes: [.movie, .series],
+                sortBy: "SortName",
+                sortOrder: "Ascending",
+                limit: 50,
+                studioNames: provider.jellyfinStudioNames
+            )
+        )
     }
 
     private func makeFilter(for tag: TagCardData, type: HomeRowType) -> FilterDestination {
