@@ -232,17 +232,30 @@ final class PlayerHostController: UIViewController {
     // MARK: - Press Handlers (state machine)
 
     @objc private func selectPressed() {
-        // Next-episode and Skip-Intro commandeer Select only when the
-        // transport is hidden — otherwise the user is interacting with
-        // the control overlay (scrubbing, picking a track) and a
-        // surprise skip/next would be destructive.
+        // Skip Intro takes priority over any transient scrub state.
+        // The Siri Remote touchpad reports a tiny pan in the milliseconds
+        // before its click registers — easily past the 40pt scrub
+        // threshold — which flips both showControls and isScrubbing
+        // true. Without this guard the user's tap to dismiss the intro
+        // would land in the commit-scrub branch and reopen the player
+        // UI instead of skipping. The hint overlay only shows when
+        // controls are hidden + the dropdown is closed, so we use the
+        // same gate to detect "user clearly intends Skip Intro" and
+        // discard the bogus partial scrub before acting.
+        if viewModel.isInsideIntro && !viewModel.isDropdownOpen
+           && (!viewModel.showControls || viewModel.controlsFocus == .progressBar) {
+            if viewModel.isScrubbing { viewModel.cancelScrub() }
+            viewModel.skipIntro()
+            return
+        }
+
+        // Next-episode commandeers Select only when the transport is
+        // hidden — otherwise the user is interacting with the control
+        // overlay (scrubbing, picking a track) and a surprise next
+        // would be destructive.
         if !viewModel.showControls && !viewModel.isDropdownOpen {
             if viewModel.showNextEpisodeOverlay {
                 Task { await viewModel.playNextEpisode() }
-                return
-            }
-            if viewModel.isInsideIntro {
-                viewModel.skipIntro()
                 return
             }
         }
