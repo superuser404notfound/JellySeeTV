@@ -571,10 +571,17 @@ struct CatalogDetailView: View {
         errorMessage = nil
         defer { isLoading = false }
 
+        // Service config runs in parallel with the detail fetch.
+        // fire-and-forget Task (not async let) — detail rendering
+        // shouldn't block on the Radarr/Sonarr config which is best-
+        // effort anyway and only feeds the optional dropdowns.
+        Task { await loadServiceConfig() }
+
         do {
             switch media.mediaType {
             case .movie:
                 movieDetail = try await dependencies.seerrMediaService.movieDetail(tmdbID: media.id)
+                return
             case .tv:
                 let detail = try await dependencies.seerrMediaService.tvDetail(tmdbID: media.id)
                 tvDetail = detail
@@ -584,25 +591,50 @@ struct CatalogDetailView: View {
                 // anything to render — picking one synchronously here
                 // means the user sees content the moment loading ends
                 // instead of an empty space until they tap a tab.
-                if let first = detail.seasons?
-                    .filter({ $0.seasonNumber > 0 })
-                    .sorted(by: { $0.seasonNumber < $1.seasonNumber })
-                    .first {
-                    viewedSeasonNumber = first.seasonNumber
-                    Task { await loadSeasonEpisodes(seasonNumber: first.seasonNumber) }
+                let realSeasons = (detail.seasons ?? [])
+                    .filter { $0.seasonNumber > 0 }
+                    .map(\.seasonNumber)
+                    .sorted()
+                if let first = realSeasons.first {
+                    viewedSeasonNumber = first
                 }
+                // Fan out one tvSeasonDetail call per season so tab
+                // switches hit the in-memory cache rather than firing
+                // a fresh roundtrip. Best-effort: failures stay silent
+                // and the user can still tap to retry on demand.
+                Task { await prefetchAllSeasonEpisodes(seasons: realSeasons) }
+                return
             case .person:
                 return
             }
         } catch {
             errorMessage = error.localizedDescription
-            return
         }
+    }
 
-        // Load service config in the background — best-effort. If it
-        // fails (admin hasn't configured Radarr/Sonarr, user lacks
-        // permission), we silently fall back to Seerr's server defaults.
-        await loadServiceConfig()
+    private func prefetchAllSeasonEpisodes(seasons: [Int]) async {
+        guard let tvID = tvDetail?.id else { return }
+        await withTaskGroup(of: (Int, [SeerrEpisode]?).self) { group in
+            for n in seasons {
+                // Skip the ones already cached or in flight from the
+                // synchronous tab-tap path so we don't double-fetch.
+                guard seasonEpisodes[n] == nil, !loadingSeasons.contains(n) else { continue }
+                loadingSeasons.insert(n)
+                group.addTask { [mediaService = dependencies.seerrMediaService] in
+                    let detail = try? await mediaService.tvSeasonDetail(
+                        tmdbID: tvID,
+                        seasonNumber: n
+                    )
+                    return (n, detail?.episodes)
+                }
+            }
+            for await (n, episodes) in group {
+                loadingSeasons.remove(n)
+                if let episodes {
+                    seasonEpisodes[n] = episodes
+                }
+            }
+        }
     }
 
     private func loadServiceConfig() async {

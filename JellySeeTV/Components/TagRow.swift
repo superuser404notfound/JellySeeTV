@@ -40,7 +40,7 @@ struct GenreCard: View {
     var body: some View {
         FocusableCard {
             action()
-        } content: { _ in
+        } content: { isFocused in
             ZStack(alignment: .bottomLeading) {
                 // Background image
                 AsyncCachedImage(url: data.backdropURL) { image in
@@ -74,6 +74,11 @@ struct GenreCard: View {
             }
             .frame(width: 320, height: 180)
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(.tint, lineWidth: 4)
+                    .opacity(isFocused ? 1 : 0)
+            )
         }
     }
 }
