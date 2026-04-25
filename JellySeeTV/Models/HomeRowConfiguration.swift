@@ -7,25 +7,24 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
     // installs and a Reset-to-Default.
     case continueWatching
     case nextUp
+    case favorites
     case latestMovies
     case latestShows
-    case collections
-    case favorites
-    case genres
     case discoverProviders
-    case allMovies
-    case allSeries
+    case genres
+    case collections
+    case recentlyAdded
     case topRatedMovies
     case topRatedShows
-    case recentlyAdded
-    case studios
+    case allMovies
+    case allSeries
 
     var id: String { rawValue }
 
     var defaultEnabled: Bool {
         switch self {
-        case .continueWatching, .nextUp, .latestMovies, .latestShows,
-             .collections, .favorites, .genres, .discoverProviders:
+        case .continueWatching, .nextUp, .favorites, .latestMovies,
+             .latestShows, .discoverProviders, .genres:
             true
         default:
             false
@@ -50,10 +49,10 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         }
     }
 
-    /// Genres and Studios are special -- they show tag cards, not media items
+    /// Genres show tag cards rather than media items.
     var isTagRow: Bool {
         switch self {
-        case .genres, .studios:
+        case .genres:
             true
         default:
             false
@@ -80,7 +79,6 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         case .topRatedShows: "home.topRatedShows"
         case .recentlyAdded: "home.recentlyAdded"
         case .genres: "home.genres"
-        case .studios: "home.studios"
         case .collections: "home.collections"
         case .discoverProviders: "home.discoverProviders"
         }
@@ -99,7 +97,6 @@ enum HomeRowType: String, Codable, Sendable, CaseIterable, Identifiable {
         case .topRatedShows: "star.fill"
         case .recentlyAdded: "clock"
         case .genres: "tag"
-        case .studios: "building.2"
         case .collections: "rectangle.stack.fill"
         case .discoverProviders: "tv.badge.wifi"
         }

@@ -195,7 +195,7 @@ final class HomeViewModel {
                 let response = try await libraryService.getItems(userID: userID, query: query)
                 items = response.items
 
-            case .genres, .studios, .discoverProviders:
+            case .genres, .discoverProviders:
                 return nil
             }
 
@@ -208,15 +208,10 @@ final class HomeViewModel {
     private func loadTagRow(type: HomeRowType) async -> HomeTagRowData? {
         do {
             let tags: [NamedItem]
-            let isStudio = type == .studios
-
             switch type {
             case .genres:
                 let allGenres = try await libraryService.getGenres(userID: userID)
                 tags = allGenres.filter { GenreFilter.isPrimary($0.name) }
-            case .studios:
-                let allStudios = try await libraryService.getStudios(userID: userID)
-                tags = allStudios.filter { StreamingProviders.isProvider($0.name) }
             default:
                 return nil
             }
@@ -232,8 +227,7 @@ final class HomeViewModel {
                             includeItemTypes: [.movie, .series],
                             sortBy: "Random",
                             limit: 1,
-                            genres: isStudio ? nil : [tag.name],
-                            studioNames: isStudio ? [tag.name] : nil
+                            genres: [tag.name]
                         )
                         let item = try? await self.libraryService.getItems(userID: self.userID, query: query).items.first
                         return (tag.id, item)
@@ -251,13 +245,12 @@ final class HomeViewModel {
             let cardData: [TagCardData] = tags.map { tag in
                 let item = itemMap[tag.id].flatMap { $0 }
                 let backdropURL = item.flatMap { imageService.backdropURL(for: $0) ?? imageService.posterURL(for: $0) }
-                let logoURL = isStudio ? imageService.studioLogoURL(studioName: tag.name) : nil
                 return TagCardData(
                     id: tag.id,
                     name: tag.name,
                     backdropURL: backdropURL,
-                    logoURL: logoURL,
-                    isStudio: isStudio
+                    logoURL: nil,
+                    isStudio: false
                 )
             }
 

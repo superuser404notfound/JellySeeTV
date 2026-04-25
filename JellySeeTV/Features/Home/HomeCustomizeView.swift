@@ -314,12 +314,28 @@ extension Notification.Name {
 
 extension HomeRowConfig {
     static func loadFromStorage() -> [HomeRowConfig] {
-        guard let data = UserDefaults.standard.data(forKey: "homeRowConfigs"),
-              let configs = try? JSONDecoder().decode([HomeRowConfig].self, from: data)
-        else {
+        guard let data = UserDefaults.standard.data(forKey: "homeRowConfigs") else {
             return HomeRowConfig.defaultConfig()
         }
-        var result = configs
+        // Lossy decode: stored configs may reference row types that
+        // have since been retired (e.g. `.studios`, dropped once the
+        // streaming-providers row replaced it). A plain
+        // `decode([HomeRowConfig].self)` would fail the whole array on
+        // the first unknown raw value and silently reset every other
+        // customization the user had — the JSONSerialization detour
+        // skips the dead entries and keeps the rest intact.
+        guard let raw = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+            return HomeRowConfig.defaultConfig()
+        }
+        var result: [HomeRowConfig] = []
+        for item in raw {
+            guard let typeRaw = item["type"] as? String,
+                  let type = HomeRowType(rawValue: typeRaw),
+                  let isEnabled = item["isEnabled"] as? Bool,
+                  let sortOrder = item["sortOrder"] as? Int
+            else { continue }
+            result.append(HomeRowConfig(type: type, isEnabled: isEnabled, sortOrder: sortOrder))
+        }
         for type in HomeRowType.allCases where !result.contains(where: { $0.type == type }) {
             result.append(HomeRowConfig(type: type, isEnabled: type.defaultEnabled, sortOrder: result.count))
         }

@@ -166,17 +166,6 @@ struct HomeView: View {
                     genres: [tag.name]
                 )
             )
-        case .studios:
-            FilterDestination(
-                title: tag.name,
-                query: ItemQuery(
-                    includeItemTypes: [.movie, .series],
-                    sortBy: "SortName",
-                    sortOrder: "Ascending",
-                    limit: 50,
-                    studioNames: [tag.name]
-                )
-            )
         default:
             FilterDestination(title: tag.name, query: ItemQuery())
         }
