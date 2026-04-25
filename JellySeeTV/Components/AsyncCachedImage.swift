@@ -57,27 +57,44 @@ struct AsyncCachedImage<Content: View, Placeholder: View>: View {
             return
         }
 
+        // Build the request on MainActor — we need to read the
+        // Jellyfin client's token, which is MainActor-isolated.
+        // Attach the auth header only for requests to the active
+        // Jellyfin host; external URLs (TMDB posters in the Seerr
+        // catalog, studio logos from third-party CDNs) must not
+        // see our token.
+        var request = URLRequest(url: url)
+        if url.host == dependencies.jellyfinClient.baseURL?.host,
+           let token = dependencies.jellyfinClient.accessToken,
+           !token.isEmpty {
+            request.setValue(token, forHTTPHeaderField: "X-Emby-Token")
+        }
+
+        let prepared = await Self.fetchAndDecode(request: request)
+        guard let prepared, !Task.isCancelled else { return }
+        ImageCache.shared.store(prepared, for: url)
+        loaded = prepared
+    }
+
+    /// Network + decode + force-decompress, all off the MainActor.
+    /// `preparingForDisplay()` performs the pixel decode now, so the
+    /// first draw on MainActor doesn't pay that cost as a frame-drop
+    /// during a scroll. Static + `nonisolated` lets the call hop to
+    /// the cooperative thread pool instead of being pinned to
+    /// MainActor by structural inference. Cancellation propagates via
+    /// structured concurrency: when the enclosing `.task(id: url)` is
+    /// cancelled (URL change, view disappearance), URLSession.data
+    /// inherits the cancellation and aborts.
+    nonisolated private static func fetchAndDecode(request: URLRequest) async -> UIImage? {
         do {
-            var request = URLRequest(url: url)
-            // Attach the Jellyfin auth header only for requests to
-            // the active Jellyfin host — external URLs (TMDB
-            // posters in the Seerr catalog, studio logos from
-            // third-party CDNs) must not be sent our token.
-            if url.host == dependencies.jellyfinClient.baseURL?.host,
-               let token = dependencies.jellyfinClient.accessToken,
-               !token.isEmpty {
-                request.setValue(token, forHTTPHeaderField: "X-Emby-Token")
-            }
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse,
                   (200...299).contains(http.statusCode),
                   let image = UIImage(data: data)
-            else { return }
-            ImageCache.shared.store(image, for: url)
-            guard !Task.isCancelled else { return }
-            loaded = image
+            else { return nil }
+            return image.preparingForDisplay() ?? image
         } catch {
-            // Network / cancellation — placeholder stays visible.
+            return nil
         }
     }
 }
@@ -98,10 +115,15 @@ final class ImageCache: @unchecked Sendable {
     private let cache = NSCache<NSURL, UIImage>()
 
     private init() {
-        // Roughly enough for a couple of fully-populated home
-        // rows + a detail view's cast list — the OS will evict
-        // automatically under memory pressure.
-        cache.countLimit = 400
+        // Cost-based eviction. Each store carries its decoded byte
+        // size as cost, so NSCache auto-evicts when the total exceeds
+        // the limit — enough for a couple of fully-populated home
+        // rows plus a detail backdrop on a 4K display, but bounded so
+        // a long browsing session doesn't keep growing into hundreds
+        // of MB. countLimit stays generous so it's not the gating
+        // factor; the byte budget is what we care about.
+        cache.totalCostLimit = 150_000_000
+        cache.countLimit = 1000
     }
 
     func image(for url: URL) -> UIImage? {
@@ -109,7 +131,7 @@ final class ImageCache: @unchecked Sendable {
     }
 
     func store(_ image: UIImage, for url: URL) {
-        cache.setObject(image, forKey: url as NSURL)
+        cache.setObject(image, forKey: url as NSURL, cost: estimatedBytes(for: image))
     }
 
     /// Wipe the cache on events that should invalidate previous
@@ -118,5 +140,14 @@ final class ImageCache: @unchecked Sendable {
     /// B's permissions.
     func clear() {
         cache.removeAllObjects()
+    }
+
+    /// Decoded size estimate: width × height × scale² × 4 bytes (RGBA8).
+    /// Doesn't account for HDR/wide-gamut backing stores, but good
+    /// enough as a cost signal for NSCache's eviction policy.
+    private func estimatedBytes(for image: UIImage) -> Int {
+        let scale = image.scale
+        let pixels = image.size.width * scale * image.size.height * scale
+        return Int(pixels) * 4
     }
 }
