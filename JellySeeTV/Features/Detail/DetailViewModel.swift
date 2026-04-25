@@ -14,12 +14,6 @@ final class DetailViewModel {
     var isLoading = false
     var cachedPlaybackInfo: PlaybackInfoResponse?
 
-    /// Resolved once per detail load — the TrailerButton observes
-    /// this and renders itself only once a concrete source lands.
-    /// `nil` = resolution hasn't run yet; `.unavailable` = confirmed
-    /// nothing to play.
-    var trailer: TrailerSource?
-
     private let itemService: JellyfinItemServiceProtocol
     private let libraryService: JellyfinLibraryServiceProtocol?
     private let playbackService: JellyfinPlaybackServiceProtocol?
@@ -92,11 +86,6 @@ final class DetailViewModel {
             similarItems = similar.items
         }
 
-        // Resolve trailer against the refreshed detail item — this
-        // is where RemoteTrailers finally lands (Fields omitted it
-        // from list queries prior to the detail fetch).
-        await resolveTrailer()
-
         // Load content (depends on item type from detail response)
         if itemType == .series {
             await loadSeasons()
@@ -107,53 +96,6 @@ final class DetailViewModel {
         }
 
         isLoading = false
-    }
-
-    /// Resolve this item's best-available trailer once the detail
-    /// payload has landed. Writes into the observable `trailer`
-    /// property, which the TrailerButton binds to.
-    func resolveTrailer() async {
-        let localCount = item.localTrailerCount ?? 0
-        let remoteCount = item.remoteTrailers?.count ?? 0
-
-        #if DEBUG
-        print("[Trailer] item=\(item.name) localCount=\(localCount) remoteCount=\(remoteCount) remotes=\(item.remoteTrailers?.map(\.url) ?? [])")
-        #endif
-
-        // 1. Local Jellyfin trailer file → highest quality, no
-        //    external dependency.
-        if localCount > 0, let libraryService {
-            if let first = try? await libraryService.getLocalTrailers(itemID: item.id).first {
-                trailer = .local(first)
-                #if DEBUG
-                print("[Trailer] resolved .local \(first.id)")
-                #endif
-                return
-            }
-        }
-
-        // 2. iTunes preview MP4 → native AVPlayer, no app switch.
-        //    Movies only; iTunes' TV coverage isn't reliable
-        //    enough to attempt for series. There's no third
-        //    fallback — WebKit isn't on tvOS so YouTube embeds
-        //    are impossible, and the external YouTube app hand-
-        //    off doesn't deep-link to the actual video.
-        if item.type == .movie,
-           let previewURL = await ITunesTrailerLookup.lookup(
-                title: item.name,
-                year: item.productionYear
-           ) {
-            trailer = .directVideo(url: previewURL, title: item.name)
-            #if DEBUG
-            print("[Trailer] resolved .directVideo \(previewURL)")
-            #endif
-            return
-        }
-
-        trailer = .unavailable
-        #if DEBUG
-        print("[Trailer] resolved .unavailable")
-        #endif
     }
 
     func loadSeasons() async {

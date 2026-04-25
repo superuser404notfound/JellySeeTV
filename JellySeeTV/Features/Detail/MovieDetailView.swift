@@ -160,8 +160,6 @@ struct MovieDetailView: View {
                     )
                 }
 
-                TrailerButton(trailer: vm.trailer)
-
                 if vm.item.type != .episode {
                     GlassActionButton(
                         title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",

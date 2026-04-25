@@ -226,10 +226,6 @@ struct SeriesDetailView: View {
                 )
 
                 if !isShowingEpisode {
-                    TrailerButton(trailer: vm.trailer)
-                }
-
-                if !isShowingEpisode {
                     GlassActionButton(
                         title: vm.isFavorite ? "detail.unfavorite" : "detail.favorite",
                         systemImage: vm.isFavorite ? "heart.fill" : "heart",

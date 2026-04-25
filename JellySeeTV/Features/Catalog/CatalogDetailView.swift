@@ -7,7 +7,6 @@ struct CatalogDetailView: View {
 
     @State private var movieDetail: SeerrMovieDetail?
     @State private var tvDetail: SeerrTVDetail?
-    @State private var trailer: TrailerSource?
     @State private var isLoading = true
     @State private var errorMessage: String?
 
@@ -127,12 +126,6 @@ struct CatalogDetailView: View {
                     }
                 }
             }
-
-            // Trailer button — shown only when Jellyseerr's
-            // relatedVideos has a YouTube trailer for this item.
-            // The resolution happens in load(); this is purely a
-            // binding.
-            TrailerButton(trailer: trailer)
 
             if media.mediaType == .tv, let seasons = availableSeasons, !seasons.isEmpty {
                 seasonSelection(seasons: seasons)
@@ -441,39 +434,10 @@ struct CatalogDetailView: View {
             return
         }
 
-        await resolveTrailer()
-
         // Load service config in the background — best-effort. If it
         // fails (admin hasn't configured Radarr/Sonarr, user lacks
         // permission), we silently fall back to Seerr's server defaults.
         await loadServiceConfig()
-    }
-
-    /// iTunes-only resolution. WebKit isn't on tvOS so an in-app
-    /// YouTube embed isn't possible, and the YouTube TV app
-    /// hand-off doesn't deep-link to the trailer — iTunes
-    /// previewUrl is the one source that plays cleanly inside
-    /// the app. Catalog items the user hasn't downloaded yet have
-    /// no local trailer to fall back on, so the button simply
-    /// hides for movies iTunes doesn't list and for all TV.
-    private func resolveTrailer() async {
-        guard media.mediaType == .movie else {
-            trailer = .unavailable
-            return
-        }
-        let releaseYear = Int((movieDetail?.releaseDate ?? "").prefix(4))
-
-        if let previewURL = await ITunesTrailerLookup.lookup(
-            title: displayTitle,
-            year: releaseYear
-        ) {
-            trailer = .directVideo(url: previewURL, title: displayTitle)
-            #if DEBUG
-            print("[Trailer] resolved .directVideo \(previewURL)")
-            #endif
-            return
-        }
-        trailer = .unavailable
     }
 
     private func loadServiceConfig() async {
