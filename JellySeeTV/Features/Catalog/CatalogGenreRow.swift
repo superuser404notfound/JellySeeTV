@@ -17,7 +17,7 @@ struct CatalogGenreRow: View {
             Text(titleKey)
                 .font(.title3)
                 .fontWeight(.semibold)
-                .padding(.horizontal, 80)
+                .padding(.horizontal, 50)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 24) {
@@ -27,7 +27,7 @@ struct CatalogGenreRow: View {
                         }
                     }
                 }
-                .padding(.horizontal, 80)
+                .padding(.horizontal, 50)
                 // Match SeerrHorizontalMediaRow vertical padding so
                 // the focus halo doesn't clip the row above/below.
                 .padding(.vertical, 16)
