@@ -13,7 +13,7 @@ struct TagRow: View {
                 .padding(.horizontal, 50)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 30) {
+                LazyHStack(spacing: 24) {
                     ForEach(tags) { tag in
                         GenreCard(data: tag) {
                             onTagSelected?(tag)
@@ -21,7 +21,7 @@ struct TagRow: View {
                     }
                 }
                 .padding(.horizontal, 50)
-                .padding(.vertical, 20)
+                .padding(.vertical, 16)
             }
         }
     }
@@ -73,9 +73,9 @@ struct GenreCard: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
             }
             .frame(width: 320, height: 180)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 16)
                     .strokeBorder(.tint, lineWidth: 4)
                     .opacity(isFocused ? 1 : 0)
             )
