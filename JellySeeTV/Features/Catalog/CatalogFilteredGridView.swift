@@ -71,26 +71,23 @@ struct CatalogFilteredGridView: View {
             CatalogDetailView(media: media)
         }
         .task(id: filter) {
-            // Reset state when navigating to a different filter
-            // (rare on tvOS, but keeps the view robust if the same
-            // navigationDestination instance is reused).
-            items = []
-            page = 0
-            totalPages = 1
             errorMessage = nil
 
-            // Stale-while-revalidate: if we cached page 1 from a
-            // previous visit, render it instantly while a fresh
-            // request goes out underneath. The fresh response
-            // replaces the cached items wholesale, so anything that
-            // dropped off the provider's lineup since last visit is
-            // gone the next time the view appears.
-            if let cached = await FilterCache.shared.catalogPage(
-                filterKey: filter.cacheKey
-            ) {
+            // Stale-while-revalidate: hydrate from cache synchronously
+            // so the grid appears in the same render pass — actor
+            // suspensions used to insert a frame of empty state in
+            // between, which read as a 1-2 second flicker before the
+            // refresh landed. FilterCache is a plain class now;
+            // reads can happen from inside a task body without an
+            // await hop.
+            if let cached = FilterCache.shared.catalogPage(filterKey: filter.cacheKey) {
                 items = cached.items
                 page = 1
                 totalPages = cached.totalPages
+            } else {
+                items = []
+                page = 0
+                totalPages = 1
             }
             await refreshFirstPage()
         }
@@ -126,7 +123,7 @@ struct CatalogFilteredGridView: View {
             page = 1
             totalPages = result.totalPages
             errorMessage = nil
-            await FilterCache.shared.setCatalogPage(
+            FilterCache.shared.setCatalogPage(
                 result.results,
                 totalPages: result.totalPages,
                 filterKey: filter.cacheKey

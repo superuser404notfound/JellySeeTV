@@ -92,20 +92,29 @@ struct FilteredGridView: View {
     /// re-running the studio query.
     @State private var studioItems: [JellyfinItem] = []
 
+    /// Stable cache key for this filter view — only meaningful when a
+    /// smart provider is set. Same key drives `homeFilterItems`
+    /// (resolved JellyfinItems) and `smartFilterIDs` (just the TMDB
+    /// ids).
+    private var cacheKey: String? {
+        guard let id = smartProviderID, let region = smartProviderRegion
+        else { return nil }
+        return "\(id)-\(region)"
+    }
+
     private func loadItems() async {
         guard let userID = appState.activeUser?.id else { return }
-        isLoading = true
 
-        // Pull the cached TMDB id list synchronously up front so the
-        // grid can render augmented results the moment Phase 1 lands,
-        // without waiting on a fresh watch-provider roundtrip.
-        let cachedTmdbIDs: [Int]?
-        if let providerID = smartProviderID, let region = smartProviderRegion {
-            cachedTmdbIDs = await FilterCache.shared.smartFilterIDs(
-                providerID: providerID, region: region
-            )
+        // Synchronous cache hit — display immediately, no spinner.
+        // We cache the fully-resolved JellyfinItems so the second
+        // tap onwards renders before any network roundtrip lands.
+        if let key = cacheKey,
+           let cached = FilterCache.shared.homeFilterItems(filterKey: key),
+           !cached.isEmpty {
+            items = cached
+            isLoading = false
         } else {
-            cachedTmdbIDs = nil
+            isLoading = true
         }
 
         async let studioMatchTask: [JellyfinItem] = {
@@ -139,18 +148,19 @@ struct FilteredGridView: View {
         studioItems = phase1
         let allItems = await allLibraryTask
 
-        // Build TMDB-id → JellyfinItem map once and reuse for cache
-        // hydration + the background refresh.
+        // Build TMDB-id → JellyfinItem map once and reuse for the
+        // background refresh.
         var tmdbMap: [Int: JellyfinItem] = [:]
         for item in allItems {
             if let id = item.tmdbID { tmdbMap[id] = item }
         }
 
-        // Hydrate from cache if we have anything: shows Phase 2
-        // results instantly on the second tap onwards.
-        let cachePhase2: [JellyfinItem] = (cachedTmdbIDs ?? []).compactMap { tmdbMap[$0] }
-        items = mergePhases(phase1: phase1, phase2: cachePhase2)
-        isLoading = false
+        // No cache yet → at least surface the studio match while the
+        // watch-provider phase runs.
+        if items.isEmpty {
+            items = phase1
+            isLoading = false
+        }
 
         // Always refresh — the cache is stale-while-revalidate. The
         // fresh list replaces whatever the cache held, so titles that
@@ -209,12 +219,20 @@ struct FilteredGridView: View {
             for await ids in group { providerTmdbIDs.formUnion(ids) }
         }
 
-        await FilterCache.shared.setSmartFilterIDs(
+        FilterCache.shared.setSmartFilterIDs(
             Array(providerTmdbIDs), providerID: providerID, region: region
         )
 
         let phase2Items = providerTmdbIDs.compactMap { tmdbMap[$0] }
-        items = mergePhases(phase1: studioItems, phase2: phase2Items)
+        let merged = mergePhases(phase1: studioItems, phase2: phase2Items)
+        items = merged
+
+        // Persist the fully-resolved list so the next visit can
+        // hydrate the grid synchronously — no library fetch, no
+        // watch-provider roundtrip needed for the initial display.
+        if let key = cacheKey {
+            FilterCache.shared.setHomeFilterItems(merged, filterKey: key)
+        }
     }
 }
 

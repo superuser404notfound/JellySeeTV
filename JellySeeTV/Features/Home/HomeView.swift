@@ -126,16 +126,33 @@ struct HomeView: View {
                         )
 
                     case .discoverProviders:
-                        CatalogProviderRow(
-                            titleKey: HomeRowType.discoverProviders.localizedTitle,
-                            providers: CatalogProviders.networks,
-                            onSelect: { provider in
-                                selectedFilter = makeJellyfinFilter(for: provider)
-                            },
-                            backdropFor: { provider in
-                                vm.providerBackdrops[provider.id]
-                            }
-                        )
+                        // Hide tiles whose cached library match count
+                        // is zero. First-run shows all providers
+                        // (cache miss → unknown → assume "has
+                        // content"); after the user has visited a
+                        // tile once, an empty result drops the tile
+                        // out of the row. If every provider is empty
+                        // (e.g. nothing in the user's library has
+                        // streaming-tag metadata yet), suppress the
+                        // entire row rather than render an empty one.
+                        let visibleProviders = CatalogProviders.networks.filter { provider in
+                            guard let id = provider.tmdbWatchProviderID else { return true }
+                            let key = "\(id)-\(Locale.current.region?.identifier ?? "US")"
+                            let count = FilterCache.shared.homeFilterItems(filterKey: key)?.count
+                            return count == nil || count! > 0
+                        }
+                        if !visibleProviders.isEmpty {
+                            CatalogProviderRow(
+                                titleKey: HomeRowType.discoverProviders.localizedTitle,
+                                providers: visibleProviders,
+                                onSelect: { provider in
+                                    selectedFilter = makeJellyfinFilter(for: provider)
+                                },
+                                backdropFor: { provider in
+                                    vm.providerBackdrops[provider.id]
+                                }
+                            )
+                        }
                     }
                 }
             }

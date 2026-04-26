@@ -86,41 +86,64 @@ struct CatalogDiscoverView: View {
                                 onSelect: onSelectFilter
                             )
                         }
-                        CatalogProviderRow(
-                            titleKey: "catalog.section.networks",
-                            providers: CatalogProviders.networks,
-                            onSelect: { provider in
-                                // Prefer the live watch-providers
-                                // filter (movies + tv together) when
-                                // we know the streamer's TMDB id;
-                                // fall back to the TV-only network
-                                // endpoint for broadcast networks
-                                // (ABC, NBC, CBS) that have no
-                                // watch-provider concept.
-                                if let providerID = provider.tmdbWatchProviderID {
-                                    onSelectFilter(.streamingService(
-                                        tmdbWatchProviderID: providerID,
-                                        name: provider.name,
-                                        region: Locale.current.region?.identifier ?? "US"
-                                    ))
-                                } else {
-                                    onSelectFilter(.tvNetwork(id: provider.id, name: provider.name))
+                        // Networks row — drop tiles whose cached
+                        // first page is empty so the user isn't
+                        // teased with a card that opens to nothing.
+                        let region = Locale.current.region?.identifier ?? "US"
+                        let visibleNetworks = CatalogProviders.networks.filter { provider in
+                            let key: String
+                            if let id = provider.tmdbWatchProviderID {
+                                key = "streamingService-\(id)-\(region)"
+                            } else {
+                                key = "tvNetwork-\(provider.id)"
+                            }
+                            let count = FilterCache.shared.catalogPage(filterKey: key)?.items.count
+                            return count == nil || count! > 0
+                        }
+                        if !visibleNetworks.isEmpty {
+                            CatalogProviderRow(
+                                titleKey: "catalog.section.networks",
+                                providers: visibleNetworks,
+                                onSelect: { provider in
+                                    // Prefer the live watch-providers
+                                    // filter (movies + tv together)
+                                    // when we know the streamer's
+                                    // TMDB id; fall back to the
+                                    // TV-only network endpoint for
+                                    // broadcast networks (ABC, NBC,
+                                    // CBS) without one.
+                                    if let providerID = provider.tmdbWatchProviderID {
+                                        onSelectFilter(.streamingService(
+                                            tmdbWatchProviderID: providerID,
+                                            name: provider.name,
+                                            region: region
+                                        ))
+                                    } else {
+                                        onSelectFilter(.tvNetwork(id: provider.id, name: provider.name))
+                                    }
+                                },
+                                backdropFor: { provider in
+                                    SeerrImageURL.backdrop(path: viewModel.networkBackdrops[provider.id], size: .w780)
                                 }
-                            },
-                            backdropFor: { provider in
-                                SeerrImageURL.backdrop(path: viewModel.networkBackdrops[provider.id], size: .w780)
-                            }
-                        )
-                        CatalogProviderRow(
-                            titleKey: "catalog.section.studios",
-                            providers: CatalogProviders.studios,
-                            onSelect: { provider in
-                                onSelectFilter(.movieStudio(id: provider.id, name: provider.name))
-                            },
-                            backdropFor: { provider in
-                                SeerrImageURL.backdrop(path: viewModel.studioBackdrops[provider.id], size: .w780)
-                            }
-                        )
+                            )
+                        }
+                        let visibleStudios = CatalogProviders.studios.filter { provider in
+                            let key = "movieStudio-\(provider.id)"
+                            let count = FilterCache.shared.catalogPage(filterKey: key)?.items.count
+                            return count == nil || count! > 0
+                        }
+                        if !visibleStudios.isEmpty {
+                            CatalogProviderRow(
+                                titleKey: "catalog.section.studios",
+                                providers: visibleStudios,
+                                onSelect: { provider in
+                                    onSelectFilter(.movieStudio(id: provider.id, name: provider.name))
+                                },
+                                backdropFor: { provider in
+                                    SeerrImageURL.backdrop(path: viewModel.studioBackdrops[provider.id], size: .w780)
+                                }
+                            )
+                        }
                     }
                     .padding(.vertical, 40)
                 }
