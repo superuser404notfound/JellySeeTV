@@ -204,6 +204,16 @@ struct SettingsView: View {
                 .font(.caption)
                 .foregroundStyle(.tertiary)
                 .monospacedDigit()
+            // TMDB attribution — required by their API terms whenever
+            // their data or imagery is displayed in a downstream app.
+            // Catalog posters, backdrops and metadata in JellySeeTV
+            // come from TMDB (directly for images, via Jellyseerr for
+            // metadata), so the notice belongs here.
+            Text("settings.about.tmdbAttribution")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 600)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 32)
