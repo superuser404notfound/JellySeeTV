@@ -140,51 +140,123 @@ final class CatalogViewModel {
     }
 
     private func loadProviderBackdrops() async {
-        // Fan out one query per provider. Page 1 with default sort
-        // returns "popular on this service first" — good enough as a
-        // hero image. For streamers with a TMDB watch-provider id
-        // (Paramount+, Disney+, …) the watch-provider endpoint
-        // surfaces movies and tv together, where the network-only
-        // endpoint sometimes leads with new entries that haven't had
-        // their backdrop scraped yet (Paramount+ in particular hit
-        // this — the network endpoint's first page returned items
-        // with `backdropPath = nil` so the tile fell back to the
-        // dark plate). Falls back to the network endpoint for
+        // Fans out one fetch per provider/studio. Two jobs in one pass:
+        //
+        //  1. Pull a sample backdrop for the tile background — page 1
+        //     with default sort gives "popular on this service first",
+        //     good enough as a hero image.
+        //
+        //  2. Persist that first page to FilterCache under exactly
+        //     the same key CatalogDiscoverView's empty-tile-hide
+        //     filter checks (`streamingService-{id}-{region}`,
+        //     `tvNetwork-{id}`, `movieStudio-{id}`). Without this the
+        //     filter only kicks in *after* the user has tapped each
+        //     tile once, so providers with no content in the user's
+        //     region (Hulu / Peacock outside US, Hotstar outside
+        //     India, …) keep showing as full tiles that tap into
+        //     emptiness. Caching here means the very first render of
+        //     the catalog already drops them.
+        //
+        // For streamers with a TMDB watch-provider id, we fetch movies
+        // + tv in parallel and merge them — same shape the user gets
+        // when tapping the tile, so the cache hit is exact and the
+        // count is honest. Falls back to the TV-network endpoint for
         // broadcast-only entries (ABC, NBC, CBS).
         let region = Locale.current.region?.identifier ?? "US"
-        await withTaskGroup(of: (kind: ProviderKind, id: Int, backdrop: String?).self) { group in
+        let results = await withTaskGroup(
+            of: ProviderResolveResult.self,
+            returning: [ProviderResolveResult].self
+        ) { group in
             for provider in CatalogProviders.networks {
                 group.addTask { [discoverService] in
-                    let primary: SeerrDiscoverResult?
                     if let watchID = provider.tmdbWatchProviderID {
-                        primary = try? await discoverService.moviesByWatchProvider(
+                        async let moviesTask = try? discoverService.moviesByWatchProvider(
                             providerID: watchID, region: region, page: 1
                         )
+                        async let tvTask = try? discoverService.tvByWatchProvider(
+                            providerID: watchID, region: region, page: 1
+                        )
+                        let (movies, tv) = await (moviesTask, tvTask)
+                        let merged = (movies?.results ?? []) + (tv?.results ?? [])
+                        let totalPages = max(movies?.totalPages ?? 0, tv?.totalPages ?? 0)
+                        var backdrop = merged.first(where: { $0.backdropPath != nil })?.backdropPath
+                        if backdrop == nil {
+                            // Backdrop fallback: TV network endpoint
+                            // sometimes carries different items.
+                            let fallback = try? await discoverService.tvByNetwork(
+                                networkID: provider.id, page: 1
+                            )
+                            backdrop = fallback?.results.first(where: { $0.backdropPath != nil })?.backdropPath
+                        }
+                        return ProviderResolveResult(
+                            kind: .network,
+                            displayID: provider.id,
+                            cacheKey: "streamingService-\(watchID)-\(region)",
+                            items: merged,
+                            totalPages: max(totalPages, 1),
+                            backdrop: backdrop
+                        )
                     } else {
-                        primary = try? await discoverService.tvByNetwork(networkID: provider.id, page: 1)
+                        let result = try? await discoverService.tvByNetwork(
+                            networkID: provider.id, page: 1
+                        )
+                        return ProviderResolveResult(
+                            kind: .network,
+                            displayID: provider.id,
+                            cacheKey: "tvNetwork-\(provider.id)",
+                            items: result?.results ?? [],
+                            totalPages: max(result?.totalPages ?? 1, 1),
+                            backdrop: result?.results.first(where: { $0.backdropPath != nil })?.backdropPath
+                        )
                     }
-                    if let path = primary?.results.first(where: { $0.backdropPath != nil })?.backdropPath {
-                        return (.network, provider.id, path)
-                    }
-                    // Fallback: try the other axis.
-                    let fallback = try? await discoverService.tvByNetwork(networkID: provider.id, page: 1)
-                    return (.network, provider.id, fallback?.results.first(where: { $0.backdropPath != nil })?.backdropPath)
                 }
             }
             for provider in CatalogProviders.studios {
                 group.addTask { [discoverService] in
-                    let result = try? await discoverService.moviesByStudio(studioID: provider.id, page: 1)
-                    return (.studio, provider.id, result?.results.first(where: { $0.backdropPath != nil })?.backdropPath)
+                    let result = try? await discoverService.moviesByStudio(
+                        studioID: provider.id, page: 1
+                    )
+                    return ProviderResolveResult(
+                        kind: .studio,
+                        displayID: provider.id,
+                        cacheKey: "movieStudio-\(provider.id)",
+                        items: result?.results ?? [],
+                        totalPages: max(result?.totalPages ?? 1, 1),
+                        backdrop: result?.results.first(where: { $0.backdropPath != nil })?.backdropPath
+                    )
                 }
             }
-            for await item in group {
-                guard let path = item.backdrop else { continue }
-                switch item.kind {
-                case .network: networkBackdrops[item.id] = path
-                case .studio: studioBackdrops[item.id] = path
+            var collected: [ProviderResolveResult] = []
+            for await item in group { collected.append(item) }
+            return collected
+        }
+
+        // MainActor pass — write the cache + backdrop once everything's
+        // resolved. Keeping the FilterCache writes off the detached
+        // closures avoids the async-isolation error and centralises
+        // the side effects in one easy-to-read sweep.
+        for result in results {
+            FilterCache.shared.setCatalogPage(
+                result.items,
+                totalPages: result.totalPages,
+                filterKey: result.cacheKey
+            )
+            if let backdrop = result.backdrop {
+                switch result.kind {
+                case .network: networkBackdrops[result.displayID] = backdrop
+                case .studio: studioBackdrops[result.displayID] = backdrop
                 }
             }
         }
+    }
+
+    private struct ProviderResolveResult: Sendable {
+        let kind: ProviderKind
+        let displayID: Int
+        let cacheKey: String
+        let items: [SeerrMedia]
+        let totalPages: Int
+        let backdrop: String?
     }
 
     private enum ProviderKind { case network, studio }
