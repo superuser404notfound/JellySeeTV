@@ -13,6 +13,13 @@ struct CatalogFilteredGridView: View {
     @State private var page: Int
     @State private var totalPages: Int
     @State private var isLoadingMore = false
+    /// Background revalidation flag — true while we're re-fetching
+    /// page 1 to refresh the cached grid. Deliberately separate from
+    /// `isLoadingMore` so we *don't* paint a spinner during silent
+    /// stale-while-revalidate. The user already sees the cached grid;
+    /// surfacing a "loading" hint for a refresh they didn't trigger
+    /// reads as a real network roundtrip even when it isn't.
+    @State private var isRefreshing = false
     @State private var errorMessage: String?
     @State private var selectedMedia: SeerrMedia?
 
@@ -49,7 +56,7 @@ struct CatalogFilteredGridView: View {
                     .padding(.horizontal, 80)
                     .padding(.top, 40)
 
-                if items.isEmpty && isLoadingMore {
+                if items.isEmpty && (isLoadingMore || isRefreshing) {
                     ProgressView()
                         .frame(maxWidth: .infinity, minHeight: 400)
                 } else if let errorMessage, items.isEmpty {
@@ -120,13 +127,24 @@ struct CatalogFilteredGridView: View {
     /// so the next appearance hydrates instantly. Subsequent pages
     /// (2+) still go through `loadMore` on demand.
     private func refreshFirstPage() async {
-        guard !isLoadingMore else { return }
-        isLoadingMore = true
-        defer { isLoadingMore = false }
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        defer { isRefreshing = false }
 
         do {
             let result = try await fetchPage(1)
-            items = result.results
+            // Only replace items if the result actually changed —
+            // wholesale `items = result.results` even with identical
+            // IDs forces SwiftUI to re-evaluate every cell, which the
+            // user reads as a "reload flash" right after the cached
+            // grid first paints. Comparing stableKeys keeps the view
+            // tree untouched on the common case where nothing rotated
+            // since last visit.
+            let oldKeys = items.map(\.stableKey)
+            let newKeys = result.results.map(\.stableKey)
+            if oldKeys != newKeys {
+                items = result.results
+            }
             page = 1
             totalPages = result.totalPages
             errorMessage = nil

@@ -203,8 +203,13 @@ struct FilteredGridView: View {
             // studio tiles) — Phase 1 is the final result. Persist
             // it so the empty-tile-hide pass on the next visit has
             // a count to work with, and so a re-tap renders without
-            // the studio-query roundtrip.
-            items = phase1
+            // the studio-query roundtrip. Skip the assignment when
+            // the id list is unchanged: even with identical ids the
+            // wholesale replace forces SwiftUI to re-diff every cell,
+            // which reads to the user as a brief reload flash.
+            if items.map(\.id) != phase1.map(\.id) {
+                items = phase1
+            }
             if let key = cacheKey {
                 FilterCache.shared.setHomeFilterItems(phase1, filterKey: key)
             }
@@ -262,7 +267,9 @@ struct FilteredGridView: View {
 
         let phase2Items = providerTmdbIDs.compactMap { tmdbMap[$0] }
         let merged = mergePhases(phase1: studioItems, phase2: phase2Items)
-        items = merged
+        if items.map(\.id) != merged.map(\.id) {
+            items = merged
+        }
 
         // Persist the fully-resolved list so the next visit can
         // hydrate the grid synchronously — no library fetch, no
