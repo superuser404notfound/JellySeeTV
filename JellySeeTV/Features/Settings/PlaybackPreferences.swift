@@ -23,6 +23,7 @@ final class PlaybackPreferences {
         static let autoSkipIntro = "playback.autoSkipIntro"
         static let autoSkipOutro = "playback.autoSkipOutro"
         static let autoSubtitleForForeignAudio = "playback.autoSubtitleForForeignAudio"
+        static let atmosAudioDelayMs = "playback.atmosAudioDelayMs"
     }
 
     // MARK: - Allowed Values
@@ -30,6 +31,15 @@ final class PlaybackPreferences {
     /// 0 = disabled (countdown doesn't appear), otherwise countdown seconds.
     static let countdownChoices: [Int] = [0, 5, 10, 15]
     static let skipIntervalChoices: [Int] = [5, 10, 15, 30]
+
+    /// Atmos audio delay in milliseconds. Only applies to the HLS+AVPlayer
+    /// path (EAC3+JOC passthrough), where the AVR/soundbar Atmos decoder
+    /// adds latency that AVPlayer.currentTime() doesn't expose. Step is 25ms,
+    /// the smallest difference most listeners can perceive on speech sync.
+    /// Range covers the typical lag (50–200ms) plus headroom for unusual
+    /// setups, including a small negative range for users whose audio
+    /// arrives slightly *before* the picture.
+    static let atmosAudioDelayChoices: [Int] = stride(from: -100, through: 400, by: 25).map { $0 }
 
     /// Shared language options — alphabetical by display name. ISO 639-2/B
     /// bibliographic codes (Jellyfin's convention: "deu" not "ger", "cze"
@@ -129,6 +139,12 @@ final class PlaybackPreferences {
         didSet { store.set(autoSubtitleForForeignAudio, forKey: Keys.autoSubtitleForForeignAudio) }
     }
 
+    /// Atmos audio delay compensation in milliseconds. Only consulted by
+    /// the player's HLS Atmos engine (EAC3+JOC); ignored otherwise.
+    var atmosAudioDelayMs: Int {
+        didSet { store.set(atmosAudioDelayMs, forKey: Keys.atmosAudioDelayMs) }
+    }
+
     // MARK: - Init
 
     private let store: UserDefaults
@@ -143,5 +159,6 @@ final class PlaybackPreferences {
         self.preferredAudioLanguage = store.string(forKey: Keys.preferredAudioLanguage)
         self.preferredSubtitleLanguage = store.string(forKey: Keys.preferredSubtitleLanguage)
         self.autoSubtitleForForeignAudio = store.object(forKey: Keys.autoSubtitleForForeignAudio) as? Bool ?? true
+        self.atmosAudioDelayMs = store.object(forKey: Keys.atmosAudioDelayMs) as? Int ?? 0
     }
 }

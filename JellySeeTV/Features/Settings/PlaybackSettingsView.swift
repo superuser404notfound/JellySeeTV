@@ -101,6 +101,25 @@ struct PlaybackSettingsView: View {
                         set: { prefs.autoSubtitleForForeignAudio = $0 }
                     )
                 )
+
+                sectionHeader("settings.playback.section.audio")
+
+                valueRow(
+                    icon: "hifispeaker.2",
+                    title: "settings.playback.atmosAudioDelay",
+                    subtitle: "settings.playback.atmosAudioDelay.subtitle",
+                    options: PlaybackPreferences.atmosAudioDelayChoices,
+                    selection: Binding(
+                        get: { prefs.atmosAudioDelayMs },
+                        set: { prefs.atmosAudioDelayMs = $0 }
+                    ),
+                    label: { ms in
+                        ms == 0
+                            ? String(localized: "settings.playback.atmosAudioDelay.off",
+                                     defaultValue: "Off")
+                            : (ms > 0 ? "+\(ms) ms" : "\(ms) ms")
+                    }
+                )
             }
             .padding(.horizontal, 80)
             .padding(.top, 60)

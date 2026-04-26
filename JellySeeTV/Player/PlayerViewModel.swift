@@ -298,6 +298,12 @@ final class PlayerViewModel {
             }
             #endif
 
+            // Apply user's Atmos audio delay before load(). load() may
+            // create the HLS engine immediately when the default track is
+            // EAC3+JOC, so the value needs to be in place beforehand to
+            // take effect from the very first snap.
+            player.atmosAudioDelay = Double(preferences.atmosAudioDelayMs) / 1000.0
+
             try await player.load(
                 url: url,
                 startPosition: startPos,
