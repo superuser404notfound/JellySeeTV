@@ -45,16 +45,16 @@ And the Seerr integration isn't a tacked-on link to a web view — it's a first-
     <td width="50%"><img src="Screenshots/02-catalog.jpg" alt="Catalog — Trending + Upcoming Movies"></td>
   </tr>
   <tr>
-    <td align="center"><sub>Home — Continue Watching + Next Up</sub></td>
-    <td align="center"><sub>Catalog — Trending + Upcoming Movies</sub></td>
+    <td align="center"><sub>Home</sub></td>
+    <td align="center"><sub>Catalog</sub></td>
   </tr>
   <tr>
     <td><img src="Screenshots/03-search.jpg" alt="Search — Library + Catalog results"></td>
     <td><img src="Screenshots/04-settings.jpg" alt="Settings — Profile, Rows, Playback, Appearance, Seerr"></td>
   </tr>
   <tr>
-    <td align="center"><sub>Search — Library + Catalog results</sub></td>
-    <td align="center"><sub>Settings — Profile, Rows, Playback, Seerr</sub></td>
+    <td align="center"><sub>Search</sub></td>
+    <td align="center"><sub>Settings</sub></td>
   </tr>
 </table>
 
