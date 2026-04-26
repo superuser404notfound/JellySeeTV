@@ -114,19 +114,31 @@ struct SeerrEffectiveRequestBadge: View {
         case .declined: return .declined
         case .failed: return .failed
         case .pendingApproval: return .pending
-        case .approved, .completed:
+        case .completed:
+            // `completed` is Seerr's "Sonarr/Radarr signed off" flag.
+            // If the media is anything other than available /
+            // partiallyAvailable now, it was on the server at some
+            // point and has since been removed — Seerr keeps the
+            // request marked completed but the media status drifts
+            // back to processing / unknown / nil. We never want to
+            // show "Wird verarbeitet" for a request that was once
+            // done; that's the user-visible bug ("zeigt verarbeitet
+            // obwohl ich es längst entfernt habe").
+            switch request.media?.status {
+            case .available: return .available
+            case .partiallyAvailable: return .partiallyAvailable
+            default: return .removed
+            }
+        case .approved:
             switch request.media?.status {
             case .available: return .available
             case .partiallyAvailable: return .partiallyAvailable
             case .processing: return .processing
             case .pending: return .approved
             case .unknown, nil:
-                // Approved/completed but media isn't there. For
-                // `completed`, that means the file was once on the
-                // server and has since been removed; for `approved`
-                // with no media yet, Sonarr/Radarr is still spinning
-                // up — we tag it processing.
-                return request.status == .completed ? .removed : .processing
+                // Approved but Sonarr/Radarr hasn't reported yet —
+                // most likely still spinning up.
+                return .processing
             }
         }
     }
