@@ -56,6 +56,7 @@ struct HomeView: View {
                 viewModel = HomeViewModel(
                     libraryService: dependencies.jellyfinLibraryService,
                     imageService: dependencies.jellyfinImageService,
+                    discoverService: dependencies.seerrDiscoverService,
                     userID: userID
                 )
                 Task { await viewModel?.loadContent() }
@@ -97,6 +98,7 @@ struct HomeView: View {
             viewModel = HomeViewModel(
                 libraryService: dependencies.jellyfinLibraryService,
                 imageService: dependencies.jellyfinImageService,
+                discoverService: dependencies.seerrDiscoverService,
                 userID: userID
             )
             Task { await viewModel?.loadContent() }
@@ -127,21 +129,21 @@ struct HomeView: View {
                         )
 
                     case .discoverProviders:
-                        // Hide tiles whose cached library match count
-                        // is zero. First-run shows all providers
-                        // (cache miss → unknown → assume "has
-                        // content"); after the user has visited a
-                        // tile once, an empty result drops the tile
-                        // out of the row. If every provider is empty
-                        // (e.g. nothing in the user's library has
-                        // streaming-tag metadata yet), suppress the
-                        // entire row rather than render an empty one.
-                        // Cache key is derived once at write time —
-                        // see makeJellyfinFilter / providerCacheKey.
-                        let region = Locale.current.region?.identifier ?? "US"
+                        // Hide tiles whose resolved match count is
+                        // zero. The view-model precomputes counts in
+                        // the background (so the filter activates
+                        // automatically without requiring the user
+                        // to tap each tile first); a `nil` count
+                        // means "not yet computed" and shows the
+                        // tile, so first-run sees everything until
+                        // the precompute fills in the dict and empty
+                        // tiles fade out a few seconds later. Once
+                        // the user adds matching content the tile
+                        // re-appears on the next session — the
+                        // precompute reruns and the count climbs
+                        // above zero.
                         let visibleProviders = CatalogProviders.networks.filter { provider in
-                            let key = HomeView.providerCacheKey(provider: provider, region: region)
-                            let count = FilterCache.shared.homeFilterItems(filterKey: key)?.count
+                            let count = vm.providerItemCounts[provider.id]
                             return count == nil || count! > 0
                         }
                         if !visibleProviders.isEmpty {

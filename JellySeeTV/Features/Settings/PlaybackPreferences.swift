@@ -71,12 +71,12 @@ final class PlaybackPreferences {
             + baseLanguages
     }
 
-    /// Subtitle pref dropdown — "Off" first (renamed from "Auto" to avoid
-    /// confusion with audio: Auto for audio means "pick a sensible track,"
-    /// for subtitles it reads as "I don't know, figure it out," when the
-    /// user's intent is actually "don't show any subtitles").
+    /// Subtitle pref dropdown — same shape as audio: "Auto" first,
+    /// then the alphabetical list. `nil` code lets the per-track
+    /// auto-pick logic (foreign-audio detection, system language)
+    /// decide; an explicit language code pins the preference.
     static var subtitleLanguageChoices: [LanguageChoice] {
-        [LanguageChoice(code: nil, short: "Off", titleKey: "settings.playback.language.off")]
+        [LanguageChoice(code: nil, short: "Auto", titleKey: "settings.playback.language.auto")]
             + baseLanguages
     }
 

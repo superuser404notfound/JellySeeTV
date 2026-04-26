@@ -15,6 +15,19 @@ final class HomeViewModel {
     /// gracefully falls back to the logo-only style.
     var providerBackdrops: [Int: URL] = [:]
 
+    /// Resolved-item count per streaming provider, keyed by
+    /// `provider.id`. Populated by the background precompute pass —
+    /// the empty-tile-hide filter on the home view reads from here
+    /// to drop providers whose library matches resolve to zero
+    /// without waiting for the user to tap each one.
+    var providerItemCounts: [Int: Int] = [:]
+
+    /// Guards against concurrent / repeated precompute runs within
+    /// the same session — re-resolving every provider on every Home
+    /// re-appearance would hammer Seerr for ~100 calls and add
+    /// nothing the user can perceive.
+    private var providerCountsComputedAt: Date?
+
     /// Timestamp of the last successful loadContent(). Used by the
     /// view's onAppear to decide whether enough time has passed to
     /// refresh — otherwise new server-side content (Latest Movies,
@@ -23,15 +36,18 @@ final class HomeViewModel {
 
     private let libraryService: JellyfinLibraryServiceProtocol
     private let imageService: JellyfinImageService
+    private let discoverService: SeerrDiscoverServiceProtocol?
     private let userID: String
 
     init(
         libraryService: JellyfinLibraryServiceProtocol,
         imageService: JellyfinImageService,
+        discoverService: SeerrDiscoverServiceProtocol? = nil,
         userID: String
     ) {
         self.libraryService = libraryService
         self.imageService = imageService
+        self.discoverService = discoverService
         self.userID = userID
         self.rowConfigs = HomeRowConfig.loadFromStorage()
     }
@@ -121,6 +137,171 @@ final class HomeViewModel {
         // are tolerated — the tile falls back to the logo-only
         // style for any provider that doesn't resolve.
         Task { await loadProviderBackdrops() }
+        // Pre-resolve every provider tile in the background so the
+        // empty-tile-hide pass on the home view has data to act on
+        // *before* the user has tapped each one. Throttled to one
+        // run per session.
+        Task { await precomputeProviderCounts() }
+    }
+
+    /// Resolves every CatalogProviders.networks tile against the
+    /// local library + (where available) TMDB watch-providers, in
+    /// the background, so the home-view filter can drop empty
+    /// tiles automatically. Each provider's full result list is
+    /// also written to FilterCache so a subsequent tap renders the
+    /// grid synchronously.
+    ///
+    /// Throttled to one run per session — re-running every Home
+    /// re-appearance would fire ~110 Seerr calls and add nothing
+    /// the user can perceive in that window. Storage state (cache
+    /// + counts dict) survives across appearances anyway.
+    func precomputeProviderCounts() async {
+        if providerCountsComputedAt != nil { return }
+        providerCountsComputedAt = Date()
+
+        let region = Locale.current.region?.identifier ?? "US"
+        let lib = libraryService
+        let disc = discoverService
+        let uid = userID
+
+        // Build the TMDB map on MainActor first — JellyfinItem.tmdbID
+        // and CatalogProviders.networks are both MainActor-isolated
+        // under the project's default isolation, so we have to read
+        // them here before handing the values to a detached task.
+        let allItemsQuery = ItemQuery(
+            includeItemTypes: [.movie, .series],
+            sortBy: "SortName",
+            sortOrder: "Ascending",
+            limit: 10000
+        )
+        let allItems = (try? await libraryService.getItems(
+            userID: userID, query: allItemsQuery
+        ).items) ?? []
+
+        var tmdbMap: [Int: JellyfinItem] = [:]
+        for item in allItems {
+            if let id = item.tmdbID { tmdbMap[id] = item }
+        }
+        // Snapshot only the fields the resolve pass needs into a
+        // plain Sendable struct — CatalogProvider itself is
+        // MainActor-isolated under the project default, so we can't
+        // hand the struct directly to a detached task.
+        let providerInfos: [ProviderResolveInfo] = CatalogProviders.networks.map {
+            ProviderResolveInfo(
+                id: $0.id,
+                studioNames: $0.jellyfinStudioNames,
+                watchProviderID: $0.tmdbWatchProviderID
+            )
+        }
+        let mapForTask = tmdbMap
+
+        // Resolve passes runs in a detached task so the task-group
+        // closures it spawns don't inherit MainActor isolation.
+        let resolved: [(Int, [JellyfinItem])] = await Task.detached(priority: .utility) {
+            await withTaskGroup(
+                of: (Int, [JellyfinItem]).self,
+                returning: [(Int, [JellyfinItem])].self
+            ) { group in
+                var iter = providerInfos.makeIterator()
+                let maxConcurrent = 4
+
+                for _ in 0..<maxConcurrent {
+                    guard let info = iter.next() else { break }
+                    group.addTask {
+                        let items = await Self.resolveProviderItems(
+                            info: info, region: region,
+                            tmdbMap: mapForTask,
+                            libraryService: lib, discoverService: disc, userID: uid
+                        )
+                        return (info.id, items)
+                    }
+                }
+                var collected: [(Int, [JellyfinItem])] = []
+                while let result = await group.next() {
+                    collected.append(result)
+                    if let next = iter.next() {
+                        group.addTask {
+                            let items = await Self.resolveProviderItems(
+                                info: next, region: region,
+                                tmdbMap: mapForTask,
+                                libraryService: lib, discoverService: disc, userID: uid
+                            )
+                            return (next.id, items)
+                        }
+                    }
+                }
+                return collected
+            }
+        }.value
+
+        // MainActor pass: write counts + cache for each provider.
+        for (providerID, items) in resolved {
+            providerItemCounts[providerID] = items.count
+            FilterCache.shared.setHomeFilterItems(
+                items, filterKey: "home-\(providerID)-\(region)"
+            )
+        }
+    }
+
+    /// Sendable snapshot of the fields `resolveProviderItems` reads
+    /// off a `CatalogProvider`. Needed because CatalogProvider
+    /// itself is MainActor-isolated under the project default and
+    /// the resolve pass runs in a detached task.
+    struct ProviderResolveInfo: Sendable {
+        let id: Int
+        let studioNames: [String]
+        let watchProviderID: Int?
+    }
+
+    /// Resolves a single provider's library items: studio-name match
+    /// (always) plus TMDB watch-provider augment (when the provider
+    /// has a watch-provider id). Returns the merged + deduped list,
+    /// alphabetically ordered after the studio matches. Static so
+    /// the precompute task group doesn't have to capture `self`.
+    private static func resolveProviderItems(
+        info: ProviderResolveInfo,
+        region: String,
+        tmdbMap: [Int: JellyfinItem],
+        libraryService: JellyfinLibraryServiceProtocol,
+        discoverService: SeerrDiscoverServiceProtocol?,
+        userID: String
+    ) async -> [JellyfinItem] {
+        let studioQuery = ItemQuery(
+            includeItemTypes: [.movie, .series],
+            sortBy: "SortName",
+            sortOrder: "Ascending",
+            limit: 200,
+            studioNames: info.studioNames
+        )
+        let studioItems = (try? await libraryService.getItems(
+            userID: userID, query: studioQuery
+        ).items) ?? []
+
+        var phase2Items: [JellyfinItem] = []
+        if let watchID = info.watchProviderID, let discover = discoverService {
+            var providerTmdbIDs: Set<Int> = []
+            await withTaskGroup(of: Set<Int>.self) { group in
+                for page in 1...5 {
+                    group.addTask {
+                        let movies = (try? await discover.moviesByWatchProvider(
+                            providerID: watchID, region: region, page: page
+                        ))?.results.map(\.id) ?? []
+                        let tv = (try? await discover.tvByWatchProvider(
+                            providerID: watchID, region: region, page: page
+                        ))?.results.map(\.id) ?? []
+                        return Set(movies + tv)
+                    }
+                }
+                for await ids in group { providerTmdbIDs.formUnion(ids) }
+            }
+            phase2Items = providerTmdbIDs.compactMap { tmdbMap[$0] }
+        }
+
+        let phase1IDs = Set(studioItems.map(\.id))
+        let extras = phase2Items
+            .filter { !phase1IDs.contains($0.id) }
+            .sorted { $0.name < $1.name }
+        return studioItems + extras
     }
 
     private func loadProviderBackdrops() async {
