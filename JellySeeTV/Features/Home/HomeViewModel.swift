@@ -34,6 +34,16 @@ final class HomeViewModel {
     /// frame after a tap is already painted from the file cache.
     private var genreCachesComputedAt: Date?
 
+    /// Handles for the background side-effects `loadContent` kicks
+    /// off. Held so we can cancel them when the view model is torn
+    /// down (profile switch, tab destruction) or when `loadContent`
+    /// is re-entered before the previous fan-out finished — without
+    /// that, an orphaned VM keeps fetching against the server and
+    /// writing into FilterCache long after the UI it backed is gone.
+    private var backdropTask: Task<Void, Never>?
+    private var providerCountsTask: Task<Void, Never>?
+    private var genreCachesTask: Task<Void, Never>?
+
     /// Timestamp of the last successful loadContent(). Used by the
     /// view's onAppear to decide whether enough time has passed to
     /// refresh — otherwise new server-side content (Latest Movies,
@@ -137,21 +147,36 @@ final class HomeViewModel {
         isLoading = false
         lastLoadedAt = .now
 
+        // Cancel any previous fan-outs before kicking new ones off:
+        // a rapid profile switch / notification-driven reload would
+        // otherwise stack 2× the network calls and 2× the FilterCache
+        // writes, with the older task scribbling stale data over the
+        // newer one if it finished last.
+        backdropTask?.cancel()
+        providerCountsTask?.cancel()
+        genreCachesTask?.cancel()
+
         // Best-effort: fan out one Studios query per provider so
         // the streaming-provider row can render a sample backdrop
         // from the local library. Failures and gaps in metadata
         // are tolerated — the tile falls back to the logo-only
         // style for any provider that doesn't resolve.
-        Task { await loadProviderBackdrops() }
+        backdropTask = Task { [weak self] in
+            await self?.loadProviderBackdrops()
+        }
         // Pre-resolve every provider tile in the background so the
         // empty-tile-hide pass on the home view has data to act on
         // *before* the user has tapped each one. Throttled to one
         // run per session.
-        Task { await precomputeProviderCounts() }
+        providerCountsTask = Task { [weak self] in
+            await self?.precomputeProviderCounts()
+        }
         // Pre-warm the genre tile grids the same way: one Studios
         // query per genre so the first tap renders straight from the
         // cache instead of paying a network roundtrip.
-        Task { await precomputeGenreCaches() }
+        genreCachesTask = Task { [weak self] in
+            await self?.precomputeGenreCaches()
+        }
     }
 
     /// Resolves every CatalogProviders.networks tile against the
