@@ -21,21 +21,29 @@ import Foundation
 /// the cached value, so anything that left the provider's lineup
 /// since last visit drops out automatically.
 ///
-/// Backed by `UserDefaults` directly. UserDefaults reads + writes are
-/// thread-safe at the system level, so no internal lock is required —
-/// the class is `@unchecked Sendable` because nothing mutable is
-/// stored beyond the UserDefaults pointer. Synchronous API
-/// throughout: SwiftUI views can hit the cache from inside
-/// `body`-adjacent code without an actor hop, which is what makes
-/// the cached display appear in the same render pass instead of one
-/// frame later.
+/// Backed by per-key JSON files in `Library/Caches/FilterCache/`.
+/// Originally lived in `UserDefaults`, but tvOS enforces a 1 MB hard
+/// cap per app domain on `CFPreferences` writes — and a fully
+/// populated provider tile (50+ JellyfinItem blobs with overview,
+/// image tags, media streams, …) routinely exceeds that, which
+/// crashes the app with SIGABRT inside `defaults.set` on the very
+/// first cache write. Files have no such cap and live in the same
+/// directory iOS/tvOS uses for app caches, so the system can evict
+/// them under disk pressure without us doing anything.
+///
+/// Thread safety: filesystem reads + writes are atomic at the OS
+/// level, and we only read/write whole files. `@unchecked Sendable`
+/// is therefore safe — there's no shared mutable state in the type
+/// itself, just the directory pointer. Synchronous API throughout
+/// so SwiftUI views can hit the cache from inside `init()` and have
+/// the cached value populate `@State` in the same render pass.
 final class FilterCache: @unchecked Sendable {
     static let shared = FilterCache()
 
-    private let defaults = UserDefaults.standard
-    private static let homeItemsPrefix = "FilterCache.homeItems."
-    private static let smartIDPrefix = "FilterCache.smart."
-    private static let catalogPrefix = "FilterCache.catalog."
+    private let directory: URL
+    private static let homeItemsPrefix = "homeItems."
+    private static let smartIDPrefix = "smart."
+    private static let catalogPrefix = "catalog."
 
     private struct HomeItemsEntry: Codable {
         let items: [JellyfinItem]
@@ -53,55 +61,71 @@ final class FilterCache: @unchecked Sendable {
         let lastFetched: Date
     }
 
+    init() {
+        let caches = FileManager.default.urls(
+            for: .cachesDirectory, in: .userDomainMask
+        ).first ?? URL(fileURLWithPath: NSTemporaryDirectory())
+        self.directory = caches.appendingPathComponent("FilterCache", isDirectory: true)
+        try? FileManager.default.createDirectory(
+            at: directory, withIntermediateDirectories: true
+        )
+        // One-shot migration sweep: if the previous UserDefaults-backed
+        // cache left entries in the app's domain, wipe them so the
+        // 1 MB cap doesn't keep tripping on app launches that haven't
+        // yet rotated the offending keys.
+        Self.purgeLegacyDefaults()
+    }
+
+    private func fileURL(for key: String) -> URL {
+        directory.appendingPathComponent(key).appendingPathExtension("json")
+    }
+
+    private func read<T: Decodable>(_ type: T.Type, key: String) -> T? {
+        let url = fileURL(for: key)
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder().decode(T.self, from: data)
+    }
+
+    private func write<T: Encodable>(_ value: T, key: String) {
+        let url = fileURL(for: key)
+        guard let data = try? JSONEncoder().encode(value) else { return }
+        // Atomic write so a crash mid-flush leaves the previous file
+        // intact rather than producing a half-written truncated blob
+        // that would make the next decode fail.
+        try? data.write(to: url, options: .atomic)
+    }
+
     // MARK: - Home Smart Filter (resolved JellyfinItems)
 
     func homeFilterItems(filterKey: String) -> [JellyfinItem]? {
-        let key = Self.homeItemsPrefix + filterKey
-        guard let data = defaults.data(forKey: key),
-              let entry = try? JSONDecoder().decode(HomeItemsEntry.self, from: data)
-        else { return nil }
-        return entry.items
+        read(HomeItemsEntry.self, key: Self.homeItemsPrefix + filterKey)?.items
     }
 
     func setHomeFilterItems(_ items: [JellyfinItem], filterKey: String) {
-        let key = Self.homeItemsPrefix + filterKey
         let entry = HomeItemsEntry(items: items, lastFetched: Date())
-        guard let data = try? JSONEncoder().encode(entry) else { return }
-        defaults.set(data, forKey: key)
+        write(entry, key: Self.homeItemsPrefix + filterKey)
     }
 
     // MARK: - Smart Filter (TMDB ids)
 
     func smartFilterIDs(providerID: Int, region: String) -> [Int]? {
-        let key = Self.smartIDPrefix + "\(providerID)-\(region)"
-        guard let data = defaults.data(forKey: key),
-              let entry = try? JSONDecoder().decode(SmartEntry.self, from: data)
-        else { return nil }
-        return entry.tmdbIDs
+        read(SmartEntry.self, key: Self.smartIDPrefix + "\(providerID)-\(region)")?.tmdbIDs
     }
 
     func setSmartFilterIDs(_ ids: [Int], providerID: Int, region: String) {
-        let key = Self.smartIDPrefix + "\(providerID)-\(region)"
         let entry = SmartEntry(tmdbIDs: ids, lastFetched: Date())
-        guard let data = try? JSONEncoder().encode(entry) else { return }
-        defaults.set(data, forKey: key)
+        write(entry, key: Self.smartIDPrefix + "\(providerID)-\(region)")
     }
 
     // MARK: - Catalog Filter Page 1
 
     func catalogPage(filterKey: String) -> CatalogEntry? {
-        let key = Self.catalogPrefix + filterKey
-        guard let data = defaults.data(forKey: key),
-              let entry = try? JSONDecoder().decode(CatalogEntry.self, from: data)
-        else { return nil }
-        return entry
+        read(CatalogEntry.self, key: Self.catalogPrefix + filterKey)
     }
 
     func setCatalogPage(_ items: [SeerrMedia], totalPages: Int, filterKey: String) {
-        let key = Self.catalogPrefix + filterKey
         let entry = CatalogEntry(items: items, totalPages: totalPages, lastFetched: Date())
-        guard let data = try? JSONEncoder().encode(entry) else { return }
-        defaults.set(data, forKey: key)
+        write(entry, key: Self.catalogPrefix + filterKey)
     }
 
     // MARK: - Bulk invalidation
@@ -109,12 +133,23 @@ final class FilterCache: @unchecked Sendable {
     /// Clears every cache slice — called on profile switch / logout
     /// so a new user doesn't see the previous user's filter results.
     func clearAll() {
-        for key in defaults.dictionaryRepresentation().keys {
-            if key.hasPrefix(Self.homeItemsPrefix)
-                || key.hasPrefix(Self.smartIDPrefix)
-                || key.hasPrefix(Self.catalogPrefix) {
-                defaults.removeObject(forKey: key)
-            }
+        guard let entries = try? FileManager.default.contentsOfDirectory(
+            at: directory, includingPropertiesForKeys: nil
+        ) else { return }
+        for url in entries {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
+    /// Wipe any leftover entries from the old `UserDefaults`-backed
+    /// implementation. Runs once on first instantiation. Safe to keep
+    /// indefinitely — once the keys are gone the loop is a no-op.
+    private static func purgeLegacyDefaults() {
+        let defaults = UserDefaults.standard
+        let prefixes = ["FilterCache.homeItems.", "FilterCache.smart.", "FilterCache.catalog."]
+        for key in defaults.dictionaryRepresentation().keys
+        where prefixes.contains(where: key.hasPrefix) {
+            defaults.removeObject(forKey: key)
         }
     }
 }
