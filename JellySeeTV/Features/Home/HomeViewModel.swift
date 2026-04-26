@@ -28,6 +28,12 @@ final class HomeViewModel {
     /// nothing the user can perceive.
     private var providerCountsComputedAt: Date?
 
+    /// Same throttle as `providerCountsComputedAt`, but for the
+    /// genre-tile pre-warm pass. The grids themselves still revalidate
+    /// against the server when opened, this just means the *first*
+    /// frame after a tap is already painted from the file cache.
+    private var genreCachesComputedAt: Date?
+
     /// Timestamp of the last successful loadContent(). Used by the
     /// view's onAppear to decide whether enough time has passed to
     /// refresh — otherwise new server-side content (Latest Movies,
@@ -142,6 +148,10 @@ final class HomeViewModel {
         // *before* the user has tapped each one. Throttled to one
         // run per session.
         Task { await precomputeProviderCounts() }
+        // Pre-warm the genre tile grids the same way: one Studios
+        // query per genre so the first tap renders straight from the
+        // cache instead of paying a network roundtrip.
+        Task { await precomputeGenreCaches() }
     }
 
     /// Resolves every CatalogProviders.networks tile against the
@@ -252,6 +262,77 @@ final class HomeViewModel {
                    ?? imageService.posterURL(for: sample) {
                 providerBackdrops[providerID] = url
             }
+        }
+    }
+
+    /// Pre-warms FilterCache for every genre tile currently on the
+    /// home page so the first tap on `Action`, `Comedy`, … renders
+    /// straight from disk instead of going through a Jellyfin Studios
+    /// roundtrip. Mirrors the provider precompute pattern: detached
+    /// task group with a small concurrency cap, throttled to one run
+    /// per session. The grid views still refresh against the server
+    /// when opened (stale-while-revalidate), this just paints the
+    /// first frame instantly. Gated by `genreCachesComputedAt` so
+    /// repeated Home re-appearances within a session don't re-run.
+    func precomputeGenreCaches() async {
+        if genreCachesComputedAt != nil { return }
+        // Wait until tagRows is populated. loadContent + this method
+        // are both kicked off from the same Task.detached point so
+        // they can race; if loadContent hasn't finished yet, just
+        // bail and let the next caller (or the next Home appearance)
+        // pick it up. Cheap enough that we don't bother retrying.
+        let genreNames: [String] = tagRows
+            .filter { $0.type == .genres }
+            .flatMap { $0.tags.map(\.name) }
+        if genreNames.isEmpty { return }
+        genreCachesComputedAt = Date()
+
+        let lib = libraryService
+        let uid = userID
+
+        let resolved: [(String, [JellyfinItem])] = await Task.detached(priority: .utility) {
+            await withTaskGroup(
+                of: (String, [JellyfinItem]).self,
+                returning: [(String, [JellyfinItem])].self
+            ) { group in
+                var iter = genreNames.makeIterator()
+                let maxConcurrent = 4
+
+                func enqueue(_ name: String) {
+                    group.addTask {
+                        let query = ItemQuery(
+                            includeItemTypes: [.movie, .series],
+                            sortBy: "SortName",
+                            sortOrder: "Ascending",
+                            limit: 50,
+                            genres: [name]
+                        )
+                        let items = (try? await lib.getItems(
+                            userID: uid, query: query
+                        ).items) ?? []
+                        return (name, items)
+                    }
+                }
+
+                for _ in 0..<maxConcurrent {
+                    guard let next = iter.next() else { break }
+                    enqueue(next)
+                }
+                var collected: [(String, [JellyfinItem])] = []
+                while let result = await group.next() {
+                    collected.append(result)
+                    if let next = iter.next() { enqueue(next) }
+                }
+                return collected
+            }
+        }.value
+
+        // Hop back to MainActor for the cache writes — FilterCache.shared
+        // is non-isolated but the detached closure can't see that under
+        // the project's strict-concurrency settings, so we collect the
+        // results first and persist here.
+        for (name, items) in resolved where !items.isEmpty {
+            FilterCache.shared.setHomeFilterItems(items, filterKey: "home-genre-\(name)")
         }
     }
 
