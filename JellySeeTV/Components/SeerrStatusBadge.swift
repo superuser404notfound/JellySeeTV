@@ -109,19 +109,6 @@ struct SeerrEffectiveRequestBadge: View {
         case removed
     }
 
-    /// True when Sonarr/Radarr currently has the media in its
-    /// download queue. Seerr fills `downloadStatus` from the live
-    /// Sonarr/Radarr queue at request-time, so an empty array
-    /// after the request was approved + processing means the
-    /// download was cancelled, removed, or otherwise dropped from
-    /// the queue. (Service ids alone aren't enough — Seerr keeps
-    /// those in its DB even after the queue clears.)
-    private var hasLiveDownloadQueue: Bool {
-        let active = request.media?.downloadStatus?.isEmpty == false
-        let active4k = request.media?.downloadStatus4k?.isEmpty == false
-        return active || active4k
-    }
-
     private var effective: Effective {
         switch request.status {
         case .declined: return .declined
@@ -133,30 +120,34 @@ struct SeerrEffectiveRequestBadge: View {
             // available means the file was on the server and has
             // since been removed — show .removed regardless of
             // whatever stale processing flag Seerr is carrying.
+            // This is the only state where we can detect a removal
+            // from the API alone with confidence.
             switch request.media?.status {
             case .available: return .available
             case .partiallyAvailable: return .partiallyAvailable
             default: return .removed
             }
         case .approved:
+            // For an in-flight request we trust Seerr's status as-
+            // is. We tried inferring "cancelled mid-download" from
+            // an empty Sonarr download queue, but that signal is
+            // shared with several legitimate states — a TV show
+            // monitored for episodes that haven't aired yet, a
+            // movie waiting for a release date, anything Sonarr is
+            // searching for but hasn't started downloading. We
+            // can't tell those apart from a genuine cancellation
+            // without polling history we don't keep, so the
+            // tradeoff is: show "Wird heruntergeladen" for the
+            // ambiguous cases (matches Seerr's own UI) and accept
+            // that an abandoned request stays on that label until
+            // Seerr's reconciliation picks it up or the user
+            // clears it manually.
             switch request.media?.status {
             case .available: return .available
-            case .partiallyAvailable:
-                return hasLiveDownloadQueue ? .partiallyAvailable : .removed
-            case .processing:
-                // Sonarr/Radarr still has it in queue → genuine
-                // download in flight. Queue empty → user / admin
-                // removed it during the download (the user-visible
-                // bug we're chasing here: "wird verarbeitet obwohl
-                // längst entfernt während des downloads").
-                return hasLiveDownloadQueue ? .processing : .removed
+            case .partiallyAvailable: return .partiallyAvailable
+            case .processing: return .processing
             case .pending: return .approved
-            case .unknown, nil:
-                // Approved but Seerr hasn't reported any status
-                // yet. If a queue entry exists, Sonarr is still
-                // spinning up; otherwise the request never got
-                // off the ground or was cancelled.
-                return hasLiveDownloadQueue ? .processing : .removed
+            case .unknown, nil: return .processing
             }
         }
     }
