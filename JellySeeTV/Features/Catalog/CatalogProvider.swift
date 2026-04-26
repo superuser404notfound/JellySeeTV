@@ -34,7 +34,30 @@ enum CatalogProviders {
     static let networks: [CatalogProvider] = [
         .init(id: 213,  name: "Netflix",          logoPath: "/wwemzKWzjKYJFfCeiB57q3r4Bcm.png"),
         .init(id: 2739, name: "Disney+",          logoPath: "/gJ8VX6JSu3ciXHuC2dDGAo2lvwM.png",
-              jellyfinStudioNames: ["Disney+", "Disney Plus", "Walt Disney Pictures", "Walt Disney Studios"]),
+              jellyfinStudioNames: [
+                  // Direct Disney+ tags (rare, but some scrapers stamp them)
+                  "Disney+", "Disney Plus",
+                  // Disney's film studios
+                  "Walt Disney Pictures", "Walt Disney Studios",
+                  "Walt Disney Animation Studios",
+                  "Pixar", "Pixar Animation Studios",
+                  "Marvel Studios", "Marvel Entertainment",
+                  "Lucasfilm", "Lucasfilm Ltd.",
+                  "Touchstone Pictures",
+                  "Searchlight Pictures", "Fox Searchlight",
+                  // 20th Century properties (acquired 2019, mostly Disney+ now)
+                  "20th Century Studios", "20th Century Fox", "Twentieth Century Fox",
+                  "20th Century Fox Television", "20th Television",
+                  // Disney's TV networks + studios — covers most kids /
+                  // family TV content (Bluey via "Ludo Studio", Modern
+                  // Family via "20th Century Fox Television", etc.)
+                  "Disney Channel", "Disney Junior", "Disney XD",
+                  "Disney Television Animation", "Walt Disney Television",
+                  "ABC Studios", "ABC Signature", "Touchstone Television",
+                  "FX Productions", "FX Networks",
+                  "National Geographic", "National Geographic Studios",
+                  "Ludo Studio",
+              ]),
         .init(id: 1024, name: "Prime Video",      logoPath: "/ifhbNuuVnlwYy5oXA5VIb2YR8AZ.png",
               jellyfinStudioNames: ["Prime Video", "Amazon Prime Video", "Amazon Studios"]),
         .init(id: 2552, name: "Apple TV+",        logoPath: "/4KAy34EHvRM25Ih8wb82AuGU7zJ.png",

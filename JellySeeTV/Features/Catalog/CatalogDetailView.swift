@@ -270,7 +270,7 @@ struct CatalogDetailView: View {
                                 season: season,
                                 isViewed: viewedSeasonNumber == season.seasonNumber,
                                 isSelectedForRequest: selectedSeasons.contains(season.seasonNumber),
-                                isAvailable: isSeasonAvailable(season),
+                                availabilityStatus: seasonStatus(season),
                                 action: { selectSeasonForViewing(season) }
                             )
                             .id(season.seasonNumber)
@@ -304,28 +304,37 @@ struct CatalogDetailView: View {
             seasons.first(where: { $0.seasonNumber == n })
         }
         HStack(spacing: 12) {
-            if let season = viewedSeason, !isSeasonAvailable(season) {
-                let isSelected = selectedSeasons.contains(season.seasonNumber)
-                Button {
-                    toggleSeason(season)
-                } label: {
+            if let season = viewedSeason {
+                if let status = seasonStatus(season) {
+                    // Already in the pipeline — show what state it's in
+                    // rather than a generic "available". The user wants
+                    // to tell "ready to play" apart from "still
+                    // downloading" or "waiting for approval".
                     Label(
-                        isSelected
-                            ? "catalog.seasons.removeFromRequest"
-                            : "catalog.seasons.addToRequest",
-                        systemImage: isSelected ? "checkmark.circle.fill" : "plus.circle"
+                        seasonStatusLabel(status),
+                        systemImage: status.systemImage
                     )
                     .font(.caption)
+                    .foregroundStyle(seasonStatusColor(status))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
+                } else {
+                    let isSelected = selectedSeasons.contains(season.seasonNumber)
+                    Button {
+                        toggleSeason(season)
+                    } label: {
+                        Label(
+                            isSelected
+                                ? "catalog.seasons.removeFromRequest"
+                                : "catalog.seasons.addToRequest",
+                            systemImage: isSelected ? "checkmark.circle.fill" : "plus.circle"
+                        )
+                        .font(.caption)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                    }
+                    .buttonStyle(SeasonChipButtonStyle())
                 }
-                .buttonStyle(SeasonChipButtonStyle())
-            } else if let season = viewedSeason, isSeasonAvailable(season) {
-                Label("catalog.seasons.alreadyAvailable", systemImage: "checkmark.circle.fill")
-                    .font(.caption)
-                    .foregroundStyle(.green)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
             }
             if hasSelectableSeasons(in: seasons) {
                 Button {
@@ -541,18 +550,58 @@ struct CatalogDetailView: View {
         tvDetail?.seasons?.filter { $0.seasonNumber > 0 }
     }
 
-    private func isSeasonAvailable(_ season: SeerrSeason) -> Bool {
-        guard let requests = tvDetail?.mediaInfo?.requests else { return false }
-        let occupiedStatuses: Set<SeerrMediaStatus> = [.available, .processing, .pending]
+    /// Returns the most-advanced known status for the given season
+    /// across all open requests, or `nil` if no request exists for it.
+    /// Used to show whether a season is already requested (and where
+    /// in the pipeline it is) rather than just a yes/no "available"
+    /// flag — the user wants to see the difference between "ready",
+    /// "downloading" and "waiting for approval".
+    private func seasonStatus(_ season: SeerrSeason) -> SeerrMediaStatus? {
+        guard let requests = tvDetail?.mediaInfo?.requests else { return nil }
+        var hasAvailable = false
+        var hasProcessing = false
+        var hasPending = false
         for request in requests {
             guard let seasons = request.seasons else { continue }
             for s in seasons where s.seasonNumber == season.seasonNumber {
-                if let status = s.status, occupiedStatuses.contains(status) {
-                    return true
+                switch s.status {
+                case .available: hasAvailable = true
+                case .processing: hasProcessing = true
+                case .pending: hasPending = true
+                default: break
                 }
             }
         }
-        return false
+        if hasAvailable { return .available }
+        if hasProcessing { return .processing }
+        if hasPending { return .pending }
+        return nil
+    }
+
+    /// Convenience wrapper — a season is "occupied" (not selectable
+    /// for a new request) whenever any pipeline status applies.
+    private func isSeasonAvailable(_ season: SeerrSeason) -> Bool {
+        seasonStatus(season) != nil
+    }
+
+    private func seasonStatusLabel(_ status: SeerrMediaStatus) -> LocalizedStringKey {
+        switch status {
+        case .available: return "catalog.seasons.alreadyAvailable"
+        case .processing: return "catalog.seasons.downloading"
+        case .pending: return "catalog.seasons.pendingApproval"
+        case .partiallyAvailable: return "catalog.status.partiallyAvailable"
+        case .unknown: return "catalog.status.unknown"
+        }
+    }
+
+    private func seasonStatusColor(_ status: SeerrMediaStatus) -> Color {
+        switch status {
+        case .available: return .green
+        case .processing: return .blue
+        case .pending: return .orange
+        case .partiallyAvailable: return .teal
+        case .unknown: return .gray
+        }
     }
 
     private func toggleSeason(_ season: SeerrSeason) {

@@ -13,16 +13,22 @@ struct CatalogSeasonTab: View {
     let season: SeerrSeason
     let isViewed: Bool
     let isSelectedForRequest: Bool
-    let isAvailable: Bool
+    /// Active pipeline status for this season, or `nil` when no
+    /// request exists yet. `.available` → green check, `.processing`
+    /// → blue spinner-ish icon, `.pending` → orange clock. Earlier
+    /// versions collapsed all three into a single green check, which
+    /// hid the difference between "ready to play" and "waiting for
+    /// the admin to approve" — a meaningful distinction for the user.
+    let availabilityStatus: SeerrMediaStatus?
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 8) {
-                if isAvailable {
-                    Image(systemName: "checkmark.circle.fill")
+                if let status = availabilityStatus {
+                    Image(systemName: status.systemImage)
                         .font(.caption)
-                        .foregroundStyle(.green)
+                        .foregroundStyle(statusColor(status))
                 } else if isSelectedForRequest {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.caption)
@@ -46,9 +52,21 @@ struct CatalogSeasonTab: View {
 
     private var background: some ShapeStyle {
         if isViewed { return AnyShapeStyle(.tint.opacity(0.35)) }
-        if isAvailable { return AnyShapeStyle(.green.opacity(0.18)) }
+        if let status = availabilityStatus {
+            return AnyShapeStyle(statusColor(status).opacity(0.18))
+        }
         if isSelectedForRequest { return AnyShapeStyle(.tint.opacity(0.18)) }
         return AnyShapeStyle(.white.opacity(0.08))
+    }
+
+    private func statusColor(_ status: SeerrMediaStatus) -> Color {
+        switch status {
+        case .available: return .green
+        case .processing: return .blue
+        case .pending: return .orange
+        case .partiallyAvailable: return .teal
+        case .unknown: return .gray
+        }
     }
 }
 
