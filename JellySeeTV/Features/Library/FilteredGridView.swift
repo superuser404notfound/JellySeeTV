@@ -121,7 +121,7 @@ struct FilteredGridView: View {
             // free to scroll), forcing focus back to position 0
             // would yank them out of where they are.
             guard focusedItemID == nil, let firstID = items.first?.id else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            deferOnMain(by: 0.1) {
                 // Recheck at fire time — the user could have moved
                 // focus during the 100 ms gap.
                 if focusedItemID == nil {

@@ -418,7 +418,7 @@ struct SeriesDetailView: View {
                     // 30 ms latency the user perceived as "fast
                     // press needs two clicks".
                     let deferFocusWrite = { (work: @escaping () -> Void) in
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.03, execute: work)
+                        deferOnMain(by: 0.03, work)
                     }
                     switch lastFocusedArea {
                     case .episode:
@@ -524,7 +524,7 @@ struct SeriesDetailView: View {
                         if let first = vm.episodes.first {
                             episodeProxy.scrollTo(first.id, anchor: .leading)
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        deferOnMain(by: 0.15) {
                             scrollToCurrentEpisode(proxy: episodeProxy, vm: vm)
                         }
                     }
@@ -550,7 +550,7 @@ struct SeriesDetailView: View {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             episodeProxy.scrollTo(target, anchor: .center)
                         }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        deferOnMain {
                             focusedEpisodeID = target
                             pendingEpisodeFocus = nil
                         }
@@ -567,7 +567,7 @@ struct SeriesDetailView: View {
     private func scrollToCurrentEpisode(proxy: ScrollViewProxy, vm: DetailViewModel) {
         guard let currentID = vm.currentEpisodeID,
               vm.episodes.contains(where: { $0.id == currentID }) else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        deferOnMain(by: 0.1) {
             withAnimation(.easeInOut(duration: 0.3)) {
                 proxy.scrollTo(currentID, anchor: .center)
             }

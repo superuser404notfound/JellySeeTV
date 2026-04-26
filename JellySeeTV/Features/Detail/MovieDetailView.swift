@@ -41,7 +41,7 @@ struct MovieDetailView: View {
         }
         .onChange(of: showPlayer) { _, isPlaying in
             if !isPlaying {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                deferOnMain(by: 0.1) {
                     playButtonFocused = true
                 }
             }
