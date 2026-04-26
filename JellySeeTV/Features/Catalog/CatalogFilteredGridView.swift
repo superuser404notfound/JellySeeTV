@@ -8,6 +8,7 @@ struct CatalogFilteredGridView: View {
     let filter: CatalogFilter
 
     @Environment(\.dependencies) private var dependencies
+    @Environment(\.dismiss) private var dismiss
 
     @State private var items: [SeerrMedia]
     @State private var page: Int
@@ -57,10 +58,11 @@ struct CatalogFilteredGridView: View {
                     .padding(.top, 40)
 
                 if items.isEmpty && (isLoadingMore || isRefreshing) {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 400)
+                    loadingState
                 } else if let errorMessage, items.isEmpty {
                     errorState(message: errorMessage)
+                } else if items.isEmpty {
+                    emptyState
                 } else {
                     LazyVGrid(columns: columns, spacing: 40) {
                         ForEach(items) { media in
@@ -214,7 +216,7 @@ struct CatalogFilteredGridView: View {
     }
 
     private func errorState(message: String) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
@@ -222,6 +224,43 @@ struct CatalogFilteredGridView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 600)
+            // Without this Button the empty/error state has no
+            // focusable element, so the Menu button on the Siri
+            // Remote escapes the navigation stack and quits the app
+            // instead of popping back to the catalog.
+            Button { dismiss() } label: {
+                Text("common.back")
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
+    }
+
+    /// Shown when the filter genuinely has zero matches (e.g. a
+    /// streaming-service tile whose region currently has no titles
+    /// in the local discover endpoints). Same focusable back-button
+    /// pattern as `errorState` so Menu pops back instead of quitting.
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "film")
+                .font(.system(size: 40))
+                .foregroundStyle(.tertiary)
+            Text("search.empty.noResults")
+                .foregroundStyle(.secondary)
+            Button { dismiss() } label: {
+                Text("common.back")
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 400)
+    }
+
+    /// Loading state with an invisible focusable button so the Menu
+    /// remote button still has somewhere to land — without it, a tap
+    /// during the initial network roundtrip would quit the app.
+    private var loadingState: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+            Button("") { dismiss() }
+                .opacity(0)
         }
         .frame(maxWidth: .infinity, minHeight: 400)
     }
