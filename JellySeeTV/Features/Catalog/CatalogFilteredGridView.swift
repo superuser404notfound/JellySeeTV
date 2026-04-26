@@ -117,6 +117,23 @@ struct CatalogFilteredGridView: View {
             case .tvNetwork(let id, _):
                 result = try await dependencies.seerrDiscoverService
                     .tvByNetwork(networkID: id, page: nextPage)
+            case .streamingService(let providerID, _, let region):
+                // Fetch movies and TV in parallel from the watch-
+                // providers endpoint, merge results. Both endpoints
+                // independently paginate; we mirror the slowest of
+                // the two as the page/totalPages so neither side
+                // gets cut off prematurely.
+                async let moviesTask = dependencies.seerrDiscoverService
+                    .moviesByWatchProvider(providerID: providerID, region: region, page: nextPage)
+                async let tvTask = dependencies.seerrDiscoverService
+                    .tvByWatchProvider(providerID: providerID, region: region, page: nextPage)
+                let (movies, tv) = try await (moviesTask, tvTask)
+                result = SeerrDiscoverResult(
+                    page: nextPage,
+                    totalPages: max(movies.totalPages, tv.totalPages),
+                    totalResults: movies.totalResults + tv.totalResults,
+                    results: movies.results + tv.results
+                )
             }
 
             let existing = Set(items.map(\.stableKey))

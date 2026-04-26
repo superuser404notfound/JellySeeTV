@@ -90,7 +90,22 @@ struct CatalogDiscoverView: View {
                             titleKey: "catalog.section.networks",
                             providers: CatalogProviders.networks,
                             onSelect: { provider in
-                                onSelectFilter(.tvNetwork(id: provider.id, name: provider.name))
+                                // Prefer the live watch-providers
+                                // filter (movies + tv together) when
+                                // we know the streamer's TMDB id;
+                                // fall back to the TV-only network
+                                // endpoint for broadcast networks
+                                // (ABC, NBC, CBS) that have no
+                                // watch-provider concept.
+                                if let providerID = provider.tmdbWatchProviderID {
+                                    onSelectFilter(.streamingService(
+                                        tmdbWatchProviderID: providerID,
+                                        name: provider.name,
+                                        region: Locale.current.region?.identifier ?? "US"
+                                    ))
+                                } else {
+                                    onSelectFilter(.tvNetwork(id: provider.id, name: provider.name))
+                                }
                             },
                             backdropFor: { provider in
                                 SeerrImageURL.backdrop(path: viewModel.networkBackdrops[provider.id], size: .w780)
