@@ -113,7 +113,7 @@ enum CatalogProviders {
         .init(id: 13,   name: "Nickelodeon",      logoPath: "/ikZXxg6GnwpzqiZbRPhJGaZapqB.png"),
         .init(id: 3353, name: "Peacock",          logoPath: "/gIAcGTjKKr0KOHL5s4O36roJ8p7.png",
               tmdbWatchProviderID: 386),
-        .init(id: 283,  name: "Crunchyroll",      logoPath: "/aVS8PuDB9IZKBBmFDHQAbe93Hht.png",
+        .init(id: 1112, name: "Crunchyroll",      logoPath: "/qqyXcZlJQKlRmAD1TCKV7mGLQlt.png",
               jellyfinStudioNames: ["Crunchyroll", "Funimation"],
               tmdbWatchProviderID: 283),
 
@@ -122,40 +122,40 @@ enum CatalogProviders {
         // global cinephile and free-AVOD audiences).
 
         // MUBI — global arthouse / cinephile streamer
-        .init(id: 1003, name: "MUBI",             logoPath: "/aaiV9wEFw3RH5n7gmJsdLZAvVtV.png",
+        .init(id: 8303, name: "MUBI",             logoPath: "/ltHubSF7YTefDDE62BNlxROYnxc.png",
               tmdbWatchProviderID: 11),
         // Sky — DACH + UK premium. Studio aliases cover the various
         // Sky entities libraries actually tag (Sky Studios, Sky
         // Atlantic for the in-house drama label, etc.)
-        .init(id: 4267, name: "Sky",              logoPath: "/SiNquBz5JEYbtN9NVx0r6ofvd1k.png",
+        .init(id: 5136, name: "Sky",              logoPath: "/1CN2IC17eLZZWV13X2rO4304dGG.png",
               jellyfinStudioNames: ["Sky", "Sky Studios", "Sky UK", "Sky Deutschland", "Sky Atlantic"],
               tmdbWatchProviderID: 29),
         // Viaplay — Nordic default streamer (NO/SE/DK/FI)
-        .init(id: 4126, name: "Viaplay",          logoPath: "/jKQAjE3MN5HypTYAkWb9RIbeyg6.png",
+        .init(id: 2869, name: "Viaplay",          logoPath: "/zs2yhnfMzRLoRtZgGRf41mqrLL0.png",
               tmdbWatchProviderID: 76),
         // BBC iPlayer — the streaming app, distinct from the BBC One
         // broadcaster tile above. Catches UK shows whose Studios tag
         // is just "BBC" rather than the specific channel.
-        .init(id: 38,   name: "BBC iPlayer",      logoPath: "/jakAJlLKXxvfBoXzv1zKaeP3yJF.png",
+        .init(id: 1155, name: "BBC iPlayer",      logoPath: "/an0NpVNUK445AWDQTaLIFuL3isE.png",
               jellyfinStudioNames: ["BBC iPlayer", "BBC", "BBC Studios"],
               tmdbWatchProviderID: 38),
         // Canal+ — France premium
-        .init(id: 5949, name: "Canal+",           logoPath: "/iqyJ2g5Lqf4SIfNdDkkwYQ2dPAi.png",
+        .init(id: 285,  name: "Canal+",           logoPath: "/9aotxauvc9685tq9pTcRJszuT06.png",
               jellyfinStudioNames: ["Canal+", "Canal Plus"],
               tmdbWatchProviderID: 381),
         // Disney+ Hotstar — India (separate from global Disney+;
         // different content lineup and watch-provider entry).
-        .init(id: 1063, name: "Hotstar",          logoPath: "/yi42dh5p35WtdJzfCrvAEoGOdMA.png",
+        .init(id: 3919, name: "Hotstar",          logoPath: "/eBa3TplonEHlR6S2wjJ616KnwIh.png",
               jellyfinStudioNames: ["Hotstar", "Disney+ Hotstar", "Star India"],
               tmdbWatchProviderID: 122),
         // U-NEXT — Japan's largest non-anime streamer
-        .init(id: 4023, name: "U-NEXT",           logoPath: "/zGu1KGVfMgI19WlAa0qMt2unwzQ.png",
+        .init(id: 3869, name: "U-NEXT",           logoPath: "/4g6nXkkCQ31MrJG8Ud1fgxlQb36.png",
               tmdbWatchProviderID: 84),
         // Tubi — global free AVOD (Fox-owned)
-        .init(id: 73,   name: "Tubi",             logoPath: "/cZ7FbiPiIbKXX4cBnsbqEtLRbLP.png",
+        .init(id: 5187, name: "Tubi",             logoPath: "/8OAFRLPQ4w888UDkDtnXpdnRfEQ.png",
               tmdbWatchProviderID: 73),
         // Pluto TV — global free AVOD (Paramount-owned)
-        .init(id: 300,  name: "Pluto TV",         logoPath: "/cMzREZJsyDJpWiF0e8VpbxCaHEs.png",
+        .init(id: 3245, name: "Pluto TV",         logoPath: "/6xI75dFULiEks0Dqm3Uag7CiC29.png",
               tmdbWatchProviderID: 300),
     ]
 
