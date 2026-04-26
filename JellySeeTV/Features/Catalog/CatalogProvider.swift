@@ -21,18 +21,35 @@ struct CatalogProvider: Identifiable, Hashable, Sendable {
     /// stamped the item. Joined with `|` they OR together inside
     /// Jellyfin's Studios query parameter.
     let jellyfinStudioNames: [String]
+    /// TMDB watch-provider id for the streaming service this entry
+    /// represents. Different from `id` (which is the network/studio
+    /// id) — TMDB tracks "this title is on Netflix" with provider
+    /// id 8, "on Disney+" with 337, etc. Used to ask Jellyseerr's
+    /// `/discover/{movies|tv}?watchProviders=…&watchRegion=…` for
+    /// the live list of titles streaming on this service in the
+    /// user's region. nil → no smart-filter augmentation, fall back
+    /// to studio-name match alone.
+    let tmdbWatchProviderID: Int?
 
-    init(id: Int, name: String, logoPath: String, jellyfinStudioNames: [String]? = nil) {
+    init(
+        id: Int,
+        name: String,
+        logoPath: String,
+        jellyfinStudioNames: [String]? = nil,
+        tmdbWatchProviderID: Int? = nil
+    ) {
         self.id = id
         self.name = name
         self.logoPath = logoPath
         self.jellyfinStudioNames = jellyfinStudioNames ?? [name]
+        self.tmdbWatchProviderID = tmdbWatchProviderID
     }
 }
 
 enum CatalogProviders {
     static let networks: [CatalogProvider] = [
-        .init(id: 213,  name: "Netflix",          logoPath: "/wwemzKWzjKYJFfCeiB57q3r4Bcm.png"),
+        .init(id: 213,  name: "Netflix",          logoPath: "/wwemzKWzjKYJFfCeiB57q3r4Bcm.png",
+              tmdbWatchProviderID: 8),
         .init(id: 2739, name: "Disney+",          logoPath: "/gJ8VX6JSu3ciXHuC2dDGAo2lvwM.png",
               jellyfinStudioNames: [
                   // Direct Disney+ tags (rare, but some scrapers stamp them)
@@ -57,16 +74,22 @@ enum CatalogProviders {
                   "FX Productions", "FX Networks",
                   "National Geographic", "National Geographic Studios",
                   "Ludo Studio",
-              ]),
+              ],
+              tmdbWatchProviderID: 337),
         .init(id: 1024, name: "Prime Video",      logoPath: "/ifhbNuuVnlwYy5oXA5VIb2YR8AZ.png",
-              jellyfinStudioNames: ["Prime Video", "Amazon Prime Video", "Amazon Studios"]),
+              jellyfinStudioNames: ["Prime Video", "Amazon Prime Video", "Amazon Studios"],
+              tmdbWatchProviderID: 119),
         .init(id: 2552, name: "Apple TV+",        logoPath: "/4KAy34EHvRM25Ih8wb82AuGU7zJ.png",
-              jellyfinStudioNames: ["Apple TV+", "Apple TV Plus", "Apple Studios"]),
-        .init(id: 453,  name: "Hulu",             logoPath: "/pqUTCleNUiTLAVlelGxUgWn1ELh.png"),
+              jellyfinStudioNames: ["Apple TV+", "Apple TV Plus", "Apple Studios"],
+              tmdbWatchProviderID: 350),
+        .init(id: 453,  name: "Hulu",             logoPath: "/pqUTCleNUiTLAVlelGxUgWn1ELh.png",
+              tmdbWatchProviderID: 15),
         .init(id: 49,   name: "HBO",              logoPath: "/tuomPhY2UtuPTqqFnKMVHvSb724.png",
-              jellyfinStudioNames: ["HBO", "HBO Max", "Max"]),
+              jellyfinStudioNames: ["HBO", "HBO Max", "Max"],
+              tmdbWatchProviderID: 1899),
         .init(id: 4353, name: "Discovery+",       logoPath: "/1D1bS3Dyw4ScYnFWTlBOvJXC3nb.png",
-              jellyfinStudioNames: ["Discovery+", "Discovery Plus"]),
+              jellyfinStudioNames: ["Discovery+", "Discovery Plus"],
+              tmdbWatchProviderID: 524),
         .init(id: 2,    name: "ABC",              logoPath: "/ndAvF4JLsliGreX87jAc9GdjmJY.png",
               jellyfinStudioNames: ["ABC", "ABC (US)"]),
         .init(id: 19,   name: "FOX",              logoPath: "/1DSpHrWyOORkL9N2QHX7Adt31mQ.png",
@@ -81,13 +104,15 @@ enum CatalogProviders {
         .init(id: 6,    name: "NBC",              logoPath: "/o3OedEP0f9mfZr33jz2BfXOUK5.png"),
         .init(id: 16,   name: "CBS",              logoPath: "/nm8d7P7MJNiBLdgIzUK0gkuEA4r.png"),
         .init(id: 4330, name: "Paramount+",       logoPath: "/fi83B1oztoS47xxcemFdPMhIzK.png",
-              jellyfinStudioNames: ["Paramount+", "Paramount Plus"]),
+              jellyfinStudioNames: ["Paramount+", "Paramount Plus"],
+              tmdbWatchProviderID: 531),
         .init(id: 4,    name: "BBC One",          logoPath: "/mVn7xESaTNmjBUyUtGNvDQd3CT1.png",
               jellyfinStudioNames: ["BBC One", "BBC", "BBC iPlayer", "BBC Studios"]),
         .init(id: 56,   name: "Cartoon Network",  logoPath: "/c5OC6oVCg6QP4eqzW6XIq17CQjI.png"),
         .init(id: 80,   name: "Adult Swim",       logoPath: "/9AKyspxVzywuaMuZ1Bvilu8sXly.png"),
         .init(id: 13,   name: "Nickelodeon",      logoPath: "/ikZXxg6GnwpzqiZbRPhJGaZapqB.png"),
-        .init(id: 3353, name: "Peacock",          logoPath: "/gIAcGTjKKr0KOHL5s4O36roJ8p7.png"),
+        .init(id: 3353, name: "Peacock",          logoPath: "/gIAcGTjKKr0KOHL5s4O36roJ8p7.png",
+              tmdbWatchProviderID: 386),
     ]
 
     static let studios: [CatalogProvider] = [

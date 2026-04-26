@@ -10,6 +10,8 @@ protocol SeerrDiscoverServiceProtocol: Sendable {
     func tvByGenre(genreID: Int, page: Int) async throws -> SeerrDiscoverResult
     func moviesByStudio(studioID: Int, page: Int) async throws -> SeerrDiscoverResult
     func tvByNetwork(networkID: Int, page: Int) async throws -> SeerrDiscoverResult
+    func moviesByWatchProvider(providerID: Int, region: String, page: Int) async throws -> SeerrDiscoverResult
+    func tvByWatchProvider(providerID: Int, region: String, page: Int) async throws -> SeerrDiscoverResult
     func movieGenres() async throws -> [SeerrGenreSlide]
     func tvGenres() async throws -> [SeerrGenreSlide]
 }
@@ -81,6 +83,20 @@ final class SeerrDiscoverService: SeerrDiscoverServiceProtocol {
     func tvByNetwork(networkID: Int, page: Int = 1) async throws -> SeerrDiscoverResult {
         try await client.request(
             endpoint: SeerrEndpoint.discoverTVByNetwork(networkID: networkID, page: page),
+            responseType: SeerrDiscoverResult.self
+        )
+    }
+
+    func moviesByWatchProvider(providerID: Int, region: String, page: Int = 1) async throws -> SeerrDiscoverResult {
+        try await client.request(
+            endpoint: SeerrEndpoint.discoverMoviesByWatchProvider(providerID: providerID, region: region, page: page),
+            responseType: SeerrDiscoverResult.self
+        )
+    }
+
+    func tvByWatchProvider(providerID: Int, region: String, page: Int = 1) async throws -> SeerrDiscoverResult {
+        try await client.request(
+            endpoint: SeerrEndpoint.discoverTVByWatchProvider(providerID: providerID, region: region, page: page),
             responseType: SeerrDiscoverResult.self
         )
     }

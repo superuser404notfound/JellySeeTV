@@ -262,6 +262,12 @@ struct ItemQuery: Sendable {
     var genres: [String]?
     var studioNames: [String]?
     var isFavorite: Bool?
+    /// Single-value provider-id match like "tmdb.123" — used by the
+    /// home-page smart provider filter to look up library items by
+    /// TMDB id one at a time. Jellyfin's `AnyProviderIdEquals`
+    /// accepts only a single value, so multi-id lookups have to be
+    /// fanned out as parallel queries with this field.
+    var anyProviderIdEquals: String?
     var fields: String?
 
     func toQueryItems() -> [URLQueryItem] {
@@ -283,6 +289,9 @@ struct ItemQuery: Sendable {
             items.append(URLQueryItem(name: "Studios", value: studioNames.joined(separator: "|")))
         }
         if let isFavorite { items.append(URLQueryItem(name: "IsFavorite", value: String(isFavorite))) }
+        if let anyProviderIdEquals {
+            items.append(URLQueryItem(name: "AnyProviderIdEquals", value: anyProviderIdEquals))
+        }
 
         let fields = fields ?? JellyfinEndpoint.defaultFields
         items.append(URLQueryItem(name: "Fields", value: fields))

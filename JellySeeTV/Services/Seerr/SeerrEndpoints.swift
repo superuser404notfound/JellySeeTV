@@ -23,6 +23,8 @@ enum SeerrEndpoint: APIEndpoint {
     case movieDetail(tmdbID: Int)
     case tvDetail(tmdbID: Int)
     case tvSeasonDetail(tmdbID: Int, seasonNumber: Int)
+    case discoverMoviesByWatchProvider(providerID: Int, region: String, page: Int)
+    case discoverTVByWatchProvider(providerID: Int, region: String, page: Int)
 
     case createRequest(body: SeerrCreateRequestBody)
     case myRequests(userID: Int, take: Int, skip: Int)
@@ -53,6 +55,8 @@ enum SeerrEndpoint: APIEndpoint {
         case .movieDetail(let id): "/api/v1/movie/\(id)"
         case .tvDetail(let id): "/api/v1/tv/\(id)"
         case .tvSeasonDetail(let id, let n): "/api/v1/tv/\(id)/season/\(n)"
+        case .discoverMoviesByWatchProvider: "/api/v1/discover/movies"
+        case .discoverTVByWatchProvider: "/api/v1/discover/tv"
         case .createRequest: "/api/v1/request"
         case .myRequests: "/api/v1/request"
         case .radarrServers: "/api/v1/service/radarr"
@@ -84,6 +88,14 @@ enum SeerrEndpoint: APIEndpoint {
              .discoverMoviesByStudio(_, let page),
              .discoverTVByNetwork(_, let page):
             return [URLQueryItem(name: "page", value: String(page))]
+
+        case .discoverMoviesByWatchProvider(let providerID, let region, let page),
+             .discoverTVByWatchProvider(let providerID, let region, let page):
+            return [
+                URLQueryItem(name: "page", value: String(page)),
+                URLQueryItem(name: "watchProviders", value: String(providerID)),
+                URLQueryItem(name: "watchRegion", value: region),
+            ]
 
         case .search(let query, let page):
             return [

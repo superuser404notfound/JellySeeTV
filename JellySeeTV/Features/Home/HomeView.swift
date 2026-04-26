@@ -41,7 +41,12 @@ struct HomeView: View {
                 DetailRouterView(item: item)
             }
             .navigationDestination(item: $selectedFilter) { filter in
-                FilteredGridView(title: filter.title, query: filter.query)
+                FilteredGridView(
+                    title: filter.title,
+                    query: filter.query,
+                    smartProviderID: filter.smartProviderID,
+                    smartProviderRegion: filter.smartProviderRegion
+                )
             }
         }
         .onAppear {
@@ -143,16 +148,22 @@ struct HomeView: View {
         // by Studio rather than pushing the Jellyseerr discover page.
         // Multiple aliases are pipe-joined in JellyfinEndpoints, so a
         // user whose scraper tagged some items "Disney+" and others
-        // "Walt Disney Pictures" gets both in one row.
+        // "Walt Disney Pictures" gets both in one row. The smart-
+        // provider hint augments that with TMDB's live watch-provider
+        // data so titles whose Studios tag doesn't betray the streamer
+        // still surface (Modern Family on Disney+, Bluey via Ludo
+        // Studio, …).
         FilterDestination(
             title: provider.name,
             query: ItemQuery(
                 includeItemTypes: [.movie, .series],
                 sortBy: "SortName",
                 sortOrder: "Ascending",
-                limit: 50,
+                limit: 200,
                 studioNames: provider.jellyfinStudioNames
-            )
+            ),
+            smartProviderID: provider.tmdbWatchProviderID,
+            smartProviderRegion: Locale.current.region?.identifier ?? "US"
         )
     }
 
@@ -179,6 +190,19 @@ struct FilterDestination: Identifiable, Hashable {
     let id = UUID()
     let title: String
     let query: ItemQuery
+    /// Optional TMDB watch-provider id used to augment the studio-
+    /// name filter with the live "what's actually streaming on this
+    /// service right now" list from Jellyseerr — picks up titles
+    /// whose Studios tag in Jellyfin doesn't betray the streamer
+    /// (Modern Family on Disney+, Bluey via Ludo Studio, Suits on
+    /// Netflix even though the studio is Universal, …). nil → only
+    /// the studio match runs.
+    var smartProviderID: Int?
+    /// ISO 3166-1 alpha-2 region used with `smartProviderID`. TMDB's
+    /// watch-provider data is region-specific (Disney+ in DE has
+    /// different titles than Disney+ in US), so we always pin to a
+    /// concrete region — defaulting to the user's `Locale.current`.
+    var smartProviderRegion: String?
 }
 
 extension ItemQuery: Hashable {
