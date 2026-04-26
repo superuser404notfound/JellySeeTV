@@ -113,6 +113,9 @@ enum CatalogProviders {
         .init(id: 13,   name: "Nickelodeon",      logoPath: "/ikZXxg6GnwpzqiZbRPhJGaZapqB.png"),
         .init(id: 3353, name: "Peacock",          logoPath: "/gIAcGTjKKr0KOHL5s4O36roJ8p7.png",
               tmdbWatchProviderID: 386),
+        .init(id: 283,  name: "Crunchyroll",      logoPath: "/aVS8PuDB9IZKBBmFDHQAbe93Hht.png",
+              jellyfinStudioNames: ["Crunchyroll", "Funimation"],
+              tmdbWatchProviderID: 283),
     ]
 
     static let studios: [CatalogProvider] = [
