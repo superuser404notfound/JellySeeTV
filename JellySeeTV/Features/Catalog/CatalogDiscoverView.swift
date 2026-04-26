@@ -93,9 +93,11 @@ struct CatalogDiscoverView: View {
                         let visibleNetworks = CatalogProviders.networks.filter { provider in
                             let key: String
                             if let id = provider.tmdbWatchProviderID {
-                                key = "streamingService-\(id)-\(region)"
+                                key = FilterCacheKey.Catalog.streamingService(
+                                    watchProviderID: id, region: region
+                                )
                             } else {
-                                key = "tvNetwork-\(provider.id)"
+                                key = FilterCacheKey.Catalog.tvNetwork(id: provider.id)
                             }
                             let count = FilterCache.shared.catalogPage(filterKey: key)?.items.count
                             return count == nil || count! > 0
@@ -128,7 +130,7 @@ struct CatalogDiscoverView: View {
                             )
                         }
                         let visibleStudios = CatalogProviders.studios.filter { provider in
-                            let key = "movieStudio-\(provider.id)"
+                            let key = FilterCacheKey.Catalog.movieStudio(id: provider.id)
                             let count = FilterCache.shared.catalogPage(filterKey: key)?.items.count
                             return count == nil || count! > 0
                         }

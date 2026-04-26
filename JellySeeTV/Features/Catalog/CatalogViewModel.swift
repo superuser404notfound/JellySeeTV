@@ -191,7 +191,9 @@ final class CatalogViewModel {
                         return ProviderResolveResult(
                             kind: .network,
                             displayID: provider.id,
-                            cacheKey: "streamingService-\(watchID)-\(region)",
+                            cacheKey: FilterCacheKey.Catalog.streamingService(
+                                watchProviderID: watchID, region: region
+                            ),
                             items: merged,
                             totalPages: max(totalPages, 1),
                             backdrop: backdrop
@@ -203,7 +205,7 @@ final class CatalogViewModel {
                         return ProviderResolveResult(
                             kind: .network,
                             displayID: provider.id,
-                            cacheKey: "tvNetwork-\(provider.id)",
+                            cacheKey: FilterCacheKey.Catalog.tvNetwork(id: provider.id),
                             items: result?.results ?? [],
                             totalPages: max(result?.totalPages ?? 1, 1),
                             backdrop: result?.results.first(where: { $0.backdropPath != nil })?.backdropPath
@@ -219,7 +221,7 @@ final class CatalogViewModel {
                     return ProviderResolveResult(
                         kind: .studio,
                         displayID: provider.id,
-                        cacheKey: "movieStudio-\(provider.id)",
+                        cacheKey: FilterCacheKey.Catalog.movieStudio(id: provider.id),
                         items: result?.results ?? [],
                         totalPages: max(result?.totalPages ?? 1, 1),
                         backdrop: result?.results.first(where: { $0.backdropPath != nil })?.backdropPath

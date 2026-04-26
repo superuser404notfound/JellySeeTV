@@ -36,11 +36,12 @@ enum CatalogFilter: Hashable, Sendable {
     /// scoped to the region they came from.
     var cacheKey: String {
         switch self {
-        case .movieGenre(let id, _): return "movieGenre-\(id)"
-        case .tvGenre(let id, _): return "tvGenre-\(id)"
-        case .movieStudio(let id, _): return "movieStudio-\(id)"
-        case .tvNetwork(let id, _): return "tvNetwork-\(id)"
-        case .streamingService(let id, _, let region): return "streamingService-\(id)-\(region)"
+        case .movieGenre(let id, _): return FilterCacheKey.Catalog.movieGenre(id: id)
+        case .tvGenre(let id, _): return FilterCacheKey.Catalog.tvGenre(id: id)
+        case .movieStudio(let id, _): return FilterCacheKey.Catalog.movieStudio(id: id)
+        case .tvNetwork(let id, _): return FilterCacheKey.Catalog.tvNetwork(id: id)
+        case .streamingService(let id, _, let region):
+            return FilterCacheKey.Catalog.streamingService(watchProviderID: id, region: region)
         }
     }
 }

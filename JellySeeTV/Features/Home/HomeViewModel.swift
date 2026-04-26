@@ -249,7 +249,8 @@ final class HomeViewModel {
         for (providerID, items) in resolved {
             providerItemCounts[providerID] = items.count
             FilterCache.shared.setHomeFilterItems(
-                items, filterKey: "home-\(providerID)-\(region)"
+                items,
+                filterKey: FilterCacheKey.Home.provider(id: providerID, region: region)
             )
             // Backfill the backdrop only if the fast studio-only
             // pass didn't already set one — the precompute resolver
@@ -332,7 +333,9 @@ final class HomeViewModel {
         // the project's strict-concurrency settings, so we collect the
         // results first and persist here.
         for (name, items) in resolved where !items.isEmpty {
-            FilterCache.shared.setHomeFilterItems(items, filterKey: "home-genre-\(name)")
+            FilterCache.shared.setHomeFilterItems(
+                items, filterKey: FilterCacheKey.Home.genre(name: name)
+            )
         }
     }
 

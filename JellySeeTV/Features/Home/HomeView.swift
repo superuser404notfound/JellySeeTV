@@ -191,13 +191,12 @@ struct HomeView: View {
         )
     }
 
-    /// Single source of truth for the cache key shared between the
-    /// FilteredGridView (read + write) and HomeView's empty-tile-hide
-    /// filter (read). Region is in there so a Swiss/UK/US user
-    /// doesn't see a Disney+ result cached in DE — TMDB watch-
-    /// providers are region-specific.
+    /// Convenience that pulls the right key out of the central
+    /// `FilterCacheKey.Home` namespace — kept here so existing call
+    /// sites that pass a `CatalogProvider` don't have to reach into
+    /// the provider's id field themselves.
     static func providerCacheKey(provider: CatalogProvider, region: String) -> String {
-        "home-\(provider.id)-\(region)"
+        FilterCacheKey.Home.provider(id: provider.id, region: region)
     }
 
     private func makeFilter(for tag: TagCardData, type: HomeRowType) -> FilterDestination {
@@ -218,13 +217,13 @@ struct HomeView: View {
                 // kurz" the user perceives every time they open a
                 // genre tile. Tag name is the differentiator (Action,
                 // Comedy, Drama, …) so it's a stable enough key.
-                cacheKey: "home-genre-\(tag.name)"
+                cacheKey: FilterCacheKey.Home.genre(name: tag.name)
             )
         default:
             FilterDestination(
                 title: tag.name,
                 query: ItemQuery(),
-                cacheKey: "home-tag-\(tag.name)"
+                cacheKey: FilterCacheKey.Home.tag(name: tag.name)
             )
         }
     }
