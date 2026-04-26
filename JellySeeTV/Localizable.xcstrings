@@ -29017,99 +29017,6 @@
         }
       }
     },
-    "settings.playback.atmosAudioDelay": {
-      "extractionState": "manual",
-      "localizations": {
-        "cs": { "stringUnit": { "state": "translated", "value": "Zpoždění Atmos audia" } },
-        "da": { "stringUnit": { "state": "translated", "value": "Atmos lydforsinkelse" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Atmos-Audio-Verzögerung" } },
-        "el": { "stringUnit": { "state": "translated", "value": "Καθυστέρηση ήχου Atmos" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Atmos Audio Delay" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Retardo de audio Atmos" } },
-        "fi": { "stringUnit": { "state": "translated", "value": "Atmos-äänen viive" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Délai audio Atmos" } },
-        "hr": { "stringUnit": { "state": "translated", "value": "Kašnjenje Atmos zvuka" } },
-        "hu": { "stringUnit": { "state": "translated", "value": "Atmos hangkésleltetés" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Ritardo audio Atmos" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "Atmos オーディオ遅延" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "Atmos 오디오 지연" } },
-        "nb": { "stringUnit": { "state": "translated", "value": "Atmos lydforsinkelse" } },
-        "nl": { "stringUnit": { "state": "translated", "value": "Atmos-audiovertraging" } },
-        "pl": { "stringUnit": { "state": "translated", "value": "Opóźnienie dźwięku Atmos" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Atraso de áudio Atmos" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Atraso de áudio Atmos" } },
-        "ro": { "stringUnit": { "state": "translated", "value": "Întârziere audio Atmos" } },
-        "ru": { "stringUnit": { "state": "translated", "value": "Задержка звука Atmos" } },
-        "sk": { "stringUnit": { "state": "translated", "value": "Oneskorenie Atmos zvuku" } },
-        "sv": { "stringUnit": { "state": "translated", "value": "Atmos-ljudfördröjning" } },
-        "tr": { "stringUnit": { "state": "translated", "value": "Atmos ses gecikmesi" } },
-        "uk": { "stringUnit": { "state": "translated", "value": "Затримка звуку Atmos" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Atmos 音频延迟" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Atmos 音訊延遲" } }
-      }
-    },
-    "settings.playback.atmosAudioDelay.off": {
-      "extractionState": "manual",
-      "localizations": {
-        "cs": { "stringUnit": { "state": "translated", "value": "Vypnuto" } },
-        "da": { "stringUnit": { "state": "translated", "value": "Fra" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Aus" } },
-        "el": { "stringUnit": { "state": "translated", "value": "Ανενεργό" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Off" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Desactivado" } },
-        "fi": { "stringUnit": { "state": "translated", "value": "Pois" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Désactivé" } },
-        "hr": { "stringUnit": { "state": "translated", "value": "Isključeno" } },
-        "hu": { "stringUnit": { "state": "translated", "value": "Ki" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Disattivato" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "オフ" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "끔" } },
-        "nb": { "stringUnit": { "state": "translated", "value": "Av" } },
-        "nl": { "stringUnit": { "state": "translated", "value": "Uit" } },
-        "pl": { "stringUnit": { "state": "translated", "value": "Wył." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desligado" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Desligado" } },
-        "ro": { "stringUnit": { "state": "translated", "value": "Dezactivat" } },
-        "ru": { "stringUnit": { "state": "translated", "value": "Откл." } },
-        "sk": { "stringUnit": { "state": "translated", "value": "Vypnuté" } },
-        "sv": { "stringUnit": { "state": "translated", "value": "Av" } },
-        "tr": { "stringUnit": { "state": "translated", "value": "Kapalı" } },
-        "uk": { "stringUnit": { "state": "translated", "value": "Вимк." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "关闭" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "關閉" } }
-      }
-    },
-    "settings.playback.atmosAudioDelay.subtitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "cs": { "stringUnit": { "state": "translated", "value": "Kompenzuje latenci Atmos dekodéru AVR/soundbaru oddálením obrazu. Pouze EAC3+JOC." } },
-        "da": { "stringUnit": { "state": "translated", "value": "Udligner forsinkelse i AVR/soundbar Atmos-dekoder ved at forsinke billedet. Kun EAC3+JOC." } },
-        "de": { "stringUnit": { "state": "translated", "value": "Gleicht die Latenz von AVR-/Soundbar-Atmos-Decodern aus, indem das Bild verzögert wird. Nur bei EAC3+JOC-Wiedergabe." } },
-        "el": { "stringUnit": { "state": "translated", "value": "Αντισταθμίζει την καθυστέρηση του αποκωδικοποιητή Atmos AVR/soundbar καθυστερώντας την εικόνα. Μόνο EAC3+JOC." } },
-        "en": { "stringUnit": { "state": "translated", "value": "Compensate for AVR/soundbar Atmos decoder latency by delaying the picture. Only affects EAC3+JOC playback." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Compensa la latencia del decodificador Atmos del receptor o barra de sonido retrasando la imagen. Solo afecta a EAC3+JOC." } },
-        "fi": { "stringUnit": { "state": "translated", "value": "Korjaa AVR-/soundbar-Atmos-dekooderin viive viivästämällä kuvaa. Vaikuttaa vain EAC3+JOC-toistoon." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Compense la latence du décodeur Atmos d'un AVR/barre de son en retardant l'image. Concerne uniquement EAC3+JOC." } },
-        "hr": { "stringUnit": { "state": "translated", "value": "Kompenzira kašnjenje Atmos dekodera AVR-a/soundbara odgodom slike. Utječe samo na EAC3+JOC." } },
-        "hu": { "stringUnit": { "state": "translated", "value": "Kompenzálja az AVR/hangsugárzó Atmos dekóder késleltetését a kép késleltetésével. Csak EAC3+JOC lejátszást érint." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Compensa la latenza del decoder Atmos di AVR/soundbar ritardando l'immagine. Riguarda solo la riproduzione EAC3+JOC." } },
-        "ja": { "stringUnit": { "state": "translated", "value": "AVR/サウンドバーの Atmos デコーダー遅延を映像の遅延で補正します。EAC3+JOC 再生のみに適用。" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "AVR/사운드바의 Atmos 디코더 지연을 영상 지연으로 보정합니다. EAC3+JOC 재생에만 적용됩니다." } },
-        "nb": { "stringUnit": { "state": "translated", "value": "Kompenserer for Atmos-dekoderforsinkelse i AVR/lydplanke ved å forsinke bildet. Kun EAC3+JOC-avspilling." } },
-        "nl": { "stringUnit": { "state": "translated", "value": "Compenseert de latentie van AVR-/soundbar-Atmos-decoders door het beeld te vertragen. Alleen EAC3+JOC-weergave." } },
-        "pl": { "stringUnit": { "state": "translated", "value": "Kompensuje opóźnienie dekodera Atmos amplitunera/soundbara przez opóźnienie obrazu. Dotyczy tylko EAC3+JOC." } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Compensa a latência do decodificador Atmos do receiver/soundbar atrasando a imagem. Afeta apenas a reprodução EAC3+JOC." } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Compensa a latência do descodificador Atmos do recetor/soundbar atrasando a imagem. Apenas afeta a reprodução EAC3+JOC." } },
-        "ro": { "stringUnit": { "state": "translated", "value": "Compensează latența decodorului Atmos AVR/soundbar prin întârzierea imaginii. Afectează doar redarea EAC3+JOC." } },
-        "ru": { "stringUnit": { "state": "translated", "value": "Компенсирует задержку Atmos-декодера ресивера или саундбара путём задержки изображения. Только для EAC3+JOC." } },
-        "sk": { "stringUnit": { "state": "translated", "value": "Kompenzuje oneskorenie dekodéra Atmos AVR/soundbaru oddialením obrazu. Iba pre prehrávanie EAC3+JOC." } },
-        "sv": { "stringUnit": { "state": "translated", "value": "Kompenserar för fördröjning i AVR/soundbar Atmos-avkodare genom att fördröja bilden. Påverkar endast EAC3+JOC-uppspelning." } },
-        "tr": { "stringUnit": { "state": "translated", "value": "AVR/soundbar Atmos kod çözücü gecikmesini görüntüyü geciktirerek dengeler. Yalnızca EAC3+JOC oynatmayı etkiler." } },
-        "uk": { "stringUnit": { "state": "translated", "value": "Компенсує затримку Atmos-декодера ресивера або саундбара затримкою зображення. Лише для відтворення EAC3+JOC." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "通过延迟画面补偿 AVR/条形音箱的 Atmos 解码器延迟。仅影响 EAC3+JOC 播放。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "透過延遲畫面補償 AVR/聲霸的 Atmos 解碼器延遲。僅影響 EAC3+JOC 播放。" } }
-      }
-    },
     "settings.playback.autoSkipIntro": {
       "extractionState": "manual",
       "localizations": {
@@ -36863,37 +36770,6 @@
             "value": "若可用將自動開啟。"
           }
         }
-      }
-    },
-    "settings.playback.section.audio": {
-      "extractionState": "manual",
-      "localizations": {
-        "cs": { "stringUnit": { "state": "translated", "value": "Zvuk" } },
-        "da": { "stringUnit": { "state": "translated", "value": "Lyd" } },
-        "de": { "stringUnit": { "state": "translated", "value": "Audio" } },
-        "el": { "stringUnit": { "state": "translated", "value": "Ήχος" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Audio" } },
-        "es": { "stringUnit": { "state": "translated", "value": "Audio" } },
-        "fi": { "stringUnit": { "state": "translated", "value": "Ääni" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Audio" } },
-        "hr": { "stringUnit": { "state": "translated", "value": "Zvuk" } },
-        "hu": { "stringUnit": { "state": "translated", "value": "Hang" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Audio" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "オーディオ" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "오디오" } },
-        "nb": { "stringUnit": { "state": "translated", "value": "Lyd" } },
-        "nl": { "stringUnit": { "state": "translated", "value": "Audio" } },
-        "pl": { "stringUnit": { "state": "translated", "value": "Dźwięk" } },
-        "pt-BR": { "stringUnit": { "state": "translated", "value": "Áudio" } },
-        "pt-PT": { "stringUnit": { "state": "translated", "value": "Áudio" } },
-        "ro": { "stringUnit": { "state": "translated", "value": "Audio" } },
-        "ru": { "stringUnit": { "state": "translated", "value": "Аудио" } },
-        "sk": { "stringUnit": { "state": "translated", "value": "Zvuk" } },
-        "sv": { "stringUnit": { "state": "translated", "value": "Ljud" } },
-        "tr": { "stringUnit": { "state": "translated", "value": "Ses" } },
-        "uk": { "stringUnit": { "state": "translated", "value": "Аудіо" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "音频" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "音訊" } }
       }
     },
     "settings.playback.section.controls": {
