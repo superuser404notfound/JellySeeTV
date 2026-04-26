@@ -25,7 +25,7 @@ Public Beta is live. TestFlight link inside.
 ```markdown
 JellySeeTV is now in public beta on TestFlight.
 
-**Install:** https://testflight.apple.com/join/REPLACE_ME
+**Install:** https://testflight.apple.com/join/eFKDaaXr
 
 You need an Apple TV 4K running tvOS 26 or later, plus your own Jellyfin server.
 
@@ -103,7 +103,7 @@ Hey r/jellyfin,
 
 I built JellySeeTV, a native Apple TV client for Jellyfin with first class Jellyseerr integration. After several months of work it's at the point where it's stable enough for a public TestFlight beta.
 
-**TestFlight:** https://testflight.apple.com/join/REPLACE_ME
+**TestFlight:** https://testflight.apple.com/join/eFKDaaXr
 **Source:** https://github.com/superuser404notfound/JellySeeTV
 
 ## Why another client
@@ -160,7 +160,7 @@ Hey r/selfhosted,
 
 If you self host Jellyfin and have an Apple TV in the living room, JellySeeTV might be your missing piece. Native tvOS app, GPL-3.0 with App Store Exception, no telemetry, with built-in Jellyseerr integration so you can browse and request from the same UI.
 
-**TestFlight:** https://testflight.apple.com/join/REPLACE_ME
+**TestFlight:** https://testflight.apple.com/join/eFKDaaXr
 **Source and audit:** https://github.com/superuser404notfound/JellySeeTV
 **Privacy policy:** https://jellyseetv.superuser404.de/privacy (zero data collected)
 
@@ -218,7 +218,7 @@ JellySeeTV: open source native Jellyfin client for Apple TV is in public beta
 ```markdown
 For the Jellyfin users in here: JellySeeTV is now in public TestFlight beta.
 
-**Install:** https://testflight.apple.com/join/REPLACE_ME
+**Install:** https://testflight.apple.com/join/eFKDaaXr
 
 Native tvOS app. Proper transport bar, focus engine, HDR and Dolby Vision display switching, Dolby Atmos via EAC3+JOC passthrough. Built from scratch on SwiftUI plus a custom video engine. No VLCKit, no web view.
 
@@ -240,7 +240,7 @@ JellySeeTV: open source native Jellyfin client for Apple TV with built-in Jellys
 
 Direct Play, real HDR10, real Dolby Vision, real Dolby Atmos. GPL-3.0 with App Store Exception, no telemetry. Vibe-coded with Claude, every change reviewed, source is open.
 
-TestFlight: https://testflight.apple.com/join/REPLACE_ME
+TestFlight: https://testflight.apple.com/join/eFKDaaXr
 Source: https://github.com/superuser404notfound/JellySeeTV
 
 Apple TV 4K and tvOS 26+ required.

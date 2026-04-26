@@ -13,16 +13,17 @@ For the long pitch see the [README](README.md).
 - **Apple TV 4K** (any generation) running **tvOS 26.0 or later**
 - A **Jellyfin server** you can reach from the Apple TV (10.9+ recommended)
 - *Optional:* a **Seerr / Jellyseerr** instance (2.0+) if you want to test the request flow
-- An **Apple ID** added as a TestFlight tester (you'll get an invite from `superuser404@tuta.com`)
+- An **Apple ID** signed in on your Apple TV (no invite required — this is a public beta)
 
 ## Install the build
 
-1. On your Apple TV, install the **TestFlight** app from the App Store
-2. Open TestFlight and sign in with the Apple ID that received the invite
-3. **JellySeeTV** appears in the list — tap **Install**
-4. Open it from the home screen
+1. On any device signed in with your Apple ID, open the public TestFlight link: **https://testflight.apple.com/join/eFKDaaXr**
+2. Tap **Accept** and **Install** — TestFlight handles the rest
+3. On your Apple TV, install the **TestFlight** app from the App Store if it isn't already there
+4. Sign in with the same Apple ID; **JellySeeTV** appears in the list — tap **Install**
+5. Open it from the home screen
 
-If it tells you "this beta has expired", come back to the latest invite email and re-accept — TestFlight builds expire after 90 days.
+If it tells you "this beta has expired", revisit the join link above to grab the current build — TestFlight builds expire after 90 days.
 
 ## What to test
 

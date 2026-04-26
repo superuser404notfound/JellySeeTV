@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/status-public%20beta-orange">
 </p>
 
-> 🧪 **Public Beta is open.** Install via TestFlight: **https://testflight.apple.com/join/REPLACE_ME**
+> 🧪 **Public Beta is open.** Install via TestFlight: **https://testflight.apple.com/join/eFKDaaXr**
 > See [BETA.md](BETA.md) for what to focus on and how to report bugs.
 
 ---
@@ -39,7 +39,7 @@ And the Seerr integration isn't a tacked-on link to a web view — it's a first-
 
 ## Screenshots
 
-*Coming soon — we'll add these once the public TestFlight opens.*
+*Coming soon.*
 
 ## Features
 
@@ -122,7 +122,7 @@ Xcode 26+ and Swift 6.0+ are required.
 
 ## Roadmap
 
-- [ ] Public TestFlight beta
+- [x] Public TestFlight beta
 - [ ] App Store release
 - [ ] iOS / iPadOS companion app
 - [ ] Live TV + DVR support
