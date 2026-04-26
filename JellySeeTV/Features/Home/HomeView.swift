@@ -45,7 +45,8 @@ struct HomeView: View {
                     title: filter.title,
                     query: filter.query,
                     smartProviderID: filter.smartProviderID,
-                    smartProviderRegion: filter.smartProviderRegion
+                    smartProviderRegion: filter.smartProviderRegion,
+                    cacheKey: filter.cacheKey
                 )
             }
         }
@@ -135,9 +136,11 @@ struct HomeView: View {
                         // (e.g. nothing in the user's library has
                         // streaming-tag metadata yet), suppress the
                         // entire row rather than render an empty one.
+                        // Cache key is derived once at write time —
+                        // see makeJellyfinFilter / providerCacheKey.
+                        let region = Locale.current.region?.identifier ?? "US"
                         let visibleProviders = CatalogProviders.networks.filter { provider in
-                            guard let id = provider.tmdbWatchProviderID else { return true }
-                            let key = "\(id)-\(Locale.current.region?.identifier ?? "US")"
+                            let key = HomeView.providerCacheKey(provider: provider, region: region)
                             let count = FilterCache.shared.homeFilterItems(filterKey: key)?.count
                             return count == nil || count! > 0
                         }
@@ -170,7 +173,8 @@ struct HomeView: View {
         // data so titles whose Studios tag doesn't betray the streamer
         // still surface (Modern Family on Disney+, Bluey via Ludo
         // Studio, …).
-        FilterDestination(
+        let region = Locale.current.region?.identifier ?? "US"
+        return FilterDestination(
             title: provider.name,
             query: ItemQuery(
                 includeItemTypes: [.movie, .series],
@@ -180,8 +184,18 @@ struct HomeView: View {
                 studioNames: provider.jellyfinStudioNames
             ),
             smartProviderID: provider.tmdbWatchProviderID,
-            smartProviderRegion: Locale.current.region?.identifier ?? "US"
+            smartProviderRegion: region,
+            cacheKey: HomeView.providerCacheKey(provider: provider, region: region)
         )
+    }
+
+    /// Single source of truth for the cache key shared between the
+    /// FilteredGridView (read + write) and HomeView's empty-tile-hide
+    /// filter (read). Region is in there so a Swiss/UK/US user
+    /// doesn't see a Disney+ result cached in DE — TMDB watch-
+    /// providers are region-specific.
+    static func providerCacheKey(provider: CatalogProvider, region: String) -> String {
+        "home-\(provider.id)-\(region)"
     }
 
     private func makeFilter(for tag: TagCardData, type: HomeRowType) -> FilterDestination {
@@ -220,6 +234,12 @@ struct FilterDestination: Identifiable, Hashable {
     /// different titles than Disney+ in US), so we always pin to a
     /// concrete region — defaulting to the user's `Locale.current`.
     var smartProviderRegion: String?
+    /// Stable identifier under which FilteredGridView caches its
+    /// final result. Set independently of `smartProviderID` so that
+    /// broadcast-only tiles (ABC / NBC / CBS — no watch-provider
+    /// concept) still cache their results and feed the empty-tile-
+    /// hide pass on the next visit.
+    var cacheKey: String?
 }
 
 extension ItemQuery: Hashable {

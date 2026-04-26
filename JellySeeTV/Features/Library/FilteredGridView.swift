@@ -20,6 +20,13 @@ struct FilteredGridView: View {
     /// 20th Century Fox Television / Ludo Studio respectively.
     var smartProviderID: Int? = nil
     var smartProviderRegion: String? = nil
+    /// Stable identifier used by FilterCache to persist the final
+    /// merged item list. Independent of `smartProviderID` so even
+    /// providers without a watch-provider concept (broadcast nets
+    /// like ABC / NBC / CBS) still get their result cached — and
+    /// therefore become eligible for the empty-tile-hide pass on
+    /// the next visit.
+    var cacheKey: String? = nil
 
     var body: some View {
         ScrollView {
@@ -92,16 +99,6 @@ struct FilteredGridView: View {
     /// re-running the studio query.
     @State private var studioItems: [JellyfinItem] = []
 
-    /// Stable cache key for this filter view — only meaningful when a
-    /// smart provider is set. Same key drives `homeFilterItems`
-    /// (resolved JellyfinItems) and `smartFilterIDs` (just the TMDB
-    /// ids).
-    private var cacheKey: String? {
-        guard let id = smartProviderID, let region = smartProviderRegion
-        else { return nil }
-        return "\(id)-\(region)"
-    }
-
     private func loadItems() async {
         guard let userID = appState.activeUser?.id else { return }
 
@@ -171,6 +168,16 @@ struct FilteredGridView: View {
                 region: region,
                 tmdbMap: tmdbMap
             )
+        } else {
+            // No smart filter (broadcast networks, generic genre /
+            // studio tiles) — Phase 1 is the final result. Persist
+            // it so the empty-tile-hide pass on the next visit has
+            // a count to work with, and so a re-tap renders without
+            // the studio-query roundtrip.
+            items = phase1
+            if let key = cacheKey {
+                FilterCache.shared.setHomeFilterItems(phase1, filterKey: key)
+            }
         }
     }
 
