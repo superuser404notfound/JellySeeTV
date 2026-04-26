@@ -400,21 +400,9 @@ final class HomeViewModel {
 
         var phase2Items: [JellyfinItem] = []
         if let watchID = info.watchProviderID, let discover = discoverService {
-            var providerTmdbIDs: Set<Int> = []
-            await withTaskGroup(of: Set<Int>.self) { group in
-                for page in 1...5 {
-                    group.addTask {
-                        let movies = (try? await discover.moviesByWatchProvider(
-                            providerID: watchID, region: region, page: page
-                        ))?.results.map(\.id) ?? []
-                        let tv = (try? await discover.tvByWatchProvider(
-                            providerID: watchID, region: region, page: page
-                        ))?.results.map(\.id) ?? []
-                        return Set(movies + tv)
-                    }
-                }
-                for await ids in group { providerTmdbIDs.formUnion(ids) }
-            }
+            let providerTmdbIDs = await discover.collectWatchProviderTmdbIDs(
+                providerID: watchID, region: region
+            )
             phase2Items = providerTmdbIDs.compactMap { tmdbMap[$0] }
         }
 

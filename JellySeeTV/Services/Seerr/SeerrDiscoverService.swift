@@ -16,6 +16,45 @@ protocol SeerrDiscoverServiceProtocol: Sendable {
     func tvGenres() async throws -> [SeerrGenreSlide]
 }
 
+extension SeerrDiscoverServiceProtocol {
+    /// Fan out the first `pageCount` pages of *both* the movies and
+    /// the TV watch-provider endpoints for `(providerID, region)`,
+    /// merge them into a single TMDB-id set. Used by every smart
+    /// streaming-provider tile (Home `FilteredGridView` + Home
+    /// `HomeViewModel.resolveProviderItems`) — kept here rather than
+    /// duplicated at each call site so a future tweak (more pages,
+    /// different sort, error handling) lands in one place.
+    ///
+    /// Errors are swallowed per call so a single page failing the
+    /// network doesn't poison the whole resolve — empty lists are
+    /// added to the union as if the page returned nothing. The
+    /// caller can't tell "endpoint failed" from "endpoint really
+    /// returned zero", which is fine: in both cases the smart
+    /// filter just shows whatever the studio match alone surfaces.
+    func collectWatchProviderTmdbIDs(
+        providerID: Int,
+        region: String,
+        pageCount: Int = 5
+    ) async -> Set<Int> {
+        await withTaskGroup(of: Set<Int>.self) { group in
+            for page in 1...pageCount {
+                group.addTask {
+                    let movies = (try? await self.moviesByWatchProvider(
+                        providerID: providerID, region: region, page: page
+                    ))?.results.map(\.id) ?? []
+                    let tv = (try? await self.tvByWatchProvider(
+                        providerID: providerID, region: region, page: page
+                    ))?.results.map(\.id) ?? []
+                    return Set(movies + tv)
+                }
+            }
+            var union: Set<Int> = []
+            for await ids in group { union.formUnion(ids) }
+            return union
+        }
+    }
+}
+
 @MainActor
 final class SeerrDiscoverService: SeerrDiscoverServiceProtocol {
     private let client: SeerrClient

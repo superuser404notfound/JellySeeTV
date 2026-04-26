@@ -244,22 +244,8 @@ struct FilteredGridView: View {
         isAugmenting = true
         defer { isAugmenting = false }
 
-        let discoverService = dependencies.seerrDiscoverService
-        var providerTmdbIDs: Set<Int> = []
-        await withTaskGroup(of: Set<Int>.self) { group in
-            for page in 1...5 {
-                group.addTask {
-                    let movies = (try? await discoverService.moviesByWatchProvider(
-                        providerID: providerID, region: region, page: page
-                    ))?.results.map(\.id) ?? []
-                    let tv = (try? await discoverService.tvByWatchProvider(
-                        providerID: providerID, region: region, page: page
-                    ))?.results.map(\.id) ?? []
-                    return Set(movies + tv)
-                }
-            }
-            for await ids in group { providerTmdbIDs.formUnion(ids) }
-        }
+        let providerTmdbIDs = await dependencies.seerrDiscoverService
+            .collectWatchProviderTmdbIDs(providerID: providerID, region: region)
 
         FilterCache.shared.setSmartFilterIDs(
             Array(providerTmdbIDs), providerID: providerID, region: region
