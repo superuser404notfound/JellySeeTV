@@ -28,4 +28,19 @@ enum CatalogFilter: Hashable, Sendable {
             return name
         }
     }
+
+    /// Stable identifier used as the FilterCache key. Region is
+    /// embedded for streaming services because TMDB watch-providers
+    /// are region-specific — the same Disney+ tile resolves to a
+    /// different lineup in DE vs US, so the cached pages must be
+    /// scoped to the region they came from.
+    var cacheKey: String {
+        switch self {
+        case .movieGenre(let id, _): return "movieGenre-\(id)"
+        case .tvGenre(let id, _): return "tvGenre-\(id)"
+        case .movieStudio(let id, _): return "movieStudio-\(id)"
+        case .tvNetwork(let id, _): return "tvNetwork-\(id)"
+        case .streamingService(let id, _, let region): return "streamingService-\(id)-\(region)"
+        }
+    }
 }

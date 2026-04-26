@@ -78,7 +78,21 @@ struct CatalogFilteredGridView: View {
             page = 0
             totalPages = 1
             errorMessage = nil
-            await loadMore()
+
+            // Stale-while-revalidate: if we cached page 1 from a
+            // previous visit, render it instantly while a fresh
+            // request goes out underneath. The fresh response
+            // replaces the cached items wholesale, so anything that
+            // dropped off the provider's lineup since last visit is
+            // gone the next time the view appears.
+            if let cached = await FilterCache.shared.catalogPage(
+                filterKey: filter.cacheKey
+            ) {
+                items = cached.items
+                page = 1
+                totalPages = cached.totalPages
+            }
+            await refreshFirstPage()
         }
     }
 
@@ -96,6 +110,36 @@ struct CatalogFilteredGridView: View {
         return index >= items.count - 12
     }
 
+    /// Always re-fetches page 1 and replaces the displayed items
+    /// wholesale — used on view appearance to pick up any rotation
+    /// in the provider's lineup since last visit. Updates the cache
+    /// so the next appearance hydrates instantly. Subsequent pages
+    /// (2+) still go through `loadMore` on demand.
+    private func refreshFirstPage() async {
+        guard !isLoadingMore else { return }
+        isLoadingMore = true
+        defer { isLoadingMore = false }
+
+        do {
+            let result = try await fetchPage(1)
+            items = result.results
+            page = 1
+            totalPages = result.totalPages
+            errorMessage = nil
+            await FilterCache.shared.setCatalogPage(
+                result.results,
+                totalPages: result.totalPages,
+                filterKey: filter.cacheKey
+            )
+        } catch {
+            // Keep whatever the cache hydrated us with rather than
+            // wiping the screen on a transient network blip.
+            if items.isEmpty {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
     private func loadMore() async {
         guard !isLoadingMore, page < totalPages else { return }
         isLoadingMore = true
@@ -103,39 +147,7 @@ struct CatalogFilteredGridView: View {
 
         let nextPage = page + 1
         do {
-            let result: SeerrDiscoverResult
-            switch filter {
-            case .movieGenre(let id, _):
-                result = try await dependencies.seerrDiscoverService
-                    .moviesByGenre(genreID: id, page: nextPage)
-            case .tvGenre(let id, _):
-                result = try await dependencies.seerrDiscoverService
-                    .tvByGenre(genreID: id, page: nextPage)
-            case .movieStudio(let id, _):
-                result = try await dependencies.seerrDiscoverService
-                    .moviesByStudio(studioID: id, page: nextPage)
-            case .tvNetwork(let id, _):
-                result = try await dependencies.seerrDiscoverService
-                    .tvByNetwork(networkID: id, page: nextPage)
-            case .streamingService(let providerID, _, let region):
-                // Fetch movies and TV in parallel from the watch-
-                // providers endpoint, merge results. Both endpoints
-                // independently paginate; we mirror the slowest of
-                // the two as the page/totalPages so neither side
-                // gets cut off prematurely.
-                async let moviesTask = dependencies.seerrDiscoverService
-                    .moviesByWatchProvider(providerID: providerID, region: region, page: nextPage)
-                async let tvTask = dependencies.seerrDiscoverService
-                    .tvByWatchProvider(providerID: providerID, region: region, page: nextPage)
-                let (movies, tv) = try await (moviesTask, tvTask)
-                result = SeerrDiscoverResult(
-                    page: nextPage,
-                    totalPages: max(movies.totalPages, tv.totalPages),
-                    totalResults: movies.totalResults + tv.totalResults,
-                    results: movies.results + tv.results
-                )
-            }
-
+            let result = try await fetchPage(nextPage)
             let existing = Set(items.map(\.stableKey))
             let additions = result.results.filter { !existing.contains($0.stableKey) }
             items.append(contentsOf: additions)
@@ -143,6 +155,39 @@ struct CatalogFilteredGridView: View {
             totalPages = result.totalPages
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    /// Dispatches to the right discover endpoint(s) for the active
+    /// filter, returning a single `SeerrDiscoverResult`. The
+    /// streaming-service case fans out movies + tv in parallel and
+    /// merges; everything else is a single endpoint.
+    private func fetchPage(_ page: Int) async throws -> SeerrDiscoverResult {
+        switch filter {
+        case .movieGenre(let id, _):
+            return try await dependencies.seerrDiscoverService
+                .moviesByGenre(genreID: id, page: page)
+        case .tvGenre(let id, _):
+            return try await dependencies.seerrDiscoverService
+                .tvByGenre(genreID: id, page: page)
+        case .movieStudio(let id, _):
+            return try await dependencies.seerrDiscoverService
+                .moviesByStudio(studioID: id, page: page)
+        case .tvNetwork(let id, _):
+            return try await dependencies.seerrDiscoverService
+                .tvByNetwork(networkID: id, page: page)
+        case .streamingService(let providerID, _, let region):
+            async let moviesTask = dependencies.seerrDiscoverService
+                .moviesByWatchProvider(providerID: providerID, region: region, page: page)
+            async let tvTask = dependencies.seerrDiscoverService
+                .tvByWatchProvider(providerID: providerID, region: region, page: page)
+            let (movies, tv) = try await (moviesTask, tvTask)
+            return SeerrDiscoverResult(
+                page: page,
+                totalPages: max(movies.totalPages, tv.totalPages),
+                totalResults: movies.totalResults + tv.totalResults,
+                results: movies.results + tv.results
+            )
         }
     }
 

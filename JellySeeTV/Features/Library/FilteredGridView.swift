@@ -87,14 +87,27 @@ struct FilteredGridView: View {
         }
     }
 
+    /// Phase-1 (studio match) results, kept separate from `items` so
+    /// the augmentation refresh can rebuild the merged grid without
+    /// re-running the studio query.
+    @State private var studioItems: [JellyfinItem] = []
+
     private func loadItems() async {
         guard let userID = appState.activeUser?.id else { return }
         isLoading = true
 
-        // Studio match (Phase 1) and the full-library fetch needed
-        // for Phase 2 run in parallel — the user sees Phase 1 results
-        // the moment they're back, Phase 2 can start matching as soon
-        // as both responses are in.
+        // Pull the cached TMDB id list synchronously up front so the
+        // grid can render augmented results the moment Phase 1 lands,
+        // without waiting on a fresh watch-provider roundtrip.
+        let cachedTmdbIDs: [Int]?
+        if let providerID = smartProviderID, let region = smartProviderRegion {
+            cachedTmdbIDs = await FilterCache.shared.smartFilterIDs(
+                providerID: providerID, region: region
+            )
+        } else {
+            cachedTmdbIDs = nil
+        }
+
         async let studioMatchTask: [JellyfinItem] = {
             do {
                 return try await dependencies.jellyfinLibraryService.getItems(
@@ -108,13 +121,9 @@ struct FilteredGridView: View {
         async let allLibraryTask: [JellyfinItem] = {
             guard smartProviderID != nil else { return [] }
             // Fetch the entire library in one shot rather than running
-            // per-id `AnyProviderIdEquals` lookups. The earlier
-            // approach was fragile — Jellyfin's exact format / casing
-            // for that filter varies enough between versions that
-            // some users got zero matches even though the items were
-            // sitting right there. Pulling everything once and doing
-            // a hash lookup is robust and amortises across all the
-            // TMDB ids we want to resolve.
+            // per-id `AnyProviderIdEquals` lookups. Robust against
+            // Jellyfin version quirks and amortises across every
+            // TMDB id we want to resolve.
             let allQuery = ItemQuery(
                 includeItemTypes: [.movie, .series],
                 sortBy: "SortName",
@@ -126,49 +135,63 @@ struct FilteredGridView: View {
             ).items) ?? []
         }()
 
-        let studioItems = await studioMatchTask
-        items = studioItems
+        let phase1 = await studioMatchTask
+        studioItems = phase1
+        let allItems = await allLibraryTask
+
+        // Build TMDB-id → JellyfinItem map once and reuse for cache
+        // hydration + the background refresh.
+        var tmdbMap: [Int: JellyfinItem] = [:]
+        for item in allItems {
+            if let id = item.tmdbID { tmdbMap[id] = item }
+        }
+
+        // Hydrate from cache if we have anything: shows Phase 2
+        // results instantly on the second tap onwards.
+        let cachePhase2: [JellyfinItem] = (cachedTmdbIDs ?? []).compactMap { tmdbMap[$0] }
+        items = mergePhases(phase1: phase1, phase2: cachePhase2)
         isLoading = false
 
+        // Always refresh — the cache is stale-while-revalidate. The
+        // fresh list replaces whatever the cache held, so titles that
+        // rotated off the service since last visit drop out.
         if let providerID = smartProviderID, let region = smartProviderRegion {
-            let allItems = await allLibraryTask
-            await augmentWithWatchProvider(
+            await refreshWatchProviderAugment(
                 providerID: providerID,
                 region: region,
-                allLibraryItems: allItems
+                tmdbMap: tmdbMap
             )
         }
     }
 
-    /// Phase 2: pull the live "what's currently streaming on this
-    /// service" list from Jellyseerr (5 pages of movies + 5 pages of
-    /// tv) and match the TMDB ids against the local library. Anything
-    /// not already in the studio result set is appended in alphabetic
-    /// order so the augmented tail stays consistent with Phase 1.
-    private func augmentWithWatchProvider(
+    /// Merge studio-match (Phase 1) with watch-provider matches
+    /// (Phase 2). Phase 1 keeps its server-side ordering at the top,
+    /// Phase 2 extras are sorted alphabetically and appended.
+    private func mergePhases(
+        phase1: [JellyfinItem],
+        phase2: [JellyfinItem]
+    ) -> [JellyfinItem] {
+        let phase1IDs = Set(phase1.map(\.id))
+        let extras = phase2
+            .filter { !phase1IDs.contains($0.id) }
+            .sorted { $0.name < $1.name }
+        return phase1 + extras
+    }
+
+    /// Background refresh of the TMDB watch-provider id list: 5
+    /// pages each on movies + tv, then re-resolve against the local
+    /// library map and write the fresh ids to the cache. Shows the
+    /// updated grid the moment the new list lands. Stale entries
+    /// drop out automatically because the merged grid is rebuilt
+    /// from scratch every refresh.
+    private func refreshWatchProviderAugment(
         providerID: Int,
         region: String,
-        allLibraryItems: [JellyfinItem]
+        tmdbMap: [Int: JellyfinItem]
     ) async {
         isAugmenting = true
         defer { isAugmenting = false }
 
-        // Build TMDB-id → JellyfinItem map once; the lookup is then
-        // O(1) per matching watch-provider id. Items without a TMDB
-        // id (no scraper match, manual import without metadata) are
-        // simply unreachable through this path — they still surface
-        // via the studio filter.
-        var tmdbMap: [Int: JellyfinItem] = [:]
-        for item in allLibraryItems {
-            if let id = item.tmdbID {
-                tmdbMap[id] = item
-            }
-        }
-        guard !tmdbMap.isEmpty else { return }
-
-        // Pull the live watch-provider list from Jellyseerr. 5 pages
-        // each on movies + tv ≈ 200 ids — covers anything mainstream
-        // enough to be in a typical home library.
         let discoverService = dependencies.seerrDiscoverService
         var providerTmdbIDs: Set<Int> = []
         await withTaskGroup(of: Set<Int>.self) { group in
@@ -186,17 +209,12 @@ struct FilteredGridView: View {
             for await ids in group { providerTmdbIDs.formUnion(ids) }
         }
 
-        // Translate matching TMDB ids back to Jellyfin items, drop
-        // anything Phase 1 already showed, sort the additions
-        // alphabetically.
-        let existingItemIDs = Set(items.map(\.id))
-        let additions = providerTmdbIDs
-            .compactMap { tmdbMap[$0] }
-            .filter { !existingItemIDs.contains($0.id) }
-            .sorted { $0.name < $1.name }
+        await FilterCache.shared.setSmartFilterIDs(
+            Array(providerTmdbIDs), providerID: providerID, region: region
+        )
 
-        guard !additions.isEmpty else { return }
-        items.append(contentsOf: additions)
+        let phase2Items = providerTmdbIDs.compactMap { tmdbMap[$0] }
+        items = mergePhases(phase1: studioItems, phase2: phase2Items)
     }
 }
 
