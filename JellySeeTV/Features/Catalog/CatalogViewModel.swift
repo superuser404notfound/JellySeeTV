@@ -140,15 +140,35 @@ final class CatalogViewModel {
     }
 
     private func loadProviderBackdrops() async {
-        // Fan out one network/studio query per provider. Page 1 with
-        // the default sort returns "popular on this service first" —
-        // good enough as a hero image. We only keep the very first
-        // backdrop path; everything else is discarded.
+        // Fan out one query per provider. Page 1 with default sort
+        // returns "popular on this service first" — good enough as a
+        // hero image. For streamers with a TMDB watch-provider id
+        // (Paramount+, Disney+, …) the watch-provider endpoint
+        // surfaces movies and tv together, where the network-only
+        // endpoint sometimes leads with new entries that haven't had
+        // their backdrop scraped yet (Paramount+ in particular hit
+        // this — the network endpoint's first page returned items
+        // with `backdropPath = nil` so the tile fell back to the
+        // dark plate). Falls back to the network endpoint for
+        // broadcast-only entries (ABC, NBC, CBS).
+        let region = Locale.current.region?.identifier ?? "US"
         await withTaskGroup(of: (kind: ProviderKind, id: Int, backdrop: String?).self) { group in
             for provider in CatalogProviders.networks {
                 group.addTask { [discoverService] in
-                    let result = try? await discoverService.tvByNetwork(networkID: provider.id, page: 1)
-                    return (.network, provider.id, result?.results.first(where: { $0.backdropPath != nil })?.backdropPath)
+                    let primary: SeerrDiscoverResult?
+                    if let watchID = provider.tmdbWatchProviderID {
+                        primary = try? await discoverService.moviesByWatchProvider(
+                            providerID: watchID, region: region, page: 1
+                        )
+                    } else {
+                        primary = try? await discoverService.tvByNetwork(networkID: provider.id, page: 1)
+                    }
+                    if let path = primary?.results.first(where: { $0.backdropPath != nil })?.backdropPath {
+                        return (.network, provider.id, path)
+                    }
+                    // Fallback: try the other axis.
+                    let fallback = try? await discoverService.tvByNetwork(networkID: provider.id, page: 1)
+                    return (.network, provider.id, fallback?.results.first(where: { $0.backdropPath != nil })?.backdropPath)
                 }
             }
             for provider in CatalogProviders.studios {

@@ -234,12 +234,24 @@ final class HomeViewModel {
             }
         }.value
 
-        // MainActor pass: write counts + cache for each provider.
+        // MainActor pass: write counts + cache + sample backdrop
+        // for each provider.
         for (providerID, items) in resolved {
             providerItemCounts[providerID] = items.count
             FilterCache.shared.setHomeFilterItems(
                 items, filterKey: "home-\(providerID)-\(region)"
             )
+            // Backfill the backdrop only if the fast studio-only
+            // pass didn't already set one — the precompute resolver
+            // includes watch-provider matches, so it can find a
+            // sample for tiles whose Studios tag in the library
+            // doesn't match (Paramount+ in particular).
+            if providerBackdrops[providerID] == nil,
+               let sample = items.first,
+               let url = imageService.backdropURL(for: sample)
+                   ?? imageService.posterURL(for: sample) {
+                providerBackdrops[providerID] = url
+            }
         }
     }
 
