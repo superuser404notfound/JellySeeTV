@@ -64,4 +64,19 @@ struct SeerrMediaInfo: Codable, Sendable, Equatable {
     let tmdbId: Int?
     let status: SeerrMediaStatus?
     let requests: [SeerrRequest]?
+    /// Sonarr-scan derived per-season status. Authoritative for "is
+    /// season N currently on the server?" — independent of whether a
+    /// request entry still exists. A season the user added by hand
+    /// (no request, manual Sonarr import) shows up here as
+    /// `.available`, which the season tab needs to render its
+    /// checkmark even when there's nothing in `requests` referencing
+    /// it. A season whose files were deleted reverts to `.unknown`.
+    let seasons: [SeerrMediaSeason]?
+}
+
+struct SeerrMediaSeason: Codable, Sendable, Equatable, Identifiable {
+    let id: Int
+    let seasonNumber: Int
+    let status: SeerrMediaStatus?
+    let status4k: SeerrMediaStatus?
 }

@@ -17,6 +17,15 @@ struct SeerrRequestMedia: Codable, Sendable, Equatable {
     let tmdbId: Int?
     let mediaType: SeerrMediaType?
     let status: SeerrMediaStatus?
+    /// Sonarr/Radarr server id the media is attached to. nil means
+    /// no service is tracking it any more — either the request was
+    /// never picked up by Sonarr/Radarr, or the file was removed
+    /// from the server (Seerr clears these out when the user deletes
+    /// the underlying media). Lets the effective-status badge tell a
+    /// genuinely-downloading item apart from one whose download was
+    /// cancelled.
+    let serviceId: Int?
+    let externalServiceId: Int?
 }
 
 struct SeerrRequestSeason: Codable, Sendable, Identifiable, Equatable {

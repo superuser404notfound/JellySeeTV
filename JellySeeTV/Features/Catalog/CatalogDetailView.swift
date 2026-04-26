@@ -550,20 +550,43 @@ struct CatalogDetailView: View {
         tvDetail?.seasons?.filter { $0.seasonNumber > 0 }
     }
 
-    /// Returns the most-advanced known status for the given season
-    /// across all open requests, or `nil` if no request exists for it.
-    /// Used to show whether a season is already requested (and where
-    /// in the pipeline it is) rather than just a yes/no "available"
-    /// flag — the user wants to see the difference between "ready",
-    /// "downloading" and "waiting for approval".
+    /// Returns the most-advanced known status for the given season,
+    /// or `nil` if it isn't tracked anywhere yet.
+    ///
+    /// Priority:
+    ///   1. `mediaInfo.seasons` — the authoritative Sonarr-scan-
+    ///      derived status. Picks up seasons the user added by hand
+    ///      (manual download outside Seerr) which don't show up
+    ///      under any request entry but are nonetheless "available"
+    ///      on the server, so their tab still needs the green tick.
+    ///   2. `mediaInfo.requests[].seasons[]` — falls back here for
+    ///      pipeline states that haven't materialised on the server
+    ///      yet (Sonarr is processing, request is pending admin
+    ///      approval). Same most-advanced-wins logic as before.
     private func seasonStatus(_ season: SeerrSeason) -> SeerrMediaStatus? {
+        let n = season.seasonNumber
+
+        // 1. Authoritative: server-derived per-season status.
+        if let mediaSeasons = tvDetail?.mediaInfo?.seasons {
+            for s in mediaSeasons where s.seasonNumber == n {
+                switch s.status {
+                case .available: return .available
+                case .partiallyAvailable: return .partiallyAvailable
+                case .processing: return .processing
+                case .pending: return .pending
+                case .unknown, .none: break
+                }
+            }
+        }
+
+        // 2. Fallback: walk the request entries for in-flight states.
         guard let requests = tvDetail?.mediaInfo?.requests else { return nil }
         var hasAvailable = false
         var hasProcessing = false
         var hasPending = false
         for request in requests {
             guard let seasons = request.seasons else { continue }
-            for s in seasons where s.seasonNumber == season.seasonNumber {
+            for s in seasons where s.seasonNumber == n {
                 switch s.status {
                 case .available: hasAvailable = true
                 case .processing: hasProcessing = true

@@ -109,6 +109,18 @@ struct SeerrEffectiveRequestBadge: View {
         case removed
     }
 
+    /// True when Sonarr/Radarr is still tracking the underlying
+    /// media. Once the user deletes the file, Seerr clears these
+    /// fields. Lets us distinguish a genuinely-downloading request
+    /// from one whose file was removed mid-download (Seerr leaves
+    /// the request stuck on `.processing` in that case — the user-
+    /// visible bug "zeigt 'wird verarbeitet' obwohl längst entfernt
+    /// während des downloads").
+    private var hasActiveService: Bool {
+        request.media?.serviceId != nil
+            || request.media?.externalServiceId != nil
+    }
+
     private var effective: Effective {
         switch request.status {
         case .declined: return .declined
@@ -120,10 +132,7 @@ struct SeerrEffectiveRequestBadge: View {
             // partiallyAvailable now, it was on the server at some
             // point and has since been removed — Seerr keeps the
             // request marked completed but the media status drifts
-            // back to processing / unknown / nil. We never want to
-            // show "Wird verarbeitet" for a request that was once
-            // done; that's the user-visible bug ("zeigt verarbeitet
-            // obwohl ich es längst entfernt habe").
+            // back to processing / unknown / nil.
             switch request.media?.status {
             case .available: return .available
             case .partiallyAvailable: return .partiallyAvailable
@@ -132,13 +141,19 @@ struct SeerrEffectiveRequestBadge: View {
         case .approved:
             switch request.media?.status {
             case .available: return .available
-            case .partiallyAvailable: return .partiallyAvailable
-            case .processing: return .processing
+            case .partiallyAvailable:
+                return hasActiveService ? .partiallyAvailable : .removed
+            case .processing:
+                // Sonarr/Radarr still tracking it → genuine download
+                // in flight. Service ids cleared → file was removed
+                // before completion.
+                return hasActiveService ? .processing : .removed
             case .pending: return .approved
             case .unknown, nil:
                 // Approved but Sonarr/Radarr hasn't reported yet —
-                // most likely still spinning up.
-                return .processing
+                // either still spinning up (service ids set) or
+                // never picked up / cancelled (service ids nil).
+                return hasActiveService ? .processing : .removed
             }
         }
     }
