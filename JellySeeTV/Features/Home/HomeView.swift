@@ -211,10 +211,21 @@ struct HomeView: View {
                     sortOrder: "Ascending",
                     limit: 50,
                     genres: [tag.name]
-                )
+                ),
+                // Without a cacheKey FilteredGridView's init() falls
+                // through to the empty-state branch and shows
+                // isLoading=true on every visit — that's the "lädt
+                // kurz" the user perceives every time they open a
+                // genre tile. Tag name is the differentiator (Action,
+                // Comedy, Drama, …) so it's a stable enough key.
+                cacheKey: "home-genre-\(tag.name)"
             )
         default:
-            FilterDestination(title: tag.name, query: ItemQuery())
+            FilterDestination(
+                title: tag.name,
+                query: ItemQuery(),
+                cacheKey: "home-tag-\(tag.name)"
+            )
         }
     }
 }
