@@ -3,8 +3,8 @@ import SwiftUI
 struct FilteredGridView: View {
     @Environment(\.appState) private var appState
     @Environment(\.dependencies) private var dependencies
-    @State private var items: [JellyfinItem] = []
-    @State private var isLoading = true
+    @State private var items: [JellyfinItem]
+    @State private var isLoading: Bool
     @State private var isAugmenting = false
     @State private var selectedItem: JellyfinItem?
     @FocusState private var focusedItemID: String?
@@ -18,15 +18,43 @@ struct FilteredGridView: View {
     /// the local library. Lets shows like Modern Family or Bluey
     /// surface under Disney+ even though their Studios tag points at
     /// 20th Century Fox Television / Ludo Studio respectively.
-    var smartProviderID: Int? = nil
-    var smartProviderRegion: String? = nil
+    let smartProviderID: Int?
+    let smartProviderRegion: String?
     /// Stable identifier used by FilterCache to persist the final
     /// merged item list. Independent of `smartProviderID` so even
     /// providers without a watch-provider concept (broadcast nets
     /// like ABC / NBC / CBS) still get their result cached — and
     /// therefore become eligible for the empty-tile-hide pass on
     /// the next visit.
-    var cacheKey: String? = nil
+    let cacheKey: String?
+
+    init(
+        title: String,
+        query: ItemQuery,
+        smartProviderID: Int? = nil,
+        smartProviderRegion: String? = nil,
+        cacheKey: String? = nil
+    ) {
+        self.title = title
+        self.query = query
+        self.smartProviderID = smartProviderID
+        self.smartProviderRegion = smartProviderRegion
+        self.cacheKey = cacheKey
+        // Hydrate from FilterCache during init so the very first
+        // body render already paints the cached grid. Doing it
+        // inside `.task` later means one frame with isLoading=true
+        // before the cache snaps in — that's the brief "loading
+        // flash" the user perceives on every tap.
+        if let key = cacheKey,
+           let cached = FilterCache.shared.homeFilterItems(filterKey: key),
+           !cached.isEmpty {
+            _items = State(initialValue: cached)
+            _isLoading = State(initialValue: false)
+        } else {
+            _items = State(initialValue: [])
+            _isLoading = State(initialValue: true)
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -111,17 +139,10 @@ struct FilteredGridView: View {
     private func loadItems() async {
         guard let userID = appState.activeUser?.id else { return }
 
-        // Synchronous cache hit — display immediately, no spinner.
-        // We cache the fully-resolved JellyfinItems so the second
-        // tap onwards renders before any network roundtrip lands.
-        if let key = cacheKey,
-           let cached = FilterCache.shared.homeFilterItems(filterKey: key),
-           !cached.isEmpty {
-            items = cached
-            isLoading = false
-        } else {
-            isLoading = true
-        }
+        // Cache hydration happened in init(...) — items + isLoading
+        // already reflect the cache hit (or miss). Now run the
+        // background refresh that replaces them with the freshest
+        // server response.
 
         async let studioMatchTask: [JellyfinItem] = {
             do {

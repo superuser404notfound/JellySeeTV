@@ -9,9 +9,9 @@ struct CatalogFilteredGridView: View {
 
     @Environment(\.dependencies) private var dependencies
 
-    @State private var items: [SeerrMedia] = []
-    @State private var page: Int = 0
-    @State private var totalPages: Int = 1
+    @State private var items: [SeerrMedia]
+    @State private var page: Int
+    @State private var totalPages: Int
     @State private var isLoadingMore = false
     @State private var errorMessage: String?
     @State private var selectedMedia: SeerrMedia?
@@ -20,6 +20,25 @@ struct CatalogFilteredGridView: View {
         repeating: GridItem(.fixed(220), spacing: 32),
         count: 6
     )
+
+    init(filter: CatalogFilter) {
+        self.filter = filter
+        // Hydrate from FilterCache *during init* so the very first
+        // body render already paints the cached grid. Doing it inside
+        // `.task(id:)` later would mean one frame of empty state
+        // before the cache snaps in — visible as a tiny "loading"
+        // flash on every tap that the user perceives as a network
+        // round-trip even when the answer is already on disk.
+        if let cached = FilterCache.shared.catalogPage(filterKey: filter.cacheKey) {
+            _items = State(initialValue: cached.items)
+            _page = State(initialValue: 1)
+            _totalPages = State(initialValue: cached.totalPages)
+        } else {
+            _items = State(initialValue: [])
+            _page = State(initialValue: 0)
+            _totalPages = State(initialValue: 1)
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -72,23 +91,11 @@ struct CatalogFilteredGridView: View {
         }
         .task(id: filter) {
             errorMessage = nil
-
-            // Stale-while-revalidate: hydrate from cache synchronously
-            // so the grid appears in the same render pass — actor
-            // suspensions used to insert a frame of empty state in
-            // between, which read as a 1-2 second flicker before the
-            // refresh landed. FilterCache is a plain class now;
-            // reads can happen from inside a task body without an
-            // await hop.
-            if let cached = FilterCache.shared.catalogPage(filterKey: filter.cacheKey) {
-                items = cached.items
-                page = 1
-                totalPages = cached.totalPages
-            } else {
-                items = []
-                page = 0
-                totalPages = 1
-            }
+            // Initial hydration happened in init(filter:) so the grid
+            // is already on screen by the time we get here. All this
+            // task has to do is fire the background refresh that
+            // replaces the cached items with the freshest page 1 from
+            // Jellyseerr.
             await refreshFirstPage()
         }
     }
