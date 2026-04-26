@@ -109,16 +109,17 @@ struct SeerrEffectiveRequestBadge: View {
         case removed
     }
 
-    /// True when Sonarr/Radarr is still tracking the underlying
-    /// media. Once the user deletes the file, Seerr clears these
-    /// fields. Lets us distinguish a genuinely-downloading request
-    /// from one whose file was removed mid-download (Seerr leaves
-    /// the request stuck on `.processing` in that case — the user-
-    /// visible bug "zeigt 'wird verarbeitet' obwohl längst entfernt
-    /// während des downloads").
-    private var hasActiveService: Bool {
-        request.media?.serviceId != nil
-            || request.media?.externalServiceId != nil
+    /// True when Sonarr/Radarr currently has the media in its
+    /// download queue. Seerr fills `downloadStatus` from the live
+    /// Sonarr/Radarr queue at request-time, so an empty array
+    /// after the request was approved + processing means the
+    /// download was cancelled, removed, or otherwise dropped from
+    /// the queue. (Service ids alone aren't enough — Seerr keeps
+    /// those in its DB even after the queue clears.)
+    private var hasLiveDownloadQueue: Bool {
+        let active = request.media?.downloadStatus?.isEmpty == false
+        let active4k = request.media?.downloadStatus4k?.isEmpty == false
+        return active || active4k
     }
 
     private var effective: Effective {
@@ -127,12 +128,11 @@ struct SeerrEffectiveRequestBadge: View {
         case .failed: return .failed
         case .pendingApproval: return .pending
         case .completed:
-            // `completed` is Seerr's "Sonarr/Radarr signed off" flag.
-            // If the media is anything other than available /
-            // partiallyAvailable now, it was on the server at some
-            // point and has since been removed — Seerr keeps the
-            // request marked completed but the media status drifts
-            // back to processing / unknown / nil.
+            // `completed` is Seerr's "Sonarr/Radarr signed off"
+            // flag. Anything other than available / partially-
+            // available means the file was on the server and has
+            // since been removed — show .removed regardless of
+            // whatever stale processing flag Seerr is carrying.
             switch request.media?.status {
             case .available: return .available
             case .partiallyAvailable: return .partiallyAvailable
@@ -142,18 +142,21 @@ struct SeerrEffectiveRequestBadge: View {
             switch request.media?.status {
             case .available: return .available
             case .partiallyAvailable:
-                return hasActiveService ? .partiallyAvailable : .removed
+                return hasLiveDownloadQueue ? .partiallyAvailable : .removed
             case .processing:
-                // Sonarr/Radarr still tracking it → genuine download
-                // in flight. Service ids cleared → file was removed
-                // before completion.
-                return hasActiveService ? .processing : .removed
+                // Sonarr/Radarr still has it in queue → genuine
+                // download in flight. Queue empty → user / admin
+                // removed it during the download (the user-visible
+                // bug we're chasing here: "wird verarbeitet obwohl
+                // längst entfernt während des downloads").
+                return hasLiveDownloadQueue ? .processing : .removed
             case .pending: return .approved
             case .unknown, nil:
-                // Approved but Sonarr/Radarr hasn't reported yet —
-                // either still spinning up (service ids set) or
-                // never picked up / cancelled (service ids nil).
-                return hasActiveService ? .processing : .removed
+                // Approved but Seerr hasn't reported any status
+                // yet. If a queue entry exists, Sonarr is still
+                // spinning up; otherwise the request never got
+                // off the ground or was cancelled.
+                return hasLiveDownloadQueue ? .processing : .removed
             }
         }
     }
