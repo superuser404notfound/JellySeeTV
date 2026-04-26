@@ -86,8 +86,17 @@ struct FilteredGridView: View {
         }
         .task {
             await loadItems()
-            if let firstID = items.first?.id {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Nudge focus to the first item only on the very first
+            // appearance — if the user has already navigated by the
+            // time loadItems returns (cache hit + Phase 2 augment
+            // can take a couple of seconds during which they're
+            // free to scroll), forcing focus back to position 0
+            // would yank them out of where they are.
+            guard focusedItemID == nil, let firstID = items.first?.id else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                // Recheck at fire time — the user could have moved
+                // focus during the 100 ms gap.
+                if focusedItemID == nil {
                     focusedItemID = firstID
                 }
             }
