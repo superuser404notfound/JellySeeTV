@@ -69,11 +69,6 @@ final class FilterCache: @unchecked Sendable {
         try? FileManager.default.createDirectory(
             at: directory, withIntermediateDirectories: true
         )
-        // One-shot migration sweep: if the previous UserDefaults-backed
-        // cache left entries in the app's domain, wipe them so the
-        // 1 MB cap doesn't keep tripping on app launches that haven't
-        // yet rotated the offending keys.
-        Self.purgeLegacyDefaults()
     }
 
     private func fileURL(for key: String) -> URL {
@@ -141,15 +136,4 @@ final class FilterCache: @unchecked Sendable {
         }
     }
 
-    /// Wipe any leftover entries from the old `UserDefaults`-backed
-    /// implementation. Runs once on first instantiation. Safe to keep
-    /// indefinitely — once the keys are gone the loop is a no-op.
-    private static func purgeLegacyDefaults() {
-        let defaults = UserDefaults.standard
-        let prefixes = ["FilterCache.homeItems.", "FilterCache.smart.", "FilterCache.catalog."]
-        for key in defaults.dictionaryRepresentation().keys
-        where prefixes.contains(where: key.hasPrefix) {
-            defaults.removeObject(forKey: key)
-        }
-    }
 }
