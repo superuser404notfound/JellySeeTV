@@ -28,6 +28,17 @@ final class ContentProvider: TVTopShelfContentProvider {
         let nextUpItems = await nextUp
         log.info("Fetched resume=\(resumeItems.count) nextUp=\(nextUpItems.count)")
 
+        // One-shot probe of the first available image URL: the system's
+        // image-cache daemon hands us a generic "-17102 decompress
+        // failed" with no detail, so we fetch it ourselves and log
+        // status + content type to figure out whether Jellyfin is
+        // returning JPEG, an HTML 401, or something else entirely.
+        if let probe = (resumeItems.first ?? nextUpItems.first)?.topShelfImageURL(
+            baseURL: session.baseURL, token: session.accessToken
+        ) {
+            await Self.probeImage(probe)
+        }
+
         var sections: [TVTopShelfItemCollection<TVTopShelfSectionedItem>] = []
 
         if !resumeItems.isEmpty {
@@ -68,11 +79,31 @@ final class ContentProvider: TVTopShelfContentProvider {
             // memory pressure that can surface as "-17102 decompressing
             // image" when several cells race to decode at once.
             cell.setImageURL(url, for: .screenScale2x)
-            log.debug("cell \(item.id, privacy: .public) image=\(url.absoluteString, privacy: .private(mask: .hash))")
         } else {
             log.notice("cell \(item.id, privacy: .public) has no image URL")
         }
         return cell
+    }
+
+    /// HEAD-style probe: actually fetch the URL ourselves, log the
+    /// status code, content type, and a peek at the body. The
+    /// system's image daemon swallows all of this and just emits
+    /// `-17102` no matter what went wrong, so we have to recreate
+    /// the fetch path here.
+    private static func probeImage(_ url: URL) async {
+        var req = URLRequest(url: url)
+        req.timeoutInterval = 5
+        req.setValue("image/jpeg,image/*;q=0.8,*/*;q=0.5", forHTTPHeaderField: "Accept")
+        do {
+            let (data, response) = try await URLSession.shared.data(for: req)
+            let http = response as? HTTPURLResponse
+            let status = http?.statusCode ?? -1
+            let type = http?.value(forHTTPHeaderField: "Content-Type") ?? "?"
+            let head = data.prefix(4).map { String(format: "%02X", $0) }.joined()
+            log.info("probe url=\(url.absoluteString, privacy: .public) status=\(status, privacy: .public) type=\(type, privacy: .public) bytes=\(data.count, privacy: .public) head=\(head, privacy: .public)")
+        } catch {
+            log.error("probe url=\(url.absoluteString, privacy: .public) failed: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     /// `jellyseetv://item/{id}` — handled by the main app's
