@@ -9,17 +9,48 @@
 /* Begin PBXBuildFile section */
 		9D491D932F8F92E600B3BE42 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D491D922F8F92E500B3BE42 /* AVKit.framework */; };
 		AA000001STEELPLAYER /* AetherEngine in Frameworks */ = {isa = PBXBuildFile; productRef = AA000002STEELPLAYER /* AetherEngine */; };
+		DE5C0D60D4D900000000F00B /* JellySeeTVTopShelf.appex in Embed Extensions */ = {isa = PBXBuildFile; fileRef = DE5C0D60D4D900000000F001 /* JellySeeTVTopShelf.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DE5C0D60D4D900000000F00D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9DD913652F8645860078D0BE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE5C0D60D4D900000000F003;
+			remoteInfo = JellySeeTVTopShelf;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DE5C0D60D4D900000000F00A /* Embed Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DE5C0D60D4D900000000F00B /* JellySeeTVTopShelf.appex in Embed Extensions */,
+			);
+			name = "Embed Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		9D491D922F8F92E500B3BE42 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		9DD9136D2F8645860078D0BE /* JellySeeTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JellySeeTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE5C0D60D4D900000000F001 /* JellySeeTVTopShelf.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = JellySeeTVTopShelf.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9DD9136F2F8645860078D0BE /* JellySeeTV */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = JellySeeTV;
+			sourceTree = "<group>";
+		};
+		DE5C0D60D4D900000000F002 /* JellySeeTVTopShelf */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = JellySeeTVTopShelf;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -34,6 +65,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE5C0D60D4D900000000F005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -41,6 +79,7 @@
 			isa = PBXGroup;
 			children = (
 				9DD9136F2F8645860078D0BE /* JellySeeTV */,
+				DE5C0D60D4D900000000F002 /* JellySeeTVTopShelf */,
 				9DD9136E2F8645860078D0BE /* Products */,
 				F2FA2CF0B38B315088DC439E /* Frameworks */,
 			);
@@ -50,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				9DD9136D2F8645860078D0BE /* JellySeeTV.app */,
+				DE5C0D60D4D900000000F001 /* JellySeeTVTopShelf.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,10 +112,12 @@
 				9DD913692F8645860078D0BE /* Sources */,
 				9DD9136A2F8645860078D0BE /* Frameworks */,
 				9DD9136B2F8645860078D0BE /* Resources */,
+				DE5C0D60D4D900000000F00A /* Embed Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DE5C0D60D4D900000000F00C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				9DD9136F2F8645860078D0BE /* JellySeeTV */,
@@ -84,6 +126,26 @@
 			productName = JellySeeTV;
 			productReference = 9DD9136D2F8645860078D0BE /* JellySeeTV.app */;
 			productType = "com.apple.product-type.application";
+		};
+		DE5C0D60D4D900000000F003 /* JellySeeTVTopShelf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE5C0D60D4D900000000F009 /* Build configuration list for PBXNativeTarget "JellySeeTVTopShelf" */;
+			buildPhases = (
+				DE5C0D60D4D900000000F004 /* Sources */,
+				DE5C0D60D4D900000000F005 /* Frameworks */,
+				DE5C0D60D4D900000000F006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DE5C0D60D4D900000000F002 /* JellySeeTVTopShelf */,
+			);
+			name = JellySeeTVTopShelf;
+			productName = JellySeeTVTopShelf;
+			productReference = DE5C0D60D4D900000000F001 /* JellySeeTVTopShelf.appex */;
+			productType = "com.apple.product-type.tv-app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -96,6 +158,9 @@
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					9DD9136C2F8645860078D0BE = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					DE5C0D60D4D900000000F003 = {
 						CreatedOnToolsVersion = 26.4;
 					};
 				};
@@ -143,12 +208,20 @@
 			projectRoot = "";
 			targets = (
 				9DD9136C2F8645860078D0BE /* JellySeeTV */,
+				DE5C0D60D4D900000000F003 /* JellySeeTVTopShelf */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		9DD9136B2F8645860078D0BE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE5C0D60D4D900000000F006 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -165,7 +238,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE5C0D60D4D900000000F004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DE5C0D60D4D900000000F00C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE5C0D60D4D900000000F003 /* JellySeeTVTopShelf */;
+			targetProxy = DE5C0D60D4D900000000F00D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		9DD913762F8645880078D0BE /* Debug */ = {
@@ -301,6 +389,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_BRAND_ASSETS_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SupportingFiles/JellySeeTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -315,7 +404,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.2;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = de.superuser404.JellySeeTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -336,6 +425,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_BRAND_ASSETS_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SupportingFiles/JellySeeTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -350,13 +440,75 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.2;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = de.superuser404.JellySeeTV;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		DE5C0D60D4D900000000F007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SupportingFiles/JellySeeTVTopShelf.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4NY63S72W9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SupportingFiles/JellySeeTVTopShelf-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.superuser404.JellySeeTV.TopShelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		DE5C0D60D4D900000000F008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SupportingFiles/JellySeeTVTopShelf.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4NY63S72W9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SupportingFiles/JellySeeTVTopShelf-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 0.4.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.superuser404.JellySeeTV.TopShelf;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
@@ -382,6 +534,15 @@
 			buildConfigurations = (
 				9DD913792F8645880078D0BE /* Debug */,
 				9DD9137A2F8645880078D0BE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE5C0D60D4D900000000F009 /* Build configuration list for PBXNativeTarget "JellySeeTVTopShelf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE5C0D60D4D900000000F007 /* Debug */,
+				DE5C0D60D4D900000000F008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

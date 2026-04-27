@@ -81,6 +81,14 @@ final class DependencyContainer {
 
         jellyfinClient.baseURL = server.url
         jellyfinClient.accessToken = token
+
+        // Re-project into the shared keychain on every cold launch
+        // so the TopShelf extension stays in lockstep even if a
+        // previous app version didn't write the mirror, or the user
+        // wiped just the shelf's bucket somehow.
+        if let userID = try? keychainService.loadString(for: KeychainKeys.userID(serverID: server.id)) {
+            SharedSessionMirror.write(serverURL: server.url, userID: userID, accessToken: token)
+        }
         return true
     }
 
@@ -113,6 +121,8 @@ final class DependencyContainer {
 
         jellyfinClient.baseURL = server.url
         jellyfinClient.accessToken = token
+
+        SharedSessionMirror.write(serverURL: server.url, userID: user.id, accessToken: token)
 
         // Add/update this user in the remembered-profiles list for
         // the server so the user can later switch to any previous
@@ -207,6 +217,12 @@ final class DependencyContainer {
         jellyfinClient.baseURL = server.url
         jellyfinClient.accessToken = remembered.token
 
+        SharedSessionMirror.write(
+            serverURL: server.url,
+            userID: remembered.id,
+            accessToken: remembered.token
+        )
+
         // Seerr is handled separately by the caller via
         // restoreSeerrSession(forJellyfinUserID:jellyfinServerID:).
         // Keeping it out of switchToUser means a profile that has
@@ -254,6 +270,8 @@ final class DependencyContainer {
 
         jellyfinClient.baseURL = nil
         jellyfinClient.accessToken = nil
+
+        SharedSessionMirror.clear()
 
         try clearSeerrSession()
     }

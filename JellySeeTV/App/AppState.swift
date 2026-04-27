@@ -14,6 +14,12 @@ final class AppState {
     var activeSeerrServer: SeerrServer?
     var activeSeerrUser: SeerrUser?
 
+    /// Set by `onOpenURL` whenever a `jellyseetv://item/{id}` link
+    /// arrives — typically from the TopShelf extension. Cleared
+    /// after the AppRouter has fetched + presented the item, so a
+    /// repeated tap on the same shelf cell still re-fires.
+    var pendingDeepLinkItemID: String?
+
     var isSeerrConnected: Bool {
         activeSeerrServer != nil && activeSeerrUser != nil
     }

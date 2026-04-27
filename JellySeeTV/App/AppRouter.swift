@@ -18,6 +18,11 @@ struct AppRouter: View {
     /// isAuthenticated=true which hides the picker automatically.
     @State private var launchPickerServer: JellyfinServer?
 
+    /// Holds the JellyfinItem fetched for an incoming deep link
+    /// (TopShelf cell tap, custom URL invocation). The fullScreenCover
+    /// drives off this — non-nil = sheet shown.
+    @State private var deepLinkItem: JellyfinItem?
+
     var body: some View {
         ZStack {
             if appState.isAuthenticated {
@@ -45,6 +50,37 @@ struct AppRouter: View {
             hasRestored = true
             await restoreSession()
         }
+        .task(id: appState.pendingDeepLinkItemID) {
+            await resolvePendingDeepLink()
+        }
+        .fullScreenCover(item: $deepLinkItem) { item in
+            NavigationStack {
+                DetailRouterView(item: item)
+            }
+        }
+    }
+
+    /// Wait until the user is authenticated, fetch the item from
+    /// Jellyfin, then trigger the fullScreenCover. Cleared on the way
+    /// out so a second tap on the same TopShelf cell re-fires.
+    private func resolvePendingDeepLink() async {
+        guard let id = appState.pendingDeepLinkItemID else { return }
+        // Cold-launch race: the URL arrives before restoreSession
+        // finishes. Wait it out — the TopShelf cell can't have been
+        // produced without a valid session in the first place.
+        while !appState.isAuthenticated, !Task.isCancelled {
+            try? await Task.sleep(for: .milliseconds(150))
+        }
+        guard let user = appState.activeUser else {
+            appState.pendingDeepLinkItemID = nil
+            return
+        }
+        let item = try? await dependencies.jellyfinItemService.getItemDetail(
+            userID: user.id,
+            itemID: id
+        )
+        appState.pendingDeepLinkItemID = nil
+        deepLinkItem = item
     }
 
     private func restoreSession() async {
