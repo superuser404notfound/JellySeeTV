@@ -57,19 +57,24 @@ struct ImageTags: Decodable, Sendable {
 
 extension JellyfinItem {
     /// Wide thumbnail for the TopShelf carousel cell. Episodes
-    /// prefer their own still, falling back to the parent series
-    /// backdrop so unscanned episodes don't render as a grey card.
-    /// Movies use their backdrop directly.
+    /// prefer the parent series Backdrop because Jellyfin's
+    /// auto-extracted episode stills are usually 640x360 thumbnails
+    /// scraped from the source video — fine in a list, blurry on a
+    /// 4K TV card. Series backdrops are curated 1920x1080+ artwork
+    /// and match what the native Apple TV app uses for shows.
+    /// Episode-specific stills stay in the fallback chain so an
+    /// orphan episode (no parent series art) still renders.
+    /// Movies use their backdrop directly — same hero-art logic.
     func topShelfImageURL(baseURL: URL, token: String) -> URL? {
         if type == .episode {
+            if let seriesId, let tag = parentBackdropImageTags?.first {
+                return imageURL(baseURL: baseURL, itemID: seriesId, kind: "Backdrop", tag: tag, token: token)
+            }
             if let tag = imageTags?.primary {
                 return imageURL(baseURL: baseURL, itemID: id, kind: "Primary", tag: tag, token: token)
             }
             if let tag = imageTags?.thumb {
                 return imageURL(baseURL: baseURL, itemID: id, kind: "Thumb", tag: tag, token: token)
-            }
-            if let seriesId, let tag = parentBackdropImageTags?.first {
-                return imageURL(baseURL: baseURL, itemID: seriesId, kind: "Backdrop", tag: tag, token: token)
             }
         }
         if let tag = backdropImageTags?.first {
