@@ -1,4 +1,7 @@
+import os.log
 @preconcurrency import TVServices
+
+private let log = Logger(subsystem: "de.superuser404.JellySeeTV.TopShelf", category: "ContentProvider")
 
 /// Apple TV Top Shelf provider. tvOS calls
 /// `loadTopShelfContent` when the app icon gets focus on the home
@@ -6,17 +9,24 @@
 /// Two failure modes here both surface as an empty shelf: no
 /// session yet (signed-out main app) or a transient API error
 /// (server offline). Both cases just return nil so the shelf
-/// silently falls back to the static brand asset.
+/// silently falls back to the static brand asset. Errors are
+/// logged via `os.Logger` so Console.app on a paired Mac can
+/// surface them when the shelf misbehaves.
 final class ContentProvider: TVTopShelfContentProvider {
     override func loadTopShelfContent() async -> (any TVTopShelfContent)? {
-        guard let session = SharedSession.load() else { return nil }
+        guard let session = SharedSession.load() else {
+            log.notice("No shared session in keychain — TopShelf will render empty.")
+            return nil
+        }
+        log.info("Loading TopShelf for user=\(session.userID, privacy: .public) base=\(session.baseURL.absoluteString, privacy: .public)")
         let api = JellyfinAPI(session: session)
 
-        async let resume = (try? api.resumeItems()) ?? []
-        async let nextUp = (try? api.nextUp()) ?? []
+        async let resume = Self.fetch("resume") { try await api.resumeItems() }
+        async let nextUp = Self.fetch("nextUp") { try await api.nextUp() }
 
         let resumeItems = await resume
         let nextUpItems = await nextUp
+        log.info("Fetched resume=\(resumeItems.count) nextUp=\(nextUpItems.count)")
 
         var sections: [TVTopShelfItemCollection<TVTopShelfSectionedItem>] = []
 
@@ -64,5 +74,14 @@ final class ContentProvider: TVTopShelfContentProvider {
     /// for that item.
     private func deepLink(for item: JellyfinItem) -> URL {
         URL(string: "jellyseetv://item/\(item.id)")!
+    }
+
+    private static func fetch(_ label: String, _ work: () async throws -> [JellyfinItem]) async -> [JellyfinItem] {
+        do {
+            return try await work()
+        } catch {
+            log.error("\(label, privacy: .public) fetch failed: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
     }
 }

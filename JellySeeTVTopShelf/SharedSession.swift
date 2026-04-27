@@ -1,5 +1,8 @@
 import Foundation
+import os.log
 import Security
+
+private let log = Logger(subsystem: "de.superuser404.JellySeeTV.TopShelf", category: "SharedSession")
 
 /// Pulls the active Jellyfin session out of the shared keychain
 /// access group that the main app mirrors credentials into. Read
@@ -16,11 +19,11 @@ struct SharedSession: Sendable {
     let accessToken: String
 
     static func load() -> SharedSession? {
-        guard let urlString = readSharedKeychainString(account: SharedSessionKeys.serverURL),
-              let url = URL(string: urlString),
-              let userID = readSharedKeychainString(account: SharedSessionKeys.userID),
-              let token = readSharedKeychainString(account: SharedSessionKeys.accessToken)
-        else {
+        let urlString = readSharedKeychainString(account: SharedSessionKeys.serverURL)
+        let userID = readSharedKeychainString(account: SharedSessionKeys.userID)
+        let token = readSharedKeychainString(account: SharedSessionKeys.accessToken)
+        log.info("SharedSession.load url=\(urlString != nil, privacy: .public) user=\(userID != nil, privacy: .public) token=\(token != nil, privacy: .public) group=\(resolvedAccessGroup, privacy: .public)")
+        guard let urlString, let url = URL(string: urlString), let userID, let token else {
             return nil
         }
         return SharedSession(baseURL: url, userID: userID, accessToken: token)

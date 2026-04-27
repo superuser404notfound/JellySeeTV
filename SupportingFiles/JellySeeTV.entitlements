@@ -8,6 +8,7 @@
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
+		<string>$(AppIdentifierPrefix)de.superuser404.JellySeeTV</string>
 		<string>$(AppIdentifierPrefix)de.superuser404.JellySeeTV.shared</string>
 	</array>
 </dict>
