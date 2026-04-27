@@ -12,8 +12,26 @@ private let log = Logger(subsystem: "de.superuser404.JellySeeTV.TopShelf", categ
 /// silently falls back to the static brand asset. Errors are
 /// logged via `os.Logger` so Console.app on a paired Mac can
 /// surface them when the shelf misbehaves.
+///
+/// `@objc(JellySeeTVTopShelfContentProvider)` pins an explicit
+/// Obj-C class name so PluginKit's `NSClassFromString` lookup
+/// against `Info.plist`'s `NSExtensionPrincipalClass` doesn't
+/// depend on Swift name-mangling. Without this, on tvOS 26 we saw
+/// the extension launch and immediately die with PKPlugIn "must
+/// have pid! pid: 0" before our principal class could even register
+/// with the XPC service — hardening the binding fixes that.
+@objc(JellySeeTVTopShelfContentProvider)
 final class ContentProvider: TVTopShelfContentProvider {
+    /// Forces an early synchronous log line — if this never fires in
+    /// Console, the principal class isn't being instantiated at all
+    /// and the problem is the Info.plist binding, not our code.
+    override init() {
+        super.init()
+        log.notice("ContentProvider init (build=\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?", privacy: .public))")
+    }
+
     override func loadTopShelfContent() async -> (any TVTopShelfContent)? {
+        log.info("loadTopShelfContent invoked")
         guard let session = SharedSession.load() else {
             log.notice("No shared session in keychain — TopShelf will render empty.")
             return nil
