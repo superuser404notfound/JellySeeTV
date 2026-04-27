@@ -5,6 +5,13 @@ struct JellySeeTVApp: App {
     @State private var appState = AppState()
     @State private var dependencies = DependencyContainer()
 
+    init() {
+        // Hand the live AppState/DependencyContainer to the intent
+        // layer so AppIntent.perform() can drive navigation and
+        // hit Jellyfin without rebuilding its own DI graph.
+        IntentBridge.bind(appState: appState, dependencies: dependencies)
+    }
+
     var body: some Scene {
         WindowGroup {
             AppRouter()
