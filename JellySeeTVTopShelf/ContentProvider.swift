@@ -63,8 +63,14 @@ final class ContentProvider: TVTopShelfContentProvider {
         cell.displayAction = TVTopShelfAction(url: deepLink(for: item))
 
         if let url = item.topShelfImageURL(baseURL: session.baseURL, token: session.accessToken) {
-            cell.setImageURL(url, for: .screenScale1x)
+            // 2x is the only scale Apple TV actually renders — setting
+            // both 1x and 2x doubles the daemon's fetch work and trips
+            // memory pressure that can surface as "-17102 decompressing
+            // image" when several cells race to decode at once.
             cell.setImageURL(url, for: .screenScale2x)
+            log.debug("cell \(item.id, privacy: .public) image=\(url.absoluteString, privacy: .private(mask: .hash))")
+        } else {
+            log.notice("cell \(item.id, privacy: .public) has no image URL")
         }
         return cell
     }

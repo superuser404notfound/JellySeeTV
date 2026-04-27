@@ -92,10 +92,16 @@ extension JellyfinItem {
         return "\(series) · \(name)"
     }
 
+    /// Force `format=Jpg` so the system's image-cache daemon never
+    /// sees a WebP/AVIF response that ImageIO might choke on inside
+    /// the tight extension memory budget. Cap width at 640 — TopShelf
+    /// cells render around 410pt wide on tvOS, anything larger is
+    /// just memory waste that can trigger -17102 decompress failures
+    /// when several items race to decode at once.
     private func imageURL(baseURL: URL, itemID: String, kind: String, tag: String, token: String) -> URL? {
         var base = baseURL.absoluteString
         while base.hasSuffix("/") { base.removeLast() }
-        let raw = "\(base)/Items/\(itemID)/Images/\(kind)?tag=\(tag)&maxWidth=960&quality=90&api_key=\(token)&ApiKey=\(token)"
+        let raw = "\(base)/Items/\(itemID)/Images/\(kind)?tag=\(tag)&maxWidth=640&quality=85&format=Jpg&api_key=\(token)"
         return URL(string: raw)
     }
 }
