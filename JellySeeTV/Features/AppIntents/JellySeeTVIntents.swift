@@ -11,6 +11,11 @@ struct OpenJellySeeTVIntent: AppIntent {
     static let title: LocalizedStringResource = "Open JellySeeTV"
     static let description = IntentDescription("Open the JellySeeTV app.")
     static let openAppWhenRun: Bool = true
+    /// `.alwaysAllowed` lets tvOS-Siri voice-invoke the intent
+    /// without the device-unlock prompt. The action is harmless —
+    /// just opens the app — and Siri otherwise refuses with
+    /// "die App unterstützt diesen Vorgang mit Siri nicht."
+    static let authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
     func perform() async throws -> some IntentResult {
         return .result()
@@ -24,41 +29,21 @@ struct OpenJellySeeTVIntent: AppIntent {
 /// `AppRouter` already watches that field, fetches the item, and
 /// presents `DetailRouterView` over the tab root.
 ///
-/// Failure modes (no session, server unreachable, empty queue) just
-/// surface as "the app opened on Home and nothing happened" — Siri
-/// has no graceful retry surface and a user-facing error toast for
-/// a voice command would be more annoying than the silent fall-back.
+/// Siri-via-tvOS-remote rejects intents whose `perform()` does
+/// async work (network, long waits) on the assumption they need
+/// authentication. We sidestep that by flipping a boolean on
+/// `AppState`, returning immediately, and letting `AppRouter` do
+/// the resume-fetch + navigation in normal app context. From
+/// Siri's point of view the intent is now a trivial state mutation.
 struct ContinueWatchingIntent: AppIntent {
     static let title: LocalizedStringResource = "Continue Watching"
     static let description = IntentDescription("Resume your most recent show or movie on JellySeeTV.")
     static let openAppWhenRun: Bool = true
+    static let authenticationPolicy: IntentAuthenticationPolicy = .alwaysAllowed
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        guard let appState = IntentBridge.appState,
-              let dependencies = IntentBridge.dependencies
-        else {
-            return .result()
-        }
-
-        // Cold launches: AppRouter's restoreSession runs in parallel
-        // with this perform() call. Wait up to 5s for auth so a
-        // siri-from-locked-tv flow still finds an active user.
-        var waited = 0
-        while !appState.isAuthenticated, waited < 50 {
-            try? await Task.sleep(for: .milliseconds(100))
-            waited += 1
-        }
-        guard let user = appState.activeUser else { return .result() }
-
-        let response = try? await dependencies.jellyfinLibraryService.getResumeItems(
-            userID: user.id,
-            mediaType: "Video",
-            limit: 1
-        )
-        if let item = response?.items.first {
-            appState.pendingDeepLinkItemID = item.id
-        }
+        IntentBridge.appState?.requestContinueWatching = true
         return .result()
     }
 }

@@ -20,6 +20,14 @@ final class AppState {
     /// repeated tap on the same shelf cell still re-fires.
     var pendingDeepLinkItemID: String?
 
+    /// Flipped by `ContinueWatchingIntent` so AppRouter knows to
+    /// fetch the latest Resume item and route to it. Kept separate
+    /// from `pendingDeepLinkItemID` because the intent runs before
+    /// we know which item to play — AppRouter resolves the queue
+    /// and then sets `pendingDeepLinkItemID` itself, reusing the
+    /// existing TopShelf navigation path.
+    var requestContinueWatching: Bool = false
+
     var isSeerrConnected: Bool {
         activeSeerrServer != nil && activeSeerrUser != nil
     }

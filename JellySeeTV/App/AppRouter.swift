@@ -53,10 +53,42 @@ struct AppRouter: View {
         .task(id: appState.pendingDeepLinkItemID) {
             await resolvePendingDeepLink()
         }
+        .task(id: appState.requestContinueWatching) {
+            await resolveContinueWatchingRequest()
+        }
         .fullScreenCover(item: $deepLinkItem) { item in
             NavigationStack {
                 DetailRouterView(item: item)
             }
+        }
+    }
+
+    /// Fetches the active user's first Resume-queue item and feeds
+    /// it through the normal deep-link channel. Triggered by
+    /// `ContinueWatchingIntent` (Siri / Shortcuts) — the intent
+    /// itself stays trivial so tvOS-Siri's "no async work" policy
+    /// for voice invocation is respected.
+    private func resolveContinueWatchingRequest() async {
+        guard appState.requestContinueWatching else { return }
+
+        // Same cold-launch wait as the deep-link path: Siri may
+        // hand us control before restoreSession finishes.
+        while !appState.isAuthenticated, !Task.isCancelled {
+            try? await Task.sleep(for: .milliseconds(150))
+        }
+        guard let user = appState.activeUser else {
+            appState.requestContinueWatching = false
+            return
+        }
+
+        let response = try? await dependencies.jellyfinLibraryService.getResumeItems(
+            userID: user.id,
+            mediaType: "Video",
+            limit: 1
+        )
+        appState.requestContinueWatching = false
+        if let item = response?.items.first {
+            appState.pendingDeepLinkItemID = item.id
         }
     }
 
