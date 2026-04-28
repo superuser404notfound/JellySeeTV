@@ -176,6 +176,14 @@ struct ProfileSettingsView: View {
                 .padding(.horizontal, 28)
                 .padding(.vertical, 14)
             }
+            // The default tvOS bordered style fills with the active
+            // tint and propagates that same tint into the Label's
+            // text + icon — pink-on-pink (or whichever accent is
+            // chosen) leaves the text invisible. SettingsTileButtonStyle
+            // uses white-opacity for fill and lets the label render in
+            // the primary foreground, so contrast holds across every
+            // tint the user can pick. Same style the radios below use.
+            .buttonStyle(SettingsTileButtonStyle())
         }
     }
 
