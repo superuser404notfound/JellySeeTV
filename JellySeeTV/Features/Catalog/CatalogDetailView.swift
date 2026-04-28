@@ -489,6 +489,11 @@ struct CatalogDetailView: View {
                         Label(requestButtonTitle, systemImage: "tray.and.arrow.down")
                             .font(.body)
                             .fontWeight(.semibold)
+                            // Keep the label legible against the
+                            // tinted bordered fill — primary FG
+                            // overrides SwiftUI's tint propagation
+                            // into the Label's icon + text channel.
+                            .foregroundStyle(.primary)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 12)
                     }

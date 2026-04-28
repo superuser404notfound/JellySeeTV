@@ -239,7 +239,9 @@ struct SettingsView: View {
         // No destructive role — on tvOS that renders as dark red text
         // that's hard to read against the dark background. A subtle
         // arrow-out icon + neutral text is clear enough; the
-        // consequence isn't catastrophic.
+        // consequence isn't catastrophic. SettingsTileButtonStyle
+        // sidesteps the default-tvOS-bordered tint trap where icon
+        // and background end up the same color.
         Button {
             try? dependencies.clearSession()
             appState.logout()
@@ -250,6 +252,7 @@ struct SettingsView: View {
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
         }
+        .buttonStyle(SettingsTileButtonStyle())
         .padding(.top, 12)
     }
 }

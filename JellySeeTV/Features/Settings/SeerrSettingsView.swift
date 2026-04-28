@@ -97,6 +97,11 @@ struct SeerrSettingsView: View {
                 } label: {
                     Label("settings.seerr.useJellyfinIP", systemImage: "arrow.triangle.2.circlepath")
                         .font(.caption)
+                        // Keep the label readable when a custom accent
+                        // tint is active — without this, the bordered
+                        // button would render icon + text in the same
+                        // tint colour as its fill.
+                        .foregroundStyle(.primary)
                 }
             }
 
@@ -337,6 +342,7 @@ struct SeerrSettingsView: View {
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
             }
+            .buttonStyle(SettingsTileButtonStyle())
         }
     }
 
