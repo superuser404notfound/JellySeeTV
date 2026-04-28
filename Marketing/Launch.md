@@ -8,9 +8,10 @@ The vibe-coded disclosure is in every post on purpose. Self-hosted and Apple-pla
 
 * Public TestFlight link: `https://testflight.apple.com/join/eFKDaaXr`
 * Public beta version: **0.3.2** — stable, plenty of internal testing, ready for outside eyes
-* Apple TV Top Shelf integration and Siri voice commands are landed in `main` but **not yet in the public beta** (planned for the next public build, 0.4.0). Keep them out of the launch copy below so installers don't go looking for features that aren't there yet.
+* Apple TV Top Shelf integration and Siri voice commands are landed in `main` but **not yet in the public beta** (planned for 0.4.0). Keep them out of the launch copy below so installers don't go looking for features that aren't there yet.
 * Privacy policy + imprint live at `https://jellyseetv.superuser404.de`
 * `BETA.md` and the bug-report template are committed and visible
+* 2x2 screenshot collage at `Screenshots/reddit-collage.jpg` for the Reddit posts
 
 If anything in here references a different version number, replace it before posting.
 
@@ -31,20 +32,24 @@ JellySeeTV is now in public beta on TestFlight.
 
 You need an Apple TV 4K running tvOS 26 or later, plus your own Jellyfin server.
 
-## What this beta does
+## What it does
 
 * Native tvOS Jellyfin client with Direct Play for HEVC, HEVC Main10, AV1
 * Real HDR10, Dolby Vision, HLG, with automatic display-mode switching
 * Real Dolby Atmos via EAC3+JOC passthrough, wrapped as Dolby MAT 2.0 so your AVR's Atmos light actually comes on
-* Built-in Jellyseerr browse and request flow as a first-class part of the UI, not a tacked-on link
+* Built-in Jellyseerr browse and request flow as a first-class part of the UI
 * 26 languages
-* GPL-3.0 with App Store Exception, fully open source, no telemetry
+
+## What it doesn't do
+
+* No telemetry. No analytics. No tracking domains. No third-party SDKs
+* No "rate this app" pop-up. No upsell screen. No social tab
+* No login wall, no account, no marketing list — auth tokens stay in the system Keychain
+* Privacy Manifest declares zero data collection because there is zero data collection
 
 ## Transparency: this is a vibe-coded project
 
 I built JellySeeTV in close pair-programming with Claude (Anthropic). The architectural decisions are mine, every change went through a review loop before being committed, and the source is in this repo so you can audit it yourself rather than taking my word for it.
-
-The Privacy Manifest declares zero data collection. No analytics, no third-party SDKs. Auth tokens stay in the system Keychain. The only network traffic is to the servers you point the app at.
 
 If you want to see how the code is structured before installing, browse the `JellySeeTV/` folder. The video engine lives separately at https://github.com/superuser404notfound/AetherEngine.
 
@@ -90,25 +95,29 @@ After posting: ⋯ menu → "Pin issue".
 
 Three subreddits, three slightly different framings. **Don't post all three within a few hours of each other** — Reddit's spam filters dislike that pattern, and you also need bandwidth to answer comments under each one. Spread them over two or three days.
 
+Each post should embed `Screenshots/reddit-collage.jpg` once, near the top, right after the intro paragraph.
+
 ### r/jellyfin
 
 **Title:**
 ```
-[Beta] JellySeeTV: native tvOS client with built-in Jellyseerr, real HDR + Atmos (open source, GPL-3.0)
+[Beta] JellySeeTV: a fast, native tvOS Jellyfin client with built-in Jellyseerr (open source, GPL-3.0)
 ```
 
 **Body:**
 ```markdown
 Hey r/jellyfin,
 
-I built JellySeeTV, a native Apple TV client for Jellyfin with first-class Jellyseerr integration. After several months of work and a chunk of internal testing, it's stable enough for a public TestFlight beta.
+I built JellySeeTV, a native Apple TV client for Jellyfin with first-class Jellyseerr integration. After a few months of work and a chunk of internal testing, it's stable enough for a public TestFlight beta.
+
+[2x2 screenshot collage embedded here]
 
 **TestFlight:** https://testflight.apple.com/join/eFKDaaXr
 **Source:** https://github.com/superuser404notfound/JellySeeTV
 
-## Why another client
+## What it is
 
-The existing Apple TV options are either Swiftfin, which is great but uses VLCKit and doesn't always handle HDR cleanly, or web-wrapped clients that fight tvOS instead of using it. JellySeeTV is built ground-up native: SwiftUI, with a custom video engine on top of FFmpeg, VideoToolbox, and AVPlayer. Same focus engine, transport bar, and info-panel patterns Apple TV+ uses.
+A focused, fast Apple TV client. SwiftUI on top of a custom video engine that talks directly to FFmpeg, VideoToolbox, and AVPlayer — same focus engine, transport bar, and info-panel patterns the Apple TV+ app uses. Cold-launches quickly, scrolls smoothly, gets out of your way.
 
 The Jellyseerr piece is what I personally was missing. I want to browse trending content and request things from the couch without switching to a phone or a web UI. So that's a first-class part of the app, not a separate tab linking out.
 
@@ -117,10 +126,17 @@ The Jellyseerr piece is what I personally was missing. I want to browse trending
 * Direct Play for almost every codec your Apple TV understands: H.264, HEVC, HEVC Main10, AV1
 * Real HDR10 and Dolby Vision with automatic display-mode switching (Match Content)
 * Real Dolby Atmos via EAC3+JOC, wrapped as Dolby MAT 2.0, so your AVR's Atmos light actually lights up
-* Resume across devices, intro skip (with the Intro Skipper plugin), next-episode autoplay
+* Resume across devices, intro skip, next-episode autoplay
 * Subtitle and audio-track switching mid-playback
 * 26 languages
-* No telemetry, no analytics, no third-party SDKs. GPL-3.0 with App Store Exception, fully auditable
+
+## What you won't find in it
+
+* No telemetry, no analytics, no tracking domains, no third-party SDKs
+* No upsell tab, no "rate this app" pop-up, no marketing newsletter prompt
+* No login wall — you connect to your server, that's it
+* Lean dependency graph: AVFoundation, VideoToolbox, FFmpeg, and the Jellyfin/Jellyseerr APIs themselves. That's it
+* GPL-3.0 with App Store Exception, fully auditable
 
 ## A note on how this was built
 
@@ -160,6 +176,8 @@ Hey r/selfhosted,
 
 If you self-host Jellyfin and have an Apple TV in the living room, JellySeeTV might be your missing piece. Native tvOS app, GPL-3.0 with App Store Exception, no telemetry, with built-in Jellyseerr integration so you can browse and request from the same UI.
 
+[2x2 screenshot collage embedded here]
+
 **TestFlight:** https://testflight.apple.com/join/eFKDaaXr
 **Source and audit:** https://github.com/superuser404notfound/JellySeeTV
 **Privacy policy:** https://jellyseetv.superuser404.de/privacy (zero data collected)
@@ -169,26 +187,28 @@ If you self-host Jellyfin and have an Apple TV in the living room, JellySeeTV mi
 * Native Apple TV client for Jellyfin
 * Jellyseerr request flow built in: browse trending, request, track status, all on the TV
 * Direct Play for HEVC, HEVC Main10, AV1, with HDR10, Dolby Vision, Dolby Atmos
-* Custom FFmpeg + VideoToolbox engine, no VLCKit
-* Open source, GPL-3.0 with App Store Exception, fork it, audit it, ship your own version if you keep it open
+* Custom FFmpeg + VideoToolbox video engine
+* Open source, GPL-3.0 with App Store Exception. Fork it, audit it, ship your own version if you keep it open
+
+## Lean by design
+
+* No telemetry. No analytics. No tracking domains. No crash-reporting SDK that quietly phones home
+* No third-party SDKs of any kind
+* Dependency graph fits on a napkin: AVFoundation, VideoToolbox, FFmpeg (LGPL build, dynamic-linkable for App Store compliance), and the Jellyfin/Jellyseerr APIs themselves
+* Credentials live in the system Keychain, never written to disk in plaintext, never logged
+* Network traffic is auditable: open `JellySeeTV/Services/` and you'll see exactly what's sent and where
+* The Privacy Manifest declares zero data collection because there is zero data collection
 
 ## On vibe-coding, since this community will rightly ask
 
 I built this in close pair-programming with Claude. I want to be upfront about that because the term "vibe-coded" tends to come with the assumption of slop. This is the opposite of slop:
 
 * Every commit was reviewed before landing. Look at the git log: descriptive messages, focused diffs, no auto-generated noise
-* The Privacy Manifest is honest: no data collection, no tracking domains, no third-party SDKs
-* Network traffic is auditable: open `JellySeeTV/Services/` and you'll see exactly what's sent and where
-* Credentials live in the system Keychain, never written to disk in plaintext, never logged
-* The dependency graph is small and named: AVFoundation, VideoToolbox, FFmpeg (LGPL build, dynamic-linkable for App Store compliance), and that's basically it
-
-If you spot something wrong, file an issue or open a PR. The point of being open source is that you don't have to trust me, you can verify.
+* If you spot something wrong, file an issue or open a PR. The point of being open source is that you don't have to trust me, you can verify
 
 ## Why open source
 
-For the same reason you self-host Jellyfin in the first place. The other Apple TV options are closed-source binaries you have to trust. This one isn't.
-
-The video engine ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) is LGPL-3.0 separately so it's reusable. The app shell on top is GPL-3.0. Both carry an App Store / DRM Exception so the App Store and TestFlight distribution paths stay legally clean.
+For the same reason you self-host Jellyfin in the first place. The video engine ([AetherEngine](https://github.com/superuser404notfound/AetherEngine)) is LGPL-3.0 separately so it's reusable. The app shell on top is GPL-3.0. Both carry an App Store / DRM Exception so the App Store and TestFlight distribution paths stay legally clean.
 
 ## Tech stack for the curious
 
@@ -211,24 +231,28 @@ Bug reports welcome on GitHub.
 
 **Title:**
 ```
-JellySeeTV: open-source native Jellyfin client for Apple TV is in public beta
+JellySeeTV: open-source native Jellyfin client for Apple TV is in public beta — fast, lean, real HDR + Atmos
 ```
 
 **Body:**
 ```markdown
 For the Jellyfin users in here: JellySeeTV is now in public TestFlight beta.
 
+[2x2 screenshot collage embedded here]
+
 **Install:** https://testflight.apple.com/join/eFKDaaXr
 
-Native tvOS app. Proper transport bar, focus engine, HDR and Dolby Vision display switching, Dolby Atmos via EAC3+JOC passthrough. Built from scratch on SwiftUI plus a custom video engine. No VLCKit, no web view.
+Native tvOS app. Proper transport bar, focus engine, HDR and Dolby Vision display switching, Dolby Atmos via EAC3+JOC passthrough. Built ground-up on SwiftUI plus a custom video engine. Cold-launches quickly, scrolls smoothly, stays out of the way.
 
 Plus first-class Jellyseerr integration if you use that, so you can browse trending and request stuff directly from the couch.
 
+**Lean:** No telemetry, no analytics, no third-party SDKs, no upsell pop-ups. The Privacy Manifest declares zero data collection because there is zero data collection.
+
 **Requirements:** Apple TV 4K, tvOS 26+, your own Jellyfin server.
 
-It's GPL-3.0 licensed (with an Apple Store Exception so the App Store distribution stays legal) and fully open source. Code is at https://github.com/superuser404notfound/JellySeeTV. No telemetry, no analytics. The app was built in pair-programming with Claude (Anthropic), with every change reviewed before commit, and the source is open so you can verify what it does before installing.
+It's GPL-3.0 licensed (with an Apple Store Exception so the App Store distribution stays legal) and fully open source. Code is at https://github.com/superuser404notfound/JellySeeTV. The app was built in pair-programming with Claude (Anthropic), with every change reviewed before commit, and the source is open so you can verify what it does before installing.
 
-Feedback welcome, particularly on HDR and Dolby Vision behavior across different TV models and Atmos handling on various AVRs. Bug reports go in GitHub Issues.
+Feedback welcome, particularly on HDR / Dolby Vision behavior across different TV models and Atmos handling on various AVRs. Bug reports go in GitHub Issues.
 ```
 
 ## Step 3 (optional): Mastodon and Bluesky
@@ -238,7 +262,7 @@ Short version, fits in a single post on either platform:
 ```
 JellySeeTV: open-source native Jellyfin client for Apple TV with built-in Jellyseerr is now in public TestFlight beta.
 
-Direct Play, real HDR10, real Dolby Vision, real Dolby Atmos. GPL-3.0 with App Store Exception, no telemetry. Vibe-coded with Claude, every change reviewed, source is open.
+Fast. Lean. Real HDR10. Real Dolby Vision. Real Dolby Atmos. No telemetry, no analytics, no third-party SDKs. GPL-3.0 with App Store Exception. Vibe-coded with Claude, every change reviewed, source is open.
 
 TestFlight: https://testflight.apple.com/join/eFKDaaXr
 Source: https://github.com/superuser404notfound/JellySeeTV
@@ -258,7 +282,7 @@ Show HN: JellySeeTV, open-source native Apple TV client for Jellyfin and Jellyse
 **URL field:** `https://github.com/superuser404notfound/JellySeeTV`
 **Text field:** leave blank. The HN convention for Show HN with a URL is empty body, the discussion lives in the comments.
 
-If it gets traction, plan to hang in the comments for a few hours. Be honest about the vibe-coding workflow, point at concrete architectural decisions in the code (the Atmos MAT-wrapping, the AVPlayerItem.timebase video sync, the keychain organization), and answer technical questions promptly. That's what wins HN over.
+If it gets traction, plan to hang in the comments for a few hours. Be honest about the vibe-coding workflow, point at concrete architectural decisions in the code (the Atmos MAT-wrapping, the AVPlayerItem.timebase video sync, the lean dependency graph), and answer technical questions promptly. That's what wins HN over.
 
 ## Step 5: After launch, what to watch
 
@@ -286,3 +310,8 @@ Don't try to be everywhere on day 0. Reddit appreciates posts that get answered,
 The disclosure of vibe-coding is included in every post on purpose. Hiding it would invite suspicion if anyone discovered it later (and they would — the commit messages have `Co-Authored-By: Claude` trailers). Leading with it shows confidence in the actual work.
 
 The framing matters: "vibe-coded but auditable" is an honest claim that the code is reviewed and reviewable. "Vibe-coded slop" is what people fear. The way to defuse the fear is to invite people to look at the code themselves.
+
+Two things to avoid in the comment threads:
+
+1. **Don't bash other clients by name.** No "VLCKit is bad" or "Swiftfin doesn't do X". You're standing on what JellySeeTV is, not on what others aren't. If someone else brings up a comparison in a comment, answer factually about your own design choices and stop there.
+2. **Don't oversell.** "Fast" and "lean" are claims people will test. They mostly hold up — but if a feature isn't there yet (Top Shelf, Siri, downloads), say so directly. Honesty compounds; spin gets caught.
