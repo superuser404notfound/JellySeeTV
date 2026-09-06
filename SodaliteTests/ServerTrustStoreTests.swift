@@ -17,12 +17,12 @@ struct ServerTrustStoreTests {
 
         init(_ pins: [String: String] = [:]) { self.pins = pins }
 
-        func loadPins() -> [String: String] {
+        nonisolated func loadPins() -> [String: String] {
             lock.lock(); defer { lock.unlock() }
             return pins
         }
 
-        func savePins(_ pins: [String: String]) {
+        nonisolated func savePins(_ pins: [String: String]) {
             lock.lock(); self.pins = pins; saveCount += 1; lock.unlock()
         }
     }

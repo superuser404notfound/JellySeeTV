@@ -3,7 +3,7 @@ import Foundation
 import Security
 
 /// The SHA-256 of a certificate, in the two forms this app needs it: one to compare, one to read.
-enum CertificateFingerprint {
+nonisolated enum CertificateFingerprint {
 
     /// Lowercase hex of the DER SHA-256. The whole certificate rather than its public key: what the
     /// user was shown and accepted is this exact certificate, and a renewal that keeps the key is
@@ -36,8 +36,8 @@ enum CertificateFingerprint {
 /// Where the pins live. Fronted so the store can be tested without a keychain, and so the keychain
 /// half stays with `DependencyContainer` like every other credential in this app.
 protocol TrustPinStorage: Sendable {
-    func loadPins() -> [String: String]
-    func savePins(_ pins: [String: String])
+    nonisolated func loadPins() -> [String: String]
+    nonisolated func savePins(_ pins: [String: String])
 }
 
 /// Which server certificates this device has been told to accept, keyed by the host that offered
@@ -51,7 +51,7 @@ protocol TrustPinStorage: Sendable {
 /// The fingerprint is the decision. An entry does not say "this host may present anything", it says
 /// "this host may present THIS certificate", so a different one later is a question the user gets
 /// asked again rather than an answer they already gave.
-final class ServerTrustStore: @unchecked Sendable {
+nonisolated final class ServerTrustStore: @unchecked Sendable {
 
     private let storage: any TrustPinStorage
     private let lock = NSLock()
@@ -107,5 +107,81 @@ final class ServerTrustStore: @unchecked Sendable {
     func refusedFingerprint(forHost host: String) -> String? {
         lock.lock(); defer { lock.unlock() }
         return refusals[host]
+    }
+}
+
+/// What to do with one server-trust challenge.
+enum ServerTrustDecision: Equatable {
+    /// The certificate is the one this host was pinned to, so it is accepted regardless of what the
+    /// system's chain validation makes of it.
+    case useCredential
+    /// Left to the system. A host with a real certificate keeps working exactly as before, and one
+    /// without keeps failing exactly as before, which is the failure the trust sheet reads.
+    case defaultHandling
+}
+
+/// The single answer every session this app owns gives to a server-trust challenge.
+///
+/// Attached to `HTTPClient`'s sessions, the route resolver's probe, the artwork fetch and the
+/// sidecar subtitle fetch. `EngineTLS.serverTrustEvaluator` reads the same store from the same
+/// fingerprint, so the app and the engine cannot disagree about one origin.
+nonisolated final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
+
+    /// Set once by `DependencyContainer`. A process-wide handle because two of the five fetch sites
+    /// are static (`ImageFetch`) or view-scoped, and threading a container reference into them for
+    /// this one feature would be a larger change than the feature.
+    nonisolated(unsafe) static var shared: ServerTrustDelegate?
+
+    let store: ServerTrustStore
+
+    init(store: ServerTrustStore) {
+        self.store = store
+    }
+
+    /// The whole policy, taking the trust object rather than the challenge: `URLProtectionSpace`
+    /// cannot be built carrying a `serverTrust`, so a decision reading it off the challenge could
+    /// only ever be tested on the arm where there is none.
+    static func decide(
+        host: String,
+        port: Int,
+        authenticationMethod: String,
+        serverTrust: SecTrust?,
+        store: ServerTrustStore
+    ) -> ServerTrustDecision {
+        guard authenticationMethod == NSURLAuthenticationMethodServerTrust,
+              let serverTrust,
+              let offered = CertificateFingerprint.sha256(ofLeafIn: serverTrust)
+        else { return .defaultHandling }
+
+        let key = ServerTrustStore.hostKey(host: host, port: port)
+        guard store.pinnedFingerprint(forHost: key) == offered else {
+            // Remembered, not accepted. The sheet needs a fingerprint to show, and a host whose
+            // certificate has changed has to be able to say which one it is offering now.
+            store.noteRefused(offered, forHost: key)
+            return .defaultHandling
+        }
+        return .useCredential
+    }
+
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        let space = challenge.protectionSpace
+        let decision = Self.decide(
+            host: space.host, port: space.port,
+            authenticationMethod: space.authenticationMethod,
+            serverTrust: space.serverTrust, store: store)
+        switch decision {
+        case .useCredential:
+            guard let trust = space.serverTrust else {
+                completionHandler(.performDefaultHandling, nil)
+                return
+            }
+            completionHandler(.useCredential, URLCredential(trust: trust))
+        case .defaultHandling:
+            completionHandler(.performDefaultHandling, nil)
+        }
     }
 }
