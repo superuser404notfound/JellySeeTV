@@ -38,7 +38,7 @@ enum ReplacedItemRecoveryTrigger {
         case .httpError, .unauthorized:
             return true
         case .serverUnreachable, .timeout, .networkError, .invalidURL, .invalidResponse, .decodingError,
-             .localNetworkDenied:
+             .localNetworkDenied, .certificateUntrusted:
             // A denial is the far end of the same rule: the request never left the device, so it
             // carries no statement about the item at all.
             return false

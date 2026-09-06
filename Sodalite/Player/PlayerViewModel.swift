@@ -1836,6 +1836,15 @@ final class PlayerViewModel {
                     icon = "exclamationmark.triangle"
                     title = String(localized: "player.error.generic.title", defaultValue: "Couldn't start playback")
                 }
+            case .certificateUntrusted:
+                // Same reasoning as the local-network case below: the server answered, so a
+                // connection face would describe the wrong thing. What is wrong is that we cannot
+                // tell whether the answer came from the server.
+                icon = "lock.trianglebadge.exclamationmark"
+                title = String(
+                    localized: "certificateTrust.error.title",
+                    defaultValue: "Server identity not verified"
+                )
             case .localNetworkDenied:
                 // Named rather than folded into the connection face: the whole point of Sodalite#92
                 // is that this failure is not a connection problem, and the overlay under this title

@@ -234,6 +234,7 @@ nonisolated enum DiscoveryProbeRace {
         case .timeout: "timed out"
         case .serverUnreachable: "unreachable"
         case .localNetworkDenied: "local network denied"
+        case .certificateUntrusted(let host, _): "certificate refused (\(host))"
         case .invalidResponse: "invalid response"
         case .invalidURL: "invalid URL"
         case .networkError(let underlying): "network error (\((underlying as NSError).code))"

@@ -358,6 +358,7 @@
 		59B335A7F759E00026CB85F0 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A67A85813AA4FE94C9DF9D5 /* LoginView.swift */; };
 		59D8D0F89BBABAA4060D1401 /* StatsSectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33D2CF971F109B9D2B1578D /* StatsSectionTests.swift */; };
 		59EC6D80B92D43F8613330AB /* TechInfoBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40485493236BBADEB869CA40 /* TechInfoBox.swift */; };
+		59FB2F548702F8C94B228BE3 /* CertificateTrustFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614E28A7002618314BCD6123 /* CertificateTrustFailure.swift */; };
 		5B37371EE720F4892357DDCE /* LiveTimerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AEDF4FA4D7ED09E1704C0B8 /* LiveTimerStore.swift */; };
 		5B3AB057C2C8A59360212D82 /* PlayerTouchInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DC0FDC4142C0649A5D2E785 /* PlayerTouchInput.swift */; };
 		5B49C6BBFB6DD54AB84166BD /* CloudSyncSessionRetentionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1459E3CC3E393249DCF146 /* CloudSyncSessionRetentionTests.swift */; };
@@ -444,6 +445,7 @@
 		6EFDB41723F8073181EBFFAF /* MediaBadgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6ABFF34797853D2B659B7B1 /* MediaBadgeTests.swift */; };
 		7004E52583DE1E3A1E4E668A /* AlbumDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0282AF1C282F923158406 /* AlbumDetailView.swift */; };
 		70253D61A6BE18F1BDB0FB51 /* JellyfinAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477BA4C25F579EBD37469D21 /* JellyfinAuthService.swift */; };
+		70388189FBF4CEDCC82248D9 /* CertificateErrorClassificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFB899A50BF5D75B69C96FD3 /* CertificateErrorClassificationTests.swift */; };
 		7097EE02B21646A9F196EF07 /* GuideFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEF73FE46A03A9182049B99 /* GuideFilterTests.swift */; };
 		70B68852750C8A0123B57048 /* AetherEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 7ED4702581C9A65EAE4B02C4 /* AetherEngine */; };
 		70C14BE0E7A47CD315165CB7 /* PlaylistDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB2F471C812F74E010AFA5F /* PlaylistDetailView.swift */; };
@@ -467,6 +469,7 @@
 		74B9E15D08B06A8C9790AE03 /* PlayerModalDismisser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2866E3279048E699E940339D /* PlayerModalDismisser.swift */; };
 		750EBD3ABF18891C6BE33F0E /* APIEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3118800CEC44D1F94EBBFCF7 /* APIEndpoint.swift */; };
 		7535F9CF1531806EDA0FA364 /* ArtworkTintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2871D3EBD7927D0CD8562D0B /* ArtworkTintTests.swift */; };
+		756CFED6374061F9D316F5D4 /* CertificateTrustFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 614E28A7002618314BCD6123 /* CertificateTrustFailure.swift */; };
 		75C679F2F4217D355A1A934D /* PlaybackSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4703CB0FED4DACCE7A447A6 /* PlaybackSettingsView.swift */; };
 		75F014CB9EEC83C90914BD49 /* MainQueueDefer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2009D3A6B35520280B2E8329 /* MainQueueDefer.swift */; };
 		76240562D4F654545BCFEBC6 /* SeerrMediaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04547B5AAA8453CDCBF40F1B /* SeerrMediaService.swift */; };
@@ -1301,6 +1304,7 @@
 		602D5AFF859F3E9604F56EEE /* TopShelfCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopShelfCache.swift; sourceTree = "<group>"; };
 		604F845AC7E6891F45117119 /* JellyfinAuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinAuthResponse.swift; sourceTree = "<group>"; };
 		6103321F2E25924263193999 /* DiscoveryProbeRace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveryProbeRace.swift; sourceTree = "<group>"; };
+		614E28A7002618314BCD6123 /* CertificateTrustFailure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateTrustFailure.swift; sourceTree = "<group>"; };
 		61EDE381DD9B9AF740EADCDF /* WatchedBadgeMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchedBadgeMetricsTests.swift; sourceTree = "<group>"; };
 		64582886C2B6ACD705C8EA6C /* ParentalGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalGate.swift; sourceTree = "<group>"; };
 		6476801A57CD47661C981732 /* EpisodeRowComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeRowComponents.swift; sourceTree = "<group>"; };
@@ -1586,6 +1590,7 @@
 		DE6F5DDE2F05B9FB53D03697 /* PlayerLoadingIndicatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerLoadingIndicatorTests.swift; sourceTree = "<group>"; };
 		DECF686D0D9F20908257C450 /* CatalogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogView.swift; sourceTree = "<group>"; };
 		DF8D1C94A258062863ED46C1 /* TrackDisplayFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackDisplayFormatterTests.swift; sourceTree = "<group>"; };
+		DFB899A50BF5D75B69C96FD3 /* CertificateErrorClassificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateErrorClassificationTests.swift; sourceTree = "<group>"; };
 		DFFD885BBC0D55B662283D12 /* ChannelListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListView.swift; sourceTree = "<group>"; };
 		E0420563C7BECFF47B75D4ED /* SeerrEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeerrEndpoints.swift; sourceTree = "<group>"; };
 		E14D3464C7E129B3F2C36E08 /* GuideAxisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideAxisTests.swift; sourceTree = "<group>"; };
@@ -1902,6 +1907,7 @@
 				34D645BDAC050F8D2C30C5A3 /* BackgroundRendererMotionTests.swift */,
 				AEA2CF2E69FD9FD5D5D8E747 /* BitmapSubtitleCanvasTests.swift */,
 				55F3667ADD69A9E32E9CF83B /* BufferedProgressTests.swift */,
+				DFB899A50BF5D75B69C96FD3 /* CertificateErrorClassificationTests.swift */,
 				1ABB54BA5E94C8A309B6849A /* ChannelListRowTests.swift */,
 				5B5F43FFB34DC3C26180691D /* CloudSyncAccountTransitionTests.swift */,
 				3CEF15F18D201FFB609B9CE8 /* CloudSyncForwardCompatTests.swift */,
@@ -2591,6 +2597,7 @@
 				3118800CEC44D1F94EBBFCF7 /* APIEndpoint.swift */,
 				D594112B176D376D071761F2 /* APIError.swift */,
 				FF76354814B374060E8AE5C2 /* AsyncSemaphore.swift */,
+				614E28A7002618314BCD6123 /* CertificateTrustFailure.swift */,
 				6103321F2E25924263193999 /* DiscoveryProbeRace.swift */,
 				D260C52619403D730EF4F564 /* ErrorText.swift */,
 				545F0A25E3B7C1295647548F /* HTTPClient.swift */,
@@ -2982,6 +2989,7 @@
 				1DD9EBCAB06E334496CE11C8 /* CatalogProviderRow.swift in Sources */,
 				8F5EFF8635BABAAB01F5B23A /* CatalogView.swift in Sources */,
 				835F7B4A8DB91AFAEF35D098 /* CatalogViewModel.swift in Sources */,
+				59FB2F548702F8C94B228BE3 /* CertificateTrustFailure.swift in Sources */,
 				4B60BDFF2E5B5C721F827435 /* Changelog.swift in Sources */,
 				E0694A65176F63F123928213 /* ChangelogEntry.swift in Sources */,
 				62C2D2CE016A59F5463C508C /* ChangelogListView.swift in Sources */,
@@ -3377,6 +3385,7 @@
 				28F6E65D5A04655537B7A03B /* BackgroundRendererMotionTests.swift in Sources */,
 				AEB8A371368F211C25D33840 /* BitmapSubtitleCanvasTests.swift in Sources */,
 				4C1CFA98092A985FCF100E60 /* BufferedProgressTests.swift in Sources */,
+				70388189FBF4CEDCC82248D9 /* CertificateErrorClassificationTests.swift in Sources */,
 				F68119DB72333EA512C8C7D6 /* ChannelListRowTests.swift in Sources */,
 				C8ADFD5571A3FAAF284BCF9F /* CloudSyncAccountTransitionTests.swift in Sources */,
 				F74FDF2DD75F0066DA3F366D /* CloudSyncForwardCompatTests.swift in Sources */,
@@ -3603,6 +3612,7 @@
 				6BCB819F92B11AC691B41F3A /* CatalogProviderRow.swift in Sources */,
 				B2CEED9C8CD82970A62F449C /* CatalogView.swift in Sources */,
 				030F2E62BCA78E3126C51A8B /* CatalogViewModel.swift in Sources */,
+				756CFED6374061F9D316F5D4 /* CertificateTrustFailure.swift in Sources */,
 				54BD7CC18171A72D174427BA /* Changelog.swift in Sources */,
 				728FDCBD41417C83CF1BC659 /* ChangelogEntry.swift in Sources */,
 				90D19563C17ADD2BC8340CC8 /* ChangelogListView.swift in Sources */,

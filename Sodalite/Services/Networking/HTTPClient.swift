@@ -191,6 +191,12 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
     /// (Sodalite#92). The pre-filter runs first so the probe costs nothing on the ordinary failures:
     /// only a LAN address that failed with that exact sentence gets as far as asking the system.
     private static func transportFailure(_ error: Error, url: URL?) async -> APIError {
+        // Asked before the URLError cast and before the code switch: a refused certificate can
+        // arrive wrapped, and the code that says so is often not the one on top.
+        if let refused = CertificateTrustFailure.apiError(
+            for: error, url: url, store: ServerTrustDelegate.shared.store) {
+            return refused
+        }
         guard let urlError = error as? URLError else { return .networkError(error) }
         #if os(iOS)
         if let url, LocalNetworkAccess.couldBeDenial(urlError, url: url),
