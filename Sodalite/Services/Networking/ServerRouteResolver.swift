@@ -114,7 +114,8 @@ enum ServerProbe {
         config.timeoutIntervalForRequest = timeout
         config.timeoutIntervalForResource = timeout
         config.waitsForConnectivity = false
-        let session = URLSession(configuration: config)
+        let session = URLSession(
+            configuration: config, delegate: ServerTrustDelegate.shared, delegateQueue: nil)
         defer { session.invalidateAndCancel() }
         do {
             let (_, response) = try await session.data(from: url)

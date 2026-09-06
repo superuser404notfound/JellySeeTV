@@ -1,6 +1,6 @@
 import Foundation
 
-enum KeychainKeys {
+nonisolated enum KeychainKeys {
     static let service = "de.superuser404.Sodalite"
 
     static func accessToken(serverID: String) -> String {

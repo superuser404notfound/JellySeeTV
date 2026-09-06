@@ -2889,6 +2889,15 @@ final class PlayerViewModel {
         category: "Subtitles"
     )
 
+
+    /// The sidecar SRT fetch owns a session, because `URLSession.shared` cannot carry a delegate and
+    /// this request goes to the same server whose certificate the user may have had to accept.
+    nonisolated static let sidecarSubtitleSession: URLSession = {
+        let config = URLSessionConfiguration.default
+        return URLSession(
+            configuration: config, delegate: ServerTrustDelegate.shared, delegateQueue: nil)
+    }()
+
     private func loadSubtitles(streamIndex: Int) async {
         let stream = subtitleStreams.first(where: { $0.index == streamIndex })
         Self.subtitleLog.notice(
@@ -2912,7 +2921,7 @@ final class PlayerViewModel {
 
         for attempt in 1...2 {
             do {
-                let (data, response) = try await URLSession.shared.data(for: request)
+                let (data, response) = try await Self.sidecarSubtitleSession.data(for: request)
                 if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
                     Self.subtitleLog.notice("→ attempt \(attempt, privacy: .public) HTTP \(http.statusCode, privacy: .public)")
                     if attempt == 2 { return }

@@ -73,7 +73,10 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
             config.requestCachePolicy = .reloadRevalidatingCacheData
             // Belt to inFlightLimiter: transport pool shouldn't exceed what the limiter admits.
             config.httpMaximumConnectionsPerHost = 6
-            self.session = URLSession(configuration: config)
+            // AE#495 / certificate trust: every session this app owns answers a server-trust
+            // challenge from the same pin store, so the app and the engine agree about one origin.
+            self.session = URLSession(
+                configuration: config, delegate: ServerTrustDelegate.shared, delegateQueue: nil)
         }
 
         self.encoder = JSONEncoder()
@@ -277,7 +280,8 @@ extension HTTPClient {
         config.urlCache = nil
         config.waitsForConnectivity = false
         return HTTPClient(
-            session: URLSession(configuration: config),
+            session: URLSession(
+                configuration: config, delegate: ServerTrustDelegate.shared, delegateQueue: nil),
             transportTiming: { url, timing in
                 LogTap.shared.note("[discovery] timing \(url.absoluteString) -> \(timing)")
             }

@@ -127,10 +127,14 @@ enum ServerTrustDecision: Equatable {
 /// fingerprint, so the app and the engine cannot disagree about one origin.
 nonisolated final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
 
-    /// Set once by `DependencyContainer`. A process-wide handle because two of the five fetch sites
-    /// are static (`ImageFetch`) or view-scoped, and threading a container reference into them for
-    /// this one feature would be a larger change than the feature.
-    nonisolated(unsafe) static var shared: ServerTrustDelegate?
+    /// The one instance every session attaches to.
+    ///
+    /// Process-wide rather than container-owned because `HTTPClient()` is a default argument of
+    /// `DependencyContainer.init`, so the first session exists before the container's body runs and
+    /// could not be handed a delegate the container built. Consumers still read the store through
+    /// `DependencyContainer.serverTrustStore`.
+    static let shared = ServerTrustDelegate(
+        store: ServerTrustStore(storage: KeychainTrustPinStorage(keychain: KeychainService())))
 
     let store: ServerTrustStore
 
@@ -183,5 +187,32 @@ nonisolated final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unch
         case .defaultHandling:
             completionHandler(.performDefaultHandling, nil)
         }
+    }
+}
+
+/// The keychain half of the pin store.
+///
+/// It lives beside the store rather than in `DependencyContainer` for one reason: `HTTPClient()` is
+/// a default argument of the container's own init, so it is constructed BEFORE the container's body
+/// runs and cannot be handed anything the container built. The container still owns the handle every
+/// consumer reads (`serverTrustStore`), so nothing else in the app reaches the keychain for this.
+nonisolated struct KeychainTrustPinStorage: TrustPinStorage {
+
+    private let keychain: any KeychainServiceProtocol
+
+    init(keychain: any KeychainServiceProtocol) {
+        self.keychain = keychain
+    }
+
+    func loadPins() -> [String: String] {
+        guard let data = try? keychain.loadData(for: KeychainKeys.trustedCertificates) else {
+            return [:]
+        }
+        return (try? JSONDecoder().decode([String: String].self, from: data)) ?? [:]
+    }
+
+    func savePins(_ pins: [String: String]) {
+        guard let data = try? JSONEncoder().encode(pins) else { return }
+        try? keychain.save(data, for: KeychainKeys.trustedCertificates)
     }
 }

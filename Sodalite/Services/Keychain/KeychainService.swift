@@ -1,7 +1,10 @@
 import Foundation
 import Security
 
-protocol KeychainServiceProtocol: Sendable {
+/// nonisolated throughout: every method is a SecItem call, which is thread-safe and has no business
+/// on the main actor. It is read from one place that cannot be on it at all, the certificate-pin
+/// store behind `ServerTrustDelegate.shared`, which the first URLSession in the process needs.
+nonisolated protocol KeychainServiceProtocol: Sendable {
     func save(_ data: Data, for key: String) throws
     func save(_ string: String, for key: String) throws
     func loadData(for key: String) throws -> Data?
@@ -10,10 +13,13 @@ protocol KeychainServiceProtocol: Sendable {
     func deleteAll() throws
 }
 
-final class KeychainService: KeychainServiceProtocol {
+nonisolated final class KeychainService: KeychainServiceProtocol {
     private let service: String
 
-    init(service: String = KeychainKeys.service) {
+    /// nonisolated so the certificate-pin store can be built before the main actor exists for it:
+    /// `ServerTrustDelegate.shared` is read by the first `URLSession` this app makes, which is a
+    /// default argument of `DependencyContainer.init`. Nothing here touches shared state.
+    nonisolated init(service: String = KeychainKeys.service) {
         self.service = service
     }
 

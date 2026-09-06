@@ -115,11 +115,27 @@ enum ImageFetch {
         attempt == 0 ? .useProtocolCachePolicy : .reloadIgnoringLocalCacheData
     }
 
+    /// Artwork's own session, because `URLSession.shared` cannot carry a delegate and this is where
+    /// every image in the app is fetched. Its cache is its own for the same reason: `forget()` has to
+    /// be able to drop the entry this session wrote, and the shared cache is no longer the one that
+    /// holds it. Sized like the shared default it replaces, which is what the retry ladder above was
+    /// measured against.
+    nonisolated static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.urlCache = URLCache(
+            memoryCapacity: 8 * 1024 * 1024,
+            diskCapacity: 40 * 1024 * 1024,
+            diskPath: "sodalite-image-cache"
+        )
+        return URLSession(
+            configuration: config, delegate: ServerTrustDelegate.shared, delegateQueue: nil)
+    }()
+
     nonisolated static func load(_ request: URLRequest, attempt: Int = 0) async -> Outcome {
         var request = request
         request.cachePolicy = cachePolicy(forAttempt: attempt)
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await session.data(for: request)
             guard let http = response as? HTTPURLResponse,
                   (200...299).contains(http.statusCode)
             else { return .noImage }
@@ -142,6 +158,6 @@ enum ImageFetch {
     /// Drops the stored response so the next request is a real one. It runs on the LAST refusal too:
     /// leaving the entry behind is what made a second visit to the page read the same half file.
     nonisolated private static func forget(_ request: URLRequest) {
-        URLSession.shared.configuration.urlCache?.removeCachedResponse(for: request)
+        session.configuration.urlCache?.removeCachedResponse(for: request)
     }
 }
