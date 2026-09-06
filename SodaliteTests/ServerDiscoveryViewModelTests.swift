@@ -4,6 +4,14 @@ import Foundation
 
 @MainActor
 struct ServerDiscoveryViewModelTests {
+
+    /// Nothing is pinned in these tests; the store is here because the view model needs one to ask
+    /// whether a refusal is a change.
+    private final class NoPinStorage: TrustPinStorage, @unchecked Sendable {
+        nonisolated func loadPins() -> [String: String] { [:] }
+        nonisolated func savePins(_ pins: [String: String]) {}
+    }
+
     private struct FakeDiscovery: JellyfinServerDiscoveryProtocol {
         let yields: [DiscoveredServer]
         func discover() -> AsyncStream<DiscoveredServer> {
@@ -28,7 +36,8 @@ struct ServerDiscoveryViewModelTests {
         let vm = ServerDiscoveryViewModel(
             discovery: FakeDiscovery(yields: []),
             discoveryService: FakeProbe(),
-            knownServerIDs: []
+            knownServerIDs: [],
+            trustStore: ServerTrustStore(storage: NoPinStorage())
         )
         await vm.scan()
         #expect(vm.phase == .empty)
@@ -39,7 +48,8 @@ struct ServerDiscoveryViewModelTests {
         let vm = ServerDiscoveryViewModel(
             discovery: FakeDiscovery(yields: [server("a"), server("b")]),
             discoveryService: FakeProbe(),
-            knownServerIDs: []
+            knownServerIDs: [],
+            trustStore: ServerTrustStore(storage: NoPinStorage())
         )
         await vm.scan()
         #expect(vm.phase == .results)
@@ -50,7 +60,8 @@ struct ServerDiscoveryViewModelTests {
         let vm = ServerDiscoveryViewModel(
             discovery: FakeDiscovery(yields: [server("a"), server("a")]),
             discoveryService: FakeProbe(),
-            knownServerIDs: []
+            knownServerIDs: [],
+            trustStore: ServerTrustStore(storage: NoPinStorage())
         )
         await vm.scan()
         #expect(vm.servers.count == 1)
@@ -60,7 +71,8 @@ struct ServerDiscoveryViewModelTests {
         let vm = ServerDiscoveryViewModel(
             discovery: FakeDiscovery(yields: []),
             discoveryService: FakeProbe(),
-            knownServerIDs: ["a"]
+            knownServerIDs: ["a"],
+            trustStore: ServerTrustStore(storage: NoPinStorage())
         )
         #expect(vm.isAlreadyAdded(server("a")))
         #expect(!vm.isAlreadyAdded(server("b")))

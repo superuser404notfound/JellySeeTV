@@ -10,19 +10,28 @@ final class ServerDiscoveryViewModel {
     private(set) var servers: [DiscoveredServer] = []
     var isConnecting = false
     var errorMessage: String?
+    /// A certificate this screen has been refused by and not yet been answered about. Set instead of
+    /// `errorMessage`, for the same reason as on the manual-address screen: the user can answer this
+    /// one, and an error line has nowhere to answer it.
+    var pendingTrust: PendingCertificateTrust?
 
     let knownServerIDs: Set<String>
     private let discovery: JellyfinServerDiscoveryProtocol
     private let discoveryService: ServerDiscoveryServiceProtocol
+    private let trustStore: ServerTrustStore
+    /// The server the pending question is about, so accepting can ask it again.
+    private var pendingServer: DiscoveredServer?
 
     init(
         discovery: JellyfinServerDiscoveryProtocol,
         discoveryService: ServerDiscoveryServiceProtocol,
-        knownServerIDs: Set<String>
+        knownServerIDs: Set<String>,
+        trustStore: ServerTrustStore
     ) {
         self.discovery = discovery
         self.discoveryService = discoveryService
         self.knownServerIDs = knownServerIDs
+        self.trustStore = trustStore
     }
 
     func scan() async {
@@ -39,6 +48,7 @@ final class ServerDiscoveryViewModel {
     func selectServer(_ discovered: DiscoveredServer) async -> JellyfinServer? {
         isConnecting = true
         errorMessage = nil
+        pendingTrust = nil
         defer { isConnecting = false }
 
         let result = await discoveryService.discoverServer(input: discovered.address.absoluteString)
@@ -46,10 +56,32 @@ final class ServerDiscoveryViewModel {
         case .success(let url, let info):
             // Found on the local network: pin to the internal slot regardless of hostname shape.
             return JellyfinServer(id: info.id, name: info.serverName, internalURL: url, externalURL: nil, version: info.version)
+        case .failure(.certificateUntrusted(let host, let fingerprint)):
+            pendingServer = discovered
+            pendingTrust = PendingCertificateTrust(
+                host: host,
+                fingerprint: fingerprint,
+                isReplacingAPin: trustStore.pinnedFingerprint(forHost: host) != nil)
+            return nil
         case .failure(let error):
             errorMessage = ErrorText.user(for: error)
             return nil
         }
+    }
+
+    /// Records the answer and asks the same server again, so accepting lands on the login screen
+    /// rather than back on a list that still refuses.
+    func trustPendingCertificate() async -> JellyfinServer? {
+        guard let pending = pendingTrust, let fingerprint = pending.fingerprint,
+              let discovered = pendingServer
+        else {
+            pendingTrust = nil
+            return nil
+        }
+        trustStore.pin(fingerprint, forHost: pending.host)
+        pendingTrust = nil
+        pendingServer = nil
+        return await selectServer(discovered)
     }
 
     func isAlreadyAdded(_ server: DiscoveredServer) -> Bool {
