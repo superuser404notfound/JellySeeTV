@@ -1842,7 +1842,7 @@ final class PlayerViewModel {
                 // tell whether the answer came from the server.
                 icon = "lock.trianglebadge.exclamationmark"
                 title = String(
-                    localized: "certificateTrust.error.title",
+                    localized: "player.error.certificateRejected.title",
                     defaultValue: "Server identity not verified"
                 )
             case .localNetworkDenied:

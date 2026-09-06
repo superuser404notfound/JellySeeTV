@@ -75171,6 +75171,1626 @@
         }
       }
     },
+    "certificateTrust.title" : {
+      "comment" : "Trust sheet headline: the server presented a certificate the device does not trust",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Totožnost serveru nelze ověřit"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverens identitet kunne ikke bekræftes"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identität des Servers nicht überprüfbar"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν ήταν δυνατή η επαλήθευση της ταυτότητας του διακομιστή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server identity could not be verified"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo verificar la identidad del servidor"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Palvelimen henkilöllisyyttä ei voitu vahvistaa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de vérifier l'identité du serveur"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nije moguće provjeriti identitet poslužitelja"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A kiszolgáló azonosságát nem sikerült ellenőrizni"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile verificare l'identità del server"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバーの身元を確認できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버 신원을 확인할 수 없음"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke bekrefte serverens identitet"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identiteit van de server kon niet worden geverifieerd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można zweryfikować tożsamości serwera"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível verificar a identidade do servidor"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível verificar a identidade do servidor"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identitatea serverului nu a putut fi verificată"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось проверить подлинность сервера"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Totožnosť servera sa nepodarilo overiť"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverns identitet kunde inte verifieras"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sunucunun kimliği doğrulanamadı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося перевірити справжність сервера"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法验证服务器身份"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法驗證伺服器身分"
+          }
+        }
+      }
+    },
+    "error.certificateUntrusted" : {
+      "comment" : "APIError.certificateUntrusted: the server's certificate was refused",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Totožnost serveru nelze ověřit"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverens identitet kunne ikke bekræftes"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identität des Servers nicht überprüfbar"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν ήταν δυνατή η επαλήθευση της ταυτότητας του διακομιστή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server identity could not be verified"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo verificar la identidad del servidor"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Palvelimen henkilöllisyyttä ei voitu vahvistaa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de vérifier l'identité du serveur"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nije moguće provjeriti identitet poslužitelja"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A kiszolgáló azonosságát nem sikerült ellenőrizni"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile verificare l'identità del server"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバーの身元を確認できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버 신원을 확인할 수 없음"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunne ikke bekrefte serverens identitet"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identiteit van de server kon niet worden geverifieerd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie można zweryfikować tożsamości serwera"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível verificar a identidade do servidor"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível verificar a identidade do servidor"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identitatea serverului nu a putut fi verificată"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось проверить подлинность сервера"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Totožnosť servera sa nepodarilo overiť"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverns identitet kunde inte verifieras"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sunucunun kimliği doğrulanamadı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося перевірити справжність сервера"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法验证服务器身份"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法驗證伺服器身分"
+          }
+        }
+      }
+    },
+    "certificateTrust.title.changed" : {
+      "comment" : "Trust sheet headline when the host was already pinned to a different certificate",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certifikát tohoto serveru se změnil"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denne servers certifikat er ændret"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Zertifikat dieses Servers hat sich geändert"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το πιστοποιητικό αυτού του διακομιστή άλλαξε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This server's certificate has changed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El certificado de este servidor ha cambiado"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tämän palvelimen varmenne on muuttunut"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le certificat de ce serveur a changé"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certifikat ovog poslužitelja se promijenio"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ennek a kiszolgálónak megváltozott a tanúsítványa"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il certificato di questo server è cambiato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このサーバーの証明書が変更されました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 서버의 인증서가 변경되었습니다"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sertifikatet til denne serveren er endret"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het certificaat van deze server is gewijzigd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certyfikat tego serwera uległ zmianie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O certificado deste servidor mudou"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O certificado deste servidor mudou"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certificatul acestui server s-a schimbat"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сертификат этого сервера изменился"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Certifikát tohto servera sa zmenil"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverns certifikat har ändrats"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu sunucunun sertifikası değişti"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сертифікат цього сервера змінився"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此服务器的证书已更改"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此伺服器的憑證已變更"
+          }
+        }
+      }
+    },
+    "certificateTrust.body" : {
+      "comment" : "Trust sheet body, first time a host is seen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tento server se prokazuje certifikátem, kterému vaše zařízení nedůvěřuje. U serveru provozovaného ve vlastní síti je to běžné."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denne server viser et certifikat, som din enhed ikke har tillid til. Det er normalt for en server, du selv hoster på dit netværk."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Server weist sich mit einem Zertifikat aus, dem dein Gerät nicht vertraut. Bei einem selbst betriebenen Server im eigenen Netzwerk ist das üblich."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αυτός ο διακομιστής παρουσιάζει πιστοποιητικό που η συσκευή σας δεν εμπιστεύεται. Αυτό είναι σύνηθες για διακομιστή που φιλοξενείτε στο δικό σας δίκτυο."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This server identifies itself with a certificate your device does not trust. That is normal for a self-hosted server on your own network."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servidor se identifica con un certificado en el que tu dispositivo no confía. Es habitual en un servidor alojado en tu propia red."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tämä palvelin esittää varmenteen, johon laitteesi ei luota. Se on tavallista omassa verkossa ylläpidetyllä palvelimella."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce serveur se présente avec un certificat auquel votre appareil ne fait pas confiance. C'est courant pour un serveur hébergé sur votre propre réseau."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ovaj se poslužitelj predstavlja certifikatom kojem vaš uređaj ne vjeruje. To je uobičajeno za poslužitelj koji sami održavate u vlastitoj mreži."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ez a kiszolgáló olyan tanúsítvánnyal azonosítja magát, amelyben az eszközöd nem bízik. Saját hálózaton üzemeltetett kiszolgálónál ez szokásos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo server si identifica con un certificato di cui il tuo dispositivo non si fida. È normale per un server ospitato sulla tua rete."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このサーバーは、お使いのデバイスが信頼していない証明書を提示しています。自分のネットワークで運用しているサーバーではよくあることです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 서버는 기기가 신뢰하지 않는 인증서를 제시합니다. 직접 운영하는 네트워크의 서버에서는 흔한 일입니다."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denne serveren viser et sertifikat enheten din ikke stoler på. Det er vanlig for en server du selv drifter i ditt eget nettverk."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze server identificeert zich met een certificaat dat je apparaat niet vertrouwt. Dat is gebruikelijk bij een server die je zelf in je eigen netwerk beheert."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ten serwer przedstawia certyfikat, któremu Twoje urządzenie nie ufa. To normalne w przypadku serwera utrzymywanego we własnej sieci."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servidor se identifica com um certificado em que seu dispositivo não confia. Isso é comum em um servidor hospedado na sua própria rede."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servidor identifica-se com um certificado em que o seu dispositivo não confia. Isso é comum num servidor alojado na sua própria rede."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acest server se identifică printr-un certificat în care dispozitivul tău nu are încredere. Este obișnuit pentru un server găzduit în propria rețea."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот сервер предъявляет сертификат, которому ваше устройство не доверяет. Для сервера в собственной сети это обычное дело."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tento server sa preukazuje certifikátom, ktorému vaše zariadenie nedôveruje. Pri serveri prevádzkovanom vo vlastnej sieti je to bežné."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den här servern visar ett certifikat som enheten inte litar på. Det är vanligt för en server du själv driver i ditt nätverk."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu sunucu, cihazınızın güvenmediği bir sertifika sunuyor. Kendi ağınızda barındırdığınız bir sunucu için bu olağandır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей сервер надає сертифікат, якому ваш пристрій не довіряє. Для сервера у власній мережі це звична річ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此服务器出示的证书未被你的设备信任。对于自建于家庭网络中的服务器，这很常见。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此伺服器出示的憑證未受你的裝置信任。對於自行架設在家中網路的伺服器，這很常見。"
+          }
+        }
+      }
+    },
+    "certificateTrust.body.changed" : {
+      "comment" : "Trust sheet body when the certificate for a pinned host has changed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro tuto adresu jste dříve přijali jiný certifikát. Po obnovení certifikátu na serveru je to očekávané, jinak nikoli."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du har tidligere accepteret et andet certifikat for denne adresse. Det er forventet, hvis serveren har fornyet det, ellers ikke."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für diese Adresse hast du zuvor ein anderes Zertifikat akzeptiert. Nach einer Erneuerung auf dem Server ist das zu erwarten, sonst nicht."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Έχετε ήδη αποδεχτεί διαφορετικό πιστοποιητικό για αυτή τη διεύθυνση. Αυτό αναμένεται μετά από ανανέωση στον διακομιστή, διαφορετικά όχι."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You accepted a different certificate for this address before. That is expected after the server renewed it, and unexpected otherwise."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya aceptaste otro certificado para esta dirección. Es lo esperable si el servidor lo renovó; en caso contrario, no."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olet aiemmin hyväksynyt tälle osoitteelle toisen varmenteen. Palvelimen uusittua varmenteen tämä on odotettua, muuten ei."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous avez déjà accepté un autre certificat pour cette adresse. C'est normal après un renouvellement sur le serveur, sinon non."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Za ovu ste adresu već prihvatili drugi certifikat. Nakon obnove na poslužitelju to je očekivano, inače nije."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ehhez a címhez korábban másik tanúsítványt fogadtál el. A kiszolgáló megújítása után ez várható, egyébként nem."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In passato hai accettato un altro certificato per questo indirizzo. È normale dopo un rinnovo sul server, altrimenti no."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このアドレスでは以前に別の証明書を承認しています。サーバー側で更新した後であれば想定内ですが、そうでなければ想定外です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 주소에 대해 이전에 다른 인증서를 수락했습니다. 서버에서 갱신한 뒤라면 정상이지만, 그렇지 않다면 아닙니다."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du har tidligere godtatt et annet sertifikat for denne adressen. Det er forventet etter en fornyelse på serveren, ellers ikke."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je hebt eerder een ander certificaat voor dit adres geaccepteerd. Na een vernieuwing op de server is dat te verwachten, anders niet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wcześniej zaakceptowano inny certyfikat dla tego adresu. Po odnowieniu na serwerze jest to normalne, w innym razie nie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você já aceitou outro certificado para este endereço. Isso é esperado após uma renovação no servidor; caso contrário, não."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Já aceitou outro certificado para este endereço. Isso é esperado após uma renovação no servidor; caso contrário, não."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ai acceptat anterior alt certificat pentru această adresă. După o reînnoire pe server este de așteptat, altfel nu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ранее для этого адреса вы приняли другой сертификат. После его обновления на сервере это ожидаемо, в остальных случаях нет."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pre túto adresu ste už prijali iný certifikát. Po obnove na serveri je to očakávané, inak nie."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du har tidigare godkänt ett annat certifikat för den här adressen. Det är väntat efter en förnyelse på servern, annars inte."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu adres için daha önce farklı bir sertifikayı kabul ettiniz. Sunucuda yenileme yapıldıysa bu beklenir, aksi hâlde beklenmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Раніше для цієї адреси ви прийняли інший сертифікат. Після поновлення на сервері це очікувано, інакше ні."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你此前为该地址接受过另一份证书。若服务器刚刚续期，这属正常，否则不是。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你先前為此位址接受過另一份憑證。若伺服器剛完成續期，這屬正常，否則不是。"
+          }
+        }
+      }
+    },
+    "certificateTrust.fingerprintLabel" : {
+      "comment" : "Label above the certificate fingerprint in the trust sheet",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otisk SHA-256"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256-fingeraftryk"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256-Fingerabdruck"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αποτύπωμα SHA-256"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 fingerprint"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huella SHA-256"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256-sormenjälki"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empreinte SHA-256"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 otisak"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 ujjlenyomat"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impronta SHA-256"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 フィンガープリント"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 지문"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256-fingeravtrykk"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256-vingerafdruk"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odcisk SHA-256"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impressão digital SHA-256"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impressão digital SHA-256"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amprentă SHA-256"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отпечаток SHA-256"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odtlačok SHA-256"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256-fingeravtryck"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 parmak izi"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відбиток SHA-256"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 指纹"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SHA-256 指紋"
+          }
+        }
+      }
+    },
+    "certificateTrust.noFingerprint" : {
+      "comment" : "Shown in the trust sheet when the handshake failed before a certificate was offered",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spojení selhalo dříve, než server předložil certifikát, takže není co porovnat."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forbindelsen mislykkedes, før serveren viste et certifikat, så der er intet at sammenligne."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Verbindung ist gescheitert, bevor der Server ein Zertifikat vorgelegt hat, es gibt also nichts zu vergleichen."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η σύνδεση απέτυχε πριν ο διακομιστής παρουσιάσει πιστοποιητικό, οπότε δεν υπάρχει κάτι να συγκριθεί."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The connection failed before the server presented a certificate, so there is nothing to compare."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La conexión falló antes de que el servidor presentara un certificado, así que no hay nada que comparar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yhteys katkesi ennen kuin palvelin esitti varmenteen, joten verrattavaa ei ole."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La connexion a échoué avant que le serveur ne présente un certificat, il n'y a donc rien à comparer."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veza je prekinuta prije nego što je poslužitelj predočio certifikat, pa nema što usporediti."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A kapcsolat még azelőtt megszakadt, hogy a kiszolgáló tanúsítványt mutatott volna, így nincs mit összehasonlítani."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La connessione è fallita prima che il server presentasse un certificato, quindi non c'è nulla da confrontare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバーが証明書を提示する前に接続が失敗したため、照合できるものがありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버가 인증서를 제시하기 전에 연결이 실패해 비교할 대상이 없습니다."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tilkoblingen mislyktes før serveren viste et sertifikat, så det finnes ingenting å sammenligne."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De verbinding mislukte voordat de server een certificaat toonde, dus er valt niets te vergelijken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Połączenie nie powiodło się, zanim serwer przedstawił certyfikat, więc nie ma czego porównać."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A conexão falhou antes de o servidor apresentar um certificado, então não há nada a comparar."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A ligação falhou antes de o servidor apresentar um certificado, pelo que não há nada a comparar."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conexiunea a eșuat înainte ca serverul să prezinte un certificat, deci nu există nimic de comparat."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Соединение прервалось до того, как сервер предъявил сертификат, поэтому сравнивать нечего."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spojenie zlyhalo skôr, než server predložil certifikát, takže nie je čo porovnať."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anslutningen misslyckades innan servern visade ett certifikat, så det finns inget att jämföra."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bağlantı, sunucu bir sertifika sunmadan önce başarısız oldu; karşılaştırılacak bir şey yok."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "З'єднання обірвалося до того, як сервер надав сертифікат, тож порівнювати нічого."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接在服务器出示证书之前就失败了，因此没有可比对的内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "連線在伺服器出示憑證之前就失敗了，因此沒有可比對的內容。"
+          }
+        }
+      }
+    },
+    "certificateTrust.trustButton" : {
+      "comment" : "Trust sheet confirmation button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Důvěřovat a připojit"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stol på og opret forbindelse"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrauen und verbinden"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εμπιστοσύνη και σύνδεση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust and connect"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confiar y conectar"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luota ja yhdistä"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approuver et se connecter"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vjeruj i poveži se"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Megbízom és csatlakozom"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Considera attendibile e connetti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信頼して接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신뢰하고 연결"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stol på og koble til"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrouwen en verbinden"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaufaj i połącz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confiar e conectar"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confiar e ligar"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ai încredere și conectează-te"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доверять и подключиться"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dôverovať a pripojiť"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lita på och anslut"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Güven ve bağlan"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Довіряти й підключитися"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信任并连接"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "信任並連線"
+          }
+        }
+      }
+    },
+    "player.error.certificateRejected.title" : {
+      "comment" : "Player error headline for a refused server certificate",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Totožnost serveru neověřena"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverens identitet er ikke bekræftet"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serveridentität nicht bestätigt"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μη επαληθευμένη ταυτότητα διακομιστή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server identity not verified"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identidad del servidor sin verificar"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Palvelimen henkilöllisyyttä ei vahvistettu"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identité du serveur non vérifiée"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identitet poslužitelja nije provjeren"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A kiszolgáló azonossága nincs ellenőrizve"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identità del server non verificata"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバーの身元が未確認です"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버 신원이 확인되지 않음"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverens identitet er ikke bekreftet"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identiteit van de server niet geverifieerd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tożsamość serwera niezweryfikowana"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identidade do servidor não verificada"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identidade do servidor não verificada"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identitatea serverului nu este verificată"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подлинность сервера не проверена"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Totožnosť servera neoverená"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serverns identitet är inte verifierad"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sunucu kimliği doğrulanmadı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Справжність сервера не перевірено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器身份未验证"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "伺服器身分未驗證"
+          }
+        }
+      }
+    },
+    "player.error.certificateRejected.body" : {
+      "comment" : "Player error body for a refused server certificate",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tento server předložil certifikát, kterému toto zařízení nedůvěřuje, takže přehrávání nezačalo. Přidejte server znovu v Nastavení, prohlédněte si jeho certifikát a přijměte jej."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denne server viste et certifikat, som enheden ikke har tillid til, så streamen blev ikke startet. Tilføj serveren igen i Indstillinger for at se certifikatet og acceptere det."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Server hat ein Zertifikat vorgelegt, dem dieses Gerät nicht vertraut, deshalb wurde die Wiedergabe nicht gestartet. Füge den Server in den Einstellungen erneut hinzu, um sein Zertifikat anzusehen und zu akzeptieren."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αυτός ο διακομιστής παρουσίασε πιστοποιητικό που η συσκευή δεν εμπιστεύεται, οπότε η ροή δεν ξεκίνησε. Προσθέστε ξανά τον διακομιστή στις Ρυθμίσεις για να δείτε και να αποδεχτείτε το πιστοποιητικό του."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This server presented a certificate this device does not trust, so the stream was not started. Add the server again in Settings to look at its certificate and accept it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servidor presentó un certificado en el que este dispositivo no confía, así que la reproducción no comenzó. Vuelve a añadir el servidor en Ajustes para ver su certificado y aceptarlo."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tämä palvelin esitti varmenteen, johon laite ei luota, joten toistoa ei aloitettu. Lisää palvelin uudelleen Asetuksissa, niin näet varmenteen ja voit hyväksyä sen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce serveur a présenté un certificat auquel cet appareil ne fait pas confiance, la lecture n'a donc pas démarré. Ajoutez de nouveau le serveur dans Réglages pour consulter son certificat et l'accepter."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ovaj je poslužitelj predočio certifikat kojem uređaj ne vjeruje, pa reprodukcija nije pokrenuta. Ponovno dodajte poslužitelj u Postavkama kako biste pogledali certifikat i prihvatili ga."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ez a kiszolgáló olyan tanúsítványt mutatott, amelyben ez az eszköz nem bízik, ezért a lejátszás nem indult el. Vedd fel újra a kiszolgálót a Beállításokban, hogy megnézd és elfogadd a tanúsítványát."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo server ha presentato un certificato di cui il dispositivo non si fida, quindi la riproduzione non è partita. Aggiungi di nuovo il server in Impostazioni per vedere il certificato e accettarlo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このサーバーは、このデバイスが信頼していない証明書を提示したため、再生は開始されませんでした。設定でサーバーを追加し直すと、証明書を確認して承認できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 서버가 이 기기에서 신뢰하지 않는 인증서를 제시해 재생이 시작되지 않았습니다. 설정에서 서버를 다시 추가해 인증서를 확인하고 수락하세요."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Denne serveren viste et sertifikat enheten ikke stoler på, så avspillingen startet ikke. Legg til serveren på nytt i Innstillinger for å se sertifikatet og godta det."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze server toonde een certificaat dat dit apparaat niet vertrouwt, dus het afspelen is niet gestart. Voeg de server opnieuw toe in Instellingen om het certificaat te bekijken en te accepteren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ten serwer przedstawił certyfikat, któremu to urządzenie nie ufa, więc odtwarzanie się nie rozpoczęło. Dodaj serwer ponownie w Ustawieniach, aby obejrzeć certyfikat i go zaakceptować."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servidor apresentou um certificado em que este dispositivo não confia, então a reprodução não começou. Adicione o servidor novamente em Ajustes para ver o certificado e aceitá-lo."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este servidor apresentou um certificado em que este dispositivo não confia, pelo que a reprodução não começou. Adicione o servidor novamente nas Definições para ver o certificado e aceitá-lo."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acest server a prezentat un certificat în care dispozitivul nu are încredere, așa că redarea nu a pornit. Adaugă serverul din nou în Setări pentru a-i vedea certificatul și a-l accepta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Этот сервер предъявил сертификат, которому устройство не доверяет, поэтому воспроизведение не началось. Добавьте сервер заново в Настройках, чтобы посмотреть сертификат и принять его."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tento server predložil certifikát, ktorému toto zariadenie nedôveruje, takže prehrávanie sa nezačalo. Pridajte server znova v Nastaveniach, aby ste si pozreli jeho certifikát a prijali ho."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den här servern visade ett certifikat som enheten inte litar på, så uppspelningen startade inte. Lägg till servern igen i Inställningar för att se certifikatet och godkänna det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu sunucu, bu cihazın güvenmediği bir sertifika sundu; bu nedenle oynatma başlamadı. Sertifikayı görüp kabul etmek için sunucuyu Ayarlar'dan yeniden ekleyin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цей сервер надав сертифікат, якому пристрій не довіряє, тож відтворення не почалося. Додайте сервер знову в Налаштуваннях, щоб переглянути сертифікат і прийняти його."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此服务器出示的证书未被本设备信任，因此未开始播放。请在设置中重新添加该服务器，查看并接受其证书。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此伺服器出示的憑證未受本裝置信任，因此未開始播放。請在設定中重新加入該伺服器，查看並接受其憑證。"
+          }
+        }
+      }
+    },
     "error.serverUnreachable" : {
       "comment" : "Error when server cannot be reached",
       "extractionState" : "manual",
