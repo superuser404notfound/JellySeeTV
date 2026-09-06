@@ -396,6 +396,7 @@
 		62C2D2CE016A59F5463C508C /* ChangelogListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E1FB527AFBC2EF233653E73 /* ChangelogListView.swift */; };
 		639035D1B42B23EB0AE17144 /* SystemCaptionWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150A2052222365E6CEFAF631 /* SystemCaptionWindowTests.swift */; };
 		6443B555E9DEB5192AFE108E /* TopShelfAccent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76F4E46F2995ECC621AF105 /* TopShelfAccent.swift */; };
+		64619202E454CFACEACDF471 /* ServerTrustStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA70A9F12B8CF73DA6A6D91F /* ServerTrustStoreTests.swift */; };
 		64913A8514DF05A048AE8406 /* SiriRemoteEdgeClick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 110F2B63C9BEC116CA7FD5CB /* SiriRemoteEdgeClick.swift */; };
 		64EDED872A2D4749BA6E30FB /* LiveProgramsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BC18D495A4C0E5055CA6A7 /* LiveProgramsView.swift */; };
 		651FBE426B8922FA21570F52 /* JellyfinServerDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8AFD18467EFC7535B275979 /* JellyfinServerDiscovery.swift */; };
@@ -437,6 +438,7 @@
 		6D62C43BD87293AA3A291C2D /* ScrollHintChevron.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2EECA0E08019603F8449BB /* ScrollHintChevron.swift */; };
 		6D7214D3320213D5DF8C4EC9 /* CatalogFilteredGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9532B89E34C911A0311633A /* CatalogFilteredGridView.swift */; };
 		6E0168D214FC84C9AE483CEE /* HTTPDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7633D5CA8EEE8E3822FC1C91 /* HTTPDiagnostics.swift */; };
+		6E1E11570AD2D989A6C0872D /* ServerTrustStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91AADE00E15783F8B22A681C /* ServerTrustStore.swift */; };
 		6E8C92846C9B266B91974EA7 /* EpisodeRowComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6476801A57CD47661C981732 /* EpisodeRowComponents.swift */; };
 		6E900352ED20781B5C81B573 /* CatalogAllRequestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B68B73CCC82D03EEB2EC008B /* CatalogAllRequestsView.swift */; };
 		6EFDB41723F8073181EBFFAF /* MediaBadgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6ABFF34797853D2B659B7B1 /* MediaBadgeTests.swift */; };
@@ -827,6 +829,7 @@
 		D1B1EB5A7477D4DDC812D788 /* PlaybackModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE05BAE4F20A7C12D4F92363 /* PlaybackModels.swift */; };
 		D1B2E592167F11561540DB01 /* MediaFocusRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA101AEE2DA1D2D4A2957A9 /* MediaFocusRing.swift */; };
 		D22B52A7471C7AB924B4B5A6 /* GlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FAE153258CB34980ED7C41A /* GlassBackground.swift */; };
+		D2481C1F92ABE03080EA0006 /* ServerTrustStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91AADE00E15783F8B22A681C /* ServerTrustStore.swift */; };
 		D2FE87556ABCB8212FBDC68B /* HomeViewModel+Rows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B72371460030EB19A5DC39F /* HomeViewModel+Rows.swift */; };
 		D310E84B0CD2F359189C4C2C /* ServerRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37069EBB512D8095D5F68CED /* ServerRoute.swift */; };
 		D36F4A87CC36115958693DD5 /* GuardianPINCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = A215171E4C39FDCBB7719619 /* GuardianPINCrypto.swift */; };
@@ -1414,6 +1417,7 @@
 		8ECD6229FC42DA4622DCC4A8 /* FlowLayoutPackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayoutPackingTests.swift; sourceTree = "<group>"; };
 		8F1F9A57DDFC28E9FD37BB2C /* CatalogDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogDetailView.swift; sourceTree = "<group>"; };
 		8F65790C4F34A9AB07D29DAE /* TrickplayScrubSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrickplayScrubSourceTests.swift; sourceTree = "<group>"; };
+		91AADE00E15783F8B22A681C /* ServerTrustStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerTrustStore.swift; sourceTree = "<group>"; };
 		91DFD37F58661CA306D9A670 /* JellyfinLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryService.swift; sourceTree = "<group>"; };
 		91F4C7F76A85529DD15FB920 /* SubtitleOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleOverlayView.swift; sourceTree = "<group>"; };
 		92C116449AE00A9C9E64ABEA /* CinemaNoirBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CinemaNoirBackground.swift; sourceTree = "<group>"; };
@@ -1655,6 +1659,7 @@
 		FA334990CFAE3DF5B20A3C80 /* PersonDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonDetailViewModelTests.swift; sourceTree = "<group>"; };
 		FA3BB5EFEF275EE874D6DD3E /* ProgramInfoPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgramInfoPopover.swift; sourceTree = "<group>"; };
 		FA4E2D3105F03481EC52A653 /* TrackDisplayFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackDisplayFormatter.swift; sourceTree = "<group>"; };
+		FA70A9F12B8CF73DA6A6D91F /* ServerTrustStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerTrustStoreTests.swift; sourceTree = "<group>"; };
 		FA718B995B00190D977EC3D0 /* TopShelfProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopShelfProgressTests.swift; sourceTree = "<group>"; };
 		FAFA36C8B038D0E76AB2717B /* SeerrRequestAdminRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeerrRequestAdminRow.swift; sourceTree = "<group>"; };
 		FBE6263F8B395AF7142714C4 /* FactoryResetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FactoryResetTests.swift; sourceTree = "<group>"; };
@@ -2038,6 +2043,7 @@
 				7B2B1DAF1660B5B86BAF6387 /* ServerReachabilityTests.swift */,
 				B09C69F6B6E796BCEBB4B402 /* ServerRouteResolverTests.swift */,
 				7F32B40C7469D099A08AE6FD /* ServerSwitchResumeTests.swift */,
+				FA70A9F12B8CF73DA6A6D91F /* ServerTrustStoreTests.swift */,
 				2D7691E9CE22321AB0996192 /* ServerURLClassifierTests.swift */,
 				B1B942F0FB15F6423EDCD17B /* ServerURLSlotRetentionTests.swift */,
 				34D5B3810DDB2AD91CD7A5CD /* SessionRestorerTests.swift */,
@@ -2594,6 +2600,7 @@
 				2373CBCBAC4D467C556A8634 /* ServerReachability.swift */,
 				37069EBB512D8095D5F68CED /* ServerRoute.swift */,
 				5C0E521708A7EBC3D396F706 /* ServerRouteResolver.swift */,
+				91AADE00E15783F8B22A681C /* ServerTrustStore.swift */,
 				F6BDE8AC81E42D549C5C602E /* ServerURLClassifier.swift */,
 			);
 			path = Networking;
@@ -3262,6 +3269,7 @@
 				1D88EA17130F5EDAAA133AD0 /* ServerRouteResolver.swift in Sources */,
 				1002EB7E5BBA87CDC057A4C6 /* ServerStatusBanner.swift in Sources */,
 				7A7646C002A956AE9BA1D608 /* ServerSwitchSheet.swift in Sources */,
+				6E1E11570AD2D989A6C0872D /* ServerTrustStore.swift in Sources */,
 				604D021DBE845146A1EBF634 /* ServerURLClassifier.swift in Sources */,
 				C4EAA89AA03FD8CA93F9C0AF /* ServerUnreachableView.swift in Sources */,
 				EC4C33C0E5DE0EF375B8ECAD /* SessionRestoreEnvironment.swift in Sources */,
@@ -3510,6 +3518,7 @@
 				699320F317B2D30B15D1695E /* ServerReachabilityTests.swift in Sources */,
 				D6D380009555CAF59F83E944 /* ServerRouteResolverTests.swift in Sources */,
 				7F7AE47B62943C8742F065E5 /* ServerSwitchResumeTests.swift in Sources */,
+				64619202E454CFACEACDF471 /* ServerTrustStoreTests.swift in Sources */,
 				C46B3F125E18CBAD3C030347 /* ServerURLClassifierTests.swift in Sources */,
 				57FF673743802E78AB3CBB72 /* ServerURLSlotRetentionTests.swift in Sources */,
 				7E6A5602AAE2EB1189151A70 /* SessionRestorerTests.swift in Sources */,
@@ -3868,6 +3877,7 @@
 				5D6FF869455188BA8DE18E2A /* ServerRouteResolver.swift in Sources */,
 				A93DA4B70B1FACBD5EDD8B14 /* ServerStatusBanner.swift in Sources */,
 				476DB8CF76458A339BE1E371 /* ServerSwitchSheet.swift in Sources */,
+				D2481C1F92ABE03080EA0006 /* ServerTrustStore.swift in Sources */,
 				54F470BF65D1060F75165393 /* ServerURLClassifier.swift in Sources */,
 				01C8B9CC639083C400A3CDB8 /* ServerUnreachableView.swift in Sources */,
 				E555E8826A44AB1367C7D31E /* SessionRestoreEnvironment.swift in Sources */,
