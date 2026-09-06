@@ -69,6 +69,18 @@ struct SodaliteApp: App {
             LogTap.shared.note(line)
         }
 
+        // The engine's own fetches, and AVPlayer's behind the AE#495 relay, answer a server-trust
+        // challenge from the same pin store the app's sessions read. Same fingerprint, same
+        // comparison, so browsing and playback cannot disagree about one origin: without this a
+        // self-signed server would list its library and then refuse to play a frame.
+        EngineTLS.serverTrustEvaluator = { space in
+            guard let trust = space.serverTrust,
+                  let offered = CertificateFingerprint.sha256(ofLeafIn: trust)
+            else { return false }
+            let host = ServerTrustStore.hostKey(host: space.host, port: space.port)
+            return ServerTrustDelegate.shared.store.pinnedFingerprint(forHost: host) == offered
+        }
+
         // Let the network layer raise the Local Network state without knowing what an AppState is
         // (Sodalite#92). Any request against a LAN server can be the one that finds out, so the
         // answer travels this way rather than up one call stack that happened to notice.
