@@ -49,6 +49,9 @@ final class ContentProvider: TVTopShelfContentProvider {
         // EnableResumable=false, but older servers ignore that parameter, and one row on the
         // accent bar while the other keeps the white system bar looks worse than either alone.
         // Items without progress are skipped before the cap, so on a current server this is free.
+        // The pass answers for the whole shelf or for none of it, so `bars` is either empty or
+        // covers every cell that has progress; a partial map is what put two bar styles and two
+        // resolutions in one row (Sodalite#128).
         let bars = await ResumeBarArtwork.prepare(items: resumeItems + nextUpItems,
                                                   session: session,
                                                   accent: TopShelfAccent.read())
