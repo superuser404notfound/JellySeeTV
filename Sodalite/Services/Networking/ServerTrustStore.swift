@@ -111,7 +111,7 @@ nonisolated final class ServerTrustStore: @unchecked Sendable {
 }
 
 /// What to do with one server-trust challenge.
-enum ServerTrustDecision: Equatable {
+nonisolated enum ServerTrustDecision: Equatable {
     /// The certificate is the one this host was pinned to, so it is accepted regardless of what the
     /// system's chain validation makes of it.
     case useCredential
@@ -177,6 +177,18 @@ nonisolated final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unch
             host: space.host, port: space.port,
             authenticationMethod: space.authenticationMethod,
             serverTrust: space.serverTrust, store: store)
+        // One line per server-trust challenge, because without it the only evidence of a decision is
+        // whether the next request worked, and "the fingerprint did not match" and "the host key was
+        // not the one that was pinned" look identical from there. The fingerprint is printed whole
+        // so it can be held against what the server's own tooling prints.
+        if space.authenticationMethod == NSURLAuthenticationMethodServerTrust {
+            let key = ServerTrustStore.hostKey(host: space.host, port: space.port)
+            let offered = space.serverTrust.flatMap(CertificateFingerprint.sha256(ofLeafIn:))
+            LogTap.shared.note(
+                "[trust] \(key) offered \(offered ?? "no certificate") "
+                + "pinned \(store.pinnedFingerprint(forHost: key) ?? "nothing") "
+                + "-> \(decision == .useCredential ? "accepted" : "system decides")")
+        }
         switch decision {
         case .useCredential:
             guard let trust = space.serverTrust else {

@@ -208,6 +208,18 @@ nonisolated enum DiscoveryProbeRace {
         for verdict in verdicts {
             if case .failure(.localNetworkDenied) = verdict { return .localNetworkDenied }
         }
+        // Next, and above the protocol group below, a refused certificate: it is the only verdict in
+        // this set whose resolution is a decision the user can make, and it comes from a candidate
+        // that is plainly answering. Measured against a real server on 2026-09-07: nginx in front of
+        // Jellyfin answers the http probe on the https port with `400 The plain HTTP request was
+        // sent to HTTPS port`, which is a true statement about a candidate nobody can act on, and
+        // ranked below it the whole race read as "Server unreachable" while the trust sheet, whose
+        // entire job is to ask about exactly this, never appeared.
+        for verdict in verdicts {
+            if case .failure(.certificateUntrusted(let host, let fingerprint)) = verdict {
+                return .certificateUntrusted(host: host, fingerprint: fingerprint)
+            }
+        }
         var sawTimeout = false
         for verdict in verdicts {
             guard case .failure(let error) = verdict else { continue }

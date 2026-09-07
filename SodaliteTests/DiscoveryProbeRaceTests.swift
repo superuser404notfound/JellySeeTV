@@ -184,6 +184,38 @@ struct DiscoveryProbeRaceTests {
         }
     }
 
+    /// Measured on a real server on 2026-09-07: nginx in front of Jellyfin answers the http probe on
+    /// the https port with `400 The plain HTTP request was sent to HTTPS port`, and the https probe
+    /// is refused for its certificate. The 400 is a true statement about a candidate nobody can act
+    /// on; the refusal is the one the user can answer. Ranked below the protocol group, the whole
+    /// race read as "Server unreachable" for a server that was plainly answering, and the trust
+    /// sheet never appeared.
+    @Test("a certificate refusal outranks the wrong-protocol answer beside it")
+    func aggregatePrefersACertificateRefusal() {
+        let verdicts: [Result<String, APIError>?] = [
+            .failure(.httpError(statusCode: 400, data: Data())),
+            .failure(.certificateUntrusted(host: "10.20.30.108:8920", fingerprint: "a419")),
+        ]
+        guard case .certificateUntrusted(let host, _) = DiscoveryProbeRace.aggregateError(verdicts) else {
+            Issue.record("a refusal the user can answer must outrank one they cannot")
+            return
+        }
+        #expect(host == "10.20.30.108:8920")
+    }
+
+    @Test("a denied local network still outranks a certificate refusal")
+    func localNetworkStillWins() {
+        // It says this device would not have let ANY candidate through, so nothing behind it is a
+        // statement about a server at all, certificate included.
+        let verdicts: [Result<String, APIError>?] = [
+            .failure(.certificateUntrusted(host: "media.lan:8920", fingerprint: "a419")),
+            .failure(.localNetworkDenied),
+        ]
+        if case .localNetworkDenied = DiscoveryProbeRace.aggregateError(verdicts) {} else {
+            Issue.record("a race that never got to happen has no verdict about a certificate")
+        }
+    }
+
     @Test("dead transports still report an unreachable server")
     func aggregateOfDeadTransportsStaysUnreachable() {
         let verdicts: [Result<String, APIError>?] = [.failure(.serverUnreachable), .failure(.serverUnreachable)]
