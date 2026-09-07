@@ -1098,7 +1098,7 @@ final class DependencyContainer {
         let data = try JSONEncoder().encode(blob)
         try keychainService.save(data, for: KeychainKeys.guardianPINBlob)
         // A freshly set PIN starts with a clean slate.
-        try? keychainService.delete(for: KeychainKeys.guardianPINThrottle)
+        try? keychainService.delete(for: throttleKey(for: .guardian))
         if !isApplyingCloudChanges { cloudSync?.markSecurityDirty() }
     }
 
@@ -1108,46 +1108,136 @@ final class DependencyContainer {
         if !isApplyingCloudChanges { cloudSync?.markSecurityDeleted() }
     }
 
-    private func loadThrottle() -> GuardianPINThrottle {
-        guard let data = try? keychainService.loadData(for: KeychainKeys.guardianPINThrottle),
+    // MARK: Doors
+
+    private func blobKey(for door: PINDoor) -> String {
+        switch door {
+        case .guardian: KeychainKeys.guardianPINBlob
+        case .profile(let ref): KeychainKeys.profilePINBlob(serverID: ref.serverID, userID: ref.userID)
+        }
+    }
+
+    private func throttleKey(for door: PINDoor) -> String {
+        switch door {
+        case .guardian: KeychainKeys.guardianPINThrottle
+        case .profile(let ref): KeychainKeys.profilePINThrottle(serverID: ref.serverID, userID: ref.userID)
+        }
+    }
+
+    private func loadBlob(for door: PINDoor) -> GuardianPINCrypto.Blob? {
+        guard let data = try? keychainService.loadData(for: blobKey(for: door)) else { return nil }
+        return try? JSONDecoder().decode(GuardianPINCrypto.Blob.self, from: data)
+    }
+
+    func hasOwnPIN(_ ref: ProfileRef) -> Bool {
+        (try? keychainService.loadData(for: blobKey(for: .profile(ref)))) != nil
+    }
+
+    /// Every profile on this device that carries an own PIN. The keychain is the only record of
+    /// that: a second index in UserDefaults would drift, and a wiped defaults domain would leave a
+    /// live secret invisible.
+    func profilesWithOwnPIN() -> [ProfileRef] {
+        var found: [ProfileRef] = []
+        for server in listKnownServers() {
+            for user in listRememberedUsers(serverID: server.id) {
+                let ref = ProfileRef(serverID: server.id, userID: user.id)
+                if hasOwnPIN(ref) { found.append(ref) }
+            }
+        }
+        return found
+    }
+
+    func saveOwnPIN(_ pin: String, for ref: ProfileRef) throws {
+        let blob = GuardianPINCrypto.makeBlob(pin: pin)
+        try keychainService.save(try JSONEncoder().encode(blob), for: blobKey(for: .profile(ref)))
+        try? keychainService.delete(for: throttleKey(for: .profile(ref)))
+        if !isApplyingCloudChanges { cloudSync?.markSecurityDirty() }
+    }
+
+    func clearOwnPIN(for ref: ProfileRef) {
+        guard hasOwnPIN(ref) else { return }
+        try? keychainService.delete(for: blobKey(for: .profile(ref)))
+        try? keychainService.delete(for: throttleKey(for: .profile(ref)))
+        if !isApplyingCloudChanges { cloudSync?.markSecurityDirty() }
+    }
+
+    /// True when `pin` already opens some other door. An own PIN that repeats the Guardian PIN, or
+    /// another profile's, rebuilds the exact leak per-profile PINs exist to close, and nothing later
+    /// would reveal it. `excluding` is nil while collecting a new Guardian PIN, where matching the
+    /// Guardian PIN's own previous value is simply a no-op change.
+    func pinCollides(_ pin: String, excluding ref: ProfileRef?) -> Bool {
+        if ref != nil, let guardianBlob = loadBlob(for: .guardian),
+           GuardianPINCrypto.verify(pin: pin, blob: guardianBlob) {
+            return true
+        }
+        for other in profilesWithOwnPIN() where other != ref {
+            if let blob = loadBlob(for: .profile(other)),
+               GuardianPINCrypto.verify(pin: pin, blob: blob) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private func loadThrottle(door: PINDoor) -> GuardianPINThrottle {
+        guard let data = try? keychainService.loadData(for: throttleKey(for: door)),
               let throttle = try? JSONDecoder().decode(GuardianPINThrottle.self, from: data)
         else { return GuardianPINThrottle() }
         return throttle
     }
 
-    private func saveThrottle(_ throttle: GuardianPINThrottle) {
+    private func saveThrottle(_ throttle: GuardianPINThrottle, door: PINDoor) {
         if let data = try? JSONEncoder().encode(throttle) {
-            try? keychainService.save(data, for: KeychainKeys.guardianPINThrottle)
+            try? keychainService.save(data, for: throttleKey(for: door))
         }
     }
 
-    /// Current lockout deadline if one is active and still in the future.
-    func guardianPINLockout() -> Date? {
-        guard let until = loadThrottle().lockoutUntil else { return nil }
+    /// Current lockout deadline for one door if one is active and still in the future.
+    func pinLockout(for door: PINDoor) -> Date? {
+        guard let until = loadThrottle(door: door).lockoutUntil else { return nil }
         let date = Date(timeIntervalSince1970: until)
         return date > Date() ? date : nil
     }
 
-    func verifyGuardianPIN(_ pin: String) -> PINVerifyResult {
-        let throttle = loadThrottle()
+    func guardianPINLockout() -> Date? { pinLockout(for: .guardian) }
+
+    func verifyGuardianPIN(_ pin: String) -> PINVerifyResult { verifyPIN(pin, for: .guardian) }
+
+    /// A profile door takes that profile's own PIN or the Guardian PIN; the Guardian door takes only
+    /// its own. A profile with no own blob falls through to the Guardian PIN, which is the safe
+    /// direction if the keychain and the roles ever drift.
+    func verifyPIN(_ pin: String, for door: PINDoor) -> PINVerifyResult {
+        let throttle = loadThrottle(door: door)
         if let until = throttle.lockoutUntil {
             let date = Date(timeIntervalSince1970: until)
             if date > Date() { return .lockedOut(until: date) }
         }
-        guard let data = try? keychainService.loadData(for: KeychainKeys.guardianPINBlob),
-              let blob = try? JSONDecoder().decode(GuardianPINCrypto.Blob.self, from: data)
-        else {
-            // No PIN set: treat as failure so callers never proceed on a
-            // missing blob. (Gate decisions already require isGuardianPINSet.)
-            return .wrong(remainingBeforeLockout: Self.pinMaxAttempts)
+
+        var matched = false
+        var matchedGuardian = false
+        if case .profile = door, let own = loadBlob(for: door),
+           GuardianPINCrypto.verify(pin: pin, blob: own) {
+            matched = true
+        }
+        // No blob anywhere is a failure, never a pass: gate decisions already require
+        // isGuardianPINSet, and a missing blob must not become an open door.
+        if !matched, let guardianBlob = loadBlob(for: .guardian),
+           GuardianPINCrypto.verify(pin: pin, blob: guardianBlob) {
+            matched = true
+            matchedGuardian = true
         }
 
-        if GuardianPINCrypto.verify(pin: pin, blob: blob) {
-            try? keychainService.delete(for: KeychainKeys.guardianPINThrottle)
+        if matched {
+            try? keychainService.delete(for: throttleKey(for: door))
+            // Whoever just proved they hold the Guardian PIN should not stay part-way to a lockout
+            // on the Guardian door either.
+            if matchedGuardian, case .profile = door {
+                try? keychainService.delete(for: KeychainKeys.guardianPINThrottle)
+            }
             return .success
         }
 
-        // Wrong: bump the counter; lock out after pinMaxAttempts in a row.
+        // Wrong: bump this door's counter; lock out after pinMaxAttempts in a row.
         var updated = throttle
         updated.failedAttempts += 1
         if updated.failedAttempts >= Self.pinMaxAttempts {
@@ -1157,10 +1247,10 @@ final class DependencyContainer {
             let rounds = updated.failedAttempts - Self.pinMaxAttempts
             let duration = min(Self.pinMaxLockout, Self.pinBaseLockout * pow(2, Double(rounds)))
             updated.lockoutUntil = Date().timeIntervalSince1970 + duration
-            saveThrottle(updated)
+            saveThrottle(updated, door: door)
             return .lockedOut(until: Date(timeIntervalSince1970: updated.lockoutUntil!))
         }
-        saveThrottle(updated)
+        saveThrottle(updated, door: door)
         return .wrong(remainingBeforeLockout: Self.pinMaxAttempts - updated.failedAttempts)
     }
 
