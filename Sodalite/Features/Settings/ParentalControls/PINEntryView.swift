@@ -1,10 +1,23 @@
 import Combine
 import SwiftUI
 
+/// Whose PIN is being collected.
+enum PINTarget: Equatable, Identifiable {
+    case guardian
+    case profile(ProfileRef)
+
+    var id: String {
+        switch self {
+        case .guardian: "guardian"
+        case .profile(let ref): ref.compositeID
+        }
+    }
+}
+
 /// What the PIN pad is being used for.
 enum PINEntryMode: Equatable {
-    /// Set a new PIN: enter, then confirm. Persists via the container.
-    case setup
+    /// Set a new PIN for `target`: enter, then confirm. Persists via the container.
+    case setup(PINTarget)
     /// Verify the existing PIN for `reason`.
     case unlock(reason: PINReason)
 }
@@ -83,21 +96,28 @@ struct PINEntryView: View {
             }
             .screenContentInset()
         }
-        .onAppear { lockoutUntil = dependencies.guardianPINLockout() }
+        .onAppear { lockoutUntil = currentDoorLockout }
         // Only advance `now` (and re-render) while a lockout countdown is actually running;
         // during normal PIN entry the 1 Hz tick would otherwise invalidate the whole view for nothing.
         .onReceive(ticker) { if lockoutUntil != nil { now = $0 } }
         .fullScreenCover(isPresented: $showRecovery) {
             PINRecoveryView(
                 onRecovered: {
-                    // Recovery validated: collect a replacement PIN inline.
                     showRecovery = false
-                    collectingNewPIN = true
-                    firstEntry = nil
-                    entered = ""
-                    message = "parental.pin.recovery.setNew"
-                    isError = false
-                    lockoutUntil = nil
+                    switch recoveryOutcome {
+                    case .clearOwnPIN(let ref):
+                        // The door in front of the user was this profile's own PIN, so that is what
+                        // recovery repairs. It now takes the Guardian PIN, which is the stricter key.
+                        dependencies.clearOwnPIN(for: ref)
+                        onComplete(true)
+                    case .collectNewGuardianPIN:
+                        collectingNewPIN = true
+                        firstEntry = nil
+                        entered = ""
+                        message = "parental.pin.recovery.setNew"
+                        isError = false
+                        lockoutUntil = nil
+                    }
                 },
                 onCancel: { showRecovery = false }
             )
@@ -108,7 +128,9 @@ struct PINEntryView: View {
 
     private var title: LocalizedStringKey {
         if collectingNewPIN {
-            return firstEntry == nil ? "parental.pin.setup.title" : "parental.pin.setup.confirm"
+            if firstEntry != nil { return "parental.pin.setup.confirm" }
+            if case .profile = collectTarget { return "parental.pin.setup.profile.title" }
+            return "parental.pin.setup.title"
         }
         switch mode {
         case .setup:
@@ -171,6 +193,25 @@ struct PINEntryView: View {
 
     // MARK: Logic
 
+    /// Post-recovery collection always replaces the Guardian PIN: recovery's profile branch clears
+    /// an own PIN and never reaches the pad.
+    private var collectTarget: PINTarget {
+        if case .setup(let target) = mode { return target }
+        return .guardian
+    }
+
+    private var recoveryOutcome: PINRecoveryOutcome {
+        guard case .unlock(let reason) = mode else { return .collectNewGuardianPIN }
+        return PINRecoveryOutcome.forDoor(reason: reason) { dependencies.hasOwnPIN($0) }
+    }
+
+    /// The pad shows the lockout of the door it is standing at. Collecting a PIN verifies nothing,
+    /// so a setup pad reads the Guardian door and simply has nothing to report.
+    private var currentDoorLockout: Date? {
+        guard case .unlock(let reason) = mode else { return dependencies.guardianPINLockout() }
+        return dependencies.pinLockout(for: reason)
+    }
+
     private var lockoutRemaining: Int? {
         guard let until = lockoutUntil, until > now else { return nil }
         return Int(until.timeIntervalSince(now).rounded(.up))
@@ -199,24 +240,40 @@ struct PINEntryView: View {
     }
 
     private func handleCollect(_ pin: String) {
-        if let first = firstEntry {
-            if first == pin {
-                try? dependencies.saveGuardianPIN(pin)
-                onComplete(true)
-            } else {
-                firstEntry = nil
-                message = "parental.pin.setup.mismatch"
-                isError = true
-            }
-        } else {
+        guard let first = firstEntry else {
             firstEntry = pin
             message = "parental.pin.setup.confirm"
             isError = false
+            return
         }
+        guard first == pin else {
+            firstEntry = nil
+            message = "parental.pin.setup.mismatch"
+            isError = true
+            return
+        }
+        switch collectTarget {
+        case .guardian:
+            // A Guardian PIN that repeats a profile's own PIN hands that profile's occupant the
+            // master key, which is the same leak from the other side.
+            guard !dependencies.pinCollides(pin, excluding: nil) else { return reject() }
+            try? dependencies.saveGuardianPIN(pin)
+        case .profile(let ref):
+            guard !dependencies.pinCollides(pin, excluding: ref) else { return reject() }
+            try? dependencies.saveOwnPIN(pin, for: ref)
+        }
+        onComplete(true)
+    }
+
+    private func reject() {
+        firstEntry = nil
+        message = "parental.pin.duplicate"
+        isError = true
     }
 
     private func handleUnlock(_ pin: String) {
-        switch dependencies.verifyGuardianPIN(pin) {
+        guard case .unlock(let reason) = mode else { return }
+        switch dependencies.verifyPIN(pin, for: reason) {
         case .success:
             onComplete(true)
         case .wrong(let remaining):

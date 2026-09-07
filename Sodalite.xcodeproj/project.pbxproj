@@ -382,6 +382,7 @@
 		5E230A2751756A44ED76BE20 /* SeerrAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE35BB1636B33A37F1CE90F5 /* SeerrAuthService.swift */; };
 		5E4AD91E5CFB6BF44CD9C287 /* DependencyContainer+Profiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E41F893E1451BCE8BF9FF8 /* DependencyContainer+Profiles.swift */; };
 		5EBFA68EFBE0005A678C601D /* PlayerReachabilityFace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 805C6914767AC1469126A3BD /* PlayerReachabilityFace.swift */; };
+		5EDD7F4DF70B4CA2777A863C /* ProfilePINTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FE3B2C744AB8F33AB66F94E /* ProfilePINTests.swift */; };
 		5EEC82CF0CCF3E3E3AD9E30E /* SourceOutageTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBA42E7582D1A00BFB35C34 /* SourceOutageTrackerTests.swift */; };
 		5EF958F5DB51CD16F8988868 /* SeerrServiceConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBFD66C8435155A3FFF29632 /* SeerrServiceConfigService.swift */; };
 		5F28C6C12E832EF8DE68A1B9 /* MediaCastRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1118E47E5B52924CC5C4CBF /* MediaCastRow.swift */; };
@@ -647,6 +648,7 @@
 		9FBB2EF8013CC55EA333152B /* FocusableCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C631A6EC153641E1CAF0F5A3 /* FocusableCard.swift */; };
 		9FF25C07B11EDB08912D8631 /* AccentButtonContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98AD611609B558446EBE5DF6 /* AccentButtonContrastTests.swift */; };
 		A0320818A9CE1682DB6A8E0B /* GuideRowMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E0197F5DC608396AB89AE1F /* GuideRowMath.swift */; };
+		A037C34E1934EDE69C53A86C /* ProfilePINSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 167D405842453353CBD91CE9 /* ProfilePINSyncTests.swift */; };
 		A095FFB4CDB6FBE78052CA4A /* SodaliteShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B211E0C4ACD1D88E8763E7CC /* SodaliteShortcuts.swift */; };
 		A0C910E3D7491389F8478BE9 /* JellyfinUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8C86911CAC2C3C5F103774 /* JellyfinUser.swift */; };
 		A14A6EF82BA9A7F01F9DDF06 /* AtkinsonHyperlegible-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CD0A81C3E831093174A0085A /* AtkinsonHyperlegible-BoldItalic.ttf */; };
@@ -1129,6 +1131,7 @@
 		156BEF96DC9EC1E45C59CE8B /* LicensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicensesView.swift; sourceTree = "<group>"; };
 		15AEDC905956567B1DB3936F /* UserProfileImageURLTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileImageURLTests.swift; sourceTree = "<group>"; };
 		15D7F74A9A6EF41AB0AAD09C /* CloudSyncPayloadsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncPayloadsTests.swift; sourceTree = "<group>"; };
+		167D405842453353CBD91CE9 /* ProfilePINSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePINSyncTests.swift; sourceTree = "<group>"; };
 		168C9C4EDD234AD97BFA1D96 /* HomeRowConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRowConfiguration.swift; sourceTree = "<group>"; };
 		175E298AC582C20244F3BBDC /* JellyfinServerDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinServerDiscoveryTests.swift; sourceTree = "<group>"; };
 		17821D029EC7EA102611CED0 /* SeerrRequestEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeerrRequestEditSheet.swift; sourceTree = "<group>"; };
@@ -1341,6 +1344,7 @@
 		6F108CEF8820921CE2B80A2A /* ItemMetadataRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemMetadataRow.swift; sourceTree = "<group>"; };
 		6F1459E3CC3E393249DCF146 /* CloudSyncSessionRetentionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncSessionRetentionTests.swift; sourceTree = "<group>"; };
 		6F4E0F9206D8B25B7535B9E5 /* LogTimestampTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogTimestampTests.swift; sourceTree = "<group>"; };
+		6FE3B2C744AB8F33AB66F94E /* ProfilePINTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePINTests.swift; sourceTree = "<group>"; };
 		701C10265C5C32AA946482DC /* AsyncCachedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncCachedImage.swift; sourceTree = "<group>"; };
 		70AEC623687A44C3603ED57F /* SiriRemoteEdgeClickTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiriRemoteEdgeClickTests.swift; sourceTree = "<group>"; };
 		7126EDCF2AE6A462DC455824 /* CatalogCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogCollectionView.swift; sourceTree = "<group>"; };
@@ -2032,6 +2036,8 @@
 				B0CB9C10891323BE82F624A1 /* PrefetchedPlaybackInfoIdentityTests.swift */,
 				7CA61D2C186BB798C1ABACDF /* ProbeBudgetTests.swift */,
 				9C81387341EF393A20422D1A /* ProfilePickerOrderingTests.swift */,
+				167D405842453353CBD91CE9 /* ProfilePINSyncTests.swift */,
+				6FE3B2C744AB8F33AB66F94E /* ProfilePINTests.swift */,
 				71A6ACA556526BD955443E10 /* ProfileRepromptPolicyTests.swift */,
 				045D26559530D2BA2F3268FF /* ProfileRepromptPreferenceTests.swift */,
 				4267FC75ADC0DFBBDF75871B /* ProgramInfoPopoverTests.swift */,
@@ -3513,6 +3519,8 @@
 				949E87BD002C5B02FC56F29E /* PosterBadgeStoreTests.swift in Sources */,
 				22D9FD8D81022DDD3C29A28E /* PrefetchedPlaybackInfoIdentityTests.swift in Sources */,
 				D01A3CB7234B476C64068136 /* ProbeBudgetTests.swift in Sources */,
+				A037C34E1934EDE69C53A86C /* ProfilePINSyncTests.swift in Sources */,
+				5EDD7F4DF70B4CA2777A863C /* ProfilePINTests.swift in Sources */,
 				49C558DE8D51AB38B6D12730 /* ProfilePickerOrderingTests.swift in Sources */,
 				8F24A9C82563CF23FE96025C /* ProfileRepromptPolicyTests.swift in Sources */,
 				35C72E5705E96CBF0E85B1CA /* ProfileRepromptPreferenceTests.swift in Sources */,

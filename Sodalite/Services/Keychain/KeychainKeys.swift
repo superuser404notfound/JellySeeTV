@@ -62,6 +62,18 @@ nonisolated enum KeychainKeys {
     /// JSON `GuardianPINThrottle` (failed-attempt count + lockout deadline). Device-global, keychain to resist tampering.
     static let guardianPINThrottle = "guardianPINThrottle"
 
+    /// JSON `GuardianPINCrypto.Blob` for one profile's own entry PIN. Absent means the door takes
+    /// the Guardian PIN only. Keyed by the same pair the lock roles are keyed by.
+    static func profilePINBlob(serverID: String, userID: String) -> String {
+        "profilePINBlob_\(serverID)_\(userID)"
+    }
+
+    /// JSON `GuardianPINThrottle` for one profile's entry door. Per door, so guessing at one profile
+    /// cannot lock the household out of the Guardian PIN.
+    static func profilePINThrottle(serverID: String, userID: String) -> String {
+        "profilePINThrottle_\(serverID)_\(userID)"
+    }
+
     static func seerrSession(serverID: String) -> String {
         "seerrSession_\(serverID)"
     }

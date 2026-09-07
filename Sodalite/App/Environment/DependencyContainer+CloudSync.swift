@@ -397,7 +397,17 @@ extension DependencyContainer {
         guard let data = try? keychainService.loadData(for: KeychainKeys.guardianPINBlob),
               let blob = try? JSONDecoder().decode(GuardianPINCrypto.Blob.self, from: data)
         else { return nil }
-        return SecuritySyncPayload(updatedAt: stamp, pinBlob: blob)
+        // Sorted so the payload's Equatable is stable and an unchanged device never looks dirty.
+        let own = profilesWithOwnPIN()
+            .sorted { ($0.serverID, $0.userID) < ($1.serverID, $1.userID) }
+            .compactMap { ref -> SecuritySyncPayload.ProfilePINEntry? in
+                guard let data = try? keychainService.loadData(
+                        for: KeychainKeys.profilePINBlob(serverID: ref.serverID, userID: ref.userID)),
+                      let blob = try? JSONDecoder().decode(GuardianPINCrypto.Blob.self, from: data)
+                else { return nil }
+                return .init(serverID: ref.serverID, userID: ref.userID, blob: blob)
+            }
+        return SecuritySyncPayload(updatedAt: stamp, pinBlob: blob, profilePINs: own)
     }
 
     func applySecurityPayload(_ payload: SecuritySyncPayload) {
@@ -407,6 +417,23 @@ extension DependencyContainer {
         // PIN we do not have). The local throttle is deliberately untouched.
         if let data = try? JSONEncoder().encode(payload.pinBlob) {
             try? keychainService.save(data, for: KeychainKeys.guardianPINBlob)
+        }
+
+        // Whole list, last writer wins, the same way the parental-controls record treats its id
+        // sets. A blob for a profile this device has not heard of yet is written and lies dormant
+        // until that profile arrives, which is what makes both orders of arrival converge.
+        let named = Set(payload.profilePINs.map { ProfileRef(serverID: $0.serverID, userID: $0.userID) })
+        for ref in profilesWithOwnPIN() where !named.contains(ref) {
+            try? keychainService.delete(for: KeychainKeys.profilePINBlob(serverID: ref.serverID, userID: ref.userID))
+            try? keychainService.delete(for: KeychainKeys.profilePINThrottle(serverID: ref.serverID, userID: ref.userID))
+        }
+        for entry in payload.profilePINs {
+            if let data = try? JSONEncoder().encode(entry.blob) {
+                try? keychainService.save(
+                    data,
+                    for: KeychainKeys.profilePINBlob(serverID: entry.serverID, userID: entry.userID)
+                )
+            }
         }
     }
 
