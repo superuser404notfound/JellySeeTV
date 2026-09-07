@@ -167,6 +167,16 @@ nonisolated final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unch
         return .useCredential
     }
 
+    /// Guards the diagnostic line above. Returns true when this host has not said this before.
+    private func noteIfChanged(_ line: String, forHost host: String) -> Bool {
+        logLock.lock(); defer { logLock.unlock() }
+        guard lastLoggedLine[host] != line else { return false }
+        lastLoggedLine[host] = line
+        return true
+    }
+    private let logLock = NSLock()
+    private var lastLoggedLine: [String: String] = [:]
+
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
@@ -184,10 +194,14 @@ nonisolated final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unch
         if space.authenticationMethod == NSURLAuthenticationMethodServerTrust {
             let key = ServerTrustStore.hostKey(host: space.host, port: space.port)
             let offered = space.serverTrust.flatMap(CertificateFingerprint.sha256(ofLeafIn:))
-            LogTap.shared.note(
-                "[trust] \(key) offered \(offered ?? "no certificate") "
+            let line = "[trust] \(key) offered \(offered ?? "no certificate") "
                 + "pinned \(store.pinnedFingerprint(forHost: key) ?? "nothing") "
-                + "-> \(decision == .useCredential ? "accepted" : "system decides")")
+                + "-> \(decision == .useCredential ? "accepted" : "system decides")"
+            // Once per host, and again whenever the answer changes. A challenge is raised per
+            // connection, so browsing one library screen produced twenty identical lines on the
+            // first device round and pushed everything else out of a 300-line buffer. What is worth
+            // reading is the first answer for a host and every later one that differs from it.
+            if noteIfChanged(line, forHost: key) { LogTap.shared.note(line) }
         }
         switch decision {
         case .useCredential:
