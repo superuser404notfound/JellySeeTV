@@ -90,14 +90,21 @@ struct PINEntryView: View {
         .fullScreenCover(isPresented: $showRecovery) {
             PINRecoveryView(
                 onRecovered: {
-                    // Recovery validated: collect a replacement PIN inline.
                     showRecovery = false
-                    collectingNewPIN = true
-                    firstEntry = nil
-                    entered = ""
-                    message = "parental.pin.recovery.setNew"
-                    isError = false
-                    lockoutUntil = nil
+                    switch recoveryOutcome {
+                    case .clearOwnPIN(let ref):
+                        // The door in front of the user was this profile's own PIN, so that is what
+                        // recovery repairs. It now takes the Guardian PIN, which is the stricter key.
+                        dependencies.clearOwnPIN(for: ref)
+                        onComplete(true)
+                    case .collectNewGuardianPIN:
+                        collectingNewPIN = true
+                        firstEntry = nil
+                        entered = ""
+                        message = "parental.pin.recovery.setNew"
+                        isError = false
+                        lockoutUntil = nil
+                    }
                 },
                 onCancel: { showRecovery = false }
             )
@@ -170,6 +177,11 @@ struct PINEntryView: View {
     }
 
     // MARK: Logic
+
+    private var recoveryOutcome: PINRecoveryOutcome {
+        guard case .unlock(let reason) = mode else { return .collectNewGuardianPIN }
+        return PINRecoveryOutcome.forDoor(reason: reason) { dependencies.hasOwnPIN($0) }
+    }
 
     /// The pad shows the lockout of the door it is standing at. Collecting a PIN verifies nothing,
     /// so a setup pad reads the Guardian door and simply has nothing to report.

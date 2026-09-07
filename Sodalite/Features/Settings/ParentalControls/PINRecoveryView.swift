@@ -92,11 +92,13 @@ struct PINRecoveryView: View {
                 all.append((server: server, user: user))
             }
         }
-        candidates = GuardianPINRecoveryCandidates.candidates(all) { entry in
-            dependencies.parentalControlsPreferences.role(
-                serverID: entry.server.id, userID: entry.user.id
-            )
-        }
+        candidates = GuardianPINRecoveryCandidates.candidates(
+            all,
+            role: { dependencies.parentalControlsPreferences.role(
+                ProfileRef(serverID: $0.server.id, userID: $0.user.id)) },
+            hasOwnPIN: { dependencies.hasOwnPIN(
+                ProfileRef(serverID: $0.server.id, userID: $0.user.id)) }
+        )
     }
 
     private func validate() async {
