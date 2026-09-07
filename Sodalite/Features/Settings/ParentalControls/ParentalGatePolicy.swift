@@ -29,12 +29,15 @@ enum ParentalGatePolicy {
     /// Whether a session-scoped escape (logout, server management, tabs, Seerr, iCloud, support,
     /// the profile screen) costs the PIN.
     ///
-    /// Only a profile that cannot be opened without the PIN carries a trusted occupant. An open
-    /// profile is by construction reachable by anyone, and a locked-in one is where the child sits,
-    /// so both are gated. Reading trust off the role rather than the person is the cheap proxy
-    /// available; the one screen that can disable all of it asks regardless (see SettingsView).
-    static func sessionActionRequiresPIN(activeRole: ProfileLockRole) -> Bool {
-        activeRole != .pinToEnter
+    /// Trust is a property of the door, never of the key that was used. Only a profile the Guardian
+    /// PIN ALONE opens carries an occupant who has proven guardianship: an open profile is reachable
+    /// by anyone, a locked-in one is where the child sits, and one with its own PIN is opened by a
+    /// secret the household types in front of everybody. Reading back which key was actually entered
+    /// would spare a parent one prompt and hand the whole set to the next person the remote reaches.
+    /// The one screen that can disable all of it asks regardless (see SettingsView).
+    static func sessionActionRequiresPIN(activeRole: ProfileLockRole,
+                                         activeHasOwnPIN: Bool) -> Bool {
+        !(activeRole == .pinToEnter && !activeHasOwnPIN)
     }
 
     /// `switchProfile` is raised when LEAVING a leave-locked profile, so it belongs to the active

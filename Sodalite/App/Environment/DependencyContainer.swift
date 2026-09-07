@@ -1272,15 +1272,14 @@ final class DependencyContainer {
         return CacheIdentity(serverID: serverID, userID: userID)
     }
 
-    /// The lock role of the active session, or `.open` when there is no session yet.
-    private func activeProfileRole() -> ProfileLockRole {
-        guard let id = activeSessionIdentity() else { return .open }
-        return parentalControlsPreferences.role(serverID: id.serverID, userID: id.userID)
+    private func activeProfileRef() -> ProfileRef? {
+        activeSessionIdentity().map { ProfileRef(serverID: $0.serverID, userID: $0.userID) }
     }
 
-    /// Is the currently active session a profile that is locked in?
-    func activeProfileIsProtected() -> Bool {
-        activeProfileRole() == .pinToLeave
+    /// The lock role of the active session, or `.open` when there is no session yet.
+    private func activeProfileRole() -> ProfileLockRole {
+        guard let ref = activeProfileRef() else { return .open }
+        return parentalControlsPreferences.role(ref)
     }
 
     /// Whether activating the given target profile needs the Guardian-PIN. The judgement itself
@@ -1312,8 +1311,11 @@ final class DependencyContainer {
     /// Whether a session-scoped escape action (logout, server management,
     /// switching server from the picker) needs the PIN.
     func parentalGateRequiredForSessionAction() -> Bool {
-        parentalControlsActive()
-            && ParentalGatePolicy.sessionActionRequiresPIN(activeRole: activeProfileRole())
+        guard parentalControlsActive() else { return false }
+        return ParentalGatePolicy.sessionActionRequiresPIN(
+            activeRole: activeProfileRole(),
+            activeHasOwnPIN: activeProfileRef().map { hasOwnPIN($0) } ?? false
+        )
     }
 
     /// One-shot: before #105 an unmarked profile still cost the PIN to enter at a cold start, and

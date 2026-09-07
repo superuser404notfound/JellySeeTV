@@ -58,9 +58,12 @@ struct ParentalGatePolicyTests {
     /// case is the one this pins hardest: it is where a child sits in the household the discussion
     /// described, and leaving it ungated handed them server management, tabs and the logout.
     @Test func onlyAnEntryLockedProfileIsTrustedWithTheEscapes() {
-        #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .pinToEnter) == false)
-        #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .open))
-        #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .pinToLeave))
+        #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .pinToEnter,
+                                                           activeHasOwnPIN: false) == false)
+        #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .open,
+                                                           activeHasOwnPIN: false))
+        #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .pinToLeave,
+                                                           activeHasOwnPIN: false))
     }
 
     // MARK: prompt copy
@@ -206,5 +209,42 @@ struct PINReasonDoorTests {
         #expect(ParentalGatePolicy.reason(forActivating: .pinToEnter, ref: ref) == .enterProfile(ref))
         #expect(ParentalGatePolicy.reason(forActivating: .open, ref: ref) == .switchProfile)
         #expect(ParentalGatePolicy.reason(forActivating: .pinToLeave, ref: ref) == .switchProfile)
+    }
+}
+
+/// A seat proves something about its occupant only where the Guardian PIN is the only way in.
+@MainActor
+struct SessionActionTrustTests {
+
+    @Test("An entry lock the Guardian PIN alone opens is trusted")
+    func guardianOnlyEntryLockIsTrusted() {
+        #expect(!ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .pinToEnter,
+                                                            activeHasOwnPIN: false))
+    }
+
+    @Test("An entry lock with its own PIN is not")
+    func ownPINIsNotTrusted() {
+        // The child knows the family PIN, so the seat proves nothing about who is in it.
+        #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .pinToEnter,
+                                                           activeHasOwnPIN: true))
+    }
+
+    @Test("Open and locked-in seats are gated as before")
+    func otherRolesUnchanged() {
+        for hasOwn in [false, true] {
+            #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .open,
+                                                               activeHasOwnPIN: hasOwn))
+            #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: .pinToLeave,
+                                                               activeHasOwnPIN: hasOwn))
+        }
+    }
+
+    @Test("With no own PIN anywhere the predicate is the one it replaced")
+    func matchesTheOldPredicateWithoutOwnPINs() {
+        for role in ProfileLockRole.allCases {
+            #expect(ParentalGatePolicy.sessionActionRequiresPIN(activeRole: role,
+                                                               activeHasOwnPIN: false)
+                    == (role != .pinToEnter))
+        }
     }
 }
