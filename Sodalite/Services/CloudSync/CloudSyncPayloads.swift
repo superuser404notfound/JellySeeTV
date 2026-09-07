@@ -345,9 +345,38 @@ struct ParentalControlsSettingsPayload: Codable, Equatable {
 }
 
 struct SecuritySyncPayload: Codable, Equatable {
+    /// One profile's own entry PIN. An explicit pair rather than a map keyed by "serverID:userID":
+    /// splitting that back apart needs an assumption about the server id, and a sync record is the
+    /// wrong place to carry one.
+    struct ProfilePINEntry: Codable, Equatable {
+        let serverID: String
+        let userID: String
+        let blob: GuardianPINCrypto.Blob
+    }
+
     var schemaVersion: Int = 1
     var updatedAt: Date
     var pinBlob: GuardianPINCrypto.Blob
+    var profilePINs: [ProfilePINEntry] = []
+
+    init(updatedAt: Date,
+         pinBlob: GuardianPINCrypto.Blob,
+         profilePINs: [ProfilePINEntry] = []) {
+        self.updatedAt = updatedAt
+        self.pinBlob = pinBlob
+        self.profilePINs = profilePINs
+    }
+
+    /// Hand-written because a Swift default value does NOT make a key optional for the synthesised
+    /// `Decodable`: every record written before own PINs existed would die on `keyNotFound` and take
+    /// the whole security record with it.
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try values.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        updatedAt = try values.decode(Date.self, forKey: .updatedAt)
+        pinBlob = try values.decode(GuardianPINCrypto.Blob.self, forKey: .pinBlob)
+        profilePINs = try values.decodeIfPresent([ProfilePINEntry].self, forKey: .profilePINs) ?? []
+    }
 }
 
 /// Type-erased settings payload so the engine can treat every settings store uniformly.
