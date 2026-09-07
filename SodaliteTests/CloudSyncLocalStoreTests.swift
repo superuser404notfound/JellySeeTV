@@ -3,7 +3,7 @@ import Testing
 @testable import Sodalite
 
 /// In-memory KeychainServiceProtocol so the container round-trips without SecItem.
-final class InMemoryKeychain: KeychainServiceProtocol, @unchecked Sendable {
+nonisolated final class InMemoryKeychain: KeychainServiceProtocol, @unchecked Sendable {
     private var storage: [String: Data] = [:]
     private let lock = NSLock()
 

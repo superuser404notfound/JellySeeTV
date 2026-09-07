@@ -1,6 +1,6 @@
 import Foundation
 
-enum KeychainKeys {
+nonisolated enum KeychainKeys {
     static let service = "de.superuser404.Sodalite"
 
     static func accessToken(serverID: String) -> String {
@@ -70,6 +70,11 @@ enum KeychainKeys {
     static func rememberedSeerr(jellyfinServerID: String, jellyfinUserID: String) -> String {
         "rememberedSeerr_\(jellyfinServerID)_\(jellyfinUserID)"
     }
+
+    /// JSON `[String: String]`, `host:port` to the SHA-256 of the certificate the user accepted for
+    /// it. Keychain rather than UserDefaults for the same reason the PIN blob is: this is the record
+    /// of a security decision, and wiping defaults must not silently widen what the app trusts.
+    static let trustedCertificates = "trustedCertificates"
 
     /// The one shared-session blob the TopShelf extension reads. Under `runs-as-current-user` the
     /// keychain is already per tvOS user, so a second per-user key would be a partition inside a

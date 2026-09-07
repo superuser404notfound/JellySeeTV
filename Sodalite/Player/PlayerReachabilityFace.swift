@@ -30,7 +30,11 @@ enum PlayerReachabilityFace {
         switch api {
         case .serverUnreachable, .networkError, .timeout:
             return true
-        case .invalidURL, .invalidResponse, .httpError, .decodingError, .unauthorized, .localNetworkDenied:
+        case .invalidURL, .invalidResponse, .httpError, .decodingError, .unauthorized,
+             .localNetworkDenied, .certificateUntrusted:
+            // A refused certificate already names its own reason, and a reachability verdict would
+            // overwrite it with a circumstance: the server is answering, that is how we saw its
+            // certificate at all.
             return false
         }
     }

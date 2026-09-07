@@ -34,6 +34,10 @@ enum PlayerEngineErrorPresentation {
         /// switch onto it failed and took its session with it. The only face whose advice is not "try
         /// again", which is the whole reason it exists rather than folding into the generic line.
         case audioTrackUnavailable
+        /// The server presented a certificate this device does not trust and has not been told to
+        /// accept. The only face here whose fix is a decision rather than a retry, which is why it
+        /// exists rather than folding into the generic classified line.
+        case certificateRejected
         /// The engine classified the failure but the host has no sentence for that kind. The viewer gets
         /// a translated line, and `identifier` carries the classification so a screenshot is still worth
         /// something in a bug report. It is deliberately NOT translated: it is a stable API token, and a
@@ -73,6 +77,7 @@ enum PlayerEngineErrorPresentation {
             }
         }
         if info.kind == .sourceRateLimited { return .rateLimited }
+        if info.kind == .sourceCertificateRejected { return .certificateRejected }
         if info.kind == .dolbyVisionRequiresHardware { return .dolbyVisionUnsupported }
         if info.kind == .liveSourceUnavailable { return .liveChannelUnavailable }
 
@@ -198,6 +203,18 @@ enum PlayerEngineErrorPresentation {
                 message: String(
                     localized: "player.error.audioTrack.body",
                     defaultValue: "This audio track could not be played. Start the title again and choose a different audio track."
+                )
+            )
+        case .certificateRejected:
+            return Trio(
+                icon: "lock.trianglebadge.exclamationmark",
+                title: String(
+                    localized: "player.error.certificateRejected.title",
+                    defaultValue: "Server identity not verified"
+                ),
+                message: String(
+                    localized: "player.error.certificateRejected.body",
+                    defaultValue: "This server presented a certificate this device does not trust, so the stream was not started. Add the server again in Settings to look at its certificate and accept it."
                 )
             )
         case .engineClassified(let identifier):

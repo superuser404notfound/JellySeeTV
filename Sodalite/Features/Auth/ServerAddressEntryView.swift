@@ -72,6 +72,14 @@ struct ServerAddressEntryView: View {
                     }
                 }
                 .frame(maxWidth: 500)
+                .sheet(item: Bindable(vm).pendingTrust) { pending in
+                    CertificateTrustSheet(
+                        pending: pending,
+                        serverAddress: vm.serverAddress,
+                        onTrust: { Task { await vm.trustPendingCertificate() } },
+                        onCancel: { vm.pendingTrust = nil }
+                    )
+                }
                 .navigationDestination(isPresented: Bindable(vm).showLogin) {
                     if let server = vm.discoveredServer {
                         UserPickerView(server: server, addMode: addMode, onCompletion: onCompletion)
@@ -86,7 +94,10 @@ struct ServerAddressEntryView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             if viewModel == nil {
-                viewModel = ServerAddressEntryViewModel(discoveryService: dependencies.serverDiscoveryService)
+                viewModel = ServerAddressEntryViewModel(
+                    discoveryService: dependencies.serverDiscoveryService,
+                    trustStore: dependencies.serverTrustStore
+                )
             }
         }
     }

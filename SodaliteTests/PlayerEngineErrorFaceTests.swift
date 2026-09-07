@@ -228,4 +228,18 @@ struct PlayerEngineErrorFaceTests {
         #expect(named == "Stream refused")
         #expect(PlayerEngineErrorPresentation.appendingReportCode(to: "x", from: nil) == "x")
     }
+    @Test("A stream refused for its certificate says that, not something generic")
+    func certificateRefusalHasItsOwnFace() {
+        // Without a face this lands on .engineClassified, which shows a translated generic line plus
+        // "sourceCertificateRejected · NSURLErrorDomain -1202". That token is right and useless to
+        // the one person who can fix it, because what they need to be told is where the answer is.
+        let info = PlaybackErrorInfo(
+            kind: .sourceCertificateRejected,
+            message: "The system does not trust the origin's certificate",
+            underlyingDomain: NSURLErrorDomain,
+            underlyingCode: NSURLErrorServerCertificateUntrusted
+        )
+        #expect(PlayerEngineErrorPresentation.face(for: info) == .certificateRejected)
+    }
+
 }

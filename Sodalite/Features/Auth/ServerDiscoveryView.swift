@@ -47,6 +47,23 @@ struct ServerDiscoveryView: View {
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .sheet(item: Binding(
+                get: { viewModel?.pendingTrust },
+                set: { viewModel?.pendingTrust = $0 }
+            )) { pending in
+                CertificateTrustSheet(
+                    pending: pending,
+                    serverAddress: pending.host,
+                    onTrust: {
+                        Task {
+                            if let resolved = await viewModel?.trustPendingCertificate() {
+                                path.append(Route.login(resolved))
+                            }
+                        }
+                    },
+                    onCancel: { viewModel?.pendingTrust = nil }
+                )
+            }
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .login(let server):
@@ -62,7 +79,8 @@ struct ServerDiscoveryView: View {
                     viewModel = ServerDiscoveryViewModel(
                         discovery: dependencies.serverDiscovery,
                         discoveryService: dependencies.serverDiscoveryService,
-                        knownServerIDs: Set(dependencies.listKnownServers().map(\.id))
+                        knownServerIDs: Set(dependencies.listKnownServers().map(\.id)),
+                        trustStore: dependencies.serverTrustStore
                     )
                 }
                 await viewModel?.scan()

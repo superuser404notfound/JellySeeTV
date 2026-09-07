@@ -9,6 +9,11 @@ enum APIError: LocalizedError, Sendable {
     /// 401; `message` carries the server-provided reason when present so the user sees a real explanation.
     case unauthorized(message: String?)
     case serverUnreachable
+    /// The server presented a certificate the system does not trust and this device has not been
+    /// told to accept. Its own case rather than `.serverUnreachable`, because the user can actually
+    /// do something about this one, and the sheet needs the host and the fingerprint to say what.
+    /// `fingerprint` is nil when the handshake failed before a chain was offered.
+    case certificateUntrusted(host: String, fingerprint: String?)
     /// The device is withholding Local Network access, so a LAN address is unreachable from this
     /// app while the same address works everywhere else on the device (Sodalite#92). Only
     /// `LocalNetworkAccess` produces this case, and only after asking the system.
@@ -38,6 +43,11 @@ enum APIError: LocalizedError, Sendable {
             message ?? String(localized: "error.unauthorized", defaultValue: "Authentication required")
         case .serverUnreachable:
             String(localized: "error.serverUnreachable", defaultValue: "Server unreachable")
+        case .certificateUntrusted:
+            String(
+                localized: "error.certificateUntrusted",
+                defaultValue: "This server's identity could not be verified"
+            )
         case .localNetworkDenied:
             String(
                 localized: "error.localNetworkDenied",

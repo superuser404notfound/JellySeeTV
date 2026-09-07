@@ -73,7 +73,10 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
             config.requestCachePolicy = .reloadRevalidatingCacheData
             // Belt to inFlightLimiter: transport pool shouldn't exceed what the limiter admits.
             config.httpMaximumConnectionsPerHost = 6
-            self.session = URLSession(configuration: config)
+            // AE#495 / certificate trust: every session this app owns answers a server-trust
+            // challenge from the same pin store, so the app and the engine agree about one origin.
+            self.session = URLSession(
+                configuration: config, delegate: ServerTrustDelegate.shared, delegateQueue: nil)
         }
 
         self.encoder = JSONEncoder()
@@ -188,6 +191,12 @@ final class HTTPClient: HTTPClientProtocol, @unchecked Sendable {
     /// (Sodalite#92). The pre-filter runs first so the probe costs nothing on the ordinary failures:
     /// only a LAN address that failed with that exact sentence gets as far as asking the system.
     private static func transportFailure(_ error: Error, url: URL?) async -> APIError {
+        // Asked before the URLError cast and before the code switch: a refused certificate can
+        // arrive wrapped, and the code that says so is often not the one on top.
+        if let refused = CertificateTrustFailure.apiError(
+            for: error, url: url, store: ServerTrustDelegate.shared.store) {
+            return refused
+        }
         guard let urlError = error as? URLError else { return .networkError(error) }
         #if os(iOS)
         if let url, LocalNetworkAccess.couldBeDenial(urlError, url: url),
@@ -277,7 +286,8 @@ extension HTTPClient {
         config.urlCache = nil
         config.waitsForConnectivity = false
         return HTTPClient(
-            session: URLSession(configuration: config),
+            session: URLSession(
+                configuration: config, delegate: ServerTrustDelegate.shared, delegateQueue: nil),
             transportTiming: { url, timing in
                 LogTap.shared.note("[discovery] timing \(url.absoluteString) -> \(timing)")
             }

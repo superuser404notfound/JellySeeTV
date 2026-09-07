@@ -17,6 +17,12 @@ final class DependencyContainer {
     }()
     let keychainService: KeychainServiceProtocol
     let httpClient: HTTPClientProtocol
+
+    /// Which server certificates this device has been told to accept. The store itself is
+    /// process-wide (see `ServerTrustDelegate.shared`, which the first `HTTPClient` needs before this
+    /// container's body runs); this is the handle everything else reads it through, so no view model
+    /// reaches the keychain for it.
+    var serverTrustStore: ServerTrustStore { ServerTrustDelegate.shared.store }
     let jellyfinClient: JellyfinClient
     let serverDiscoveryService: ServerDiscoveryServiceProtocol
     let serverDiscovery: JellyfinServerDiscoveryProtocol
