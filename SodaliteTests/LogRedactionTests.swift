@@ -124,6 +124,33 @@ struct LogRedactionTests {
         #expect(line.contains("smb://<redacted>@nas.local/share"))
     }
 
+    /// Reported privately against the engine, and it applies here for the same reason the userinfo
+    /// shape does: the host composes lines the engine never sees, so a gap closed only upstream is
+    /// still open on this side. A credential encoded into a path segment has no name in the line at
+    /// all, and no list of names can reach it, because the names are inside the payload.
+    @Test("a credential encoded into a path segment goes, although nothing in the line names it")
+    func encodedPathSegment() {
+        // {"stores":[{"c":"tb","t":"9f2c1ab34de5470fa1b6c8d90e7f2a11abcd"}]}
+        let segment = "eyJzdG9yZXMiOlt7ImMiOiJ0YiIsInQiOiI5ZjJjMWFiMzRkZTU0NzBmYTFiNmM4ZDkwZTdmMmExMWFiY2QifV19"
+        let line = LogRedaction.redact(
+            "[Image] fetch failed https://proxy.example.org/stremio/torz/\(segment)/_/strem/tt0111161/0/A.mkv"
+        )
+        #expect(!line.contains(segment))
+        #expect(line.contains("/stremio/torz/<redacted>/_/strem/"))
+        #expect(line.contains("proxy.example.org"))
+        #expect(line.hasSuffix("A.mkv"))
+    }
+
+    /// The gate is the encoding, not a resemblance to it: an item id, a hash and an episode file that
+    /// happens to start with the same two letters are exactly what a report is diagnosed from.
+    @Test("an ordinary path segment that merely looks encoded is left alone", arguments: [
+        "[AetherEngine] load url=https://s/Videos/Eyewitness.S01E04.mkv source-format=mkv",
+        "[session] resume item=a1b2c3d4e5f60718293a4b5c6d7e8f90 position=421.5s",
+    ])
+    func ordinarySegmentsSurvive(line: String) {
+        #expect(LogRedaction.redact(line) == line)
+    }
+
     @Test("a URL without credentials is untouched")
     func urlWithoutUserInfoIsUntouched() {
         let plain = "[AetherEngine] load url=https://media.example.org/Videos/abc/stream.mkv"

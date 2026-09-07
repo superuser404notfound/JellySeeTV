@@ -45,12 +45,14 @@ nonisolated enum LogRedaction {
         var i = 0
 
         while i < bytes.count {
-            // Two shapes, because a credential does not always arrive as an assignment. The key
-            // matcher covers `api_key=…`, `X-Emby-Token: …` and the cookie; the userinfo matcher
-            // covers `smb://user:secret@host`, which carries no key at all and would otherwise
-            // pass through untouched.
+            // Three shapes, because a credential does not always arrive as an assignment. The key
+            // matcher covers `api_key=…`, `X-Emby-Token: …` and the cookie; the payload matcher
+            // covers an encoded blob that no name points at, which is how a path segment carries
+            // one; the userinfo matcher covers `smb://user:secret@host`, which carries no key at
+            // all and would otherwise pass through untouched.
             guard let value = matchedKeyLength(in: bytes, at: i)
                     .flatMap({ valueRange(in: bytes, after: i + $0) })
+                    ?? encodedPayloadRange(in: bytes, at: i)
                     ?? userInfoSecretRange(in: bytes, at: i) else {
                 i += 1
                 continue
@@ -120,6 +122,59 @@ nonisolated enum LogRedaction {
             while i < bytes.count, !isValueTerminator(bytes[i]) { i += 1 }
         }
         return start < i ? start ..< i : nil
+    }
+
+    /// Shortest encoded run worth decoding. `{"a":"b"}` is nine bytes, so twelve characters; anything
+    /// shorter cannot be a JSON object and a credential blob is far longer than either.
+    private static let minimumEncodedLength = 12
+
+    /// The span of an encoded payload starting here, or nil.
+    ///
+    /// A path segment or a query value holding base64url-encoded JSON carries structure the URL never
+    /// declares. No name precedes it, so `matchedKeyLength` cannot see it, and the list of names cannot
+    /// be extended to reach it either: the names are INSIDE the payload and belong to whoever wrote it.
+    /// The case this was reported for decodes to the keys `stores`, `c` and `t`. The encoding is the
+    /// only honest signal, and an opaque blob answers no question a playback report asks, so the whole
+    /// run goes. Kept identical to AetherEngine's copy on purpose: the two drifted apart once already,
+    /// and the userinfo shape below is what that drift cost upstream.
+    ///
+    /// Gated hard before it allocates: base64url of `{` always starts `e` and of `[` always `W`, so one
+    /// byte comparison rejects very nearly every position in the line.
+    private static func encodedPayloadRange(in bytes: [UInt8], at index: Int) -> Range<Int>? {
+        guard bytes[index] == UInt8(ascii: "e") || bytes[index] == UInt8(ascii: "W") else { return nil }
+        if index > 0, isBase64URL(bytes[index - 1]) { return nil }
+
+        var end = index
+        while end < bytes.count, isBase64URL(bytes[end]) { end += 1 }
+        guard end - index >= minimumEncodedLength, decodesToJSON(bytes[index ..< end]) else { return nil }
+
+        // A JSON web token is three of these joined by dots, and the signature at the end is the part
+        // worth stealing, so the whole token goes rather than the header that happened to match.
+        var extended = end
+        while extended < bytes.count, bytes[extended] == UInt8(ascii: ".") {
+            var run = extended + 1
+            while run < bytes.count, isBase64URL(bytes[run]) { run += 1 }
+            guard run > extended + 1 else { break }
+            extended = run
+        }
+        return index ..< extended
+    }
+
+    /// Whether the run decodes as base64url into a JSON object or array. `JSONSerialization` without
+    /// `.fragmentsAllowed` is the test rather than a resemblance check: a bare number or string would
+    /// otherwise let ordinary text through, and an episode file named `Eyewitness…` gets as far as the
+    /// decode and no further.
+    private static func decodesToJSON(_ run: ArraySlice<UInt8>) -> Bool {
+        var encoded = String(decoding: run, as: UTF8.self)
+            .replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        encoded += String(repeating: "=", count: (4 - encoded.count % 4) % 4)
+        guard let data = Data(base64Encoded: encoded) else { return false }
+        return (try? JSONSerialization.jsonObject(with: data)) != nil
+    }
+
+    private static func isBase64URL(_ b: UInt8) -> Bool {
+        isLetterOrDigit(b) || b == UInt8(ascii: "-") || b == UInt8(ascii: "_")
     }
 
     /// The secret inside a URL's userinfo, given an index that may start `://`. `smb://user:pw@host`
