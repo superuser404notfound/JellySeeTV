@@ -83,7 +83,7 @@ struct PINEntryView: View {
             }
             .screenContentInset()
         }
-        .onAppear { lockoutUntil = dependencies.guardianPINLockout() }
+        .onAppear { lockoutUntil = currentDoorLockout }
         // Only advance `now` (and re-render) while a lockout countdown is actually running;
         // during normal PIN entry the 1 Hz tick would otherwise invalidate the whole view for nothing.
         .onReceive(ticker) { if lockoutUntil != nil { now = $0 } }
@@ -171,6 +171,13 @@ struct PINEntryView: View {
 
     // MARK: Logic
 
+    /// The pad shows the lockout of the door it is standing at. Collecting a PIN verifies nothing,
+    /// so a setup pad reads the Guardian door and simply has nothing to report.
+    private var currentDoorLockout: Date? {
+        guard case .unlock(let reason) = mode else { return dependencies.guardianPINLockout() }
+        return dependencies.pinLockout(for: reason)
+    }
+
     private var lockoutRemaining: Int? {
         guard let until = lockoutUntil, until > now else { return nil }
         return Int(until.timeIntervalSince(now).rounded(.up))
@@ -216,7 +223,8 @@ struct PINEntryView: View {
     }
 
     private func handleUnlock(_ pin: String) {
-        switch dependencies.verifyGuardianPIN(pin) {
+        guard case .unlock(let reason) = mode else { return }
+        switch dependencies.verifyPIN(pin, for: reason) {
         case .success:
             onComplete(true)
         case .wrong(let remaining):

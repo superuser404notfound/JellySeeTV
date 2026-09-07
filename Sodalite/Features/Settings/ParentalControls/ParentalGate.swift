@@ -2,10 +2,11 @@ import Foundation
 import Observation
 import SwiftUI
 
-/// Why the Guardian-PIN is being requested. Drives the prompt copy.
+/// Why the Guardian-PIN is being requested. Drives the prompt copy, and names the door: only
+/// `enterProfile` stands at a profile's own lock, everything else stands at the Guardian's.
 enum PINReason: Equatable {
-    case switchProfile      // activate an open profile
-    case enterProfile       // activate a profile that is locked to enter
+    case switchProfile              // activate an open profile out of a leave-locked one
+    case enterProfile(ProfileRef)   // activate a profile that is locked to enter
     case logout
     case serverManagement
     case openParentalSettings

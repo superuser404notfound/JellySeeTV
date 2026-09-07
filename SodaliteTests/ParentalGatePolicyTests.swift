@@ -66,12 +66,14 @@ struct ParentalGatePolicyTests {
     // MARK: prompt copy
 
     @Test func entryLockedTargetGetsItsOwnPrompt() {
-        #expect(ParentalGatePolicy.reason(forActivating: .pinToEnter) == .enterProfile)
+        let ref = ProfileRef(serverID: "A", userID: "dad")
+        #expect(ParentalGatePolicy.reason(forActivating: .pinToEnter, ref: ref) == .enterProfile(ref))
     }
 
     @Test func everyOtherTargetKeepsTheSwitchPrompt() {
-        #expect(ParentalGatePolicy.reason(forActivating: .open) == .switchProfile)
-        #expect(ParentalGatePolicy.reason(forActivating: .pinToLeave) == .switchProfile)
+        let ref = ProfileRef(serverID: "A", userID: "dad")
+        #expect(ParentalGatePolicy.reason(forActivating: .open, ref: ref) == .switchProfile)
+        #expect(ParentalGatePolicy.reason(forActivating: .pinToLeave, ref: ref) == .switchProfile)
     }
 }
 
@@ -180,5 +182,29 @@ struct ParentalEntryLockMigrationTests {
         container.migrateUnmarkedProfilesToEntryLocked()
 
         #expect(container.parentalControlsPreferences.role(serverID: "A", userID: "dad") == .open)
+    }
+}
+
+/// The reason a challenge carries is also the door it stands at: only entering a profile can be
+/// opened by anything other than the Guardian PIN.
+@MainActor
+struct PINReasonDoorTests {
+
+    @Test("Only entering a profile is that profile's door")
+    func doorMapping() {
+        let ref = ProfileRef(serverID: "A", userID: "family")
+        #expect(ParentalGatePolicy.door(for: .enterProfile(ref)) == .profile(ref))
+        #expect(ParentalGatePolicy.door(for: .switchProfile) == .guardian)
+        #expect(ParentalGatePolicy.door(for: .logout) == .guardian)
+        #expect(ParentalGatePolicy.door(for: .serverManagement) == .guardian)
+        #expect(ParentalGatePolicy.door(for: .openParentalSettings) == .guardian)
+    }
+
+    @Test("An entry-locked target carries its own ref, an open one does not need it")
+    func reasonCarriesTheTarget() {
+        let ref = ProfileRef(serverID: "A", userID: "family")
+        #expect(ParentalGatePolicy.reason(forActivating: .pinToEnter, ref: ref) == .enterProfile(ref))
+        #expect(ParentalGatePolicy.reason(forActivating: .open, ref: ref) == .switchProfile)
+        #expect(ParentalGatePolicy.reason(forActivating: .pinToLeave, ref: ref) == .switchProfile)
     }
 }

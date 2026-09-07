@@ -1293,11 +1293,20 @@ final class DependencyContainer {
         )
     }
 
-    /// Which prompt the PIN pad shows for this activation.
+    /// Which prompt the PIN pad shows for this activation, and which door it stands at.
     func parentalGateReason(forActivatingUserID userID: String, serverID: String) -> PINReason {
-        ParentalGatePolicy.reason(
-            forActivating: parentalControlsPreferences.role(serverID: serverID, userID: userID)
-        )
+        let ref = ProfileRef(serverID: serverID, userID: userID)
+        return ParentalGatePolicy.reason(forActivating: parentalControlsPreferences.role(ref), ref: ref)
+    }
+
+    /// The one place a challenge's key is chosen. Call sites pass the reason they were handed and
+    /// never reach for a blob themselves.
+    func verifyPIN(_ pin: String, for reason: PINReason) -> PINVerifyResult {
+        verifyPIN(pin, for: ParentalGatePolicy.door(for: reason))
+    }
+
+    func pinLockout(for reason: PINReason) -> Date? {
+        pinLockout(for: ParentalGatePolicy.door(for: reason))
     }
 
     /// Whether a session-scoped escape action (logout, server management,

@@ -37,7 +37,18 @@ enum ParentalGatePolicy {
         activeRole != .pinToEnter
     }
 
-    static func reason(forActivating targetRole: ProfileLockRole) -> PINReason {
-        targetRole == .pinToEnter ? .enterProfile : .switchProfile
+    /// `switchProfile` is raised when LEAVING a leave-locked profile, so it belongs to the active
+    /// profile's exit lock and never to the target's.
+    static func reason(forActivating targetRole: ProfileLockRole, ref: ProfileRef) -> PINReason {
+        targetRole == .pinToEnter ? .enterProfile(ref) : .switchProfile
+    }
+
+    /// The lock a challenge for `reason` is made against. Every reason but entering a profile is the
+    /// Guardian's own door, which is what keeps an own PIN out of every privileged action.
+    static func door(for reason: PINReason) -> PINDoor {
+        switch reason {
+        case .enterProfile(let ref): .profile(ref)
+        case .switchProfile, .logout, .serverManagement, .openParentalSettings: .guardian
+        }
     }
 }
