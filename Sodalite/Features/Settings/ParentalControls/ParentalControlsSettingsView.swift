@@ -94,9 +94,11 @@ struct ParentalControlsSettingsView: View {
                         get: { roles[key] ?? .open },
                         set: { newValue in
                             roles[key] = newValue
-                            dependencies.parentalControlsPreferences.setRole(
-                                newValue, serverID: entry.server.id, userID: entry.user.id
+                            dependencies.setLockRole(
+                                newValue,
+                                for: ProfileRef(serverID: entry.server.id, userID: entry.user.id)
                             )
+                            reload()
                         }
                     ),
                     label: { role in

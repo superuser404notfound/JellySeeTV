@@ -112,4 +112,48 @@ struct ProfilePINTests {
         // A new Guardian PIN must not repeat a profile's own PIN either.
         #expect(container.pinCollides("1111", excluding: nil))
     }
+
+    // MARK: Cleanup
+
+    @Test("A role that is not pinToEnter has no door, so its PIN goes with it")
+    func roleChangeClearsTheOwnPIN() throws {
+        let container = try makeHousehold(["family", "dad"])
+        let family = ProfileRef(serverID: "A", userID: "family")
+        // Roles live in the shared UserDefaults suite, so this one does need putting back.
+        defer { container.parentalControlsPreferences.setRole(.open, for: family) }
+
+        try container.saveGuardianPIN("9999")
+        container.setLockRole(.pinToEnter, for: family)
+        try container.saveOwnPIN("1111", for: family)
+        #expect(container.hasOwnPIN(family))
+
+        container.setLockRole(.open, for: family)
+        #expect(!container.hasOwnPIN(family))
+        #expect(container.parentalControlsPreferences.role(family) == .open)
+    }
+
+    @Test("Turning parental controls off takes every own PIN with it")
+    func clearingTheGuardianPINClearsThemAll() throws {
+        let container = try makeHousehold(["family", "dad"])
+        let family = ProfileRef(serverID: "A", userID: "family")
+
+        try container.saveGuardianPIN("9999")
+        try container.saveOwnPIN("1111", for: family)
+
+        try container.clearGuardianPIN()
+        #expect(!container.hasOwnPIN(family))
+        #expect(!container.isGuardianPINSet())
+    }
+
+    @Test("Forgetting a profile takes its PIN, so a returning profile does not inherit it")
+    func purgeTakesTheOwnPIN() throws {
+        let container = try makeHousehold(["family", "dad"])
+        let family = ProfileRef(serverID: "A", userID: "family")
+
+        try container.saveGuardianPIN("9999")
+        try container.saveOwnPIN("1111", for: family)
+
+        container.purgeUserCredentials(id: family.userID, serverID: family.serverID)
+        #expect(!container.hasOwnPIN(family))
+    }
 }

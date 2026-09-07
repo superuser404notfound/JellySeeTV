@@ -749,6 +749,9 @@ final class DependencyContainer {
         try? keychainService.delete(for: KeychainKeys.jellyfinPassword(serverID: serverID, userID: id))
         // Same reason: a remembered live upstream carries the IPTV provider's credentials in its path.
         liveDirectStreamMemory.forgetAll(userID: id)
+        // And the entry PIN: the composite id is stable, so a profile signed in again would
+        // otherwise come back holding a PIN nobody set for it.
+        clearOwnPIN(for: ProfileRef(serverID: serverID, userID: id))
     }
 
     /// The default-server pin. Rides the server record (Sodalite#45), so both the newly pinned server
@@ -1103,6 +1106,14 @@ final class DependencyContainer {
     }
 
     func clearGuardianPIN() throws {
+        // Every own PIN exists only underneath a Guardian PIN, so switching the Guardian PIN off
+        // takes them with it. Here rather than at the call sites, so neither the settings switch nor
+        // a remote record deletion has to remember. Inline rather than through clearOwnPIN, which
+        // would raise one sync mark per profile on top of the deletion already being published.
+        for ref in profilesWithOwnPIN() {
+            try? keychainService.delete(for: blobKey(for: .profile(ref)))
+            try? keychainService.delete(for: throttleKey(for: .profile(ref)))
+        }
         try keychainService.delete(for: KeychainKeys.guardianPINBlob)
         try? keychainService.delete(for: KeychainKeys.guardianPINThrottle)
         if !isApplyingCloudChanges { cloudSync?.markSecurityDeleted() }
@@ -1290,6 +1301,13 @@ final class DependencyContainer {
             targetRole: parentalControlsPreferences.role(serverID: serverID, userID: userID),
             activeRole: activeProfileRole()
         )
+    }
+
+    /// The one way a lock role changes. A role that is not `pinToEnter` has no entry door, so its
+    /// own PIN would be a secret nothing consults and a profile signed in again silently inherits.
+    func setLockRole(_ role: ProfileLockRole, for ref: ProfileRef) {
+        parentalControlsPreferences.setRole(role, for: ref)
+        if role != .pinToEnter { clearOwnPIN(for: ref) }
     }
 
     /// Which prompt the PIN pad shows for this activation, and which door it stands at.
