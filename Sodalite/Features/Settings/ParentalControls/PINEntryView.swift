@@ -22,7 +22,7 @@ enum PINEntryMode: Equatable {
     case unlock(reason: PINReason)
 }
 
-/// 4-digit PIN pad. .unlock verifies via dependencies.verifyGuardianPIN; .setup collects+confirms and persists via dependencies.saveGuardianPIN. "Forgot PIN?" opens recovery; a successful recovery flips this pad into new-PIN collection.
+/// 4-digit PIN pad. .unlock verifies through dependencies.verifyPIN(_:for:), which resolves the reason to its door; .setup collects+confirms and persists to the target, refusing a PIN that already opens another door. "Forgot PIN?" opens recovery, which either clears this profile's own PIN or flips the pad into collecting a new Guardian PIN.
 struct PINEntryView: View {
     @Environment(\.dependencies) private var dependencies
 
