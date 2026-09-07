@@ -8,7 +8,10 @@ struct ParentalControlsSettingsView: View {
     @State private var pinIsSet = false
     @State private var roles: [String: ProfileLockRole] = [:]   // compositeID -> role
     @State private var profiles: [(server: JellyfinServer, user: RememberedUser)] = []
-    @State private var showSetup = false
+    @State private var setupTarget: PINTarget?
+    /// compositeID of every profile that carries an own PIN, read back on every reload so the rows
+    /// and the keychain cannot drift apart.
+    @State private var ownPINs: Set<String> = []
 
     var body: some View {
         ScrollView {
@@ -22,9 +25,9 @@ struct ParentalControlsSettingsView: View {
             .screenContentInset()
         }
         .onAppear(perform: reload)
-        .fullScreenCover(isPresented: $showSetup) {
-            PINEntryView(mode: .setup) { _ in
-                showSetup = false
+        .fullScreenCover(item: $setupTarget) { target in
+            PINEntryView(mode: .setup(target)) { _ in
+                setupTarget = nil
                 reload()
             }
             .pausesAppBackgroundMotion()
@@ -46,7 +49,7 @@ struct ParentalControlsSettingsView: View {
             )
 
             if pinIsSet {
-                Button { showSetup = true } label: {
+                Button { setupTarget = .guardian } label: {
                     HStack(spacing: 28) {
                         Image(systemName: "key").font(.title2).frame(width: 56).foregroundStyle(.tint)
                         VStack(alignment: .leading, spacing: 2) {
@@ -64,7 +67,7 @@ struct ParentalControlsSettingsView: View {
 
     private func handleEnableChange(_ enabled: Bool) {
         if enabled {
-            showSetup = true        // setup completion flips pinIsSet via reload()
+            setupTarget = .guardian // setup completion flips pinIsSet via reload()
         } else {
             try? dependencies.clearGuardianPIN()
             // Both sets, else hasAnyLockedProfile stays true and the next PIN the user sets
@@ -109,6 +112,45 @@ struct ParentalControlsSettingsView: View {
                         }
                     }
                 )
+
+                // Only an entry door can carry its own key. A leave lock's PIN would be known to
+                // the person being kept in, and an open profile has no door at all.
+                if roles[key] == .pinToEnter {
+                    let ref = ProfileRef(serverID: entry.server.id, userID: entry.user.id)
+                    ValuePickerRow(
+                        icon: "key.horizontal",
+                        title: "parental.profile.ownPIN.title",
+                        subtitle: "parental.profile.ownPIN.subtitle",
+                        options: [false, true],
+                        selection: Binding(
+                            get: { ownPINs.contains(key) },
+                            set: { newValue in
+                                if newValue {
+                                    setupTarget = .profile(ref)
+                                } else {
+                                    dependencies.clearOwnPIN(for: ref)
+                                    reload()
+                                }
+                            }
+                        ),
+                        label: { $0 ? String(localized: "common.on") : String(localized: "common.off") }
+                    )
+
+                    if ownPINs.contains(key) {
+                        Button { setupTarget = .profile(ref) } label: {
+                            HStack(spacing: 28) {
+                                Image(systemName: "key").font(.title2).frame(width: 56).foregroundStyle(.tint)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("parental.profile.ownPIN.change.title").font(.body).fontWeight(.medium)
+                                    Text("parental.profile.ownPIN.change.subtitle").font(.caption).foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                            }
+                            .padding(20)
+                        }
+                        .buttonStyle(SettingsTileButtonStyle())
+                    }
+                }
             }
         }
     }
@@ -126,9 +168,15 @@ struct ParentalControlsSettingsView: View {
         for entry in profiles {
             let key = ParentalControlsPreferences.compositeID(serverID: entry.server.id, userID: entry.user.id)
             loaded[key] = dependencies.parentalControlsPreferences.role(
-                serverID: entry.server.id, userID: entry.user.id
+                ProfileRef(serverID: entry.server.id, userID: entry.user.id)
             )
         }
         roles = loaded
+        ownPINs = Set(
+            profiles
+                .map { ProfileRef(serverID: $0.server.id, userID: $0.user.id) }
+                .filter { dependencies.hasOwnPIN($0) }
+                .map(\.compositeID)
+        )
     }
 }

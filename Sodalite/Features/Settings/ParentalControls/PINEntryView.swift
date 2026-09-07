@@ -1,10 +1,23 @@
 import Combine
 import SwiftUI
 
+/// Whose PIN is being collected.
+enum PINTarget: Equatable, Identifiable {
+    case guardian
+    case profile(ProfileRef)
+
+    var id: String {
+        switch self {
+        case .guardian: "guardian"
+        case .profile(let ref): ref.compositeID
+        }
+    }
+}
+
 /// What the PIN pad is being used for.
 enum PINEntryMode: Equatable {
-    /// Set a new PIN: enter, then confirm. Persists via the container.
-    case setup
+    /// Set a new PIN for `target`: enter, then confirm. Persists via the container.
+    case setup(PINTarget)
     /// Verify the existing PIN for `reason`.
     case unlock(reason: PINReason)
 }
@@ -115,7 +128,9 @@ struct PINEntryView: View {
 
     private var title: LocalizedStringKey {
         if collectingNewPIN {
-            return firstEntry == nil ? "parental.pin.setup.title" : "parental.pin.setup.confirm"
+            if firstEntry != nil { return "parental.pin.setup.confirm" }
+            if case .profile = collectTarget { return "parental.pin.setup.profile.title" }
+            return "parental.pin.setup.title"
         }
         switch mode {
         case .setup:
@@ -178,6 +193,13 @@ struct PINEntryView: View {
 
     // MARK: Logic
 
+    /// Post-recovery collection always replaces the Guardian PIN: recovery's profile branch clears
+    /// an own PIN and never reaches the pad.
+    private var collectTarget: PINTarget {
+        if case .setup(let target) = mode { return target }
+        return .guardian
+    }
+
     private var recoveryOutcome: PINRecoveryOutcome {
         guard case .unlock(let reason) = mode else { return .collectNewGuardianPIN }
         return PINRecoveryOutcome.forDoor(reason: reason) { dependencies.hasOwnPIN($0) }
@@ -218,20 +240,35 @@ struct PINEntryView: View {
     }
 
     private func handleCollect(_ pin: String) {
-        if let first = firstEntry {
-            if first == pin {
-                try? dependencies.saveGuardianPIN(pin)
-                onComplete(true)
-            } else {
-                firstEntry = nil
-                message = "parental.pin.setup.mismatch"
-                isError = true
-            }
-        } else {
+        guard let first = firstEntry else {
             firstEntry = pin
             message = "parental.pin.setup.confirm"
             isError = false
+            return
         }
+        guard first == pin else {
+            firstEntry = nil
+            message = "parental.pin.setup.mismatch"
+            isError = true
+            return
+        }
+        switch collectTarget {
+        case .guardian:
+            // A Guardian PIN that repeats a profile's own PIN hands that profile's occupant the
+            // master key, which is the same leak from the other side.
+            guard !dependencies.pinCollides(pin, excluding: nil) else { return reject() }
+            try? dependencies.saveGuardianPIN(pin)
+        case .profile(let ref):
+            guard !dependencies.pinCollides(pin, excluding: ref) else { return reject() }
+            try? dependencies.saveOwnPIN(pin, for: ref)
+        }
+        onComplete(true)
+    }
+
+    private func reject() {
+        firstEntry = nil
+        message = "parental.pin.duplicate"
+        isError = true
     }
 
     private func handleUnlock(_ pin: String) {
