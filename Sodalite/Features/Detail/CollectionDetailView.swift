@@ -271,6 +271,7 @@ struct CollectionDetailView: View {
 // MARK: - Collection Item Row
 
 struct CollectionItemRow: View {
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
 
     let item: JellyfinItem
@@ -326,7 +327,8 @@ struct CollectionItemRow: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
                         }
-                        if let score = item.communityRating {
+                        if let score = item.communityRating,
+                           dependencies.appearancePreferences.showCommunityRating {
                             HStack(spacing: 3) {
                                 Image(systemName: "star.fill")
                                     .foregroundStyle(.yellow)
@@ -338,7 +340,8 @@ struct CollectionItemRow: View {
                             .lineLimit(1)
                         }
                         // RT critic score, fresh/rotten split at 60; only when the server delivers CriticRating.
-                        if let critic = item.criticRating {
+                        if let critic = item.criticRating,
+                           dependencies.appearancePreferences.showCriticRating {
                             HStack(spacing: 3) {
                                 Image(critic >= 60 ? "RTFresh" : "RTRotten")
                                     .resizable()

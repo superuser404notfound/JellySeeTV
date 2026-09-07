@@ -197,7 +197,7 @@ The Seerr integration isn't a tacked-on link to a web view. It's a first-class p
 - **Diagnostic Log**: Settings → Diagnostic Log shows the last 300 diagnostic lines from the current app session, so a bug report can carry the actual error instead of a description of it; kept in memory only, nothing is written to disk or uploaded, and it can be copied on iPhone or screenshotted on Apple TV
 - **26 languages**: German, English, Spanish, French, Italian, Japanese, Korean, Norwegian, Dutch, Polish, Portuguese (BR + PT), Russian, Swedish, Simplified + Traditional Chinese, Turkish, Ukrainian, Czech, Slovak, Croatian, Finnish, Greek, Hungarian, Romanian, Danish
 - **Dark, minimal design** that puts the artwork first, on the big screen and in your hand
-- **Appearance options**: choose artwork style, card size, title logos and poster badges, plus three free accent colors and Graphite Glass or OLED Black backgrounds; the optional Supporter Pack adds curated Pastel, Bold, Electric and Cinematic palettes plus animated Aurora and Noir backgrounds
+- **Appearance options**: choose artwork style, card size, title logos, poster badges and whether the community star and the critic score are drawn at all, plus three free accent colors and Graphite Glass or OLED Black backgrounds; the optional Supporter Pack adds curated Pastel, Bold, Electric and Cinematic palettes plus animated Aurora and Noir backgrounds
 - **Liquid Glass** UI accents on tvOS 26 and iOS 26
 - **Input-native everywhere**: Siri Remote touch scrubbing, click for play/pause and swipe gestures on Apple TV; touch scrubbing and gestures on iPhone and iPad
 

@@ -9,6 +9,8 @@ struct SeerrMetadataRow: View {
     /// Rotten Tomatoes critics score (0-100); fresh/rotten badge split at 60, matching the Jellyfin detail row.
     var rtCriticsScore: Int? = nil
 
+    @Environment(\.dependencies) private var dependencies
+
     var body: some View {
         HStack(spacing: 12) {
             ForEach(Array(segments.enumerated()), id: \.offset) { index, segment in
@@ -26,7 +28,7 @@ struct SeerrMetadataRow: View {
 
     private var segments: [Segment] {
         var out: [Segment] = []
-        if let rating, rating > 0 {
+        if let rating, rating > 0, dependencies.appearancePreferences.showCommunityRating {
             out.append(Segment(view: AnyView(
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")
@@ -36,7 +38,7 @@ struct SeerrMetadataRow: View {
                 }
             )))
         }
-        if let rtCriticsScore {
+        if let rtCriticsScore, dependencies.appearancePreferences.showCriticRating {
             out.append(Segment(view: AnyView(
                 HStack(spacing: 5) {
                     Image(rtCriticsScore >= 60 ? "RTFresh" : "RTRotten")

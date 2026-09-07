@@ -47,6 +47,8 @@ final class AppearancePreferences {
         static let showPosterBadges = "appearance.showPosterBadges"
         static let showTopShelfRow = "appearance.showTopShelfRow"
         static let showLibraryNames = "appearance.showLibraryNames"
+        static let showCommunityRating = "appearance.showCommunityRating"
+        static let showCriticRating = "appearance.showCriticRating"
     }
 
     /// 1.3: noticeably bigger Apple TV-style card without dropping so many cards per row that rows feel empty.
@@ -109,6 +111,18 @@ final class AppearancePreferences {
     /// is named either way, there being nothing else there to name it.
     var showLibraryNames: Bool {
         didSet { store.set(showLibraryNames, forKey: Keys.showLibraryNames) }
+    }
+
+    /// Sodalite#127. The star score a community voted on (Jellyfin's CommunityRating, TMDB's vote
+    /// average in the catalog). On by default; two switches rather than one because the two scores
+    /// come from different places and someone may object to only one of them.
+    var showCommunityRating: Bool {
+        didSet { store.set(showCommunityRating, forKey: Keys.showCommunityRating) }
+    }
+
+    /// Sodalite#127. The Rotten Tomatoes tomatometer, wherever it is drawn.
+    var showCriticRating: Bool {
+        didSet { store.set(showCriticRating, forKey: Keys.showCriticRating) }
     }
 
     /// Sodalite#62. Tabs the user switched off; only hideable ones ever land here, so Home and
@@ -176,6 +190,8 @@ final class AppearancePreferences {
         self.showPosterBadges = store.object(forKey: Keys.showPosterBadges) as? Bool ?? false
         self.showTopShelfRow = store.object(forKey: Keys.showTopShelfRow) as? Bool ?? true
         self.showLibraryNames = store.object(forKey: Keys.showLibraryNames) as? Bool ?? false
+        self.showCommunityRating = store.object(forKey: Keys.showCommunityRating) as? Bool ?? true
+        self.showCriticRating = store.object(forKey: Keys.showCriticRating) as? Bool ?? true
         let storedTabs = store.array(forKey: Keys.hiddenTabs) as? [String] ?? []
         self.hiddenTabs = Set(storedTabs.compactMap(AppTab.init(rawValue:)).filter(\.isHideable))
     }

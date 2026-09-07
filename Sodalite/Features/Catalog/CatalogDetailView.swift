@@ -961,6 +961,8 @@ struct CatalogDetailView: View {
     }
 
     private func loadRatings() async {
+        // Nothing to draw, nothing to ask for (Sodalite#127).
+        guard dependencies.appearancePreferences.showCriticRating else { return }
         // Best-effort: the ratings endpoint 404s on older servers or when no
         // RT data exists, leave the badge absent in that case.
         guard let rt = try? await dependencies.seerrMediaService.ratings(

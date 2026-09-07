@@ -122,6 +122,24 @@ struct AppearanceSettingsView: View {
                                set: { appearance.nowPlayingUsesSeriesPoster = $0 })
             )
 
+            // Sodalite#127. On by default, one row per source: the star is a community average,
+            // the percentage is the tomatometer, and a viewer can object to either alone.
+            boolRow(
+                icon: "star",
+                title: "settings.appearance.communityRating",
+                subtitle: "settings.appearance.communityRating.subtitle",
+                value: Binding(get: { appearance.showCommunityRating },
+                               set: { appearance.showCommunityRating = $0 })
+            )
+
+            boolRow(
+                icon: "percent",
+                title: "settings.appearance.criticRating",
+                subtitle: "settings.appearance.criticRating.subtitle",
+                value: Binding(get: { appearance.showCriticRating },
+                               set: { appearance.showCriticRating = $0 })
+            )
+
             // Sodalite#50. The two sub-rows stay visible while protection is off: this screen has
             // no conditional rows, and rows appearing under the focused one is a tvOS focus hazard.
             boolRow(
