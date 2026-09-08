@@ -203,7 +203,7 @@ private struct ProgramCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
                 MediaFocusRing(
-                    shape: RoundedRectangle(cornerRadius: 12),
+                    cornerRadius: 12,
                     isFocused: isFocused
                 )
             )

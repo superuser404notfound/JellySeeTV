@@ -58,7 +58,7 @@ struct ArtworkTile<Fallback: View>: View {
             .contentShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
                 MediaFocusRing(
-                    shape: RoundedRectangle(cornerRadius: 16),
+                    cornerRadius: 16,
                     isFocused: isFocused
                 )
             )

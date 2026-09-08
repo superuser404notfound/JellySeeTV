@@ -28,11 +28,7 @@ struct StatTile: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(.white.opacity(focused ? 0.12 : 0.05))
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(focused ? 1 : 0)
-        )
+        .focusStroke(cornerRadius: 16, isFocused: focused)
         .focusResponse(.tile.flat, isFocused: focused)
         #if os(tvOS)
         .focusable(true)

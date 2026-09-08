@@ -104,11 +104,7 @@ private struct HighlightRow: View {
                 .fill(isFocused ? Color.Theme.focusFill : .white.opacity(0.05))
         )
         // Same SettingsTileButtonStyle accent-tint stroke + lift.
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(isFocused ? 1 : 0)
-        )
+        .focusStroke(cornerRadius: 14, isFocused: isFocused)
         .focusResponse(.tile, isFocused: isFocused)
         // Focusable so the tvOS focus engine can step through rows and auto-scroll the list.
         .focusable()

@@ -83,7 +83,7 @@ struct SeerrEpisodeCard: View {
             // Focus border on the fixed-height still so it can't drift with caption-block size.
             .overlay(
                 MediaFocusRing(
-                    shape: RoundedRectangle(cornerRadius: 12),
+                    cornerRadius: 12,
                     isFocused: isFocused
                 )
             )

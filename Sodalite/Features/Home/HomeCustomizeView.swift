@@ -267,12 +267,8 @@ struct HomeCustomizeView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(movingID == config.id ? AnyShapeStyle(.tint.opacity(0.6)) : AnyShapeStyle(Color.clear), lineWidth: 2)
         )
-        .overlay(
-            // Accent focus stroke (app-wide 3pt); when focused + picked up, this opaque stroke dominates the thinner move ring.
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(isFocused ? 1 : 0)
-        )
+        // When focused and picked up, this opaque stroke dominates the thinner move ring above.
+        .focusStroke(cornerRadius: 12, isFocused: isFocused)
     }
 
     // MARK: - Helpers
@@ -407,11 +403,7 @@ struct RowToggleButton: View {
         .background(
             Capsule().fill(background)
         )
-        .overlay(
-            Capsule()
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(focused ? 1 : 0)
-        )
+        .focusStroke(Capsule(), isFocused: focused)
         .focusResponse(.chip, isFocused: focused)
         .animation(.easeInOut(duration: 0.15), value: isOn)
         .focusable()

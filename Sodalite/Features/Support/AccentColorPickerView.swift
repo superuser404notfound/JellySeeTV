@@ -214,11 +214,7 @@ private struct AccentCategoryButton: View {
                         active: focused
                     ))
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: AccentCategoryChip.cornerRadius)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(focused ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: AccentCategoryChip.cornerRadius, isFocused: focused)
             .focusResponse(.chip, isFocused: focused)
             .focusable(true)
             .focused($focused)

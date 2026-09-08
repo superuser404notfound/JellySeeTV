@@ -50,11 +50,7 @@ struct ValuePickerRow<Value: Hashable>: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(focused ? Color.Theme.focusFill : Color.Theme.restFillFaint)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(focused ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 16, isFocused: focused)
             .focusResponse(.row, isFocused: focused)
             .focusable(true)
             .focused($focused)

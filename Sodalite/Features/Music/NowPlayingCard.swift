@@ -51,11 +51,7 @@ struct NowPlayingCard: View {
         .padding(.horizontal, hSizeClass == .compact ? 18 : 28)
         .padding(.vertical, 16)
         .background(progressFill(progress))
-        .overlay(
-            Capsule()
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(cardFocused ? 1 : 0)
-        )
+        .focusStroke(Capsule(), isFocused: cardFocused)
         // Not a `FocusResponse` role: the cover casts a RESTING shadow that focus deepens, where
         // every role here goes from no shadow to one. Its 1.01 is the album art's own step (#130).
         .scaleEffect(cardFocused ? 1.01 : 1.0)

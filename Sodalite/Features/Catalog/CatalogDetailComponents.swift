@@ -56,11 +56,7 @@ struct SeasonChipButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .overlay(
-                Capsule()
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isFocused ? 1 : 0)
-            )
+            .focusStroke(Capsule(), isFocused: isFocused)
             .focusResponse(.chip, isFocused: isFocused)
     }
 }
@@ -72,11 +68,7 @@ struct CatalogPickerButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isFocused ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 12, isFocused: isFocused)
             .focusResponse(.inline, isFocused: isFocused)
     }
 }

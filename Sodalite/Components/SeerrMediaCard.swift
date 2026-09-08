@@ -51,7 +51,7 @@ struct SeerrMediaCard: View {
         }
         .overlay(
             MediaFocusRing(
-                shape: RoundedRectangle(cornerRadius: 16),
+                cornerRadius: 12,
                 isFocused: isFocused
             )
         )

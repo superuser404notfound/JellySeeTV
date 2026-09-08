@@ -311,11 +311,7 @@ private struct BoolPillRow: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(focused ? AnyShapeStyle(TintShapeStyle.tint.opacity(0.18)) : AnyShapeStyle(Color.Theme.restFill))
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(focused ? 1 : 0)
-        )
+        .focusStroke(cornerRadius: 16, isFocused: focused)
         .focusResponse(.inline.withShadow(opacity: 0.25, radius: 10, y: 5), isFocused: focused)
         .focusable(!disabled)
         .focused($focused)

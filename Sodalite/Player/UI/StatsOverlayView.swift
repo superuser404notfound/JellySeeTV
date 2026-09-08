@@ -628,11 +628,7 @@ private struct StatsSectionHighlight: ViewModifier {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isCurrent ? Color.Theme.focusFill : .clear)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isCurrent ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 12, isFocused: isCurrent)
             .animation(.easeInOut(duration: 0.18), value: isCurrent)
     }
 }

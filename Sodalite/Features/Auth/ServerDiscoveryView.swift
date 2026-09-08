@@ -281,11 +281,7 @@ private struct DiscoveredServerRow: View {
         .padding(.vertical, 20)
         .background(focused ? Color.Theme.focusFill : Color.Theme.restFillFaint)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(focused ? 1 : 0)
-        )
+        .focusStroke(RoundedRectangle(cornerRadius: 14, style: .continuous), isFocused: focused)
         .focusResponse(.row, isFocused: focused)
         .focusable(true)
         .focused($focused)

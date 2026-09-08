@@ -121,11 +121,7 @@ private struct HighlightRow: View {
                 .fill(isFocused ? Color.Theme.focusFill : .white.opacity(0.05))
         )
         // Same SettingsTileButtonStyle accent-tint stroke + lift.
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(isFocused ? 1 : 0)
-        )
+        .focusStroke(cornerRadius: 16, isFocused: isFocused)
         .focusResponse(.tile, isFocused: isFocused)
         // Focusable so the tvOS focus engine has a scroll anchor; without it a long changelog can't be scrolled.
         .focusable()

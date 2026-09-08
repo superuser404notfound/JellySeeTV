@@ -586,11 +586,7 @@ struct SettingsTileButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(fill(active: active))
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(active ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 16, isFocused: active)
             .focusResponse(.tile, isFocused: active)
             .opacity(isEnabled ? 1.0 : 0.4)
     }
@@ -628,11 +624,7 @@ struct GhostTileButtonStyle: ButtonStyle {
         let active = configuration.isPressed
         #endif
         return configuration.label
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(active ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: cornerRadius, isFocused: active)
             .focusResponse(.tile, isFocused: active)
             .opacity(isEnabled ? 1.0 : 0.4)
     }

@@ -139,11 +139,7 @@ private struct SeerrRequestRow: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(.white.opacity(0.05))
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(.tint, lineWidth: 4)
-                    .opacity(isFocused ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 16, isFocused: isFocused)
         }
     }
 

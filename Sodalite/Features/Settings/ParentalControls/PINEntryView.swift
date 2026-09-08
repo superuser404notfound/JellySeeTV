@@ -319,11 +319,7 @@ private struct DigitKey: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(focused ? Color.white.opacity(0.18) : Color.white.opacity(0.06))
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(focused ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 16, isFocused: focused)
             .focusResponse(.chip, isFocused: focused)
             .focusable(true)
             .focused($focused)
