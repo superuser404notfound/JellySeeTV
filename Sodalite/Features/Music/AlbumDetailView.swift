@@ -154,7 +154,7 @@ struct AlbumDetailView: View {
     private var coverSide: CGFloat { hSizeClass == .compact ? 220 : 340 }
 
     private var coverImage: some View {
-        AsyncCachedImage(url: dependencies.jellyfinImageService.posterURL(for: album)) { image in
+        AsyncCachedImage(url: dependencies.jellyfinImageService.posterURL(for: album, maxWidth: ImageWidth.cover)) { image in
             image
                 .resizable()
                 .aspectRatio(contentMode: .fill)

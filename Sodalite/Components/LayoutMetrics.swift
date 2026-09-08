@@ -32,6 +32,11 @@ struct LayoutMetrics: Equatable {
     /// Pixel width to request for the portrait: diameter times the tier's screen scale
     /// (tvOS 4K renders 2x, iPhone 3x), so enlarging the circle can't leave the source behind.
     var castImageWidth: Int
+    /// Pixels per point the tier's device draws at, and the ceiling where a family spans several
+    /// devices: every iPad is 2x, iPhones are 2x or 3x, so the compact tier takes 3. It is what
+    /// turns a point size here into the pixels to ask the server for, which is how `ImageWidth`
+    /// is cut and what `ImageWidthTests` recomputes (Sodalite#129).
+    var screenScale: CGFloat
 
     func size(for style: MediaCardStyle) -> CGSize {
         switch style {
@@ -52,7 +57,8 @@ struct LayoutMetrics: Equatable {
         gridMinimum: 220, gridSpacing: 40, gridInset: 60,
         screenHInset: 80, screenVInset: 60,
         profileCardSize: CGSize(width: 180, height: 180),
-        castPortrait: 180, castLabelWidth: 220, castImageWidth: 400
+        castPortrait: 180, castLabelWidth: 220, castImageWidth: 400,
+        screenScale: 2
     )
     /// iPad regular tier.
     static let regular = LayoutMetrics(
@@ -65,7 +71,8 @@ struct LayoutMetrics: Equatable {
         gridMinimum: 160, gridSpacing: 28, gridInset: 24,
         screenHInset: 40, screenVInset: 32,
         profileCardSize: CGSize(width: 160, height: 160),
-        castPortrait: 120, castLabelWidth: 140, castImageWidth: 300
+        castPortrait: 120, castLabelWidth: 140, castImageWidth: 300,
+        screenScale: 2
     )
     /// iPhone compact tier.
     static let compact = LayoutMetrics(
@@ -78,7 +85,8 @@ struct LayoutMetrics: Equatable {
         gridMinimum: 108, gridSpacing: 16, gridInset: 16,
         screenHInset: 16, screenVInset: 16,
         profileCardSize: CGSize(width: 120, height: 120),
-        castPortrait: 100, castLabelWidth: 100, castImageWidth: 300
+        castPortrait: 100, castLabelWidth: 100, castImageWidth: 300,
+        screenScale: 3
     )
 
     /// Platform-independent selector (testable on any target).

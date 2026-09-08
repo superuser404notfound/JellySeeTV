@@ -238,7 +238,7 @@ struct SearchView: View {
                                     itemID: item.id,
                                     imageType: .primary,
                                     tag: item.imageTags?.primary,
-                                    maxWidth: 440
+                                    maxWidth: ImageWidth.card
                                 ),
                                 style: .poster,
                                 isFocused: isFocused

@@ -104,11 +104,11 @@ extension JellyfinItem {
                                               title: name)
     }
 
-    /// format=Jpg so the image-cache daemon never hits a WebP/AVIF response ImageIO can choke on in the tight extension budget. maxWidth=1280 covers Apple TV 4K (cells ~820px@2x + focus-zoom). enableImageEnhancers=false skips a downscaling server transform; quality=100 avoids stacking JPEG loss on an already-thumbnail episode still.
+    /// format=Jpg so the image-cache daemon never hits a WebP/AVIF response ImageIO can choke on in the tight extension budget. The width is `ImageWidth.topShelfCell`, in the table the app asks from too (Sodalite#129). enableImageEnhancers=false skips a downscaling server transform; quality=100 avoids stacking JPEG loss on an already-thumbnail episode still.
     private func imageURL(baseURL: URL, itemID: String, kind: String, tag: String, token: String) -> URL? {
         var base = baseURL.absoluteString
         while base.hasSuffix("/") { base.removeLast() }
-        let raw = "\(base)/Items/\(itemID)/Images/\(kind)?tag=\(tag)&maxWidth=1280&quality=100&format=Jpg&enableImageEnhancers=false&api_key=\(token)"
+        let raw = "\(base)/Items/\(itemID)/Images/\(kind)?tag=\(tag)&maxWidth=\(ImageWidth.topShelfCell)&quality=100&format=Jpg&enableImageEnhancers=false&api_key=\(token)"
         return URL(string: raw)
     }
 }

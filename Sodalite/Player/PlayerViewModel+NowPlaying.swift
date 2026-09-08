@@ -123,22 +123,24 @@ extension PlayerViewModel {
         return m
     }
 
+    /// Sized like the music screen's cover (`ImageWidth.cover`), the other producer of system
+    /// Now Playing artwork, so one item cannot be fetched at two widths for the same slot.
     private func primaryImageURL() -> URL? {
         guard let base = playbackService.baseURL?.absoluteString else { return nil }
         // Series poster (Primary) for episodes when the Appearance setting prefers it: a portrait poster fills the square CC artwork slot better than the episode's landscape still.
         if DependencyContainer.shared.appearancePreferences.nowPlayingUsesSeriesPoster,
            item.type == .episode, let seriesId = item.seriesId {
             let tagParam = item.seriesPrimaryImageTag.map { "&tag=\($0)" } ?? ""
-            return URL(string: "\(base)/Items/\(seriesId)/Images/Primary?maxWidth=800&quality=85\(tagParam)")
+            return URL(string: "\(base)/Items/\(seriesId)/Images/Primary?maxWidth=\(ImageWidth.cover)&quality=85\(tagParam)")
         }
         if let tag = item.imageTags?.primary {
-            return URL(string: "\(base)/Items/\(item.id)/Images/Primary?tag=\(tag)&maxWidth=800&quality=85")
+            return URL(string: "\(base)/Items/\(item.id)/Images/Primary?tag=\(tag)&maxWidth=\(ImageWidth.cover)&quality=85")
         }
         if let tags = item.backdropImageTags, let tag = tags.first {
-            return URL(string: "\(base)/Items/\(item.id)/Images/Backdrop?tag=\(tag)&maxWidth=800&quality=85")
+            return URL(string: "\(base)/Items/\(item.id)/Images/Backdrop?tag=\(tag)&maxWidth=\(ImageWidth.cover)&quality=85")
         }
         if let tags = item.parentBackdropImageTags, let tag = tags.first, let seriesId = item.seriesId {
-            return URL(string: "\(base)/Items/\(seriesId)/Images/Backdrop?tag=\(tag)&maxWidth=800&quality=85")
+            return URL(string: "\(base)/Items/\(seriesId)/Images/Backdrop?tag=\(tag)&maxWidth=\(ImageWidth.cover)&quality=85")
         }
         return nil
     }

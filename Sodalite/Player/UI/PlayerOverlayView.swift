@@ -394,17 +394,19 @@ struct PlayerOverlayView: View {
     }
 
     /// Build episode thumbnail URL directly from item data
-    /// (avoids needing JellyfinImageService in the player).
+    /// (avoids needing JellyfinImageService in the player). These land in the episode dropdown,
+    /// 120x68pt on tvOS and 64x38 on a phone, so they are thumbnails and not cards.
     private func episodeThumbnailURL(for item: JellyfinItem) -> URL? {
         guard let baseURL = viewModel.playbackService.baseURL else { return nil }
+        let width = ImageWidth.thumbnail
         if let tag = item.imageTags?.primary {
-            return URL(string: "\(baseURL)/Items/\(item.id)/Images/Primary?tag=\(tag)&maxWidth=640&quality=80")
+            return URL(string: "\(baseURL)/Items/\(item.id)/Images/Primary?tag=\(tag)&maxWidth=\(width)&quality=80")
         }
         if let tags = item.backdropImageTags, let tag = tags.first {
-            return URL(string: "\(baseURL)/Items/\(item.id)/Images/Backdrop?tag=\(tag)&maxWidth=640&quality=80")
+            return URL(string: "\(baseURL)/Items/\(item.id)/Images/Backdrop?tag=\(tag)&maxWidth=\(width)&quality=80")
         }
         if let tags = item.parentBackdropImageTags, let tag = tags.first, let seriesId = item.seriesId {
-            return URL(string: "\(baseURL)/Items/\(seriesId)/Images/Backdrop?tag=\(tag)&maxWidth=640&quality=80")
+            return URL(string: "\(baseURL)/Items/\(seriesId)/Images/Backdrop?tag=\(tag)&maxWidth=\(width)&quality=80")
         }
         return nil
     }

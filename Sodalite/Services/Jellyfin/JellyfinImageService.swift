@@ -67,7 +67,7 @@ final class JellyfinImageService {
         return URL(string: raw)
     }
 
-    func backdropURL(for item: JellyfinItem, maxWidth: Int = 1920) -> URL? {
+    func backdropURL(for item: JellyfinItem, maxWidth: Int = ImageWidth.fullBleed) -> URL? {
         if let tags = item.backdropImageTags, let tag = tags.first {
             return imageURL(itemID: item.id, imageType: .backdrop, tag: tag, maxWidth: maxWidth)
         }
@@ -79,7 +79,7 @@ final class JellyfinImageService {
 
     /// Sodalite#50. Skips the item's own backdrop and goes straight to the parent series, so a
     /// veiled episode cannot paint its own art full bleed behind the whole screen.
-    func parentBackdropURL(for item: JellyfinItem, maxWidth: Int = 1920) -> URL? {
+    func parentBackdropURL(for item: JellyfinItem, maxWidth: Int = ImageWidth.fullBleed) -> URL? {
         guard let tags = item.parentBackdropImageTags, let tag = tags.first, let seriesId = item.seriesId
         else { return nil }
         return imageURL(itemID: seriesId, imageType: .backdrop, tag: tag, maxWidth: maxWidth)
@@ -88,14 +88,14 @@ final class JellyfinImageService {
     /// Sodalite#66. Show-level art only: the series backdrop, else the series poster. Never the
     /// item's own still or backdrop, so a veiled episode can be painted unblurred wherever the
     /// user asked for show art (Continue Watching set to Backdrop or Thumb).
-    func seriesArtworkURL(for item: JellyfinItem, maxWidth: Int = 720) -> URL? {
+    func seriesArtworkURL(for item: JellyfinItem, maxWidth: Int = ImageWidth.wideCard) -> URL? {
         if let url = parentBackdropURL(for: item, maxWidth: maxWidth) { return url }
         guard let seriesId = item.seriesId, let tag = item.seriesPrimaryImageTag else { return nil }
         return imageURL(itemID: seriesId, imageType: .primary, tag: tag, maxWidth: maxWidth)
     }
 
     /// Episode thumbnail fallback chain: own primary → own thumb → own backdrop → series backdrop → series poster.
-    func episodeThumbnailURL(for item: JellyfinItem, maxWidth: Int = 640) -> URL? {
+    func episodeThumbnailURL(for item: JellyfinItem, maxWidth: Int = ImageWidth.wideCard) -> URL? {
         if let tag = item.imageTags?.primary {
             return imageURL(itemID: item.id, imageType: .primary, tag: tag, maxWidth: maxWidth)
         }
@@ -114,7 +114,7 @@ final class JellyfinImageService {
         return nil
     }
 
-    func posterURL(for item: JellyfinItem, maxWidth: Int = 400) -> URL? {
+    func posterURL(for item: JellyfinItem, maxWidth: Int = ImageWidth.card) -> URL? {
         if let tag = item.imageTags?.primary {
             return imageURL(itemID: item.id, imageType: .primary, tag: tag, maxWidth: maxWidth)
         }
@@ -125,7 +125,7 @@ final class JellyfinImageService {
     }
 
     /// Music cover: album primary image else the item's own poster.
-    func musicCoverURL(for item: JellyfinItem, maxWidth: Int = 400) -> URL? {
+    func musicCoverURL(for item: JellyfinItem, maxWidth: Int = ImageWidth.card) -> URL? {
         if let albumID = item.albumId, let albumTag = item.albumPrimaryImageTag {
             return imageURL(itemID: albumID, imageType: .primary, tag: albumTag, maxWidth: maxWidth)
         }
@@ -135,7 +135,7 @@ final class JellyfinImageService {
     /// Sodalite#84. Tile art for a library (CollectionFolder / UserView): its own Primary image,
     /// else its Thumb. Nil when the library carries neither, which is what leaves the generic-icon
     /// tile on screen.
-    func libraryArtworkURL(for library: JellyfinLibrary, maxWidth: Int = 720) -> URL? {
+    func libraryArtworkURL(for library: JellyfinLibrary, maxWidth: Int = ImageWidth.wideCard) -> URL? {
         if let tag = library.imageTags?.primary {
             return imageURL(itemID: library.id, imageType: .primary, tag: tag, maxWidth: maxWidth)
         }
@@ -145,7 +145,7 @@ final class JellyfinImageService {
         return nil
     }
 
-    func personImageURL(personID: String, tag: String?, maxWidth: Int = 200) -> URL? {
+    func personImageURL(personID: String, tag: String?, maxWidth: Int = ImageWidth.avatar) -> URL? {
         guard let base = baseURL(), let tag else { return nil }
         return Self.buildURL(
             base: base,
@@ -158,7 +158,7 @@ final class JellyfinImageService {
     }
 
     /// User avatar under `/Users/{id}/Images/Primary` (vs items' `/Items` prefix). Nil when no avatar so the UI falls back to initials.
-    func userProfileImageURL(userID: String, tag: String?, maxWidth: Int = 240) -> URL? {
+    func userProfileImageURL(userID: String, tag: String?, maxWidth: Int = ImageWidth.avatar) -> URL? {
         guard let base = baseURL() else { return nil }
         return userProfileImageURL(
             userID: userID, tag: tag, baseURL: base, token: accessToken(), maxWidth: maxWidth
@@ -171,7 +171,7 @@ final class JellyfinImageService {
         tag: String?,
         baseURL: URL,
         token: String?,
-        maxWidth: Int = 240
+        maxWidth: Int = ImageWidth.avatar
     ) -> URL? {
         guard let tag else { return nil }
         return Self.buildURL(

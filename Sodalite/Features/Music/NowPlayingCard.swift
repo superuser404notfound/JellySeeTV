@@ -81,7 +81,7 @@ struct NowPlayingCard: View {
     }
 
     private func coverArt(item: JellyfinItem) -> some View {
-        let coverURL = dependencies.jellyfinImageService.musicCoverURL(for: item, maxWidth: 120)
+        let coverURL = dependencies.jellyfinImageService.musicCoverURL(for: item, maxWidth: ImageWidth.thumbnail)
 
         return AsyncCachedImage(url: coverURL) { image in
             image

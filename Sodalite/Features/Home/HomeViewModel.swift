@@ -383,30 +383,35 @@ final class HomeViewModel {
         guard rowType.usesBackdrop else {
             return imageService.posterURL(for: item)
         }
+        // Every chain here paints ONE landscape card, so every link asks for the same width,
+        // the poster fallbacks included: a filled 2:3 image in a 16:9 slot is scaled by the
+        // slot's width, not its own. Same width in `fallbackImageURL` below, so the two cannot
+        // disagree about the cell they share (Sodalite#129).
         switch cwImage {
         case .still:
             if item.type == .episode {
                 return imageService.episodeThumbnailURL(for: item)
             }
-            // Landscape card is ~360pt (~720px @2x); request that, not the 1920 default,
-            // to avoid decoding an 8MB backdrop into a small cell and thrashing the cache.
-            return imageService.backdropURL(for: item, maxWidth: 720) ?? imageService.posterURL(for: item)
+            return imageService.backdropURL(for: item, maxWidth: ImageWidth.wideCard)
+                ?? imageService.posterURL(for: item, maxWidth: ImageWidth.wideCard)
         case .backdrop:
             if spoilerSafe {
-                return imageService.seriesArtworkURL(for: item, maxWidth: 720)
+                return imageService.seriesArtworkURL(for: item)
             }
-            return imageService.backdropURL(for: item, maxWidth: 720)
+            return imageService.backdropURL(for: item, maxWidth: ImageWidth.wideCard)
                 ?? imageService.episodeThumbnailURL(for: item)
-                ?? imageService.posterURL(for: item)
+                ?? imageService.posterURL(for: item, maxWidth: ImageWidth.wideCard)
         case .thumb:
             // Series Thumb by series id (tagless); paired with fallbackImageURL so a Thumb-less show degrades.
             let seriesID = item.type == .episode ? item.seriesId : nil
             if spoilerSafe {
                 // Without a series id the item's own Thumb is the still again, so show art only.
-                guard let seriesID else { return imageService.seriesArtworkURL(for: item, maxWidth: 720) }
-                return imageService.imageURL(itemID: seriesID, imageType: .thumb, maxWidth: 720)
+                guard let seriesID else { return imageService.seriesArtworkURL(for: item) }
+                return imageService.imageURL(
+                    itemID: seriesID, imageType: .thumb, maxWidth: ImageWidth.wideCard)
             }
-            return imageService.imageURL(itemID: seriesID ?? item.id, imageType: .thumb, maxWidth: 720)
+            return imageService.imageURL(
+                itemID: seriesID ?? item.id, imageType: .thumb, maxWidth: ImageWidth.wideCard)
         }
     }
 
@@ -420,9 +425,9 @@ final class HomeViewModel {
         if spoilerSafe {
             return imageService.seriesArtworkURL(for: item)
         }
-        return imageService.backdropURL(for: item)
+        return imageService.backdropURL(for: item, maxWidth: ImageWidth.wideCard)
             ?? imageService.episodeThumbnailURL(for: item)
-            ?? imageService.posterURL(for: item)
+            ?? imageService.posterURL(for: item, maxWidth: ImageWidth.wideCard)
     }
 
     func reloadConfig() {
