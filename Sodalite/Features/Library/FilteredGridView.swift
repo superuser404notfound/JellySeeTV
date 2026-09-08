@@ -211,7 +211,11 @@ struct FilteredGridView: View {
                 .frame(maxWidth: .infinity, minHeight: 400)
             } else {
                 LazyVGrid(columns: [
-                    GridItem(.adaptive(minimum: metrics.gridMinimum), spacing: metrics.gridSpacing)
+                    GridItem(
+                        .adaptive(minimum: metrics.gridColumnMinimum(
+                            cardScale: dependencies.appearancePreferences.cardScale)),
+                        spacing: metrics.gridSpacing
+                    )
                 ], spacing: metrics.gridSpacing) {
                     ForEach(items) { item in
                         Button {

@@ -36,6 +36,39 @@ struct LayoutMetricsTests {
         #expect(LayoutMetrics.compact.screenVInset == 16)
     }
 
+    /// The grid minimum has to move with the card, or a scaled card overflows the column the grid
+    /// laid out for an unscaled one. The invariant is not "minimum >= card width", which is false on
+    /// the phone by design (108pt columns hold 120pt cards so three fit): it is that the ratio
+    /// between the two does not depend on the setting.
+    @Test func gridMinimumTracksTheCardScale() {
+        for m in [LayoutMetrics.tv, .regular, .compact] {
+            #expect(m.gridColumnMinimum(cardScale: 1) == m.gridMinimum)
+            for scale in [AppearancePreferences.largeCardScale, 1.5, 2] as [CGFloat] {
+                let cardRatio = m.gridColumnMinimum(cardScale: scale) / (m.posterSize.width * scale)
+                let unscaled = m.gridMinimum / m.posterSize.width
+                #expect(abs(cardRatio - unscaled) < 0.0001)
+            }
+        }
+    }
+
+    /// The case from the report: seven 223pt columns were fitted for cards drawn at 286pt, so the
+    /// tvOS row ran 442pt past a 1800pt content width. Five columns is what the scaled minimum buys.
+    @Test func largeCardsNoLongerOverflowTheTvRow() {
+        let m = LayoutMetrics.tv
+        let scale = AppearancePreferences.largeCardScale
+        let available: CGFloat = 1920 - 2 * m.gridInset
+        let cardWidth = m.posterSize.width * scale
+
+        func columnsFitting(minimum: CGFloat) -> Int {
+            Int(((available + m.gridSpacing) / (minimum + m.gridSpacing)).rounded(.down))
+        }
+        let before = columnsFitting(minimum: m.gridMinimum)
+        let after = columnsFitting(minimum: m.gridColumnMinimum(cardScale: scale))
+
+        #expect(CGFloat(before) * cardWidth + CGFloat(before - 1) * m.gridSpacing > available)
+        #expect(CGFloat(after) * cardWidth + CGFloat(after - 1) * m.gridSpacing <= available)
+    }
+
     @Test func profileCardTiers() {
         #expect(LayoutMetrics.tv.profileCardSize == CGSize(width: 180, height: 180))
         #expect(LayoutMetrics.regular.profileCardSize == CGSize(width: 160, height: 160))

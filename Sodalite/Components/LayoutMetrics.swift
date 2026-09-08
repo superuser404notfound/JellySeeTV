@@ -38,6 +38,17 @@ struct LayoutMetrics: Equatable {
     /// is cut and what `ImageWidthTests` recomputes (Sodalite#129).
     var screenScale: CGFloat
 
+    /// Minimum column width for a grid of `MediaCard`s, which draw `cardScale` times their tier
+    /// size. Laying the grid out against the unscaled minimum lets SwiftUI fit more columns than
+    /// the cards it then draws: with Large Cards on tvOS it fitted seven 223pt columns for cards
+    /// 286pt wide, so the row ran past the screen edge and every title sat on its neighbour.
+    /// The minimum scales rather than being set to the card width, because the two are tuned
+    /// against each other per tier (a phone deliberately runs its 120pt cards in 108pt columns to
+    /// keep three of them on screen), and that relationship has to survive the setting.
+    func gridColumnMinimum(cardScale: CGFloat) -> CGFloat {
+        gridMinimum * cardScale
+    }
+
     func size(for style: MediaCardStyle) -> CGSize {
         switch style {
         case .poster: posterSize
