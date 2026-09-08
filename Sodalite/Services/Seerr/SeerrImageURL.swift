@@ -11,10 +11,24 @@ enum SeerrImageURL {
 
     enum PosterSize: String {
         case w342, w500, w780
+
+        /// Smallest rendition that still covers `pixelWidth`, the same rule `ImageWidth` applies to
+        /// Jellyfin (Sodalite#129). A poster card is 572px at Large Cards on tvOS, which w500 does
+        /// not reach, so the card asks by width rather than taking the default.
+        static func covering(_ pixelWidth: Int) -> PosterSize {
+            if pixelWidth <= 342 { return .w342 }
+            return pixelWidth <= 500 ? .w500 : .w780
+        }
     }
 
     enum BackdropSize: String {
         case w780, w1280
+
+        /// Smallest rendition that still covers `pixelWidth`. The 16:9 tiles reach 936px at Large
+        /// Cards on tvOS, past what w780 carries.
+        static func covering(_ pixelWidth: Int) -> BackdropSize {
+            pixelWidth <= 780 ? .w780 : .w1280
+        }
     }
 
     static func poster(path: String?, size: PosterSize = .w500) -> URL? {

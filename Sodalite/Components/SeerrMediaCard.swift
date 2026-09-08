@@ -5,9 +5,13 @@ struct SeerrMediaCard: View {
     /// Passed by the caller (same pattern as `MediaCard`); drives the focus stroke.
     var isFocused: Bool = false
 
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
-    private var cardWidth: CGFloat { LayoutMetrics.current(hSizeClass).posterSize.width }
-    private var cardHeight: CGFloat { LayoutMetrics.current(hSizeClass).posterSize.height }
+    /// Same enlargement as `MediaCard`: the two stand in the same rows on Search and read as one
+    /// family, so a setting that moved only the Jellyfin half would be the misalignment it fixes.
+    private var scale: CGFloat { dependencies.appearancePreferences.cardScale }
+    private var cardWidth: CGFloat { LayoutMetrics.current(hSizeClass).posterSize.width * scale }
+    private var cardHeight: CGFloat { LayoutMetrics.current(hSizeClass).posterSize.height * scale }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -18,7 +22,9 @@ struct SeerrMediaCard: View {
     }
 
     private var posterImage: some View {
-        AsyncCachedImage(url: SeerrImageURL.poster(path: media.posterPath)) { image in
+        AsyncCachedImage(
+            url: SeerrImageURL.poster(path: media.posterPath, size: .covering(ImageWidth.card))
+        ) { image in
             image
                 .resizable()
                 .aspectRatio(contentMode: .fill)

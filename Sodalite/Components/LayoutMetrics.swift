@@ -38,6 +38,15 @@ struct LayoutMetrics: Equatable {
     /// is cut and what `ImageWidthTests` recomputes (Sodalite#129).
     var screenScale: CGFloat
 
+    /// Size for a 16:9 browse tile that is not a `MediaCard`: the genre, provider and library rows.
+    /// It carries `cardScale` for the reason `landscapeSize` exists at all, stated above it: these
+    /// rows are stacked with a landscape media row on Home and have to line up with it. The card
+    /// grew with Large Cards and the tiles did not, so the one thing the shared constant promised
+    /// was the first thing the setting broke.
+    func tileSize(cardScale: CGFloat) -> CGSize {
+        CGSize(width: landscapeSize.width * cardScale, height: landscapeSize.height * cardScale)
+    }
+
     /// Minimum column width for a grid of `MediaCard`s, which draw `cardScale` times their tier
     /// size. Laying the grid out against the unscaled minimum lets SwiftUI fit more columns than
     /// the cards it then draws: with Large Cards on tvOS it fitted seven 223pt columns for cards

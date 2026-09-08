@@ -108,7 +108,9 @@ struct CatalogDiscoverView: View {
                                     }
                                 },
                                 backdropFor: { provider in
-                                    SeerrImageURL.backdrop(path: viewModel.networkBackdrops[provider.id], size: .w780)
+                                    SeerrImageURL.backdrop(
+                                        path: viewModel.networkBackdrops[provider.id],
+                                        size: .covering(ImageWidth.wideCard))
                                 }
                             )
                         }
@@ -123,7 +125,9 @@ struct CatalogDiscoverView: View {
                                     onSelectFilter(.movieStudio(id: provider.id, name: provider.name))
                                 },
                                 backdropFor: { provider in
-                                    SeerrImageURL.backdrop(path: viewModel.studioBackdrops[provider.id], size: .w780)
+                                    SeerrImageURL.backdrop(
+                                        path: viewModel.studioBackdrops[provider.id],
+                                        size: .covering(ImageWidth.wideCard))
                                 }
                             )
                         }

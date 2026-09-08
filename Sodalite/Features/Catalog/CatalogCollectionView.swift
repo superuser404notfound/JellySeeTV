@@ -47,7 +47,11 @@ struct CatalogCollectionView: View {
     /// fixed 220pt columns left a third of a 4K row empty and needed a width cap to stay left-bound,
     /// adaptive fills the row on its own and still wraps to what an iPad in portrait fits (Sodalite#57).
     private var columns: [GridItem] {
-        [GridItem(.adaptive(minimum: metrics.gridMinimum), spacing: metrics.gridSpacing)]
+        [GridItem(
+            .adaptive(minimum: metrics.gridColumnMinimum(
+                cardScale: dependencies.appearancePreferences.cardScale)),
+            spacing: metrics.gridSpacing
+        )]
     }
 
     init(
