@@ -83,7 +83,7 @@ struct CatalogCollectionView: View {
             CatalogDetailView(media: media)
                 .detailCoverPush()
         }
-        .sheet(isPresented: $showRequestOptions) {
+        .menuPresentation(isPresented: $showRequestOptions) {
             requestOptionsSheet
         }
         .onChange(of: isLoading) { _, loading in

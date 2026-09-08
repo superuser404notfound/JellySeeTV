@@ -107,7 +107,7 @@ struct CatalogDetailView: View {
             )
                 .detailCoverPush()
         }
-        .sheet(isPresented: $showRequestOptions) {
+        .menuPresentation(isPresented: $showRequestOptions) {
             requestOptionsSheet
         }
         .onChange(of: isLoading) { _, loading in

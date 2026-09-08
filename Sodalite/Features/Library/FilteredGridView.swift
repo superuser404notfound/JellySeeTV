@@ -270,7 +270,7 @@ struct FilteredGridView: View {
             DetailRouterView(item: item)
                 .detailCoverPush()
         }
-        .sheet(isPresented: $showSortSheet) {
+        .menuPresentation(isPresented: $showSortSheet) {
             LibrarySortSheet(
                 selection: sort,
                 tintColor: dependencies.appearancePreferences.effectiveTint(
