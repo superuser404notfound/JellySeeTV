@@ -113,6 +113,14 @@ struct ResumeCapsuleTests {
                                          playbackPositionTicks: series.userData?.playbackPositionTicks) == nil)
     }
 
+    /// Vincent's call, 2026-09-08: the bar belongs to the episode card and to nothing else. A
+    /// partly-watched MOVIE poster in a grid is covered by this too, not just a container.
+    @Test func onlyTheEpisodeCardCarriesProgress() {
+        #expect(MediaCardStyle.landscape.showsResumeProgress)
+        #expect(!MediaCardStyle.poster.showsResumeProgress)
+        #expect(!MediaCardStyle.square.showsResumeProgress)
+    }
+
     @Test func aStartedItemDrawsItsShare() {
         #expect(ResumeIndicator.fraction(playedPercentage: 42, isPlayed: false, playbackPositionTicks: 420) == 0.42)
         #expect(ResumeIndicator.fraction(playedPercentage: 140, isPlayed: false, playbackPositionTicks: 999) == 1)
