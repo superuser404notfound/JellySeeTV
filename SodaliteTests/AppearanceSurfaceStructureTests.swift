@@ -1,16 +1,42 @@
 import Foundation
 import Testing
+@testable import Sodalite
 
 @Suite("Appearance surface structure")
 struct AppearanceSurfaceStructureTests {
-    @Test("Graphite Glass carries its own opaque base on tvOS")
-    func graphiteIsOpaqueOnItsOwn() throws {
-        let source = try sourceFile("Sodalite/Extensions/GlassBackground.swift")
-        let body = declaration(named: "GraphiteGlassBackground", in: source)
+    @Test("every background declares its own opaque ground")
+    func backgroundsAreSelfOpaque() throws {
+        // A translucent ground takes its tone from whatever the surface leaves behind it: an
+        // isolation plate on a cover, the bare system backdrop on the tab shell. That is how one
+        // theme came out near-black on a library grid and grey on Home (Sodalite#131). Driven off
+        // allCases so a fifth background has to declare its ground here rather than inherit the
+        // guarantee silently.
+        let grounds: [BackgroundStyle: (file: String, ground: String)] = [
+            .graphiteGlass: (
+                "Sodalite/Extensions/GlassBackground.swift",
+                "Color.Theme.surfaceElevated"
+            ),
+            .oledBlack: (
+                "Sodalite/Features/Support/AppBackgroundView.swift",
+                "Color.black.ignoresSafeArea()"
+            ),
+            .accentAurora: (
+                "Sodalite/Features/Support/AccentAuroraBackground.swift",
+                "Color.black"
+            ),
+            .cinemaNoir: (
+                "Sodalite/Features/Support/CinemaNoirBackground.swift",
+                "Color(white: 0.24)"
+            )
+        ]
 
-        // Without a base the material's tone is decided by whatever sits behind the surface, which
-        // is a different thing on the tab shell than on a plated cover.
-        #expect(body?.contains("Color.Theme.surfaceElevated") == true)
+        for style in BackgroundStyle.allCases {
+            let entry = try #require(
+                grounds[style],
+                "\(style.rawValue) declares no opaque ground"
+            )
+            #expect(try sourceFile(entry.file).contains(entry.ground))
+        }
     }
 
     @Test("every themed surface floors its background on an opaque plate")
