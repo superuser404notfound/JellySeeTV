@@ -181,6 +181,7 @@ struct AppearanceSettingsPayload: Codable, Equatable {
     /// nil from a build without the library name switch (Sodalite#84); false is what those builds
     /// drew, so a plain default matches what the sender was actually showing.
     var showLibraryNames: Bool
+    var showPosterProgress: Bool
     /// nil from a build without the rating switches (Sodalite#127). Defaults to TRUE, not false:
     /// those builds drew both scores unconditionally, so absent means "shown", and a plain `false`
     /// default would blank the scores on every device the moment one old sender uploaded.
@@ -205,6 +206,7 @@ struct AppearanceSettingsPayload: Codable, Equatable {
         showPosterBadges: Bool = false,
         showTopShelfRow: Bool = true,
         showLibraryNames: Bool = false,
+        showPosterProgress: Bool = false,
         showCommunityRating: Bool = true,
         showCriticRating: Bool = true,
         hiddenTabs: [String]? = nil
@@ -223,6 +225,7 @@ struct AppearanceSettingsPayload: Codable, Equatable {
         self.showPosterBadges = showPosterBadges
         self.showTopShelfRow = showTopShelfRow
         self.showLibraryNames = showLibraryNames
+        self.showPosterProgress = showPosterProgress
         self.showCommunityRating = showCommunityRating
         self.showCriticRating = showCriticRating
         self.hiddenTabs = hiddenTabs
@@ -243,6 +246,7 @@ struct AppearanceSettingsPayload: Codable, Equatable {
         case showPosterBadges
         case showTopShelfRow
         case showLibraryNames
+        case showPosterProgress
         case showCommunityRating
         case showCriticRating
         case hiddenTabs
@@ -268,6 +272,7 @@ struct AppearanceSettingsPayload: Codable, Equatable {
         showPosterBadges = try values.decodeIfPresent(Bool.self, forKey: .showPosterBadges) ?? false
         showTopShelfRow = try values.decodeIfPresent(Bool.self, forKey: .showTopShelfRow) ?? true
         showLibraryNames = try values.decodeIfPresent(Bool.self, forKey: .showLibraryNames) ?? false
+        showPosterProgress = try values.decodeIfPresent(Bool.self, forKey: .showPosterProgress) ?? false
         showCommunityRating = try values.decodeIfPresent(Bool.self, forKey: .showCommunityRating) ?? true
         showCriticRating = try values.decodeIfPresent(Bool.self, forKey: .showCriticRating) ?? true
         hiddenTabs = try values.decodeIfPresent([String].self, forKey: .hiddenTabs)
@@ -289,6 +294,7 @@ struct AppearanceSettingsPayload: Codable, Equatable {
         try values.encode(showPosterBadges, forKey: .showPosterBadges)
         try values.encode(showTopShelfRow, forKey: .showTopShelfRow)
         try values.encode(showLibraryNames, forKey: .showLibraryNames)
+        try values.encode(showPosterProgress, forKey: .showPosterProgress)
         try values.encode(showCommunityRating, forKey: .showCommunityRating)
         try values.encode(showCriticRating, forKey: .showCriticRating)
         try values.encodeIfPresent(hiddenTabs, forKey: .hiddenTabs)

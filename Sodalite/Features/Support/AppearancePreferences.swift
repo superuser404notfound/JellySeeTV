@@ -47,6 +47,7 @@ final class AppearancePreferences {
         static let showPosterBadges = "appearance.showPosterBadges"
         static let showTopShelfRow = "appearance.showTopShelfRow"
         static let showLibraryNames = "appearance.showLibraryNames"
+        static let showPosterProgress = "appearance.showPosterProgress"
         static let showCommunityRating = "appearance.showCommunityRating"
         static let showCriticRating = "appearance.showCriticRating"
     }
@@ -111,6 +112,15 @@ final class AppearancePreferences {
     /// is named either way, there being nothing else there to name it.
     var showLibraryNames: Bool {
         didSet { store.set(showLibraryNames, forKey: Keys.showLibraryNames) }
+    }
+
+    /// Sodalite#136. Draws the resume capsule on poster and album cards too, not only on the episode
+    /// card. Off by default: a poster is a title rather than the thing being watched, and on a row
+    /// where most series are partly watched a capsule under every one of them is noise with nothing
+    /// to resume. A container still draws nothing even when this is on, because its percentage
+    /// counts children watched and there is no resume point behind it (Sodalite#135).
+    var showPosterProgress: Bool {
+        didSet { store.set(showPosterProgress, forKey: Keys.showPosterProgress) }
     }
 
     /// Sodalite#127. The star score a community voted on (Jellyfin's CommunityRating, TMDB's vote
@@ -190,6 +200,7 @@ final class AppearancePreferences {
         self.showPosterBadges = store.object(forKey: Keys.showPosterBadges) as? Bool ?? false
         self.showTopShelfRow = store.object(forKey: Keys.showTopShelfRow) as? Bool ?? true
         self.showLibraryNames = store.object(forKey: Keys.showLibraryNames) as? Bool ?? false
+        self.showPosterProgress = store.object(forKey: Keys.showPosterProgress) as? Bool ?? false
         self.showCommunityRating = store.object(forKey: Keys.showCommunityRating) as? Bool ?? true
         self.showCriticRating = store.object(forKey: Keys.showCriticRating) as? Bool ?? true
         let storedTabs = store.array(forKey: Keys.hiddenTabs) as? [String] ?? []

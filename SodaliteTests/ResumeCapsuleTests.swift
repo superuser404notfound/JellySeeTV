@@ -113,12 +113,23 @@ struct ResumeCapsuleTests {
                                          playbackPositionTicks: series.userData?.playbackPositionTicks) == nil)
     }
 
-    /// Vincent's call, 2026-09-08: the bar belongs to the episode card and to nothing else. A
-    /// partly-watched MOVIE poster in a grid is covered by this too, not just a container.
-    @Test func onlyTheEpisodeCardCarriesProgress() {
-        #expect(MediaCardStyle.landscape.showsResumeProgress)
-        #expect(!MediaCardStyle.poster.showsResumeProgress)
-        #expect(!MediaCardStyle.square.showsResumeProgress)
+    /// The episode card always carries progress, whatever the setting says: it shows the thing being
+    /// watched. The poster is the opt-in half (Sodalite#136).
+    @Test func theEpisodeCardAlwaysCarriesProgress() {
+        #expect(MediaCardStyle.landscape.showsResumeProgress(posterProgressEnabled: false))
+        #expect(MediaCardStyle.landscape.showsResumeProgress(posterProgressEnabled: true))
+    }
+
+    @Test func thePosterCarriesProgressOnlyWhenAskedTo() {
+        #expect(!MediaCardStyle.poster.showsResumeProgress(posterProgressEnabled: false))
+        #expect(MediaCardStyle.poster.showsResumeProgress(posterProgressEnabled: true))
+    }
+
+    /// The album card stays out of it in both positions: a container has no resume point to draw,
+    /// so an opt-in that reached it would promise something the data cannot answer (Sodalite#135).
+    @Test func theAlbumCardNeverCarriesProgress() {
+        #expect(!MediaCardStyle.square.showsResumeProgress(posterProgressEnabled: false))
+        #expect(!MediaCardStyle.square.showsResumeProgress(posterProgressEnabled: true))
     }
 
     @Test func aStartedItemDrawsItsShare() {
