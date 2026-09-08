@@ -728,11 +728,7 @@ private struct ErrorActionButton: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(.white.opacity(isHighlighted ? 0.15 : 0.05))
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isHighlighted ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 16, isFocused: isHighlighted)
             .focusResponse(.tile.flat, isFocused: isHighlighted)
         #else
         Button(action: action) { label }

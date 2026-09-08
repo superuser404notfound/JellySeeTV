@@ -199,11 +199,7 @@ private struct AdminActionButton: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(backgroundStyle)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(focused ? 1 : 0)
-        )
+        .focusStroke(cornerRadius: 12, isFocused: focused)
         .focusResponse(.chip, isFocused: focused)
         .focusable(true)
         .focused($focused)

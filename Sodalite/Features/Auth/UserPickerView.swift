@@ -268,9 +268,11 @@ private struct UserPickerCard: View {
             }
         }
         .overlay(
+            // Not `.focusStroke`: padded outward, so it rings the avatar rather than sitting on its
+            // edge. A circle offset outward is still a circle, so there is no radius to keep in step.
             Circle()
-                .strokeBorder(.tint, lineWidth: 3)
-                .padding(-3)
+                .strokeBorder(.tint, lineWidth: FocusStroke.width)
+                .padding(-FocusStroke.width)
                 .opacity(isFocused ? 1 : 0)
         )
         .focusResponse(.card, isFocused: isFocused)

@@ -387,11 +387,7 @@ struct CollectionRowButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .background(rowBackground)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isFocused ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 12, isFocused: isFocused)
             .focusResponse(.inline, isFocused: isFocused)
     }
 

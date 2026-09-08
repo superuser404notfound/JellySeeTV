@@ -200,10 +200,10 @@ private struct ProgramCard: View {
                 }
             }
             .frame(width: cardWidth, height: cardHeight)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: ArtworkCorner.radius))
             .overlay(
                 MediaFocusRing(
-                    shape: RoundedRectangle(cornerRadius: 12),
+                    cornerRadius: ArtworkCorner.radius,
                     isFocused: isFocused
                 )
             )

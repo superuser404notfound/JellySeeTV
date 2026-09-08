@@ -221,11 +221,7 @@ struct TechCard<Content: View>: View {
                     .fill(isFocused ? .white.opacity(0.1) : .clear)
             }
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(isFocused ? 1 : 0)
-        )
+        .focusStroke(cornerRadius: 16, isFocused: isFocused)
         .focusResponse(.tile.flat, isFocused: isFocused)
         .focusable()
         .focused($isFocused)

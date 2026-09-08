@@ -493,13 +493,9 @@ private struct TransportIconButton: View {
                         ? AnyShapeStyle(primaryFill)
                         : AnyShapeStyle(Color.white.opacity(isFocused ? 0.18 : 0.07)))
             )
-            .overlay(
-                // Previous/Next keep the outline-on-focus look; the filled primary would only get a
-                // ring in its own colour, which is invisible against its own fill.
-                Circle()
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isFocused && !isLarge ? 1 : 0)
-            )
+            // Previous/Next keep the outline-on-focus look; the filled primary would only get a
+            // ring in its own colour, which is invisible against its own fill.
+            .focusStroke(Circle(), isFocused: isFocused && !isLarge)
             // Deliberately above `.card`: a filled primary cannot show a same-colour ring, so the
             // lift carries the entire focus cue on its own. Not a role, one button.
             .scaleEffect(isFocused ? 1.1 : 1.0)
@@ -660,11 +656,7 @@ private struct QueueRow: View {
                       ? Color.white.opacity(focused ? 0.18 : 0.1)
                       : Color.white.opacity(focused ? 0.14 : 0.04))
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(.tint, lineWidth: 2)
-                .opacity(focused ? 1 : 0)
-        )
+        .focusStroke(cornerRadius: 12, isFocused: focused)
         // Own shadow: `focusOverhang` budgets 20pt against this blur, and the column clips.
         .focusResponse(.row.withShadow(opacity: 0.3, radius: 10, y: 4), isFocused: focused)
         .focusable(true)

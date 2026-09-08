@@ -216,11 +216,7 @@ struct GlassButtonStyle: ButtonStyle {
                     }
                 }
             )
-            .overlay(
-                Capsule()
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isFocused ? 1 : 0)
-            )
+            .focusStroke(Capsule(), isFocused: isFocused)
             // The role's curve matches the label-reveal spring here, so scale, border and
             // icon->label expansion move together.
             .focusResponse(.pill, isFocused: isFocused,

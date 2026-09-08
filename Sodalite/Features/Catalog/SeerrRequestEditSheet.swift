@@ -306,11 +306,7 @@ private struct SeasonCheckboxRow: View {
                       ? AnyShapeStyle(TintShapeStyle.tint.opacity(0.18))
                       : AnyShapeStyle(Color.Theme.restFill))
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(.tint, lineWidth: 3)
-                .opacity(focused ? 1 : 0)
-        )
+        .focusStroke(cornerRadius: 14, isFocused: focused)
         .focusable(true)
         .focused($focused)
         .stableTap(isFocused: focused) { toggle() }
@@ -346,11 +342,7 @@ private struct EditPickerRow<Option: Identifiable & Equatable>: View {
                           ? AnyShapeStyle(TintShapeStyle.tint.opacity(0.18))
                           : AnyShapeStyle(Color.Theme.restFill))
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(focused ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 16, isFocused: focused)
             .focusable(!options.isEmpty)
             .focused($focused)
             #if os(tvOS)

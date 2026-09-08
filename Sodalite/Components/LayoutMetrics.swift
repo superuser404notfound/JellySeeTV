@@ -124,3 +124,20 @@ struct LayoutMetrics: Equatable {
         #endif
     }
 }
+
+/// Corner radius of any artwork surface (Sodalite#134).
+///
+/// One value, because there is no second thing for a second value to track. This shipped as 12 for
+/// posters and stills against 16 for library, genre, tag and provider tiles, which looks like two
+/// roles until you measure: `tileSize` IS `landscapeSize`, so a library tile and a Continue Watching
+/// still are the same 360x202 surface, and on tvOS they sit on the same Home screen a scroll apart.
+/// Two identically sized cards rounding differently on one screen is the drift, not a distinction.
+///
+/// 12 rather than 16 because that is what the surfaces a viewer sees most already wear: every
+/// poster in every row and every grid, through `MediaCard`.
+///
+/// Deliberately not part of `LayoutMetrics`: the radius follows neither the tier nor the size. It
+/// is also not the panel radius. A settings tile is chrome and rounds at 16; this is content.
+enum ArtworkCorner {
+    static let radius: CGFloat = 12
+}

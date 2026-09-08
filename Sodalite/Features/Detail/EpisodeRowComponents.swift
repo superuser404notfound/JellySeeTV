@@ -55,9 +55,11 @@ struct SeasonTabButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         // Asymmetric stroke: 50ms fade-in delay, 0 fade-out. A residual wrong-tab transition slipping past the onMoveCommand prime never shows the stroke, the 50ms window lets the DispatchQueue fallback land focus on the right tab first. 50ms is sub-perceptual.
         configuration.label
+            // Not `.focusStroke`: this stroke carries its own asymmetric timing, which the shared
+            // modifier has no place for. The width is the same 3.
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.tint, lineWidth: 3)
+                    .strokeBorder(.tint, lineWidth: FocusStroke.width)
                     .opacity(isFocused ? 1 : 0)
                     .animation(
                         isFocused
@@ -309,11 +311,7 @@ struct EpisodeSynopsisBox: View {
                         .fill(isFocused ? Color.Theme.focusFill : .clear)
                 }
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.tint, lineWidth: 3)
-                    .opacity(isFocused ? 1 : 0)
-            )
+            .focusStroke(cornerRadius: 12, isFocused: isFocused)
             .focusResponse(.inline, isFocused: isFocused)
             .focusable(hasText)
             .focused($isFocused)

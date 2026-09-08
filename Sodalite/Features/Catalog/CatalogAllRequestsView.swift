@@ -246,10 +246,7 @@ private struct FilterChip: View {
                 ? AnyShapeStyle(TintShapeStyle.tint.opacity(0.65))
                 : AnyShapeStyle(Color.Theme.restFill))
         )
-        .overlay(
-            Capsule().strokeBorder(.tint, lineWidth: 3)
-                .opacity(focused ? 1 : 0)
-        )
+        .focusStroke(Capsule(), isFocused: focused)
         .focusResponse(.chip, isFocused: focused)
         .focusable(true)
         .focused($focused)

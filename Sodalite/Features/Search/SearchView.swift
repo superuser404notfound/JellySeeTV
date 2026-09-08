@@ -181,9 +181,7 @@ struct SearchView: View {
             .background(
                 Circle().fill(clearFocused ? AnyShapeStyle(.tint.opacity(0.18)) : AnyShapeStyle(Color.clear))
             )
-            .overlay(
-                Circle().strokeBorder(.tint, lineWidth: 3).opacity(clearFocused ? 1 : 0)
-            )
+            .focusStroke(Circle(), isFocused: clearFocused)
             .focusResponse(.chip, isFocused: clearFocused)
             .focusable()
             .focused($clearFocused)
