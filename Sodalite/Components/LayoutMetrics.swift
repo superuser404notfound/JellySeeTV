@@ -125,22 +125,19 @@ struct LayoutMetrics: Equatable {
     }
 }
 
-/// Corner radius of an artwork surface, named by what the artwork IS on it (Sodalite#134).
+/// Corner radius of any artwork surface (Sodalite#134).
 ///
-/// Deliberately not part of `LayoutMetrics`: the radius does not follow the tier the way a size
-/// does, and it does not follow the size at all. A library tile and an episode still are the SAME
-/// 360x202 on tvOS, since `tileSize` is `landscapeSize`, and they round differently on purpose.
-/// What separates them is whether the image is the subject or the ground.
+/// One value, because there is no second thing for a second value to track. This shipped as 12 for
+/// posters and stills against 16 for library, genre, tag and provider tiles, which looks like two
+/// roles until you measure: `tileSize` IS `landscapeSize`, so a library tile and a Continue Watching
+/// still are the same 360x202 surface, and on tvOS they sit on the same Home screen a scroll apart.
+/// Two identically sized cards rounding differently on one screen is the drift, not a distinction.
+///
+/// 12 rather than 16 because that is what the surfaces a viewer sees most already wear: every
+/// poster in every row and every grid, through `MediaCard`.
+///
+/// Deliberately not part of `LayoutMetrics`: the radius follows neither the tier nor the size. It
+/// is also not the panel radius. A settings tile is chrome and rounds at 16; this is content.
 enum ArtworkCorner {
-
-    /// A poster or a still, captioned BELOW the image. The artwork is the subject, so the corner
-    /// stays tight enough that the image still reads as a photograph rather than as a button.
-    /// `MediaCard`, `SeerrMediaCard`, `SeerrEpisodeCard`, `LiveProgramsView`.
-    static let card: CGFloat = 12
-
-    /// A surface carrying its own name ON the artwork, which is a backdrop behind it: a library,
-    /// genre, tag or provider tile, and the collection banner. Rounder, because it is a control
-    /// with a picture in it rather than a picture. `ArtworkTile`, `CatalogProviderRow`,
-    /// `CatalogCollectionView`.
-    static let tile: CGFloat = 16
+    static let radius: CGFloat = 12
 }

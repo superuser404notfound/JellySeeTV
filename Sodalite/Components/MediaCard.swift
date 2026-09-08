@@ -85,7 +85,7 @@ struct MediaCard: View {
         // Sodalite#50: before the clip so the blur cannot bleed past the tile edge. No type check
         // here, the policy already passes everything that is not an unseen episode or movie.
         .spoilerVeil(for: item, style: .image, veils: !showsSeriesArtwork)
-        .clipShape(RoundedRectangle(cornerRadius: ArtworkCorner.card))
+        .clipShape(RoundedRectangle(cornerRadius: ArtworkCorner.radius))
         // The clip is visual only, so without this the artwork stays TAPPABLE where it is invisible.
         // A fill-scaled image overflows the card on one axis by design: a 16:9 still in a 2:3 card
         // draws 320pt wide inside a 120pt frame, so it reached 100pt past both edges and, being a
@@ -93,7 +93,7 @@ struct MediaCard: View {
         // (measured on device, discussion #98: a tap at x=89 fired the card whose frame is 148..268).
         // Only cards whose artwork aspect matches their style were ever safe, which is why it showed
         // up on one row and not the rest.
-        .contentShape(RoundedRectangle(cornerRadius: ArtworkCorner.card))
+        .contentShape(RoundedRectangle(cornerRadius: ArtworkCorner.radius))
         .overlay(alignment: .bottom) {
             progressOverlay
         }
@@ -112,7 +112,7 @@ struct MediaCard: View {
         }
         .overlay(
             MediaFocusRing(
-                cornerRadius: ArtworkCorner.card,
+                cornerRadius: ArtworkCorner.radius,
                 isFocused: isFocused
             )
         )

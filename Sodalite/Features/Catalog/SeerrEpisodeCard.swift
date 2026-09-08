@@ -75,15 +75,15 @@ struct SeerrEpisodeCard: View {
                 .padding(8)
             }
             .frame(width: width, height: imageHeight)
-            .clipShape(RoundedRectangle(cornerRadius: ArtworkCorner.card))
+            .clipShape(RoundedRectangle(cornerRadius: ArtworkCorner.radius))
             // Bounded for the same reason as MediaCard's poster: a fill-scaled image overflows its
             // frame, and the clip above is visual only, so the invisible part stays tappable and
             // covers the neighbour drawn before it (discussion #98).
-            .contentShape(RoundedRectangle(cornerRadius: ArtworkCorner.card))
+            .contentShape(RoundedRectangle(cornerRadius: ArtworkCorner.radius))
             // Focus border on the fixed-height still so it can't drift with caption-block size.
             .overlay(
                 MediaFocusRing(
-                    cornerRadius: ArtworkCorner.card,
+                    cornerRadius: ArtworkCorner.radius,
                     isFocused: isFocused
                 )
             )
