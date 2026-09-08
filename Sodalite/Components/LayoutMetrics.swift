@@ -124,3 +124,23 @@ struct LayoutMetrics: Equatable {
         #endif
     }
 }
+
+/// Corner radius of an artwork surface, named by what the artwork IS on it (Sodalite#134).
+///
+/// Deliberately not part of `LayoutMetrics`: the radius does not follow the tier the way a size
+/// does, and it does not follow the size at all. A library tile and an episode still are the SAME
+/// 360x202 on tvOS, since `tileSize` is `landscapeSize`, and they round differently on purpose.
+/// What separates them is whether the image is the subject or the ground.
+enum ArtworkCorner {
+
+    /// A poster or a still, captioned BELOW the image. The artwork is the subject, so the corner
+    /// stays tight enough that the image still reads as a photograph rather than as a button.
+    /// `MediaCard`, `SeerrMediaCard`, `SeerrEpisodeCard`, `LiveProgramsView`.
+    static let card: CGFloat = 12
+
+    /// A surface carrying its own name ON the artwork, which is a backdrop behind it: a library,
+    /// genre, tag or provider tile, and the collection banner. Rounder, because it is a control
+    /// with a picture in it rather than a picture. `ArtworkTile`, `CatalogProviderRow`,
+    /// `CatalogCollectionView`.
+    static let tile: CGFloat = 16
+}

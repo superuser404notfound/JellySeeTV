@@ -95,10 +95,10 @@ private struct ProviderTile: View {
                 }
             }
             .frame(width: width, height: height)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: ArtworkCorner.tile))
             .overlay(
                 MediaFocusRing(
-                    cornerRadius: 16,
+                    cornerRadius: ArtworkCorner.tile,
                     isFocused: isFocused
                 )
             )

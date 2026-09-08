@@ -37,4 +37,25 @@ struct FocusChromeTests {
         // against. Asserted so the two are never "unified" as a drift.
         #expect(FocusStroke.width != MediaFocusRing<RoundedRectangle>.outset)
     }
+
+    // MARK: artwork corners
+
+    @Test("the artwork corners keep their values, and the card stays tighter than the tile")
+    func artworkCorners() {
+        #expect(ArtworkCorner.card == 12)
+        #expect(ArtworkCorner.tile == 16)
+        #expect(ArtworkCorner.card < ArtworkCorner.tile)
+    }
+
+    /// The argument for two values rather than one, pinned because it is the thing that would make
+    /// the split look like drift if it stopped being true. A library tile and an episode still are
+    /// the SAME surface size on every tier, since `tileSize` is `landscapeSize` scaled, so the two
+    /// radii cannot be explained by size. What separates them is whether the artwork is the subject
+    /// or the ground behind a name (Sodalite#134).
+    @Test("a tile and a landscape still are the same size, so the radius split is not about size")
+    func tileAndLandscapeShareTheirSize() {
+        for metrics in [LayoutMetrics.tv, .regular, .compact] {
+            #expect(metrics.tileSize(cardScale: 1) == metrics.landscapeSize)
+        }
+    }
 }

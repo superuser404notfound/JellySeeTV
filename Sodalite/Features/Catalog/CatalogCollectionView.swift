@@ -463,10 +463,10 @@ struct SeerrCollectionBanner: View {
                 }
                 .frame(height: bannerHeight)
                 .frame(maxWidth: .infinity)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: ArtworkCorner.tile))
                 .overlay(
                     MediaFocusRing(
-                        cornerRadius: 16,
+                        cornerRadius: ArtworkCorner.tile,
                         isFocused: focused
                     )
                 )
