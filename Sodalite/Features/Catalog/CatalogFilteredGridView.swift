@@ -21,7 +21,11 @@ struct CatalogFilteredGridView: View {
     @Environment(\.horizontalSizeClass) private var hSizeClass
     private var metrics: LayoutMetrics { LayoutMetrics.current(hSizeClass) }
     private var columns: [GridItem] {
-        [GridItem(.adaptive(minimum: metrics.gridMinimum), spacing: metrics.gridSpacing)]
+        [GridItem(
+            .adaptive(minimum: metrics.gridColumnMinimum(
+                cardScale: dependencies.appearancePreferences.cardScale)),
+            spacing: metrics.gridSpacing
+        )]
     }
 
     init(filter: CatalogFilter, cacheIdentity: CacheIdentity?) {

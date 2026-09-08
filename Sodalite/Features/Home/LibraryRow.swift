@@ -39,7 +39,10 @@ private struct LibraryTile: View {
     @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
     // The shared 16:9 tile size (see LayoutMetrics.landscapeSize).
-    private var size: CGSize { LayoutMetrics.current(hSizeClass).landscapeSize }
+    private var size: CGSize {
+        LayoutMetrics.current(hSizeClass)
+            .tileSize(cardScale: dependencies.appearancePreferences.cardScale)
+    }
 
     /// Off by default, because a library image nearly always has the library's own name burnt into
     /// it and drawing ours on top reads as two captions on one tile. A viewer whose images carry no

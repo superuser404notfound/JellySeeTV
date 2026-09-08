@@ -34,7 +34,11 @@ struct PersonDetailView: View {
     /// left a third of a 4K row empty, adaptive fills it (six 233pt columns on tvOS, measured), and
     /// an iPad in portrait still wraps to what it fits.
     private var columns: [GridItem] {
-        [GridItem(.adaptive(minimum: metrics.gridMinimum), spacing: metrics.gridSpacing)]
+        [GridItem(
+            .adaptive(minimum: metrics.gridColumnMinimum(
+                cardScale: dependencies.appearancePreferences.cardScale)),
+            spacing: metrics.gridSpacing
+        )]
     }
 
     var body: some View {

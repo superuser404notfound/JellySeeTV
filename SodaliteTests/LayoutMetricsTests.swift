@@ -69,6 +69,20 @@ struct LayoutMetricsTests {
         #expect(CGFloat(after) * cardWidth + CGFloat(after - 1) * m.gridSpacing <= available)
     }
 
+    /// `landscapeSize` exists so the genre, provider and library rows line up with a landscape
+    /// media row stacked above them on Home. The media card carries `cardScale`, so the tiles have
+    /// to carry it as well or the setting breaks exactly the alignment the shared constant is for.
+    @Test func tilesLineUpWithTheLandscapeCardAtEveryScale() {
+        for m in [LayoutMetrics.tv, .regular, .compact] {
+            #expect(m.tileSize(cardScale: 1) == m.landscapeSize)
+            for scale in [AppearancePreferences.largeCardScale, 1.5, 2] as [CGFloat] {
+                let card = m.size(for: .landscape)
+                #expect(m.tileSize(cardScale: scale).width == card.width * scale)
+                #expect(m.tileSize(cardScale: scale).height == card.height * scale)
+            }
+        }
+    }
+
     @Test func profileCardTiers() {
         #expect(LayoutMetrics.tv.profileCardSize == CGSize(width: 180, height: 180))
         #expect(LayoutMetrics.regular.profileCardSize == CGSize(width: 160, height: 160))

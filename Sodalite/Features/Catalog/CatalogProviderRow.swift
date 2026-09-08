@@ -43,10 +43,15 @@ private struct ProviderTile: View {
     let backdropURL: URL?
     let action: () -> Void
 
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
     // The shared 16:9 tile size, so provider, genre and library rows line up.
-    private var width: CGFloat { LayoutMetrics.current(hSizeClass).landscapeSize.width }
-    private var height: CGFloat { LayoutMetrics.current(hSizeClass).landscapeSize.height }
+    private var tile: CGSize {
+        LayoutMetrics.current(hSizeClass)
+            .tileSize(cardScale: dependencies.appearancePreferences.cardScale)
+    }
+    private var width: CGFloat { tile.width }
+    private var height: CGFloat { tile.height }
 
     var body: some View {
         // Deliberately not ArtworkTile: this tile carries a centered duotone logo, not a

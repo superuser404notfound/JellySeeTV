@@ -41,13 +41,15 @@ struct GenreCard: View {
     let data: TagCardData
     let action: () -> Void
 
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
 
     var body: some View {
         ArtworkTile(
             title: data.name,
             artworkURL: data.backdropURL,
-            size: LayoutMetrics.current(hSizeClass).landscapeSize,
+            size: LayoutMetrics.current(hSizeClass)
+                .tileSize(cardScale: dependencies.appearancePreferences.cardScale),
             action: action
         ) {
             ArtworkTileSurface()

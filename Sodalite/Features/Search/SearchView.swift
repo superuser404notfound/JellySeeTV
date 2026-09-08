@@ -101,7 +101,9 @@ struct SearchView: View {
             }
         }
         for media in vm.seerrResults {
-            if let url = SeerrImageURL.poster(path: media.posterPath) {
+            if let url = SeerrImageURL.poster(
+                path: media.posterPath, size: .covering(ImageWidth.card)
+            ) {
                 urls.append(url)
             }
         }
