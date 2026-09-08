@@ -37,6 +37,12 @@ struct AppearanceSurfaceStructureTests {
             )
             #expect(try sourceFile(entry.file).contains(entry.ground))
         }
+
+        // Graphite is composed per platform, and the grounds above are the tvOS branch. iOS lifts
+        // the same material with a white wash instead, which is what keeps it one tone there
+        // (verified on the iPhone), so deleting the wash has to fail here too.
+        let graphite = try sourceFile("Sodalite/Extensions/GlassBackground.swift")
+        #expect(graphite.contains(".white.opacity(0.12), .white.opacity(0.04)"))
     }
 
     @Test("every themed surface floors its background on an opaque plate")
