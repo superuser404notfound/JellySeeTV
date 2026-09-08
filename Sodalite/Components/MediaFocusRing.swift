@@ -1,5 +1,8 @@
 import SwiftUI
 
+/// The ring half of the focus gesture. Its settle time is `FocusResponse.card`'s and not a literal:
+/// the ring eased over 0.2 while every cast portrait and every Seerr episode still lifted over 0.15,
+/// so the two halves of one gesture arrived at different times on the same element (Sodalite#130).
 struct MediaFocusRing<Shape: InsettableShape>: View {
     let shape: Shape
     let isFocused: Bool
@@ -18,7 +21,7 @@ struct MediaFocusRing<Shape: InsettableShape>: View {
                 radius: 9
             )
             .opacity(isFocused ? 1 : 0)
-            .animation(.easeInOut(duration: 0.2), value: isFocused)
+            .animation(FocusResponse.card.animation, value: isFocused)
             .accessibilityHidden(true)
     }
 }

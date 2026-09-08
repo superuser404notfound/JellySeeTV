@@ -110,9 +110,8 @@ private struct MediaCastCard: View {
             }
             .frame(width: labelWidth)
         }
-        .scaleEffect(isFocused ? 1.05 : 1.0)
-        .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 10, y: 5)
-        .animation(.easeInOut(duration: 0.15), value: isFocused)
+        // Own shadow: a 180pt circular portrait does not carry a rectangular card's r20/y10 throw.
+        .focusResponse(.card.withShadow(opacity: 0.3, radius: 10, y: 5), isFocused: isFocused)
         .focusable()
         .focused($isFocused)
         .stableTap(isFocused: isFocused) { onSelect?() }

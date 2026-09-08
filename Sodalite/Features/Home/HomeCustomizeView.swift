@@ -372,8 +372,7 @@ struct FocusableTile<Content: View>: View {
         content(isFocused)
             .focusable()
             .focused($isFocused)
-            .scaleEffect(isFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .focusResponse(.inline, isFocused: isFocused)
             .stableTap(isFocused: isFocused) { action() }
     }
 }
@@ -413,8 +412,7 @@ struct RowToggleButton: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(focused ? 1 : 0)
         )
-        .scaleEffect(focused ? 1.06 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: focused)
+        .focusResponse(.chip, isFocused: focused)
         .animation(.easeInOut(duration: 0.15), value: isOn)
         .focusable()
         .focused($focused)

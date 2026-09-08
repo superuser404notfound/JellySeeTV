@@ -61,8 +61,7 @@ struct SeasonChipButtonStyle: ButtonStyle {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isFocused ? 1 : 0)
             )
-            .scaleEffect(isFocused ? 1.05 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .focusResponse(.chip, isFocused: isFocused)
     }
 }
 
@@ -78,8 +77,7 @@ struct CatalogPickerButtonStyle: ButtonStyle {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isFocused ? 1 : 0)
             )
-            .scaleEffect(isFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .focusResponse(.inline, isFocused: isFocused)
     }
 }
 

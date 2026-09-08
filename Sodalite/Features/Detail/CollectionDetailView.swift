@@ -392,8 +392,7 @@ struct CollectionRowButtonStyle: ButtonStyle {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isFocused ? 1 : 0)
             )
-            .scaleEffect(isFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .focusResponse(.inline, isFocused: isFocused)
     }
 
     // Glass material resting background on both platforms so the row text stays readable over a

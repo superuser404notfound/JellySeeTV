@@ -104,9 +104,14 @@ struct SeerrEpisodeCard: View {
             .frame(width: width, alignment: .leading)
         }
         .frame(width: width)
+        // Not a `FocusResponse` role, and NOT the drift it looks like: this card is always built
+        // inside a `FocusableCard`, which already applies `.card`, so this is a SECOND lift stacked
+        // on the first (1.05 x 1.04 today). The enclosing ScrollView in CatalogDetailView budgets
+        // its padding against exactly these two numbers. Collapsing the stack is a separate change
+        // with a visible result, so the values stay measured-in-place here (#130).
         .scaleEffect(isFocused ? 1.04 : 1.0)
         .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 14, y: 6)
-        .animation(.easeInOut(duration: 0.15), value: isFocused)
+        .animation(FocusResponse.settle, value: isFocused)
     }
 
     private var placeholderArt: some View {

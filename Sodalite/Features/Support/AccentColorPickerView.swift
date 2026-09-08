@@ -219,7 +219,7 @@ private struct AccentCategoryButton: View {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(focused ? 1 : 0)
             )
-            .scaleEffect(focused ? 1.03 : 1.0)
+            .focusResponse(.chip, isFocused: focused)
             .focusable(true)
             .focused($focused)
             .stableTap(isFocused: focused, perform: action)
@@ -227,7 +227,6 @@ private struct AccentCategoryButton: View {
             .accessibilityAddTraits(.isButton)
             .accessibilityAddTraits(selected ? .isSelected : [])
             .accessibilityAction { action() }
-            .animation(.easeInOut(duration: 0.2), value: focused)
             .animation(.easeInOut(duration: 0.2), value: selected)
         #else
         Button(action: action) {

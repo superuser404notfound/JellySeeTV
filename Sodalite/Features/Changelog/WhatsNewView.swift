@@ -126,9 +126,7 @@ private struct HighlightRow: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(isFocused ? 1 : 0)
         )
-        .scaleEffect(isFocused ? 1.03 : 1.0)
-        .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 15, y: 8)
-        .animation(.easeInOut(duration: 0.2), value: isFocused)
+        .focusResponse(.tile, isFocused: isFocused)
         // Focusable so the tvOS focus engine has a scroll anchor; without it a long changelog can't be scrolled.
         .focusable()
         .focused($isFocused)

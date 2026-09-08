@@ -55,11 +55,9 @@ struct ValuePickerRow<Value: Hashable>: View {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(focused ? 1 : 0)
             )
-            .scaleEffect(focused ? 1.015 : 1.0)
-            .shadow(color: .black.opacity(focused ? 0.3 : 0), radius: 14, y: 6)
+            .focusResponse(.row, isFocused: focused)
             .focusable(true)
             .focused($focused)
-            .animation(.easeInOut(duration: 0.15), value: focused)
             .animation(.easeInOut(duration: 0.15), value: selection)
             #if os(tvOS)
             .onMoveCommand { direction in

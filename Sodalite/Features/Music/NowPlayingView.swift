@@ -500,6 +500,8 @@ private struct TransportIconButton: View {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isFocused && !isLarge ? 1 : 0)
             )
+            // Deliberately above `.card`: a filled primary cannot show a same-colour ring, so the
+            // lift carries the entire focus cue on its own. Not a role, one button.
             .scaleEffect(isFocused ? 1.1 : 1.0)
             // Second half of the primary's focus lift, and the half that carries the LIGHT accents:
             // their fill is bright enough that the brightness step alone is the subtler cue, while a
@@ -604,8 +606,7 @@ private struct ScrubBar: View {
             MusicScrubberInput(coordinator: coordinator, isFocused: $isFocused)
         )
         #endif
-        .scaleEffect(isFocused ? 1.02 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isFocused)
+        .focusResponse(.inline, isFocused: isFocused)
         .animation(.easeInOut(duration: 0.2), value: scrubbing)
         .onChange(of: isFocused) { _, focused in onFocusChange(focused) }
     }
@@ -664,11 +665,10 @@ private struct QueueRow: View {
                 .strokeBorder(.tint, lineWidth: 2)
                 .opacity(focused ? 1 : 0)
         )
-        .scaleEffect(focused ? 1.015 : 1.0)
-        .shadow(color: .black.opacity(focused ? 0.3 : 0), radius: 10, y: 4)
+        // Own shadow: `focusOverhang` budgets 20pt against this blur, and the column clips.
+        .focusResponse(.row.withShadow(opacity: 0.3, radius: 10, y: 4), isFocused: focused)
         .focusable(true)
         .focused($queueFocus, equals: track.id)
-        .animation(.easeInOut(duration: 0.15), value: focused)
         .stableTap(isFocused: focused) {
             onSelect()
         }

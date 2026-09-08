@@ -26,9 +26,7 @@ struct FocusableCard<Content: View>: View {
             .focusable()
             .focused($isFocused)
             .stableTap(isFocused: isFocused) { action() }
-            .scaleEffect(isHighlighted ? 1.05 : 1.0)
-            .shadow(color: .black.opacity(isHighlighted ? 0.4 : 0), radius: 20, y: 10)
-            .animation(.easeInOut(duration: 0.2), value: isHighlighted)
+            .focusResponse(.card, isFocused: isHighlighted)
     }
 
     @ViewBuilder

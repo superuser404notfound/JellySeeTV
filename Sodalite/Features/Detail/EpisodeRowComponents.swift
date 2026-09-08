@@ -45,9 +45,7 @@ struct EpisodeCardButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         // Stroke drawn inside EpisodeLandscapeCard so it hugs the thumbnail only, not the caption below.
         configuration.label
-            .scaleEffect(isFocused ? 1.05 : 1.0)
-            .shadow(color: .black.opacity(isFocused ? 0.4 : 0), radius: 20, y: 10)
-            .animation(.easeInOut(duration: 0.2), value: isFocused)
+            .focusResponse(.card, isFocused: isFocused)
     }
 }
 
@@ -68,8 +66,7 @@ struct SeasonTabButtonStyle: ButtonStyle {
                         value: isFocused
                     )
             )
-            .scaleEffect(isFocused ? 1.05 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .focusResponse(.chip, isFocused: isFocused)
     }
 }
 
@@ -317,8 +314,7 @@ struct EpisodeSynopsisBox: View {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isFocused ? 1 : 0)
             )
-            .scaleEffect(isFocused ? 1.02 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
+            .focusResponse(.inline, isFocused: isFocused)
             .focusable(hasText)
             .focused($isFocused)
             .stableTap(isFocused: isFocused) {

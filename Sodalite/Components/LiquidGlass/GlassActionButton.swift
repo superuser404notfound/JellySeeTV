@@ -221,10 +221,10 @@ struct GlassButtonStyle: ButtonStyle {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isFocused ? 1 : 0)
             )
-            .scaleEffect(isFocused ? 1.08 : (configuration.isPressed ? 0.95 : 1.0))
-            .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 10, y: 5)
-            // Matches the label-reveal spring so scale, border and icon→label expansion move together.
-            .animation(.smooth(duration: 0.32), value: isFocused)
+            // The role's curve matches the label-reveal spring here, so scale, border and
+            // icon->label expansion move together.
+            .focusResponse(.pill, isFocused: isFocused,
+                           isPressed: configuration.isPressed, pressedScale: 0.95)
     }
 
     /// Progress used to be an accent capsule filling the tile from the leading edge, which forced

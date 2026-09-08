@@ -209,10 +209,9 @@ private struct RecordingCard: View {
                         .padding(8)
                 }
             }
-            .scaleEffect(focused ? 1.05 : 1.0)
+            .focusResponse(.card.flat, isFocused: focused)
             .focusable()
             .focused($focused)
-            .animation(.easeInOut(duration: 0.15), value: focused)
             .stableTap(isFocused: focused) { onPlay() }
 
             Text(item.name).font(.headline).lineLimit(1)

@@ -733,8 +733,7 @@ private struct ErrorActionButton: View {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isHighlighted ? 1 : 0)
             )
-            .scaleEffect(isHighlighted ? 1.03 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: isHighlighted)
+            .focusResponse(.tile.flat, isFocused: isHighlighted)
         #else
         Button(action: action) { label }
             .buttonStyle(SettingsTileButtonStyle(isProminent: isPrimary))

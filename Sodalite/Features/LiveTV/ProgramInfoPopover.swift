@@ -168,10 +168,9 @@ private struct PopoverActionButton: View {
             .overlay(
                 Capsule().strokeBorder(accent, lineWidth: focused ? 0 : 2)
             )
-            .scaleEffect(focused ? 1.06 : 1.0)
+            .focusResponse(.chip, isFocused: focused)
             .focusable()
             .focused($focused)
-            .animation(.easeInOut(duration: 0.15), value: focused)
             .stableTap(isFocused: focused) { action() }
     }
 }

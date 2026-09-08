@@ -176,8 +176,11 @@ private struct Paragraph: View {
                 RoundedRectangle(cornerRadius: 14)
                     .fill(isFocused ? Color.Theme.focusFill : .white.opacity(emphasized ? 0.06 : 0.03))
             )
+            // Not a `FocusResponse` role: this is the focusable reading block tvOS needs to scroll a
+            // long licence, not a tile. At 900pt wide, 1.01 is 4.5pt per side, the same displacement
+            // a 180pt profile card gets from 1.05. A tile's 1.03 would move it by 13.5pt (#130).
             .scaleEffect(isFocused ? 1.01 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: isFocused)
+            .animation(FocusResponse.settle, value: isFocused)
             .focusable()
             .focused($isFocused)
     }
