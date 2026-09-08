@@ -33,12 +33,11 @@ struct StatTile: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(focused ? 1 : 0)
         )
-        .scaleEffect(focused ? 1.03 : 1.0)
+        .focusResponse(.tile.flat, isFocused: focused)
         #if os(tvOS)
         .focusable(true)
         .focused($focused)
         #endif
-        .animation(.easeInOut(duration: 0.2), value: focused)
     }
 }
 

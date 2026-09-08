@@ -204,12 +204,11 @@ private struct AdminActionButton: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(focused ? 1 : 0)
         )
-        .scaleEffect(focused ? 1.05 : 1.0)
+        .focusResponse(.chip, isFocused: focused)
         .focusable(true)
         .focused($focused)
         .stableTap(isFocused: focused) { action() }
         .accessibilityLabel(Text(title))
-        .animation(.easeInOut(duration: 0.15), value: focused)
     }
 
     private var backgroundStyle: AnyShapeStyle {

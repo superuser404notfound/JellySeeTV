@@ -226,8 +226,7 @@ struct TechCard<Content: View>: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(isFocused ? 1 : 0)
         )
-        .scaleEffect(isFocused ? 1.03 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isFocused)
+        .focusResponse(.tile.flat, isFocused: isFocused)
         .focusable()
         .focused($isFocused)
     }

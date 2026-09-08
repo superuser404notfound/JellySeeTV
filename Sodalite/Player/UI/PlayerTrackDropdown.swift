@@ -104,12 +104,10 @@ struct TransportTrackLabel: View {
                     ? AnyShapeStyle(appearanceTheme.palette.control.color)
                     : AnyShapeStyle(.clear))
         )
-        .scaleEffect(isFocused ? 1.08 : 1.0)
-        // Depth cue so the focused pill reads as raised, not just tinted.
-        .shadow(color: .black.opacity(isFocused ? 0.3 : 0), radius: 10, y: 5)
-        // Per-button focus animation; the enclosing row also forces this curve via a transaction
-        // so every sibling interpolates together instead of distant pills snapping.
-        .animation(.smooth(duration: 0.32), value: isFocused)
+        // Depth cue so the focused pill reads as raised, not just tinted. The role's curve is also
+        // forced by the enclosing row via a transaction, so every sibling interpolates together
+        // instead of distant pills snapping; that is why `.pill` is the one role not on `settle`.
+        .focusResponse(.pill, isFocused: isFocused)
     }
 }
 

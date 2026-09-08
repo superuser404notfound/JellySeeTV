@@ -316,13 +316,11 @@ private struct BoolPillRow: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(focused ? 1 : 0)
         )
-        .scaleEffect(focused ? 1.02 : 1.0)
-        .shadow(color: .black.opacity(focused ? 0.25 : 0), radius: 10, y: 5)
+        .focusResponse(.inline.withShadow(opacity: 0.25, radius: 10, y: 5), isFocused: focused)
         .focusable(!disabled)
         .focused($focused)
         .disabled(disabled)
         .opacity(disabled ? 0.4 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: focused)
         .animation(.easeInOut(duration: 0.15), value: isOn)
         .stableTap(isFocused: focused) {
             if !disabled { isOn.toggle() }

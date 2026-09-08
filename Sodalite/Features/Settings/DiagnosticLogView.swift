@@ -176,7 +176,7 @@ private struct LogActionButton: View {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(isFocused ? 1 : 0)
             )
-            .scaleEffect(isFocused ? 1.03 : 1.0)
+            .focusResponse(.tile.flat, isFocused: isFocused)
             .opacity(isEnabled ? 1 : 0.4)
             .focusable(isEnabled)
             .focused($isFocused)

@@ -237,11 +237,9 @@ private struct ServerManagementRow: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(focused ? 1 : 0)
         )
-        .scaleEffect(focused ? 1.015 : 1.0)
-        .shadow(color: .black.opacity(focused ? 0.3 : 0), radius: 14, y: 6)
+        .focusResponse(.row, isFocused: focused)
         .focusable(true)
         .focused($focused)
-        .animation(.easeInOut(duration: 0.15), value: focused)
         // The hold belongs to the menu below: without this the row switched servers on the way into
         // its own context menu, which is why an inactive row never showed one (Sodalite#75).
         .stableTap(isFocused: focused, longPressOpensMenu: true) {
@@ -380,11 +378,9 @@ private struct AddServerSettingsRow: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(focused ? 1 : 0)
         )
-        .scaleEffect(focused ? 1.015 : 1.0)
-        .shadow(color: .black.opacity(focused ? 0.3 : 0), radius: 14, y: 6)
+        .focusResponse(.row, isFocused: focused)
         .focusable(true)
         .focused($focused)
-        .animation(.easeInOut(duration: 0.15), value: focused)
         .stableTap(isFocused: focused, perform: onTap)
     }
 }

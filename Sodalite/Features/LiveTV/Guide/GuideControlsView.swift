@@ -145,10 +145,9 @@ private struct GuideChip: View {
             .overlay(
                 Capsule().strokeBorder(isOn ? tint : Color.clear, lineWidth: focused ? 0 : 2)
             )
-            .scaleEffect(focused ? 1.06 : 1)
+            .focusResponse(.chip, isFocused: focused)
             .focusable(isFocusable)
             .focused($focused)
-            .animation(.easeInOut(duration: 0.15), value: focused)
             .stableTap(isFocused: focused) { action() }
     }
 }

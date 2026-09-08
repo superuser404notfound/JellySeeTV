@@ -324,10 +324,9 @@ private struct DigitKey: View {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(focused ? 1 : 0)
             )
-            .scaleEffect(focused ? 1.05 : 1.0)
+            .focusResponse(.chip, isFocused: focused)
             .focusable(true)
             .focused($focused)
-            .animation(.easeInOut(duration: 0.12), value: focused)
             .stableTap(isFocused: focused, perform: action)
         #else
         Button(action: action) { content }

@@ -184,7 +184,7 @@ struct SearchView: View {
             .overlay(
                 Circle().strokeBorder(.tint, lineWidth: 3).opacity(clearFocused ? 1 : 0)
             )
-            .scaleEffect(clearFocused ? 1.05 : 1.0)
+            .focusResponse(.chip, isFocused: clearFocused)
             .focusable()
             .focused($clearFocused)
             .stableTap(isFocused: clearFocused) {

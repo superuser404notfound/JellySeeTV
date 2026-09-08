@@ -591,10 +591,8 @@ struct SettingsTileButtonStyle: ButtonStyle {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(active ? 1 : 0)
             )
-            .scaleEffect(active ? 1.03 : 1.0)
-            .shadow(color: .black.opacity(active ? 0.3 : 0), radius: 15, y: 8)
+            .focusResponse(.tile, isFocused: active)
             .opacity(isEnabled ? 1.0 : 0.4)
-            .animation(.easeInOut(duration: 0.2), value: active)
     }
 
     private func fill(active: Bool) -> AnyShapeStyle {
@@ -635,9 +633,7 @@ struct GhostTileButtonStyle: ButtonStyle {
                     .strokeBorder(.tint, lineWidth: 3)
                     .opacity(active ? 1 : 0)
             )
-            .scaleEffect(active ? 1.03 : 1.0)
-            .shadow(color: .black.opacity(active ? 0.3 : 0), radius: 15, y: 8)
+            .focusResponse(.tile, isFocused: active)
             .opacity(isEnabled ? 1.0 : 0.4)
-            .animation(.easeInOut(duration: 0.2), value: active)
     }
 }

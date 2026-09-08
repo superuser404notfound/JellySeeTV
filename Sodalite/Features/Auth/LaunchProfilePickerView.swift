@@ -561,9 +561,7 @@ struct RememberedProfileCard: View {
                     .offset(x: 4, y: 4)
             }
         }
-        .scaleEffect(isFocused ? 1.05 : 1.0)
-        .shadow(color: .black.opacity(isFocused ? 0.4 : 0), radius: 20, y: 10)
-        .animation(.easeInOut(duration: 0.15), value: isFocused)
+        .focusResponse(.card, isFocused: isFocused)
     }
 
     private var initialsCircle: some View {

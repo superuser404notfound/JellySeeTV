@@ -250,11 +250,10 @@ private struct FilterChip: View {
             Capsule().strokeBorder(.tint, lineWidth: 3)
                 .opacity(focused ? 1 : 0)
         )
-        .scaleEffect(focused ? 1.06 : 1.0)
+        .focusResponse(.chip, isFocused: focused)
         .focusable(true)
         .focused($focused)
         .stableTap(isFocused: focused) { action() }
-        .animation(.easeInOut(duration: 0.15), value: focused)
         .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
 }

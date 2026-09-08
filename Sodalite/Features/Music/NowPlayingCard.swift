@@ -56,6 +56,8 @@ struct NowPlayingCard: View {
                 .strokeBorder(.tint, lineWidth: 3)
                 .opacity(cardFocused ? 1 : 0)
         )
+        // Not a `FocusResponse` role: the cover casts a RESTING shadow that focus deepens, where
+        // every role here goes from no shadow to one. Its 1.01 is the album art's own step (#130).
         .scaleEffect(cardFocused ? 1.01 : 1.0)
         .shadow(color: .black.opacity(cardFocused ? 0.35 : 0.15), radius: 18, y: 6)
         .focusable(true)
