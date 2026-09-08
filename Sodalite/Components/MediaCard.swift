@@ -5,19 +5,6 @@ enum MediaCardStyle: Sendable {
     case landscape // Horizontal 16:9 (episodes, continue watching)
     case square    // 1:1 (album / music covers)
 
-    /// Which cards carry a resume bar. The episode card always does: it shows the thing being
-    /// watched, so progress belongs on it. A poster is a title, and on a Favourites row, where most
-    /// series are partly watched, a capsule under every one of them is noise with nothing to resume,
-    /// so it is opt-in and off by default (Sodalite#136). The square album card is a container and
-    /// has no resume point at all, which is where #99's stated album exclusion finally lands: its
-    /// `style != .square` guard had gone to the badge overlay instead of to the bar (Sodalite#135).
-    func showsResumeProgress(posterProgressEnabled: Bool) -> Bool {
-        switch self {
-        case .landscape: true
-        case .poster: posterProgressEnabled
-        case .square: false
-        }
-    }
 }
 
 struct MediaCard: View {
@@ -178,12 +165,13 @@ struct MediaCard: View {
     /// nil means this card shows no progress at all, which is both the bar and what VoiceOver
     /// reads: one source, so the spoken description cannot describe something that is not drawn.
     private var resumeFraction: Double? {
-        guard style.showsResumeProgress(
-            posterProgressEnabled: dependencies.appearancePreferences.showPosterProgress
-        ) else { return nil }
-        return ResumeIndicator.fraction(playedPercentage: item.userData?.playedPercentage,
-                                        isPlayed: item.userData?.played == true,
-                                        playbackPositionTicks: item.userData?.playbackPositionTicks)
+        ResumeIndicator.cardFraction(
+            style: style,
+            posterProgressEnabled: dependencies.appearancePreferences.showPosterProgress,
+            playedPercentage: item.userData?.playedPercentage,
+            isPlayed: item.userData?.played == true,
+            playbackPositionTicks: item.userData?.playbackPositionTicks
+        )
     }
 
     /// Progress was purely visual before this, VoiceOver got nothing from the bar at all. Composed
