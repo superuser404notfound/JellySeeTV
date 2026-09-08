@@ -175,9 +175,15 @@ private struct ProgramCard: View {
     let imageURL: URL?
     let isFocused: Bool
 
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
-    private var cardWidth: CGFloat { LayoutMetrics.current(hSizeClass).landscapeSize.width }
-    private var cardHeight: CGFloat { LayoutMetrics.current(hSizeClass).landscapeSize.height }
+    // Same 16:9 family as the genre, provider and library tiles, Large Cards included.
+    private var card: CGSize {
+        LayoutMetrics.current(hSizeClass)
+            .tileSize(cardScale: dependencies.appearancePreferences.cardScale)
+    }
+    private var cardWidth: CGFloat { card.width }
+    private var cardHeight: CGFloat { card.height }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
