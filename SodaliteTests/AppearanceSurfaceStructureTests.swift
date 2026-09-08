@@ -3,6 +3,16 @@ import Testing
 
 @Suite("Appearance surface structure")
 struct AppearanceSurfaceStructureTests {
+    @Test("Graphite Glass carries its own opaque base on tvOS")
+    func graphiteIsOpaqueOnItsOwn() throws {
+        let source = try sourceFile("Sodalite/Extensions/GlassBackground.swift")
+        let body = declaration(named: "GraphiteGlassBackground", in: source)
+
+        // Without a base the material's tone is decided by whatever sits behind the surface, which
+        // is a different thing on the tab shell than on a plated cover.
+        #expect(body?.contains("Color.Theme.surfaceElevated") == true)
+    }
+
     @Test("every themed surface floors its background on an opaque plate")
     func themedSurfacesFloorTheirBackground() throws {
         let source = try sourceFile("Sodalite/Extensions/GlassBackground.swift")

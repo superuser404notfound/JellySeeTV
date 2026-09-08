@@ -14,9 +14,15 @@ struct GraphiteGlassBackground: View {
             }
             .ignoresSafeArea()
         #else
-        Rectangle()
-            .fill(.regularMaterial)
-            .ignoresSafeArea()
+        // Graphite is the only theme that is not opaque on its own, so its tone used to come from
+        // whatever each surface happened to leave behind it: the system backdrop on the tab shell,
+        // an isolation plate on covers and sheets. Measured on the Apple TV, that was modal
+        // luminance 41 against 4. The base makes it one tone everywhere (Sodalite#131).
+        ZStack {
+            Color.Theme.surfaceElevated
+            Rectangle().fill(.regularMaterial)
+        }
+        .ignoresSafeArea()
         #endif
     }
 }
