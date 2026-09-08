@@ -314,8 +314,8 @@ extension HomeViewModel {
             // returns nil for empty genres, so drop those instead of rendering dead tiles.
             let cardData: [TagCardData] = tags.compactMap { tag in
                 guard let item = itemMap[tag.id].flatMap({ $0 }) else { return nil }
-                // Genre/tag tile is ~320pt (~640px @2x); avoid the 1920 backdrop default.
-                let backdropURL = imageService.backdropURL(for: item, maxWidth: 640) ?? imageService.posterURL(for: item)
+                let backdropURL = imageService.backdropURL(for: item, maxWidth: ImageWidth.wideCard)
+                    ?? imageService.posterURL(for: item, maxWidth: ImageWidth.wideCard)
                 return TagCardData(id: tag.id, name: tag.name, backdropURL: backdropURL)
             }
 

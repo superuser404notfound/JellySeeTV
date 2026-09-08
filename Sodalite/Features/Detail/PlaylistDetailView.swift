@@ -235,7 +235,7 @@ struct PlaylistDetailView: View {
                 ForEach(Array(videoItems(vm).enumerated()), id: \.element.id) { index, media in
                     CollectionItemRow(
                         item: media,
-                        imageURL: dependencies.jellyfinImageService.posterURL(for: media),
+                        imageURL: dependencies.jellyfinImageService.posterURL(for: media, maxWidth: ImageWidth.thumbnail),
                         onSelect: { selectedItem = media }
                     )
                     .focused($focusedItemID, equals: media.id)

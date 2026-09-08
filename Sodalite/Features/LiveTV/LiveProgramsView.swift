@@ -70,7 +70,7 @@ struct LiveProgramsView: View {
                                     imageURLProvider: { program in
                                         dependencies.jellyfinImageService.imageURL(
                                             itemID: program.id, imageType: .primary,
-                                            tag: program.primaryImageTag, maxWidth: 360)
+                                            tag: program.primaryImageTag, maxWidth: ImageWidth.wideCard)
                                     },
                                     onSelect: { program in
                                         guard let channel = model.channel(

@@ -254,7 +254,7 @@ struct CollectionDetailView: View {
                 ForEach(Array(vm.collectionItems.enumerated()), id: \.element.id) { index, movie in
                     CollectionItemRow(
                         item: movie,
-                        imageURL: dependencies.jellyfinImageService.posterURL(for: movie),
+                        imageURL: dependencies.jellyfinImageService.posterURL(for: movie, maxWidth: ImageWidth.thumbnail),
                         onSelect: { selectedItem = movie }
                     )
                     .focused($focusedItemID, equals: movie.id)

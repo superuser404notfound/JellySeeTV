@@ -275,7 +275,7 @@ private struct NowPlayingContent: View {
 
     private var backgroundArt: some View {
         let coverURL = coordinator.currentItem.flatMap {
-            dependencies.jellyfinImageService.musicCoverURL(for: $0, maxWidth: 400)
+            dependencies.jellyfinImageService.musicCoverURL(for: $0, maxWidth: ImageWidth.cover)
         }
 
         return AsyncCachedImage(url: coverURL) { image in
@@ -297,7 +297,7 @@ private struct NowPlayingContent: View {
 
     private var albumCover: some View {
         let coverURL = coordinator.currentItem.flatMap {
-            dependencies.jellyfinImageService.musicCoverURL(for: $0, maxWidth: 600)
+            dependencies.jellyfinImageService.musicCoverURL(for: $0, maxWidth: ImageWidth.cover)
         }
 
         return AsyncCachedImage(url: coverURL) { image in

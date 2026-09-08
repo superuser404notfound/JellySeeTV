@@ -14,12 +14,12 @@ private let log = Logger(subsystem: "de.superuser404.Sodalite.TopShelf", categor
 /// rendered before any of this existed.
 enum ResumeBarArtwork {
 
-    /// Decode cap. `JellyfinItem.imageURL` asks the server for 1280px because a sectioned `.hdtv`
-    /// cell is around 820px at 2x plus focus zoom, and decoding at 640 handed the shelf an image
-    /// it had to upscale, which is what made a burned-in cell visibly softer than its remote
-    /// neighbour. 1024 covers the zoomed cell at roughly 2.4MB a bitmap instead of the ~3.7MB
-    /// full-size decode that trips "-17102 decompressing image" when several cells decode at once.
-    private static let maxPixelSize = 1024
+    /// Decode cap. Below what `JellyfinItem.imageURL` downloads because the bitmap is what costs
+    /// memory here: decoding at 640 handed the shelf an image it had to upscale, which is what made
+    /// a burned-in cell visibly softer than its remote neighbour, while the full-size decode is
+    /// ~3.7MB a bitmap and trips "-17102 decompressing image" when several cells decode at once.
+    /// 1024 covers the zoomed cell at roughly 2.4MB.
+    private static let maxPixelSize = ImageWidth.topShelfDecode
 
     /// Both queries ask for ten items, so this is the shelf at its fullest. Past it a pass cannot
     /// promise a uniform shelf inside its budget, so it does not start one.

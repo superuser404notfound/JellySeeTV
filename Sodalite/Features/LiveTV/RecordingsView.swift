@@ -96,7 +96,7 @@ struct RecordingsView: View {
                         item: item,
                         imageURL: imageService.imageURL(
                             itemID: item.id, imageType: .primary,
-                            tag: item.imageTags?.primary, maxWidth: 600),
+                            tag: item.imageTags?.primary, maxWidth: ImageWidth.wideCard),
                         isInProgress: model.isInProgress(item),
                         tint: tint,
                         onPlay: {

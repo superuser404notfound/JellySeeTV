@@ -23,7 +23,7 @@ struct LibraryArtworkURLTests {
         let url = try #require(service.libraryArtworkURL(for: library(primary: "p1")))
         #expect(url.path == "/Items/lib1/Images/Primary")
         #expect(url.query?.contains("tag=p1") == true)
-        #expect(url.query?.contains("maxWidth=720") == true)
+        #expect(url.query?.contains("maxWidth=\(ImageWidth.wideCard)") == true)
     }
 
     @Test("Primary wins over Thumb when the library carries both")

@@ -143,7 +143,7 @@ extension MusicPlaybackCoordinator {
 
         if cachedArtworkItemID == itemID, cachedArtwork != nil { return }
 
-        guard let url = imageService.musicCoverURL(for: item, maxWidth: 600) else { return }
+        guard let url = imageService.musicCoverURL(for: item, maxWidth: ImageWidth.cover) else { return }
 
         Task { [weak self] in
             // A half-written resize decodes into a half-drawn cover rather than into a failure, and

@@ -162,7 +162,7 @@ struct WatchStatsView: View {
                 ForEach(items) { item in
                     CollectionItemRow(
                         item: item,
-                        imageURL: vm.imageService.posterURL(for: item),
+                        imageURL: vm.imageService.posterURL(for: item, maxWidth: ImageWidth.thumbnail),
                         onSelect: { selectedItem = item }
                     )
                 }

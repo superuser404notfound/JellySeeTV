@@ -183,7 +183,10 @@ struct PersonDetailView: View {
                 title: "person.library.episodes",
                 items: library.episodes,
                 imageURLProvider: { dependencies.jellyfinImageService.episodeThumbnailURL(for: $0) },
-                fallbackURLProvider: { dependencies.jellyfinImageService.parentBackdropURL(for: $0) },
+                fallbackURLProvider: {
+                    dependencies.jellyfinImageService.parentBackdropURL(
+                        for: $0, maxWidth: ImageWidth.wideCard)
+                },
                 onItemSelected: { navigateToJellyfinItem = $0 },
                 cardStyle: .landscape,
                 inset: contentInset
@@ -265,15 +268,15 @@ struct PersonDetailView: View {
         profile?.name ?? (personName.isEmpty ? " " : personName)
     }
 
-    /// TMDB portrait when Seerr supplied the profile, else Jellyfin's own person image. The hero
-    /// needs 400px+ on every tier (140pt at 3x on a phone, 200pt at 2x on a 4K TV).
+    /// TMDB portrait when Seerr supplied the profile, else Jellyfin's own person image. The 140pt
+    /// phone hero at 3x is the widest of the tiers, which is what `ImageWidth.avatar` is cut to.
     private func photoURL(_ profile: PersonProfile?) -> URL? {
         if let path = profile?.tmdbProfilePath {
             return SeerrImageURL.profile(path: path, size: .h632)
         }
         guard let id = profile?.jellyfinPersonID else { return nil }
         return dependencies.jellyfinImageService.personImageURL(
-            personID: id, tag: profile?.jellyfinImageTag, maxWidth: 400
+            personID: id, tag: profile?.jellyfinImageTag, maxWidth: ImageWidth.avatar
         )
     }
 
