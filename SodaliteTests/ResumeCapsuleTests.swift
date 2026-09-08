@@ -113,12 +113,39 @@ struct ResumeCapsuleTests {
                                          playbackPositionTicks: series.userData?.playbackPositionTicks) == nil)
     }
 
-    /// Vincent's call, 2026-09-08: the bar belongs to the episode card and to nothing else. A
-    /// partly-watched MOVIE poster in a grid is covered by this too, not just a container.
-    @Test func onlyTheEpisodeCardCarriesProgress() {
-        #expect(MediaCardStyle.landscape.showsResumeProgress)
-        #expect(!MediaCardStyle.poster.showsResumeProgress)
-        #expect(!MediaCardStyle.square.showsResumeProgress)
+    /// A series: a percentage that counts episodes watched, and no playback position behind it.
+    private func card(_ style: MediaCardStyle, posterProgress: Bool,
+                      percentage: Double? = 85, played: Bool = false, position: Int64? = nil) -> Double? {
+        ResumeIndicator.cardFraction(style: style, posterProgressEnabled: posterProgress,
+                                     playedPercentage: percentage, isPlayed: played,
+                                     playbackPositionTicks: position)
+    }
+
+    /// The episode card asks for a resume POINT and is unaffected by the poster setting.
+    @Test func theEpisodeCardNeedsARealResumePoint() {
+        #expect(card(.landscape, posterProgress: false, position: 420) == 0.85)
+        #expect(card(.landscape, posterProgress: true, position: 420) == 0.85)
+        #expect(card(.landscape, posterProgress: true, position: nil) == nil)
+    }
+
+    /// The defect the first cut of #136 shipped: with the setting ON, a series poster still drew
+    /// nothing, because the container gate sat underneath it and a series has no
+    /// `playbackPositionTicks`. That left the switch inert on a Favourites row, which is all series,
+    /// so it was inert on exactly the rows it was asked for.
+    @Test func thePosterShowsAContainerShareWhenAskedTo() {
+        #expect(card(.poster, posterProgress: true) == 0.85)
+        #expect(card(.poster, posterProgress: false) == nil)
+    }
+
+    @Test func aWatchedItemStillDrawsNothingOnEitherCard() {
+        #expect(card(.poster, posterProgress: true, percentage: 100, played: true) == nil)
+        #expect(card(.landscape, posterProgress: true, percentage: 100, played: true, position: 999) == nil)
+    }
+
+    /// The album card answers neither question, having no per-item progress of its own (#135).
+    @Test func theAlbumCardNeverCarriesProgress() {
+        #expect(card(.square, posterProgress: false, position: 420) == nil)
+        #expect(card(.square, posterProgress: true, position: 420) == nil)
     }
 
     @Test func aStartedItemDrawsItsShare() {

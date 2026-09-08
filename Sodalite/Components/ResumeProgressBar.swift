@@ -27,6 +27,40 @@ enum ResumeIndicator {
         else { return nil }
         return min(playedPercentage / 100, 1)
     }
+
+    /// How far through an item a viewer is, counting a container's children. This is the pre-#135
+    /// rule, kept because it is the honest answer to a different question: "how much of this series
+    /// have I seen" has no resume point behind it and is still a real number.
+    static func watchedShare(playedPercentage: Double?, isPlayed: Bool) -> Double? {
+        guard !isPlayed, let playedPercentage, playedPercentage > 0 else { return nil }
+        return min(playedPercentage / 100, 1)
+    }
+
+    /// The whole card rule in one place, so it can be read and tested without a view.
+    ///
+    /// The episode card asks for a resume POINT: it shows the thing being watched, and a capsule
+    /// there means "you stopped here". The poster asks a different question, and only when the
+    /// viewer opted in (Sodalite#136): "how far through this am I", which for a series is the share
+    /// of its episodes seen and has no playback position behind it. Requiring one there left the
+    /// switch inert on exactly the rows it was asked for, since a Favourites row is series. The
+    /// album card answers neither question, having no per-item progress of its own at all.
+    static func cardFraction(style: MediaCardStyle,
+                             posterProgressEnabled: Bool,
+                             playedPercentage: Double?,
+                             isPlayed: Bool,
+                             playbackPositionTicks: Int64?) -> Double? {
+        switch style {
+        case .square:
+            return nil
+        case .landscape:
+            return fraction(playedPercentage: playedPercentage,
+                            isPlayed: isPlayed,
+                            playbackPositionTicks: playbackPositionTicks)
+        case .poster:
+            guard posterProgressEnabled else { return nil }
+            return watchedShare(playedPercentage: playedPercentage, isPlayed: isPlayed)
+        }
+    }
 }
 
 /// Resume indicator on card artwork: an inset capsule with the remaining time beside it, in one row

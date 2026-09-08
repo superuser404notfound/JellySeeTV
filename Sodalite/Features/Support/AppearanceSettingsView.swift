@@ -82,6 +82,18 @@ struct AppearanceSettingsView: View {
                                set: { appearance.largeCards = $0 })
             )
 
+            // Sodalite#136. Off by default: a poster is a title rather than the thing being
+            // watched, and on a Favourites row, where most series are partly watched, a capsule
+            // under every one of them is noise with nothing to resume. The episode card is not
+            // affected, it always draws progress.
+            boolRow(
+                icon: "rectangle.bottomthird.inset.filled",
+                title: "settings.appearance.posterProgress",
+                subtitle: "settings.appearance.posterProgress.subtitle",
+                value: Binding(get: { appearance.showPosterProgress },
+                               set: { appearance.showPosterProgress = $0 })
+            )
+
             // Sodalite#79. Off by default: the resolution pill is free, but filling in the picture
             // and sound pills costs a MediaStreams round trip per row.
             boolRow(

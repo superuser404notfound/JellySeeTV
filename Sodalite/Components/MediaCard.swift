@@ -5,13 +5,6 @@ enum MediaCardStyle: Sendable {
     case landscape // Horizontal 16:9 (episodes, continue watching)
     case square    // 1:1 (album / music covers)
 
-    /// Only the episode card carries a resume bar. A poster is a title, and how far into it a viewer
-    /// is belongs on the surface showing the thing being watched, not on the shelf label for it: on
-    /// a Favourites row, where most series are partly watched, a capsule under every poster is noise
-    /// with nothing to resume. The square album card is a container and never had a resume point at
-    /// all, which is where #99's stated album exclusion finally lands: its `style != .square` guard
-    /// had gone to the badge overlay instead of to the bar (Sodalite#135).
-    var showsResumeProgress: Bool { self == .landscape }
 }
 
 struct MediaCard: View {
@@ -172,10 +165,13 @@ struct MediaCard: View {
     /// nil means this card shows no progress at all, which is both the bar and what VoiceOver
     /// reads: one source, so the spoken description cannot describe something that is not drawn.
     private var resumeFraction: Double? {
-        guard style.showsResumeProgress else { return nil }
-        return ResumeIndicator.fraction(playedPercentage: item.userData?.playedPercentage,
-                                        isPlayed: item.userData?.played == true,
-                                        playbackPositionTicks: item.userData?.playbackPositionTicks)
+        ResumeIndicator.cardFraction(
+            style: style,
+            posterProgressEnabled: dependencies.appearancePreferences.showPosterProgress,
+            playedPercentage: item.userData?.playedPercentage,
+            isPlayed: item.userData?.played == true,
+            playbackPositionTicks: item.userData?.playbackPositionTicks
+        )
     }
 
     /// Progress was purely visual before this, VoiceOver got nothing from the bar at all. Composed
