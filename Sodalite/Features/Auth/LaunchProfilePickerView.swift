@@ -115,7 +115,7 @@ struct LaunchProfilePickerView: View {
             .onReceive(NotificationCenter.default.publisher(for: .loginDidComplete)) { _ in
                 if context != .launch { onFinished?() }
             }
-            .sheet(isPresented: $showServerSwitchSheet) {
+            .menuPresentation(isPresented: $showServerSwitchSheet, panel: .plain) {
                 ServerSwitchSheet(
                     onAddServer: {
                         showAddServerFlow = true

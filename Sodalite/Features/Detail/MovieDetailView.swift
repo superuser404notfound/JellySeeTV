@@ -129,7 +129,7 @@ struct MovieDetailView: View {
             didAutoPlay = true
             requestPlay(fromBeginning: false, vm: vm)
         }
-        .sheet(item: $versionChoice, onDismiss: {
+        .menuPresentation(item: $versionChoice, onDismiss: {
             if didPickVersion {
                 didPickVersion = false
                 // The detail view is itself a fullScreenCover (9ac00b32), so the version-picker sheet and
@@ -236,7 +236,7 @@ struct MovieDetailView: View {
             // Open the animation gate once the cover's present transition has settled.
             deferOnMain(by: 0.35) { didSettleIn = true }
         }
-        .sheet(isPresented: $isPresentingDeleteSheet) {
+        .menuPresentation(isPresented: $isPresentingDeleteSheet, panel: .plain) {
             if let vm = viewModel {
                 let popDetail = dismiss
                 MediaDeletionSheet(

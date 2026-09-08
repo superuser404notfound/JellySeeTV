@@ -89,6 +89,9 @@ struct CertificateTrustSheet: View {
         .padding(40)
         .frame(maxWidth: 620)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // tvOS gets its card from the menu cover; this fill would hide it.
+        #if os(iOS)
         .background(Color.Theme.surface)
+        #endif
     }
 }

@@ -24,7 +24,7 @@ struct DiagnosticLogLink: View {
                 .padding(.vertical, 10)
         }
         .buttonStyle(SettingsTileButtonStyle())
-        .sheet(isPresented: $isPresented) {
+        .menuPresentation(isPresented: $isPresented, panel: .plain) {
             // The log dismisses itself: Menu on tvOS through its own onExitCommandCompat, the
             // gesture on iOS.
             DiagnosticLogView()

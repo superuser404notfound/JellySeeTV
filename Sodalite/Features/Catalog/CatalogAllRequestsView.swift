@@ -69,7 +69,7 @@ struct CatalogAllRequestsView: View {
                 viewModel.title(for: request) ?? "#\(request.id)"
             ))
         }
-        .sheet(item: $requestBeingEdited) { request in
+        .menuPresentation(item: $requestBeingEdited, panel: .plain) { request in
             SeerrRequestEditSheet(request: request, viewModel: viewModel)
         }
         .onChange(of: viewModel.lastAdminRequestOutcome) { _, outcome in
