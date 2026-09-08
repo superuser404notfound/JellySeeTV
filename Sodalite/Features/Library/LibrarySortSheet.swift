@@ -32,7 +32,10 @@ struct LibrarySortSheet: View {
         }
         .padding(isCompact ? 24 : 80)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // tvOS gets its card from the menu cover; a second material here would stack two.
+        #if os(iOS)
         .background(.thinMaterial)
+        #endif
         .onAppear { focusedKey = selection.key }
         #if os(iOS)
         .presentationDetents([.medium, .large])
