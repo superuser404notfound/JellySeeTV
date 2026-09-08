@@ -90,17 +90,32 @@ struct ResumeCapsuleTests {
         #expect(item.userData?.played == true)
         #expect(item.userData?.playedPercentage == 100)
         #expect(ResumeIndicator.fraction(playedPercentage: item.userData?.playedPercentage,
-                                         isPlayed: item.userData?.played == true) == nil)
+                                         isPlayed: item.userData?.played == true,
+                                         playbackPositionTicks: item.userData?.playbackPositionTicks) == nil)
     }
 
     @Test func anUntouchedItemDrawsNothing() {
-        #expect(ResumeIndicator.fraction(playedPercentage: nil, isPlayed: false) == nil)
-        #expect(ResumeIndicator.fraction(playedPercentage: 0, isPlayed: false) == nil)
+        #expect(ResumeIndicator.fraction(playedPercentage: nil, isPlayed: false, playbackPositionTicks: 5) == nil)
+        #expect(ResumeIndicator.fraction(playedPercentage: 0, isPlayed: false, playbackPositionTicks: 5) == nil)
+    }
+
+    /// A container carries a percentage that counts its CHILDREN, never a resume position, and the
+    /// bar means "you are partway through this one thing". Drawing it on a series poster advertises
+    /// a resume point that does not exist: #99 said as much when it excluded music albums on exactly
+    /// this ground, but the exclusion never reached the code, so every favourited series wore a
+    /// capsule for the share of its episodes watched (Sodalite#135).
+    @Test func aContainerDrawsNothing() throws {
+        let series = try decodeItem(#"{"Id":"s","Name":"S","Type":"Series","UserData":{"PlayedPercentage":85,"Played":false}}"#)
+        #expect(series.userData?.playedPercentage == 85)
+        #expect(series.userData?.playbackPositionTicks == nil)
+        #expect(ResumeIndicator.fraction(playedPercentage: series.userData?.playedPercentage,
+                                         isPlayed: series.userData?.played == true,
+                                         playbackPositionTicks: series.userData?.playbackPositionTicks) == nil)
     }
 
     @Test func aStartedItemDrawsItsShare() {
-        #expect(ResumeIndicator.fraction(playedPercentage: 42, isPlayed: false) == 0.42)
-        #expect(ResumeIndicator.fraction(playedPercentage: 140, isPlayed: false) == 1)
+        #expect(ResumeIndicator.fraction(playedPercentage: 42, isPlayed: false, playbackPositionTicks: 420) == 0.42)
+        #expect(ResumeIndicator.fraction(playedPercentage: 140, isPlayed: false, playbackPositionTicks: 999) == 1)
     }
 
     // MARK: - The label

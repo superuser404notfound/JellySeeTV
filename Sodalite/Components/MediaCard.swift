@@ -163,7 +163,8 @@ struct MediaCard: View {
 
     private var resumeFraction: Double? {
         ResumeIndicator.fraction(playedPercentage: item.userData?.playedPercentage,
-                                 isPlayed: item.userData?.played == true)
+                                 isPlayed: item.userData?.played == true,
+                                 playbackPositionTicks: item.userData?.playbackPositionTicks)
     }
 
     /// Progress was purely visual before this, VoiceOver got nothing from the bar at all. Composed

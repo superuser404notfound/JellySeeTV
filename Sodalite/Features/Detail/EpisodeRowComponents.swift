@@ -186,7 +186,8 @@ struct EpisodeLandscapeCard: View {
                 )
 
                 if let fraction = ResumeIndicator.fraction(playedPercentage: episode.userData?.playedPercentage,
-                                                           isPlayed: isPlayed) {
+                                                           isPlayed: isPlayed,
+                                                           playbackPositionTicks: episode.userData?.playbackPositionTicks) {
                     ResumeProgressBar(fraction: fraction,
                                       remaining: remainingLabel,
                                       posterWidth: LayoutMetrics.current(hSizeClass).posterSize.width)
