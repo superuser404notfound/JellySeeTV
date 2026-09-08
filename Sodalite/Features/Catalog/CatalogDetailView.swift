@@ -602,7 +602,10 @@ struct CatalogDetailView: View {
                     Spacer()
                 }
                 // Reserve the height the card row will actually take, so the swap from spinner to cards doesn't jump.
-                .frame(height: hSizeClass == .compact ? metrics.landscapeSize.height + 58 : 220)
+                .frame(height: SeerrEpisodeCard.size(
+                    compact: hSizeClass == .compact,
+                    cardScale: dependencies.appearancePreferences.cardScale
+                ).height + (hSizeClass == .compact ? 58 : 40))
                 .padding(.horizontal, 20)
             } else if let episodes, !episodes.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {

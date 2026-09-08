@@ -83,6 +83,23 @@ struct LayoutMetricsTests {
         }
     }
 
+    /// The catalog's episode card keeps its own tuned tvOS size rather than the browse landscape
+    /// tier, and that tuning has to survive the setting: it scales, it does not get replaced.
+    @Test func theCatalogEpisodeCardScalesItsTunedSize() {
+        for compact in [true, false] {
+            let base = SeerrEpisodeCard.size(compact: compact, cardScale: 1)
+            for scale in [AppearancePreferences.largeCardScale, 1.5] as [CGFloat] {
+                let scaled = SeerrEpisodeCard.size(compact: compact, cardScale: scale)
+                #expect(scaled.width == base.width * scale)
+                #expect(scaled.height == base.height * scale)
+            }
+        }
+        #if os(tvOS)
+        #expect(SeerrEpisodeCard.size(compact: false, cardScale: 1) == CGSize(width: 320, height: 180))
+        #expect(SeerrEpisodeCard.size(compact: false, cardScale: 1).width < LayoutMetrics.tv.landscapeSize.width)
+        #endif
+    }
+
     @Test func profileCardTiers() {
         #expect(LayoutMetrics.tv.profileCardSize == CGSize(width: 180, height: 180))
         #expect(LayoutMetrics.regular.profileCardSize == CGSize(width: 160, height: 160))
