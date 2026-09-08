@@ -94,7 +94,13 @@ private struct ThemedStaticBackgroundModifier: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
         let renderedContent = content.background {
-            AppBackgroundView(theme: theme, mode: .static)
+            // The same plate the isolated surfaces carry. Graphite Glass is a material and a tvOS
+            // fullScreenCover keeps its presenter composited, so without this a backdrop-less page
+            // samples the screen it was opened from.
+            ZStack {
+                Color.black.ignoresSafeArea()
+                AppBackgroundView(theme: theme, mode: .static)
+            }
         }
 
         if pausesMotion {

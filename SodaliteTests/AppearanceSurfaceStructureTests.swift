@@ -3,6 +3,29 @@ import Testing
 
 @Suite("Appearance surface structure")
 struct AppearanceSurfaceStructureTests {
+    @Test("every themed surface floors its background on an opaque plate")
+    func themedSurfacesFloorTheirBackground() throws {
+        let source = try sourceFile("Sodalite/Extensions/GlassBackground.swift")
+        let plate = "Color.black.ignoresSafeArea()"
+
+        // Graphite Glass is a material, and a tvOS fullScreenCover keeps the presenter composited
+        // behind the cover (measured), so the plate is what makes a surface opaque, not the
+        // presentation style. Asserted per surface: a plate in a neighbouring declaration must not
+        // satisfy this.
+        #expect(declaration(named: "IsolatedThemedSurface", in: source)?.contains(plate) == true)
+        #expect(
+            declaration(named: "ThemedStaticBackgroundModifier", in: source)?
+                .contains(plate) == true
+        )
+
+        for modifier in ["ThemedRootBackgroundModifier", "ThemedPresentationBackgroundModifier"] {
+            #expect(
+                declaration(named: modifier, in: source)?
+                    .contains("IsolatedThemedSurface(") == true
+            )
+        }
+    }
+
     @Test("presentation surface isolates content and increments depth")
     func presentationSurfacePrimitive() throws {
         let source = try sourceFile("Sodalite/Extensions/GlassBackground.swift")
@@ -167,6 +190,14 @@ struct AppearanceSurfaceStructureTests {
         #expect(try sourceFile(
             "Sodalite/Features/Settings/ParentalControls/PINRecoveryView.swift"
         ).contains("Color.black.opacity(0.95).ignoresSafeArea()"))
+    }
+
+    /// One top-level declaration, so a per-surface assertion cannot be satisfied by a neighbour.
+    private func declaration(named name: String, in source: String) -> String? {
+        source
+            .components(separatedBy: "\nstruct ")
+            .flatMap { $0.components(separatedBy: "\nprivate struct ") }
+            .first { $0.hasPrefix(name) }
     }
 
     private func sourceFile(_ relativePath: String) throws -> String {
