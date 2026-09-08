@@ -4,13 +4,27 @@ import SwiftUI
 /// for the shelf, because the two used to hold their own copies of it and only one of them read the
 /// live watched state.
 enum ResumeIndicator {
-    /// nil means "draw nothing". A finished item is the case that changed in Sodalite#99: the gate
-    /// used to be `playedPercentage > 0` alone, so an item watched to the end wore a full bar under
-    /// the watched check, one state drawn twice. Past the server's resume threshold
-    /// `setResumePosition` writes 100 percent and `played` together, so both marks appeared the
-    /// moment playback stopped, without a refetch to blame.
-    static func fraction(playedPercentage: Double?, isPlayed: Bool) -> Double? {
-        guard !isPlayed, let playedPercentage, playedPercentage > 0 else { return nil }
+    /// nil means "draw nothing". Two cases earn that.
+    ///
+    /// A finished item, the case that changed in Sodalite#99: the gate used to be
+    /// `playedPercentage > 0` alone, so an item watched to the end wore a full bar under the watched
+    /// check, one state drawn twice. Past the server's resume threshold `setResumePosition` writes
+    /// 100 percent and `played` together, so both marks appeared the moment playback stopped,
+    /// without a refetch to blame.
+    ///
+    /// A CONTAINER, the case that changed in Sodalite#135. The bar says "you are partway through
+    /// this one thing", and a series, box set, album or playlist has no such point: its
+    /// `playedPercentage` counts CHILDREN watched. Reading it as progress put a capsule under every
+    /// favourited series for the share of its episodes seen, which looks like a resume point and is
+    /// not one. `playbackPositionTicks` is what separates the two, and it is the same gate
+    /// ``JellyfinItem/resumeRemainingTicks`` already applies to the label beside the bar. That the
+    /// label was honest while the bar was not is why this survived: a series simply drew the capsule
+    /// alone, which reads as deliberate.
+    static func fraction(playedPercentage: Double?, isPlayed: Bool, playbackPositionTicks: Int64?) -> Double? {
+        guard !isPlayed,
+              let playbackPositionTicks, playbackPositionTicks > 0,
+              let playedPercentage, playedPercentage > 0
+        else { return nil }
         return min(playedPercentage / 100, 1)
     }
 }
