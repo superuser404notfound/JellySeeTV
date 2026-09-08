@@ -47,7 +47,7 @@ struct ServerDiscoveryView: View {
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .sheet(item: Binding(
+            .menuPresentation(item: Binding(
                 get: { viewModel?.pendingTrust },
                 set: { viewModel?.pendingTrust = $0 }
             )) { pending in

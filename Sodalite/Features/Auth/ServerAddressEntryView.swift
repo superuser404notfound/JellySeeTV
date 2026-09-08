@@ -72,7 +72,7 @@ struct ServerAddressEntryView: View {
                     }
                 }
                 .frame(maxWidth: 500)
-                .sheet(item: Bindable(vm).pendingTrust) { pending in
+                .menuPresentation(item: Bindable(vm).pendingTrust) { pending in
                     CertificateTrustSheet(
                         pending: pending,
                         serverAddress: vm.serverAddress,

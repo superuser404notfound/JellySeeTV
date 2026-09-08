@@ -326,7 +326,7 @@ struct SeriesDetailView: View {
             maybeAutoPlay()
             maybePendingPlay()
         }
-        .sheet(item: $versionChoice, onDismiss: {
+        .menuPresentation(item: $versionChoice, onDismiss: {
             if didPickVersion {
                 didPickVersion = false
                 // The detail view is itself a fullScreenCover (9ac00b32), so the version-picker sheet and
@@ -496,7 +496,7 @@ struct SeriesDetailView: View {
                 settledEpisodeDetailIDs.insert(episode.id)
             }
         }
-        .sheet(isPresented: $isPresentingDeleteSheet) {
+        .menuPresentation(isPresented: $isPresentingDeleteSheet, panel: .plain) {
             if let vm = viewModel {
                 let popDetail = dismiss
                 MediaDeletionSheet(
