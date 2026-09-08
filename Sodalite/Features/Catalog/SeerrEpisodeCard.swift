@@ -5,16 +5,28 @@ struct SeerrEpisodeCard: View {
     let episode: SeerrEpisode
     let isFocused: Bool
 
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
 
     /// Same landscape tier the Jellyfin series detail's EpisodeCard uses, so both episode rows match on a phone.
     /// tvOS keeps its tuned catalog size rather than inheriting the (larger) browse landscape tier.
-    private var cardSize: CGSize {
+    ///
+    /// Static because `CatalogDetailView` reserves this row's height while the season loads, and a
+    /// reservation computed from a second copy of these numbers is one that drifts.
+    static func size(compact: Bool, cardScale: CGFloat) -> CGSize {
         #if os(tvOS)
-        CGSize(width: 320, height: 180)
+        let base = CGSize(width: 320, height: 180)
         #else
-        LayoutMetrics.current(hSizeClass).landscapeSize
+        let base = LayoutMetrics.metrics(compact: compact, isTV: false).landscapeSize
         #endif
+        return CGSize(width: base.width * cardScale, height: base.height * cardScale)
+    }
+
+    private var cardSize: CGSize {
+        Self.size(
+            compact: hSizeClass == .compact,
+            cardScale: dependencies.appearancePreferences.cardScale
+        )
     }
     private var width: CGFloat { cardSize.width }
     private var imageHeight: CGFloat { cardSize.height }
@@ -33,7 +45,7 @@ struct SeerrEpisodeCard: View {
                 Color.Theme.surface
                     .frame(width: width, height: imageHeight)
 
-                if let url = SeerrImageURL.backdrop(path: episode.stillPath, size: .w780) {
+                if let url = SeerrImageURL.backdrop(path: episode.stillPath, size: .covering(ImageWidth.wideCard)) {
                     AsyncCachedImage(url: url) { image in
                         image
                             .resizable()

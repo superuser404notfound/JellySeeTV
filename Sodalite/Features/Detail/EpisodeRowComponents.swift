@@ -79,8 +79,12 @@ struct SeasonTabButtonStyle: ButtonStyle {
 struct EpisodeSkeletonCard: View {
     @State private var shimmer = false
 
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
-    private var cardSize: CGSize { LayoutMetrics.current(hSizeClass).landscapeSize }
+    private var cardSize: CGSize {
+        LayoutMetrics.current(hSizeClass)
+            .tileSize(cardScale: dependencies.appearancePreferences.cardScale)
+    }
     private var synopsisWidth: CGFloat { cardSize.width - 28 }
 
     var body: some View {
@@ -145,8 +149,12 @@ struct EpisodeLandscapeCard: View {
     var isFavorite: Bool = false
 
     @Environment(\.appearanceTheme) private var appearanceTheme
+    @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
-    private var cardSize: CGSize { LayoutMetrics.current(hSizeClass).landscapeSize }
+    private var cardSize: CGSize {
+        LayoutMetrics.current(hSizeClass)
+            .tileSize(cardScale: dependencies.appearancePreferences.cardScale)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -266,8 +274,13 @@ struct EpisodeSynopsisBox: View {
     private var isSpoilerHidden: Bool {
         SpoilerReveal.isHidden(episode, dependencies: dependencies, appState: appState)
     }
-    /// Matches the episode card width (landscape art width minus the 14pt horizontal padding each side) so the synopsis column lines up under its card.
-    private var synopsisWidth: CGFloat { LayoutMetrics.current(hSizeClass).landscapeSize.width - 28 }
+    /// Matches the episode card width (card width minus the 14pt horizontal padding each side) so
+    /// the synopsis column lines up under its card, Large Cards included: the padding stays put and
+    /// the text column takes the growth, so the box still measures exactly one card.
+    private var synopsisWidth: CGFloat {
+        LayoutMetrics.current(hSizeClass)
+            .tileSize(cardScale: dependencies.appearancePreferences.cardScale).width - 28
+    }
 
     private var hasText: Bool { !text.isEmpty }
 
