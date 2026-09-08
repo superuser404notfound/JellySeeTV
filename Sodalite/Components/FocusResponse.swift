@@ -45,10 +45,11 @@ struct FocusResponse: Equatable {
 
 extension FocusResponse {
 
-    /// One settle time for the whole app. It was 0.15 at 30 sites and 0.2 at 16, so identical
-    /// controls settled at different speeds: the profile picker at 0.15 handed straight over to a
-    /// library grid at 0.2, wearing the same lift and the same shadow. A duration, unlike a scale,
-    /// IS comparable across roles, which is why this one is shared and the scales are not.
+    /// One settle time for the whole app. Of the 44 lifts that had one it was 0.15 at 28 and 0.2 at
+    /// 11, with a lone 0.12 and two controls that had no animation at all, so identical controls
+    /// settled at different speeds: the profile picker at 0.15 handed straight over to a library
+    /// grid at 0.2, wearing the same lift and the same shadow. A duration, unlike a scale, IS
+    /// comparable across roles, which is why this one is shared and the scales are not.
     static let settle = Animation.easeInOut(duration: 0.15)
 
     /// Artwork that lifts off the page: grid poster, profile card, episode still, cast portrait,
