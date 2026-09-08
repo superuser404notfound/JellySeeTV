@@ -4,9 +4,22 @@ import SwiftUI
 
 extension HomeViewModel {
 
-    /// /Items/Latest (GroupItems default) returns a bare Episode when a series gained exactly one new episode; only multi-episode batches fold into the Series. Replace each episode with its parent series (one batched Ids lookup) and dedupe; on lookup failure fall back to the unfolded items rather than going empty.
-    private func foldEpisodesIntoSeries(_ items: [JellyfinItem]) async -> [JellyfinItem] {
-        let seriesIDs = items.compactMap { $0.type == .episode ? $0.seriesId : nil }
+    /// The series an entry below series level belongs to, nil for everything that is already one.
+    private func seriesFoldTarget(_ item: JellyfinItem) -> String? {
+        switch item.type {
+        case .episode, .season: item.seriesId
+        default: nil
+        }
+    }
+
+    /// /Items/Latest (GroupItems default) answers with whatever level of the show its grouping
+    /// landed on: a bare Episode when a series gained exactly one, the Season a bulk addition went
+    /// into (Jellyfin 12 groups per season), or the Series. Replace both sub-series levels with the
+    /// parent series (one batched Ids lookup) and dedupe, so a row titled Latest Shows holds shows
+    /// and a tap lands on the series page; on lookup failure fall back to the unfolded items rather
+    /// than going empty.
+    private func foldIntoSeries(_ items: [JellyfinItem]) async -> [JellyfinItem] {
+        let seriesIDs = items.compactMap(seriesFoldTarget)
         guard !seriesIDs.isEmpty else { return items }
 
         let query = ItemQuery(
@@ -21,14 +34,14 @@ extension HomeViewModel {
             uniquingKeysWith: { first, _ in first }
         )
 
-        // Fold-local: N episodes of one series map to N copies of that series item. It is NOT the
-        // row's uniqueness guarantee, which lives in HomeRowData's init, because this whole function
-        // returns early when the list carries no episodes at all.
+        // Fold-local: N seasons or episodes of one series map to N copies of that series item. It is
+        // NOT the row's uniqueness guarantee, which lives in HomeRowData's init, because this whole
+        // function returns early when the list carries nothing below series level at all.
         var seen = Set<String>()
         var folded: [JellyfinItem] = []
         for item in items {
             let mapped: JellyfinItem
-            if item.type == .episode, let seriesID = item.seriesId, let series = seriesByID[seriesID] {
+            if let seriesID = seriesFoldTarget(item), let series = seriesByID[seriesID] {
                 mapped = series
             } else {
                 mapped = item
@@ -82,16 +95,31 @@ extension HomeViewModel {
 
             case .latestShows:
                 // Per-library fan-out, not one typed aggregate: IncludeItemTypes=Series,Episode filters before grouping, so episode bursts from a few shows crowd out everything else (device reports 2026-06-11). ParentId-only queries group reliably (Sodalite#12). Round-robin interleave approximates global recency (a grouped entry carries the SERIES' DateCreated, not the new episode's, so it can't sort).
-                let showLibraries = myMediaLibraries.filter { ($0.collectionType ?? "") == "tvshows" }
+                //
+                // Awaited rather than read off `myMediaLibraries`, which the fan-out fills from the
+                // same task and therefore cannot have filled yet on the first load of a session:
+                // the row took the fallback below every launch and only looked right from the
+                // second load on. On Jellyfin 12 the two shapes are not even the same query, they
+                // reach different server implementations. With ParentId the server groups per
+                // series in SQL and answers one entry per show; without it, the untyped path scans
+                // the newest Limit*2 items across every library and groups them in memory, so one
+                // bulk import fills the window and the row collapses to the few series inside it.
+                let libraries: [JellyfinLibrary]
+                if let task = librariesTask, let fetched = await task.value {
+                    libraries = fetched
+                } else {
+                    libraries = myMediaLibraries
+                }
+                let showLibraries = libraries.filter { ($0.collectionType ?? "") == "tvshows" }
                 if showLibraries.isEmpty {
-                    // getLibraries failed: fall back to the typed aggregate, imperfect but better than empty.
+                    // No shows library, or getLibraries failed: fall back to the typed aggregate, imperfect but better than empty.
                     let latest = try await libraryService.getLatestMedia(
                         userID: userID,
                         parentID: nil,
                         includeItemTypes: [.series, .episode],
                         limit: 64
                     )
-                    items = Array(await foldEpisodesIntoSeries(latest).prefix(16))
+                    items = Array(await foldIntoSeries(latest).prefix(16))
                 } else {
                     var lists: [[JellyfinItem]] = []
                     for library in showLibraries {
@@ -110,7 +138,7 @@ extension HomeViewModel {
                             merged.append(list[index])
                         }
                     }
-                    items = Array(await foldEpisodesIntoSeries(merged).prefix(16))
+                    items = Array(await foldIntoSeries(merged).prefix(16))
                 }
 
             case .allMovies:
@@ -149,7 +177,7 @@ extension HomeViewModel {
 
             case .favoriteEpisodes:
                 // Series/season/episode sort keeps several favorites of one show adjacent; no
-                // foldEpisodesIntoSeries here, the individual episode is the point of the row.
+                // foldIntoSeries here, the individual episode is the point of the row.
                 let query = ItemQuery(
                     includeItemTypes: [.episode],
                     sortBy: "SeriesSortName,ParentIndexNumber,IndexNumber",
@@ -209,7 +237,7 @@ extension HomeViewModel {
                     query: HomeReleaseRowQuery.episodes(now: Date(), limit: 64)
                 )
                 let aired = HomeReleaseRowQuery.airedOnly(response.items)
-                items = Array(await foldEpisodesIntoSeries(aired).prefix(16))
+                items = Array(await foldIntoSeries(aired).prefix(16))
 
             case .collections:
                 let query = ItemQuery(
@@ -246,7 +274,7 @@ extension HomeViewModel {
                     includeItemTypes: nil,
                     limit: 24
                 )
-                items = Array(await foldEpisodesIntoSeries(latest).prefix(16))
+                items = Array(await foldIntoSeries(latest).prefix(16))
 
             case .myMedia, .genres, .discoverProviders:
                 return nil

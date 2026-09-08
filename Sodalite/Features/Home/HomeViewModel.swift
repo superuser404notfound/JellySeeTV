@@ -39,6 +39,11 @@ final class HomeViewModel {
     private var providerCountsTask: Task<Void, Never>?
     private var genreCachesTask: Task<Void, Never>?
 
+    /// The library list of the load that is running, as one shared task rather than one fetch per
+    /// reader: the fan-out consumes it to reconcile the row config, and Latest Shows awaits it for
+    /// the library id its query needs. Internal so +Rows can reach it. nil between loads.
+    var librariesTask: Task<[JellyfinLibrary]?, Never>?
+
     /// Last successful loadContent(); the view's onAppear uses it to decide whether to refresh, else new server-side content never shows until app restart.
     var lastLoadedAt: Date?
 
@@ -113,6 +118,7 @@ final class HomeViewModel {
         backdropTask?.cancel()
         providerCountsTask?.cancel()
         genreCachesTask?.cancel()
+        librariesTask?.cancel()
     }
 
     /// Patch a just-watched item's resume progress in place across every row holding it (issue #24). Mirrors the detail-side fix off the authoritative playback-stop payload so the Continue Watching progress bar is right immediately without racing a loadContent() re-fetch. loadContent() still runs for structural changes a patch can't make (re-ordering, dropping out once finished).
@@ -205,6 +211,7 @@ final class HomeViewModel {
         backdropTask?.cancel()
         providerCountsTask?.cancel()
         genreCachesTask?.cancel()
+        librariesTask?.cancel()
         backdropTask = nil
         providerCountsTask = nil
         genreCachesTask = nil
@@ -241,8 +248,20 @@ final class HomeViewModel {
             // plan is: the task body runs off this actor and cannot read it.
             let libraryService = libraryService
             let userID = userID
+            // Started here, not inside the group, because Latest Shows has to await the same
+            // answer (see loadRow) and must not pay for a second request to get it. The group
+            // still consumes it as a result, so reconciliation is unchanged and no row waits on it
+            // except the one that cannot be built without it (Sodalite#122).
+            let libraries = Task { try? await libraryService.getLibraries(userID: userID) }
+            librariesTask = libraries
             group.addTask {
-                .libraries(try? await libraryService.getLibraries(userID: userID))
+                // Unstructured, so cancelling the group has to be passed on by hand; without this
+                // a torn-down Home would leave the request running to completion.
+                await withTaskCancellationHandler {
+                    .libraries(await libraries.value)
+                } onCancel: {
+                    libraries.cancel()
+                }
             }
             for entry in plan {
                 group.addTask { [weak self] in await self?.fetch(entry) ?? .empty }
