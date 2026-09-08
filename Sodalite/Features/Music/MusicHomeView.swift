@@ -146,7 +146,11 @@ struct MusicHomeView: View {
         } else {
             let metrics = LayoutMetrics.current(hSizeClass)
             LazyVGrid(columns: [
-                GridItem(.adaptive(minimum: metrics.gridMinimum), spacing: metrics.gridSpacing)
+                GridItem(
+                    .adaptive(minimum: metrics.gridColumnMinimum(
+                        cardScale: dependencies.appearancePreferences.cardScale)),
+                    spacing: metrics.gridSpacing
+                )
             ], spacing: gridRowSpacing) {
                 ForEach(viewModel.albums) { album in
                     Button {
