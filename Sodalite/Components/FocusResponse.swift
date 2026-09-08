@@ -60,7 +60,7 @@ extension FocusResponse {
     )
 
     /// A settings tile and everything shaped like one. The scale and shadow are
-    /// `SettingsTileButtonStyle`'s, which 77 call sites already wear.
+    /// `SettingsTileButtonStyle`'s, which 68 call sites already wear.
     static let tile = FocusResponse(
         scale: 1.03,
         shadow: Shadow(opacity: 0.3, radius: 15, y: 8),
