@@ -2,7 +2,7 @@ import Foundation
 import AetherEngine
 
 /// Jellyfin device profile for AetherEngine on Apple TV. Engine demuxes
-/// MKV/MP4/AVI/TS/VOB/3GP/M2TS via FFmpeg, dispatching to native AVPlayer HLS
+/// MKV/MP4/AVI/TS/VOB/3GP/M2TS/ASF via FFmpeg, dispatching to native AVPlayer HLS
 /// (HEVC, H.264, AV1+HW) or SW pipeline (AV1 no-HW, VP9, MPEG-4 Part 2,
 /// MPEG-2, VC-1); server transcodes only codecs outside this set. One
 /// `baseProfile()` (HDR/SDR split lives at the engine `displayCapabilities`
@@ -73,12 +73,15 @@ enum DirectPlayProfile {
             // question is no longer "does the table name it" but "can the
             // bundled build decode it". Listing them stops Jellyfin transcoding
             // XVID/DivX, MPEG-2 remuxes, VC-1 BD rips and qtrle screen grabs.
-            // The msmpeg4 / wmv family arrived with FFmpegBuild 2.4.3. wmv3 is
-            // listed for its Matroska remuxes only: asf is not a container this
-            // build can demux, so it is deliberately absent from Container above.
+            // The msmpeg4 / wmv family arrived with FFmpegBuild 2.4.3, its own
+            // container and the WMA decoders with 3.1.0, so asf / wmv sit in the
+            // Container list and every WMA flavour in AudioCodec below. They move
+            // together or not at all: a container offered without its audio codecs
+            // is a film that direct-plays silently, which is a worse answer than
+            // letting the server transcode. DirectPlayProfileWMVTests pins that.
             "DirectPlayProfiles": [
                 [
-                    "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,m2ts,mts,3gp,3g2,vob,ogg,webm,flv",
+                    "Container": "mp4,m4v,mov,mkv,matroska,avi,mpegts,ts,m2ts,mts,3gp,3g2,vob,ogg,webm,flv,asf,wmv",
                     "Type": "Video",
                     "VideoCodec": "h264,hevc,av1,vp9,vp8,mpeg4,mpeg2video,vc1,qtrle,msmpeg4v1,msmpeg4v2,msmpeg4v3,wmv1,wmv2,wmv3",
                     // DTS spelled every way Jellyfin reports it (dts/dca/dts-hd
@@ -90,7 +93,7 @@ enum DirectPlayProfile {
                     // leaving it out only ever made the server answer
                     // AudioCodecNotSupported for audio we decode natively.
                     // pcm_bluray is the same story for M2TS/Blu-ray LPCM.
-                    "AudioCodec": "aac,aac_latm,ac3,eac3,mp3,mp2,flac,opus,vorbis,alac,truehd,mlp,dts,dca,dts-hd,dtshd,pcm_s16le,pcm_s24le,pcm_f32le,pcm_bluray",
+                    "AudioCodec": "aac,aac_latm,ac3,eac3,mp3,mp2,flac,opus,vorbis,alac,truehd,mlp,dts,dca,dts-hd,dtshd,pcm_s16le,pcm_s24le,pcm_f32le,pcm_bluray,wmav1,wmav2,wmapro,wmalossless,wmavoice",
                 ],
                 [
                     "Container": "mp3,aac,m4a,m4b,flac,alac,wav,opus,ogg",
