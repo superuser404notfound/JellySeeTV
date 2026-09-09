@@ -752,6 +752,15 @@ final class CloudSyncService: CloudSyncServiceProtocol {
                 if merged.entries != cloudRules.entries { addPendingSave(recordName: name) }
                 return
             }
+            // Server removals union like the maps above, so they are taken even when the record as a
+            // whole loses last-writer-wins. Without this a device that happened to write some other
+            // auth setting more recently would discard the payload entire and never learn that a
+            // server was removed, leaving it standing there for good. The rest of the auth payload
+            // still obeys LWW below; applying the map twice is idempotent.
+            if case .auth(let auth) = cloud, let removals = auth.forgottenServers {
+                dependencies.applyForgottenServers(removals)
+                lastSettingsSnapshot[key] = dependencies.collectSettingsPayload(key, stamp: .distantPast)
+            }
             let localStamp = preferences.localStamp(for: name) ?? .distantPast
             if adopting || CloudSyncMerge.remoteWins(localUpdatedAt: localStamp, remoteUpdatedAt: cloud.updatedAt) {
                 dependencies.applySettingsPayload(cloud)

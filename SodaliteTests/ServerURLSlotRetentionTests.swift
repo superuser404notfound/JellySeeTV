@@ -13,8 +13,15 @@ struct ServerURLSlotRetentionTests {
     private let internalURL = URL(string: "http://10.0.0.2:8096")!
     private let externalURL = URL(string: "https://jf.example.com")!
 
+    /// A suite of its own per container. The keychain was the only per-device state these tests had
+    /// to separate until the URL slots grew an edit stamp; on `.standard` the container standing in
+    /// for the other device reads this one's stamps, and a test earlier in the file that edits the
+    /// slots then decides what the later ones see.
     private func makeContainer() -> DependencyContainer {
-        DependencyContainer(keychainService: InMemoryKeychain())
+        DependencyContainer(
+            keychainService: InMemoryKeychain(),
+            defaults: UserDefaults(suiteName: "slot-retention-\(UUID().uuidString)")!
+        )
     }
 
     private func dualSlotServer(name: String = "Home", version: String? = "10.10.7") -> JellyfinServer {

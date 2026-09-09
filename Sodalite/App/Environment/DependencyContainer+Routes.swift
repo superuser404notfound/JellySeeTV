@@ -18,6 +18,33 @@ extension DependencyContainer {
         await resolveSeerrRoute()
     }
 
+    /// Points the client at whichever of a server's addresses answers, for a server that is not the
+    /// active one yet.
+    ///
+    /// Signing in happens before there IS an active server, so `resolveJellyfinRoute` bails out and
+    /// the whole sign-in flow ran on `preferredURL(for:)` alone: the last route that worked, or the
+    /// internal slot when there is no last route. Somebody whose last session was at home therefore
+    /// spent the entire sign-in talking to a LAN address that cannot be reached from a phone on
+    /// cellular, and the only symptom is that signing in works at home and nowhere else.
+    ///
+    /// Returns after the probe so callers can await it before their first request. The optimistic
+    /// URL is set first regardless, so a screen that draws before this lands is not left pointing
+    /// at nothing, and an unreachable server still gets an address to fail against and report.
+    @discardableResult
+    func resolveSignInRoute(for server: JellyfinServer) async -> URL {
+        let optimistic = preferredURL(for: server)
+        jellyfinClient.baseURL = optimistic
+        guard let resolved = await ServerRouteResolver.resolve(
+            internalURL: server.internalURL,
+            externalURL: server.externalURL,
+            lastKnown: serverRouteStore.lastRoute(serverID: server.id),
+            probe: jellyfinProbe
+        ) else { return optimistic }
+        serverRouteStore.setLastRoute(resolved.route, serverID: server.id)
+        jellyfinClient.baseURL = resolved.url
+        return resolved.url
+    }
+
     private func resolveJellyfinRoute() async {
         guard let server = activeServer else {
             activeJellyfinRoute = nil
@@ -30,7 +57,7 @@ extension DependencyContainer {
             internalURL: server.internalURL,
             externalURL: server.externalURL,
             lastKnown: serverRouteStore.lastRoute(serverID: server.id),
-            probe: { await ServerProbe.jellyfin($0) }
+            probe: jellyfinProbe
         ) else { return }
         guard !Task.isCancelled else { return }
 

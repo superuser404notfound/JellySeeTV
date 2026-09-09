@@ -82,6 +82,14 @@ struct ServerSyncPayload: Codable, Equatable {
     /// a device that had never pinned anything published nil and cleared everyone else's pin, because
     /// "never pinned" and "deliberately cleared" are the same value there. Optional: keep-current.
     var isDefaultServer: Bool?
+    /// When somebody deliberately put this server on a device. What lets a re-add outrank a removal
+    /// tombstone, exactly as `RememberedUser.addedAt` does for a profile. Optional: a payload
+    /// without it comes from a build that predates the field, and a tombstone outranks it.
+    var addedAt: Date?
+    /// When the URL slots were last actually edited, as opposed to last written. `updatedAt` moves
+    /// on every republish, so a device that slept through a URL edit used to win last-writer-wins
+    /// against it with a stale copy. Optional: a payload without it claims no edit.
+    var urlsUpdatedAt: Date?
 }
 
 struct PlaybackSettingsPayload: Codable, Equatable {
@@ -313,6 +321,11 @@ struct AuthSettingsPayload: Codable, Equatable {
     var defaultServerID: String?
     /// Shipped after the payload, so a missing value means keep-current, not "off".
     var profileReprompt: String?
+    /// Servers removed on purpose, keyed by server id with the moment of removal. It rides the auth
+    /// record rather than the server record because the server record is exactly what a removal
+    /// deletes: a tombstone inside it would go down with the thing it is meant to outlive.
+    /// Optional: a payload without it carries no removal.
+    var forgottenServers: [String: Date]?
 }
 
 struct SeerrNotificationSettingsPayload: Codable, Equatable {

@@ -32,6 +32,11 @@ enum CloudSyncMerge {
         merged.forgottenUsers = resolved.forgotten.isEmpty ? nil : resolved.forgotten
         merged.seerrSessions = unionSeerrSessions(local: local.seerrSessions, cloud: cloud.seerrSessions)
         if merged.isDefaultServer == nil { merged.isDefaultServer = local.isDefaultServer }
+        // Both stamps fill from local when the cloud copy predates them, on the same reading as the
+        // fields above: a record written by a build that did not know the field says nothing about
+        // it, and dropping what this device knows would republish the server with no history at all.
+        if merged.addedAt == nil { merged.addedAt = local.addedAt }
+        if merged.urlsUpdatedAt == nil { merged.urlsUpdatedAt = local.urlsUpdatedAt }
         if merged.homeRows == nil { merged.homeRows = local.homeRows }
         if merged.defaultUserID == nil { merged.defaultUserID = local.defaultUserID }
         if merged.jellyfinPassword == nil {
@@ -77,6 +82,41 @@ enum CloudSyncMerge {
             users.append(user)
         }
         return (users, forgotten)
+    }
+
+    /// The server-level mirror of `resolveRememberedUsers`, and needed for the same reason: a
+    /// server record is republished in full by any device that touches it, so a removal expressed
+    /// as "my list is shorter" is indistinguishable from a device that has not heard yet, and the
+    /// two would hand the server back and forth forever. The removal travels as a date instead, and
+    /// only an `addedAt` newer than it (somebody deliberately signing in again) takes it back.
+    static func unionForgottenServers(local: [String: Date], cloud: [String: Date]) -> [String: Date] {
+        var forgotten = local
+        for (id, removedAt) in cloud {
+            forgotten[id] = max(forgotten[id] ?? removedAt, removedAt)
+        }
+        return forgotten
+    }
+
+    /// Whether a tombstone still holds a server out. A server with no known `addedAt` predates the
+    /// stamp (or arrived from a device that does not write one), and a removal outranks it: the
+    /// removal is the more recent statement of intent either way.
+    static func removalHolds(removedAt: Date?, addedAt: Date?) -> Bool {
+        guard let removedAt else { return false }
+        guard let addedAt else { return true }
+        return addedAt <= removedAt
+    }
+
+    /// Which side's URL slots to keep. `urlsUpdatedAt` moves only on a real edit, so a device
+    /// republishing slots it never touched carries the older stamp and loses, whatever its
+    /// record-level stamp says. Ties keep the local side, matching `remoteWins`.
+    ///
+    /// A nil local stamp means this device never edited the slots and has nothing to defend, so the
+    /// incoming copy wins. A nil remote stamp means the sender is on a build that predates the
+    /// field: it cannot claim an edit, so a device holding a real edit keeps it.
+    static func remoteURLsWin(localUpdatedAt: Date?, remoteUpdatedAt: Date?) -> Bool {
+        guard let localUpdatedAt else { return true }
+        guard let remoteUpdatedAt else { return false }
+        return remoteUpdatedAt > localUpdatedAt
     }
 
     /// Union by user id; the newer addedAt wins per user. Sorted newest-first to

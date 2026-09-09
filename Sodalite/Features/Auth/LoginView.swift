@@ -49,6 +49,13 @@ struct LoginView: View {
                 )
             }
         }
+        .task {
+            // The view model pins an optimistic address in its init so the first frame has one; this
+            // is the probe that corrects it. Reached directly (a server with one profile, a deep
+            // link) the picker's own resolve never ran, and without this the sign-in would spend its
+            // whole life on the last route that worked, which away from home is the LAN address.
+            await dependencies.resolveSignInRoute(for: server)
+        }
         .onDisappear {
             viewModel?.stopQuickConnect()
         }

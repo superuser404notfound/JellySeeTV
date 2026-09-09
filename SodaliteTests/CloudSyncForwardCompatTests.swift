@@ -126,7 +126,7 @@ struct CloudSyncForwardCompatTests {
         case .auth:
             return .auth(AuthSettingsPayload(
                 updatedAt: stamp, launchBehavior: "picker", defaultUserID: "u", defaultServerID: "s",
-                profileReprompt: "off"
+                profileReprompt: "off", forgottenServers: ["s": stamp]
             ))
         case .seerrNotifications:
             return .seerrNotifications(SeerrNotificationSettingsPayload(updatedAt: stamp, notifyPendingRequests: true))
