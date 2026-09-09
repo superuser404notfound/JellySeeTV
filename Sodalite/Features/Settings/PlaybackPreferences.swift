@@ -14,6 +14,7 @@ final class PlaybackPreferences {
         static let autoplayNextEpisode = "playback.autoplayNextEpisode"
         static let autoplayCountdown = "playback.autoplayCountdown"
         static let nextEpisodeCountdownSeconds = "playback.nextEpisodeCountdownSeconds"
+        static let nextEpisodeCountdownAnchor = "playback.nextEpisodeCountdownAnchor"
         static let skipIntervalSeconds = "playback.skipIntervalSeconds"
         static let preferredAudioLanguage = "playback.preferredAudioLanguage"
         static let preferredSubtitleLanguage = "playback.preferredSubtitleLanguage"
@@ -52,6 +53,10 @@ final class PlaybackPreferences {
     // MARK: - Allowed Values
 
     static let skipIntervalChoices: [Int] = [5, 10, 15, 30]
+
+    /// Countdown lengths offered in Settings. 0 is the countdown switched OFF, never a zero-second
+    /// one: on the credits anchor that would be an instant jump, and `autoSkipOutro` already is one.
+    static let nextEpisodeCountdownChoices: [Int] = [0, 5, 10, 15, 20, 30]
 
     /// Negative shifts subs earlier, positive later; finer steps near zero.
     static let subtitleDelayChoices: [Double] = [
@@ -247,8 +252,32 @@ final class PlaybackPreferences {
         didSet { store.set(autoSkipOutro, forKey: Keys.autoSkipOutro) }
     }
 
+    /// How long the countdown runs once armed. Inert while `autoplayCountdown` is off; read through
+    /// `nextEpisodeCountdownLength`, which folds the two together.
     var nextEpisodeCountdownSeconds: Int {
         didSet { store.set(nextEpisodeCountdownSeconds, forKey: Keys.nextEpisodeCountdownSeconds) }
+    }
+
+    /// Where the countdown sits (Sodalite#133). Defaults to the credits, which is what shipped, so an
+    /// untouched install keeps its behaviour.
+    var nextEpisodeCountdownAnchor: NextEpisodePolicy.CountdownAnchor {
+        didSet { store.set(nextEpisodeCountdownAnchor.rawValue, forKey: Keys.nextEpisodeCountdownAnchor) }
+    }
+
+    /// The single value the settings row and the player both use: 0 while the countdown is off, the
+    /// chosen length otherwise. Kept computed on purpose. `autoplayCountdown` stays the truth for off
+    /// (older builds sync that flag, and `endOfPlaybackOutcome` reads it), while the length survives a
+    /// trip through off untouched, so switching back on restores the value instead of the default.
+    var nextEpisodeCountdownLength: Int {
+        get { autoplayCountdown ? nextEpisodeCountdownSeconds : 0 }
+        set {
+            if newValue <= 0 {
+                autoplayCountdown = false
+            } else {
+                nextEpisodeCountdownSeconds = newValue
+                autoplayCountdown = true
+            }
+        }
     }
 
     var skipIntervalSeconds: Int {
@@ -415,7 +444,9 @@ final class PlaybackPreferences {
         self.autoSkipIntro = store.object(forKey: Keys.autoSkipIntro) as? Bool ?? false
         self.autoSkipRecap = store.object(forKey: Keys.autoSkipRecap) as? Bool ?? false
         self.autoSkipOutro = store.object(forKey: Keys.autoSkipOutro) as? Bool ?? false
-        self.nextEpisodeCountdownSeconds = store.object(forKey: Keys.nextEpisodeCountdownSeconds) as? Int ?? 10
+        self.nextEpisodeCountdownSeconds = store.object(forKey: Keys.nextEpisodeCountdownSeconds) as? Int ?? 15
+        self.nextEpisodeCountdownAnchor = (store.string(forKey: Keys.nextEpisodeCountdownAnchor))
+            .flatMap(NextEpisodePolicy.CountdownAnchor.init(rawValue:)) ?? .outro
         self.skipIntervalSeconds = store.object(forKey: Keys.skipIntervalSeconds) as? Int ?? 10
         self.preferredAudioLanguage = store.string(forKey: Keys.preferredAudioLanguage)
         self.preferredSubtitleLanguage = store.string(forKey: Keys.preferredSubtitleLanguage)

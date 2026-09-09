@@ -131,6 +131,8 @@ struct PlaybackSettingsPayload: Codable, Equatable {
     /// and `CloudSyncForwardCompat` carries them through this build untouched, so its own switches
     /// keep working while nothing here reads them.
     var touchpadScrubbing: Bool?
+    /// Sodalite#133, same reason again. Raw value of `NextEpisodePolicy.CountdownAnchor`.
+    var nextEpisodeCountdownAnchor: String?
 }
 
 /// Sodalite#46. Unlike the other settings payloads this one is NOT last-writer-wins:

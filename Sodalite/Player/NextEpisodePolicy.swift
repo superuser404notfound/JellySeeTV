@@ -8,6 +8,38 @@ enum NextEpisodePolicy {
     /// How far from the end the overlay opens when the server has no outro marker.
     static let fallbackWindowSeconds: Double = 30
 
+    /// Where the countdown sits (Sodalite#133). At the credits it runs over them, so the switch cuts
+    /// whatever is left; at the end of the source it is only a warning and the episode plays out.
+    /// Without an outro marker there are no credits to anchor to, so that path is always `.end`.
+    enum CountdownAnchor: String, CaseIterable, Sendable, Identifiable {
+        case outro
+        case end
+
+        var id: String { rawValue }
+    }
+
+    /// What the countdown starts from, or nil while it must stay unarmed and the card sits ringless.
+    ///
+    /// Neither anchor lets the countdown outlive the source: `.end` waits until the remaining seconds
+    /// fit inside it and is then seeded with them, `.outro` arms at once but is capped at what is left.
+    /// The cap matters on short credits, where the old fixed length ran on past `.ended` and parked a
+    /// frozen last frame until it fired.
+    ///
+    /// `lengthSeconds == 0` is the countdown switched off, not a zero-second one: an instant jump at
+    /// the marker is what `autoSkipOutro` does, and two settings must not express the same wish.
+    static func countdownStart(
+        anchor: CountdownAnchor,
+        lengthSeconds: Int,
+        remainingSeconds: Double
+    ) -> Int? {
+        guard lengthSeconds > 0, remainingSeconds > 0 else { return nil }
+        let left = max(1, Int(ceil(remainingSeconds)))
+        switch anchor {
+        case .outro: return min(lengthSeconds, left)
+        case .end: return remainingSeconds <= Double(lengthSeconds) ? left : nil
+        }
+    }
+
     /// True while the playhead sits in the window that shows the overlay and arms the countdown.
     ///
     /// Single definition on purpose: the clock sink's overlay trigger and the two cancel-latch resets
