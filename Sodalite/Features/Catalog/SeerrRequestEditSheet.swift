@@ -185,8 +185,9 @@ struct SeerrRequestEditSheet: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 24)
                 ForEach(seasons.sorted(by: { $0.seasonNumber < $1.seasonNumber })) { season in
-                    SeasonCheckboxRow(
-                        seasonNumber: season.seasonNumber,
+                    SeerrSeasonRow(
+                        title: SeerrSeasonRow.seasonTitle(season.seasonNumber),
+                        status: nil,
                         isOn: model.selectedSeasons.contains(season.seasonNumber),
                         toggle: {
                             if model.selectedSeasons.contains(season.seasonNumber) {
@@ -271,47 +272,6 @@ struct SeerrRequestEditSheet: View {
         if updated != nil {
             dismiss()
         }
-    }
-}
-
-// MARK: - SeasonCheckboxRow
-
-/// Focusable per-season checkbox row; sodalite-ui-focus-and-tint rules: `.focusable(true)` not Button, `.tint` stroke, tinted focused fill.
-private struct SeasonCheckboxRow: View {
-    let seasonNumber: Int
-    let isOn: Bool
-    let toggle: () -> Void
-
-    @FocusState private var focused: Bool
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
-                .font(.title3)
-                .foregroundStyle(isOn ? AnyShapeStyle(.tint) : AnyShapeStyle(Color.white.opacity(0.5)))
-            Text(String(
-                format: String(localized: "catalog.allRequests.edit.season.format", defaultValue: "Season %d"),
-                seasonNumber
-            ))
-            .font(.callout)
-            .fontWeight(.medium)
-            .foregroundStyle(.white)
-            Spacer(minLength: 12)
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 14)
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(focused
-                      ? AnyShapeStyle(TintShapeStyle.tint.opacity(0.18))
-                      : AnyShapeStyle(Color.Theme.restFill))
-        )
-        .focusStroke(cornerRadius: 14, isFocused: focused)
-        .focusable(true)
-        .focused($focused)
-        .stableTap(isFocused: focused) { toggle() }
-        .animation(.easeInOut(duration: 0.15), value: focused)
-        .animation(.easeInOut(duration: 0.15), value: isOn)
     }
 }
 

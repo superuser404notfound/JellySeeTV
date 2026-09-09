@@ -18,12 +18,7 @@ struct CatalogCollectionView: View {
 
     /// Radarr defaults for the bulk request, seeded from the pushing movie detail so the options are on screen from
     /// the first frame; only a cold entry has to resolve them here.
-    @State private var serviceDetails: SeerrServiceDetails?
-    @State private var selectedProfileID: Int?
-    @State private var selectedRootFolder: String?
-    @State private var selectedTagIDs: Set<Int> = []
-    /// Distinguishes "still resolving" from "this server offers no options", which an empty section cannot.
-    @State private var isLoadingOptions = false
+    @State private var options: SeerrRequestOptions
 
     @State private var showRequestOptions = false
     @State private var isSubmitting = false
@@ -61,9 +56,11 @@ struct CatalogCollectionView: View {
         rootFolder: String? = nil
     ) {
         self.collection = collection
-        _serviceDetails = State(initialValue: serviceDetails)
-        _selectedProfileID = State(initialValue: profileID)
-        _selectedRootFolder = State(initialValue: rootFolder)
+        _options = State(initialValue: SeerrRequestOptions(
+            details: serviceDetails,
+            profileID: profileID,
+            rootFolder: rootFolder
+        ))
     }
 
     var body: some View {
@@ -218,23 +215,9 @@ struct CatalogCollectionView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            if let serviceDetails {
-                SeerrRequestOptionsForm(
-                    details: serviceDetails,
-                    selectedProfileID: $selectedProfileID,
-                    selectedRootFolder: $selectedRootFolder,
-                    selectedTagIDs: $selectedTagIDs
-                )
-            } else if isLoadingOptions {
-                // Never silently drop the options: an empty section reads as "this server has none" while the
-                // Radarr lookup is still in flight, which is exactly how it looked before the seeding above.
-                HStack(spacing: 12) {
-                    ProgressView()
-                    Text("catalog.allRequests.edit.loading")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            // The form itself renders the "still resolving" line: an empty section reads as "this server
+            // has none" while the Radarr lookup is in flight.
+            SeerrRequestOptionsForm(options: options)
 
             // Always closes: the outcome (count plus the first failure) is rendered on the page behind, so a partial
             // result is not stranded inside a sheet the user then has to dismiss to act on.
@@ -322,30 +305,14 @@ struct CatalogCollectionView: View {
         defer { isLoading = false }
 
         // Fire-and-forget: the grid must not wait on best-effort Radarr config that only feeds optional dropdowns.
-        Task { await loadServiceConfig() }
+        Task {
+            await options.load(service: dependencies.seerrServiceConfigService, mediaType: .movie)
+        }
 
         do {
             detail = try await dependencies.seerrMediaService.collection(collectionID: collection.id)
         } catch {
             errorMessage = ErrorText.user(for: error)
-        }
-    }
-
-    private func loadServiceConfig() async {
-        // Seeded by the pushing detail view, nothing to resolve.
-        guard serviceDetails == nil else { return }
-        isLoadingOptions = true
-        defer { isLoadingOptions = false }
-        do {
-            guard let resolved = try await SeerrRequestDefaults.resolve(
-                service: dependencies.seerrServiceConfigService,
-                mediaType: .movie
-            ) else { return }
-            serviceDetails = resolved.details
-            selectedProfileID = resolved.profileID
-            selectedRootFolder = resolved.rootFolder
-        } catch {
-            // Swallow: the dropdowns stay absent and the request uses Seerr's defaults.
         }
     }
 
@@ -369,11 +336,11 @@ struct CatalogCollectionView: View {
                     mediaType: .movie,
                     tmdbID: part.id,
                     seasons: nil,
-                    serverID: serviceDetails?.server.id,
-                    profileID: selectedProfileID,
-                    rootFolder: selectedRootFolder,
-                    languageProfileID: serviceDetails?.server.activeLanguageProfileId,
-                    tags: selectedTagIDs.isEmpty ? nil : Array(selectedTagIDs)
+                    serverID: options.serverID,
+                    profileID: options.profileID,
+                    rootFolder: options.rootFolder,
+                    languageProfileID: options.languageProfileID,
+                    tags: options.tagsPayload
                 )
                 requested += 1
             } catch SeerrRequestError.noSeasonsAvailable {
