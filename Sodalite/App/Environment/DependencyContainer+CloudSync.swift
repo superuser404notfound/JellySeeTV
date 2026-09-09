@@ -55,7 +55,9 @@ extension DependencyContainer {
             homeRows: homeRows,
             defaultUserID: authPreferences.defaultUserID(serverID: serverID),
             forgottenUsers: forgotten.isEmpty ? nil : forgotten,
-            isDefaultServer: authPreferences.defaultServerID == serverID
+            isDefaultServer: authPreferences.defaultServerID == serverID,
+            addedAt: serverSyncMetadata.addedAt(serverID: serverID),
+            urlsUpdatedAt: serverSyncMetadata.urlsUpdatedAt(serverID: serverID)
         )
     }
 
@@ -63,6 +65,23 @@ extension DependencyContainer {
         isApplyingCloudChanges = true
         defer { isApplyingCloudChanges = false }
         let serverID = payload.server.id
+
+        // A server this device removed on purpose stays removed, however fresh the record claiming
+        // otherwise is. Only an `addedAt` past the removal (somebody signing in again) takes it back,
+        // the same rule a forgotten profile uses. Without it any device that had not heard about the
+        // removal put the server back, and it could not be deleted except by wiping the app.
+        if CloudSyncMerge.removalHolds(
+            removedAt: authPreferences.forgottenServers[serverID],
+            addedAt: payload.addedAt
+        ) {
+            sessionNote("cloud record for \(payload.server.name) [\(serverID.prefix(8))] ignored: removed here.")
+            return
+        }
+        if authPreferences.forgottenServers[serverID] != nil {
+            // The re-add outranked the tombstone, so the tombstone is spent. Leaving it would hold
+            // the server out again on the next record that arrives without an addedAt.
+            authPreferences.forgottenServers[serverID] = nil
+        }
         // Where a server on this device came from. The tokens ride the profiles, the session slot does
         // not sync, and the difference is invisible until a switch fails on it (Sodalite#74/#76).
         sessionNote(
@@ -72,10 +91,35 @@ extension DependencyContainer {
 
         // Upsert in place; a remote add appends so it never hijacks local MRU order.
         var servers = listKnownServers()
-        if let idx = servers.firstIndex(where: { $0.id == serverID }) {
-            servers[idx] = payload.server
+        let local = servers.first(where: { $0.id == serverID })
+        // The URL slots are decided on their own stamp, not the record's. `updatedAt` moves every
+        // time any device republishes this server for any reason (a re-login, a pin, a version
+        // refresh), so a device that slept through a URL edit used to hand back its stale address
+        // and win, which is how a corrected external URL came back as the old one.
+        let incoming: JellyfinServer
+        if let local, !CloudSyncMerge.remoteURLsWin(
+            localUpdatedAt: serverSyncMetadata.urlsUpdatedAt(serverID: serverID),
+            remoteUpdatedAt: payload.urlsUpdatedAt
+        ) {
+            incoming = JellyfinServer(
+                id: payload.server.id,
+                name: payload.server.name,
+                internalURL: local.internalURL,
+                externalURL: local.externalURL,
+                version: payload.server.version
+            )
         } else {
-            servers.append(payload.server)
+            incoming = payload.server
+            serverSyncMetadata.setURLsUpdatedAt(payload.urlsUpdatedAt, serverID: serverID)
+        }
+        if let idx = servers.firstIndex(where: { $0.id == serverID }) {
+            servers[idx] = incoming
+        } else {
+            servers.append(incoming)
+            // A server arriving from the cloud was added SOMEWHERE deliberately, and the stamp that
+            // says when has to survive here too, or this device's next upload would publish a
+            // record with no addedAt and let any tombstone hold it out again.
+            serverSyncMetadata.setAddedAt(payload.addedAt, serverID: serverID)
         }
         if let data = try? JSONEncoder().encode(servers) {
             try? keychainService.save(data, for: KeychainKeys.knownServers)
@@ -84,11 +128,11 @@ extension DependencyContainer {
         // A synced URL edit to the active server must reach the live client without a relaunch
         // (an Apple TV picks up edits made on the iPhone). scheduleRouteResolve only reads + probes,
         // so it is safe inside the apply path and does not echo a cloud write back.
-        if payload.server.id == activeServer?.id {
+        if incoming.id == activeServer?.id {
             // The in-memory copy has to move with the keychain: a profile switch persists whatever
             // AppState holds through addServer, so leaving it on the pre-sync snapshot wrote the old
             // URL slots straight back out again (Sodalite#45). id-guarded inside AppState.
-            appState?.updateActiveServer(payload.server)
+            appState?.updateActiveServer(incoming)
             scheduleRouteResolve()
         }
 
@@ -177,6 +221,42 @@ extension DependencyContainer {
                 authPreferences.defaultServerID = nil
             }
         }
+    }
+
+    /// Merges an incoming removal map and evicts whatever it says is gone.
+    ///
+    /// The sweep is what makes record order irrelevant. A fetch hands over the server record and the
+    /// auth record carrying its tombstone in no particular order, so a server that arrives first is
+    /// applied before the removal is known; running the eviction here catches it either way, and the
+    /// guard at the top of `applyServerPayload` catches the other order.
+    ///
+    /// A removal only bites where the local `addedAt` does not outrank it: a device that signed back
+    /// in after the removal keeps its server, which is the same escape hatch a re-added profile has.
+    func applyForgottenServers(_ incoming: [String: Date]) {
+        // Save and restore rather than clear: this runs both on its own (a record that lost
+        // last-writer-wins still hands over its removals) and from inside applySettingsPayload,
+        // where clearing the flag on the way out would unsuppress the rest of that apply.
+        let wasApplying = isApplyingCloudChanges
+        isApplyingCloudChanges = true
+        defer { isApplyingCloudChanges = wasApplying }
+        let merged = CloudSyncMerge.unionForgottenServers(
+            local: authPreferences.forgottenServers,
+            cloud: incoming
+        )
+        var settled = merged
+        for (serverID, removedAt) in merged {
+            let addedAt = serverSyncMetadata.addedAt(serverID: serverID)
+            guard CloudSyncMerge.removalHolds(removedAt: removedAt, addedAt: addedAt) else {
+                // The re-add is newer than the removal, so the removal is spent on every device.
+                settled.removeValue(forKey: serverID)
+                continue
+            }
+            serverSyncMetadata.noteRemoteStamp(removedAt)
+            guard listKnownServers().contains(where: { $0.id == serverID }) else { continue }
+            sessionNote("cloud says \(serverID.prefix(8)) was removed; dropping it here too.")
+            try? removeServer(id: serverID)
+        }
+        authPreferences.forgottenServers = settled
     }
 
     /// Remote record delete: same teardown as a local removeServer (successor
@@ -269,7 +349,9 @@ extension DependencyContainer {
                 defaultUserID: stores.auth.defaultServerID
                     .flatMap { stores.auth.defaultUserID(serverID: $0) },
                 defaultServerID: stores.auth.defaultServerID,
-                profileReprompt: stores.auth.profileReprompt.rawValue
+                profileReprompt: stores.auth.profileReprompt.rawValue,
+                forgottenServers: stores.auth.forgottenServers.isEmpty
+                    ? nil : stores.auth.forgottenServers
             ))
         case .seerrNotifications:
             return .seerrNotifications(SeerrNotificationSettingsPayload(
@@ -383,6 +465,12 @@ extension DependencyContainer {
             // Absent on payloads from builds before the reprompt interval existed; keep-current, else those builds would read as "off".
             if let reprompt = a.profileReprompt {
                 authPreferences.profileReprompt = AuthPreferences.ProfileRepromptInterval(rawValue: reprompt) ?? authPreferences.profileReprompt
+            }
+            // Server removals union, never prune: a device on an older build carries no map at all,
+            // and reading that as "nothing was removed" would undo every removal it has not heard
+            // about. Absent means silent, exactly as it does for forgotten profiles.
+            if let incoming = a.forgottenServers {
+                applyForgottenServers(incoming)
             }
         case .seerrNotifications(let s):
             seerrNotificationPreferences.notifyPendingRequests = s.notifyPendingRequests

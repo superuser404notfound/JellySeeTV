@@ -48,9 +48,14 @@ struct CloudSyncSettingsParityTests {
     /// Two named exemptions: `defaultUserIDRevision` is an observation counter rather than a
     /// setting, and the payload's `defaultUserID` is the retired global pin, still written for
     /// older builds and deliberately never applied.
+    ///
+    /// `forgottenServers` is a third shape: it lives in UserDefaults behind a computed property, so
+    /// the mirror sees only the counter that makes it observable. Substituted rather than exempted,
+    /// so the payload side stays under the same check as every other setting.
     @Test func everyAuthSettingIsInThePayload() {
         let store = AuthPreferences(store: scratchDefaults("auth"))
-        let stored = storedSettingNames(of: store).subtracting(["defaultUserIDRevision"])
+        var stored = storedSettingNames(of: store).subtracting(["defaultUserIDRevision"])
+        if stored.remove("forgottenServersRevision") != nil { stored.insert("forgottenServers") }
         #expect(stored == payloadFieldNames(.auth).subtracting(["defaultUserID"]))
     }
 

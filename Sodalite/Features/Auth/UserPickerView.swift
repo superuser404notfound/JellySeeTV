@@ -205,8 +205,11 @@ struct UserPickerView: View {
     private func loadUsers() async {
         isLoading = true
         errorMessage = nil
-        // Scope JellyfinClient to this server: discovery leaves baseURL stale, and /Users/Public needs the right host.
-        dependencies.jellyfinClient.baseURL = dependencies.preferredURL(for: server)
+        // Scope JellyfinClient to this server: discovery leaves baseURL stale, and /Users/Public needs
+        // the right host. Probed rather than guessed, because the last route that worked is not the
+        // one that works from here: away from home the LAN slot has to lose to the external one, and
+        // nothing else in the sign-in flow asks.
+        await dependencies.resolveSignInRoute(for: server)
         do {
             let fetched = try await dependencies.jellyfinAuthService.getPublicUsers()
             // Hide already-remembered profiles (re-adding overwrites the same entry). No-op on first login; re-auth a stale token by forgetting first (long-press).

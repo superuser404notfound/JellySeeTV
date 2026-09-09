@@ -48,6 +48,7 @@ final class AuthPreferences {
         }
         static let defaultServerID = "auth.defaultServerID"
         static let profileReprompt = "auth.profileReprompt"
+        static let forgottenServers = "auth.forgottenServers"
     }
 
     // MARK: - State
@@ -62,6 +63,9 @@ final class AuthPreferences {
 
     /// Bumped on every write below. A method is invisible to `@Observable`, so the accessor reads this to register the dependency for the enclosing view body instead.
     private(set) var defaultUserIDRevision: Int = 0
+
+    /// The same, for the UserDefaults-backed `forgottenServers` map.
+    private(set) var forgottenServersRevision: Int = 0
 
     /// The profile pinned as default on one server. Nil means none: the picker shows regardless of launch behavior.
     func defaultUserID(serverID: String) -> String? {
@@ -86,6 +90,30 @@ final class AuthPreferences {
               store.string(forKey: Keys.defaultUserID(serverID: serverID)) == nil
         else { return }
         setDefaultUserID(legacy, serverID: serverID)
+    }
+
+    /// Servers removed on purpose, keyed by server id with the moment of removal.
+    ///
+    /// A removal has to travel as a removal: a server record is republished in full by any device
+    /// that touches it, so "my list is shorter" reads the same as "I have not heard yet", and the
+    /// deleted server came straight back from whichever device republished it first.
+    var forgottenServers: [String: Date] {
+        get {
+            // Same trick as defaultUserIDRevision: the value lives in UserDefaults, so there is no
+            // stored property for @Observable to track, and the sync layer arms its observation by
+            // reading the payload. Touching the counter here is what registers the dependency.
+            _ = forgottenServersRevision
+            let raw = (store.dictionary(forKey: Keys.forgottenServers) as? [String: Double]) ?? [:]
+            return raw.mapValues(Date.init(timeIntervalSince1970:))
+        }
+        set {
+            forgottenServersRevision &+= 1
+            if newValue.isEmpty {
+                store.removeObject(forKey: Keys.forgottenServers)
+            } else {
+                store.set(newValue.mapValues(\.timeIntervalSince1970), forKey: Keys.forgottenServers)
+            }
+        }
     }
 
     /// Server auto-promoted to active on cold launch. Nil keeps the most-recently-used; cleared when the server is removed.

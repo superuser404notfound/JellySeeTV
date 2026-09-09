@@ -85,7 +85,13 @@ final class DependencyContainer {
 
     /// Dual-URL routing state. Routes are per active session; nil when the
     /// active server has no resolved route yet.
-    let serverRouteStore = ServerRouteStore()
+    let serverRouteStore: ServerRouteStore
+    /// When each server was added and when its URL slots were last edited, which is what a removal
+    /// tombstone and a URL edit have to outrank a stale republish with.
+    let serverSyncMetadata: ServerSyncMetadataStore
+    /// How a Jellyfin address is asked whether it answers. A stored closure so the sign-in route
+    /// can be tested without a network; the app never replaces it.
+    var jellyfinProbe: @Sendable (URL) async -> Bool = { await ServerProbe.jellyfin($0) }
     var activeJellyfinRoute: ServerRoute?
     var activeSeerrRoute: ServerRoute?
     var routeResolveTask: Task<Void, Never>?
@@ -109,11 +115,18 @@ final class DependencyContainer {
         cloudSync?.markServerDirty(serverID: serverID)
     }
 
+    /// `defaults` is the suite every preference store here reads and writes. One parameter rather
+    /// than ten, so a test can stand up two containers that are genuinely two DEVICES: sharing
+    /// `.standard` between them made each one see the other's local bookkeeping, which is precisely
+    /// the state a sync merge is supposed to be deciding between.
     init(
         keychainService: KeychainServiceProtocol = KeychainService(),
         httpClient: HTTPClientProtocol = HTTPClient(),
-        discoveryHTTPClient: HTTPClientProtocol? = nil
+        discoveryHTTPClient: HTTPClientProtocol? = nil,
+        defaults: UserDefaults = .standard
     ) {
+        self.serverRouteStore = ServerRouteStore(defaults: defaults)
+        self.serverSyncMetadata = ServerSyncMetadataStore(defaults: defaults)
         self.keychainService = keychainService
         self.httpClient = httpClient
         self.jellyfinClient = JellyfinClient(httpClient: httpClient)
@@ -140,25 +153,25 @@ final class DependencyContainer {
             }
         )
         self.jellyfinPlaybackService = JellyfinPlaybackService(client: jellyfinClient)
-        self.playbackPreferences = PlaybackPreferences()
-        self.trackSelectionMemory = TrackSelectionMemory()
+        self.playbackPreferences = PlaybackPreferences(store: defaults)
+        self.trackSelectionMemory = TrackSelectionMemory(store: defaults)
         self.liveDirectStreamMemory = LiveDirectStreamMemory(keychain: keychainService)
-        self.spoilerRevealMemory = SpoilerRevealMemory()
-        self.spoilerSeriesRules = SpoilerSeriesRules()
+        self.spoilerRevealMemory = SpoilerRevealMemory(store: defaults)
+        self.spoilerSeriesRules = SpoilerSeriesRules(store: defaults)
         self.storeKitService = StoreKitService()
-        self.appearancePreferences = AppearancePreferences()
+        self.appearancePreferences = AppearancePreferences(store: defaults)
         let appearance = self.appearancePreferences
         self.posterBadgeStore = PosterBadgeStore(
             library: self.jellyfinLibraryService,
             isEnabled: { appearance.showPosterBadges }
         )
-        self.authPreferences = AuthPreferences()
+        self.authPreferences = AuthPreferences(store: defaults)
         // The pre-1.0 default-profile pin had no server scope; attribute it to the pinned default server, else the one that was active when it was written.
         self.authPreferences.migrateLegacyDefaultUserID(
             toServerID: self.authPreferences.defaultServerID
                 ?? (try? keychainService.loadString(for: KeychainKeys.activeServerID))
         )
-        self.parentalControlsPreferences = ParentalControlsPreferences()
+        self.parentalControlsPreferences = ParentalControlsPreferences(store: defaults)
         self.parentalGate = ParentalGate()
 
         // Seerr gets its OWN HTTPClient so Catalog browsing doesn't compete with the Home fan-out for the same 6 in-flight permits against a tarpitted Jellyfin CDN (see HTTPClient inFlightLimiter).
@@ -172,7 +185,7 @@ final class DependencyContainer {
         self.seerrServiceConfigService = SeerrServiceConfigService(client: seerrClient)
         self.seerrSearchService = SeerrSearchService(client: seerrClient)
 
-        self.seerrNotificationPreferences = SeerrNotificationPreferences()
+        self.seerrNotificationPreferences = SeerrNotificationPreferences(defaults: defaults)
         self.pendingRequestsMonitor = PendingRequestsMonitor()
 
         self.mediaDeletionService = MediaDeletionService(
@@ -369,6 +382,17 @@ final class DependencyContainer {
         let data = try JSONEncoder().encode(servers)
         try keychainService.save(data, for: KeychainKeys.knownServers)
         appState?.updateActiveServer(merged)
+        // Signing in is the deliberate act that takes a removal back, so it has to outrank the
+        // tombstone rather than be held out by it. Only a re-add moves the stamp: an ordinary
+        // re-login on a server that was never removed must not look like a fresh add.
+        if !isApplyingCloudChanges, authPreferences.forgottenServers[server.id] != nil {
+            // The auth record carries the tombstone map; the settings observation picks the change
+            // up and republishes it, the same way every other auth preference travels.
+            authPreferences.forgottenServers[server.id] = nil
+            serverSyncMetadata.noteReAdded(serverID: server.id)
+        } else {
+            serverSyncMetadata.noteAdded(serverID: server.id)
+        }
         cloudSyncMarkServer(server.id)
     }
 
@@ -399,6 +423,13 @@ final class DependencyContainer {
         servers[idx] = updated
         let data = try JSONEncoder().encode(servers)
         try keychainService.save(data, for: KeychainKeys.knownServers)
+        // Stamps the EDIT, not the write. The record-level stamp moves on every republish, so
+        // without this a device that slept through the edit won it back with a stale copy. Only a
+        // real change counts: saving the sheet unchanged is not news, and stamping it would let a
+        // device outrank another device's genuine correction by opening a dialog and closing it.
+        if !isApplyingCloudChanges, updated != current {
+            serverSyncMetadata.noteURLsChanged(serverID: serverID)
+        }
         cloudSyncMarkServer(serverID)
         appState?.updateActiveServer(updated)
         if activeServer?.id == serverID {
@@ -685,7 +716,15 @@ final class DependencyContainer {
             }
         }
 
-        if !isApplyingCloudChanges { cloudSync?.markServerDeleted(serverID: serverID) }
+        // The removal has to outlive the record it deletes, so it is written down before the record
+        // goes and travels on the auth record instead. Without it the first device to republish this
+        // server put it straight back, and the deleting device (whose LWW stamp went with the
+        // record) read its own silence as `.distantPast` and adopted the resurrection.
+        if !isApplyingCloudChanges {
+            authPreferences.forgottenServers[serverID] = serverSyncMetadata.nextStamp()
+            cloudSync?.markServerDeleted(serverID: serverID)
+        }
+        serverSyncMetadata.forget(serverID: serverID)
     }
 
     /// Rolls the active-server pointer back after a transport-error probe failure. Named alias for switchServer (restores pointer + client + mirror, one bump) so call sites read as rollbacks.
