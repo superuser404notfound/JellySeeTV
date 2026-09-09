@@ -237,7 +237,8 @@ extension DependencyContainer {
                 liveTeletextPage: p.liveTeletextPage.rawValue,
                 autoplayCountdown: p.autoplayCountdown,
                 forceDolbyVisionOnNonDVDisplay: p.forceDolbyVisionOnNonDVDisplay,
-                touchpadScrubbing: p.touchpadScrubbing
+                touchpadScrubbing: p.touchpadScrubbing,
+                nextEpisodeCountdownAnchor: p.nextEpisodeCountdownAnchor.rawValue
             ))
         case .appearance:
             let a = stores.appearance
@@ -343,6 +344,10 @@ extension DependencyContainer {
             if let countdown = p.autoplayCountdown { store.autoplayCountdown = countdown }
             if let forceDV = p.forceDolbyVisionOnNonDVDisplay { store.forceDolbyVisionOnNonDVDisplay = forceDV }
             if let touchpadScrub = p.touchpadScrubbing { store.touchpadScrubbing = touchpadScrub }
+            if let anchor = p.nextEpisodeCountdownAnchor {
+                store.nextEpisodeCountdownAnchor =
+                    NextEpisodePolicy.CountdownAnchor(rawValue: anchor) ?? store.nextEpisodeCountdownAnchor
+            }
         case .appearance(let a):
             let store = appearancePreferences
             if let accentChoice = AppearancePreferences.AccentChoice(rawValue: a.accentChoice) {

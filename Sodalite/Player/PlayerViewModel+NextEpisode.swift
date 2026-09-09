@@ -80,8 +80,10 @@ extension PlayerViewModel {
         }
     }
 
-    /// Starts the auto-advance timer. `from` defaults to 10s (outro-based flow with minutes of credits); the no-outro fallback passes actual remaining seconds so the countdown hits 0 at playback end.
-    func startNextEpisodeCountdown(from seconds: Int = 10) {
+    /// Starts the auto-advance timer. `from` is always clock-derived (`NextEpisodePolicy.countdownStart`),
+    /// so it can never outlive the source; no default, a call site that forgets it is a compile error
+    /// rather than a silent return of the old fixed length.
+    func startNextEpisodeCountdown(from seconds: Int) {
         // Autoplay off: still show the overlay for manual pick, but skip the auto-transition timer.
         // Countdown off (Sodalite#67): same here, and the switch happens at end-of-media instead, so
         // credits and post-credit scenes play out in full.

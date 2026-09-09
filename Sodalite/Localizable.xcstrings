@@ -148600,157 +148600,801 @@
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vypnuto zobrazí kartu bez odpočtu, takže titulky doběhnou před spuštěním další epizody."
+            "value" : "Jak dlouho odpočet běží, než začne další epizoda. Vypnuto zobrazí kartu bez odpočtu."
           }
         },
         "da" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fra viser kortet uden nedtælling, så rulleteksterne kan køre færdigt før næste afsnit."
+            "value" : "Hvor længe nedtællingen kører, før næste afsnit starter. Fra viser kortet uden timer."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aus zeigt die Karte ohne Timer, der Abspann läuft also zu Ende, bevor die nächste Folge startet."
+            "value" : "Wie lange der Countdown läuft, bevor die nächste Folge startet. Aus zeigt die Karte ohne Timer."
           }
         },
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Απενεργοποιημένο εμφανίζει την κάρτα χωρίς χρονόμετρο, ώστε να παίξουν οι τίτλοι τέλους πριν από το επόμενο επεισόδιο."
+            "value" : "Πόσο διαρκεί η αντίστροφη μέτρηση πριν ξεκινήσει το επόμενο επεισόδιο. Το Απενεργοποιημένο δείχνει την κάρτα χωρίς χρονόμετρο."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Off shows the card without a timer, so credits play out before the next episode starts."
+            "value" : "How long the countdown runs before the next episode starts. Off shows the card without a timer."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desactivado muestra la tarjeta sin temporizador, así los créditos terminan antes del siguiente episodio."
+            "value" : "Cuánto dura el contador antes de que empiece el siguiente episodio. Desactivado muestra la tarjeta sin temporizador."
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pois näyttää kortin ilman ajastinta, joten lopputekstit ehtivät soida ennen seuraavaa jaksoa."
+            "value" : "Kuinka kauan laskuri käy ennen seuraavan jakson alkua. Pois näyttää kortin ilman ajastinta."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Désactivé affiche la carte sans minuteur, le générique se termine avant l'épisode suivant."
+            "value" : "Durée du compte à rebours avant le démarrage de l'épisode suivant. Désactivé affiche la carte sans minuteur."
           }
         },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Isključeno prikazuje karticu bez odbrojavanja, pa odjavna špica završi prije sljedeće epizode."
+            "value" : "Koliko dugo traje odbrojavanje prije početka sljedeće epizode. Isključeno prikazuje karticu bez mjerača."
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kikapcsolva a kártya időzítő nélkül jelenik meg, így a stáblista végigfut a következő epizód előtt."
+            "value" : "Meddig tart a visszaszámlálás a következő rész indulásáig. A Ki a kártyát időzítő nélkül mutatja."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Disattivato mostra la scheda senza timer, così i titoli di coda scorrono prima del prossimo episodio."
+            "value" : "Quanto dura il conto alla rovescia prima che parta il prossimo episodio. Disattivato mostra la scheda senza timer."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "オフにするとタイマーなしでカードを表示し、エンドクレジットが終わってから次のエピソードが始まります。"
+            "value" : "次のエピソードが始まるまでのカウントダウンの長さです。オフではタイマーなしでカードを表示します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "끄면 타이머 없이 카드만 표시되어 엔딩 크레딧이 끝난 뒤 다음 에피소드가 시작됩니다."
+            "value" : "다음 에피소드가 시작되기까지 카운트다운이 이어지는 시간입니다. 끔은 타이머 없이 카드만 표시합니다."
           }
         },
         "nb" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Av viser kortet uten nedtelling, så rulleteksten spilles ferdig før neste episode."
+            "value" : "Hvor lenge nedtellingen varer før neste episode starter. Av viser kortet uten nedtelling."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uit toont de kaart zonder timer, zodat de aftiteling afspeelt voor de volgende aflevering."
+            "value" : "Hoelang het aftellen duurt voordat de volgende aflevering start. Uit toont de kaart zonder timer."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wyłączone pokazuje kartę bez odliczania, więc napisy końcowe wybrzmią przed następnym odcinkiem."
+            "value" : "Jak długo trwa odliczanie przed startem następnego odcinka. Wył. pokazuje kartę bez licznika."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desativado mostra o cartão sem contagem, então os créditos terminam antes do próximo episódio."
+            "value" : "Quanto tempo a contagem dura antes de o próximo episódio começar. Desativado mostra o cartão sem cronômetro."
           }
         },
         "pt-PT" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Desativado mostra o cartão sem contagem, para os créditos terminarem antes do próximo episódio."
+            "value" : "Quanto tempo dura a contagem antes de o episódio seguinte começar. Desativado mostra o cartão sem temporizador."
           }
         },
         "ro" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dezactivat afișează cardul fără cronometru, astfel genericul rulează până la capăt înainte de episodul următor."
+            "value" : "Cât durează numărătoarea până începe episodul următor. Dezactivat afișează cardul fără cronometru."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выключено показывает карточку без таймера, титры доигрывают до конца перед следующей серией."
+            "value" : "Сколько идёт отсчёт до начала следующего эпизода. «Выкл.» показывает карточку без таймера."
           }
         },
         "sk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vypnuté zobrazí kartu bez odpočtu, takže titulky dobehnú pred ďalšou epizódou."
+            "value" : "Ako dlho beží odpočet, kým sa spustí ďalšia epizóda. Vypnuté zobrazí kartu bez časovača."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Av visar kortet utan nedräkning, så eftertexterna spelas klart före nästa avsnitt."
+            "value" : "Hur länge nedräkningen pågår innan nästa avsnitt startar. Av visar kortet utan timer."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kapalıyken kart sayaç olmadan görünür, jenerik bitene kadar sonraki bölüm başlamaz."
+            "value" : "Sonraki bölüm başlamadan önce geri sayımın ne kadar süreceği. Kapalı, kartı geri sayım olmadan gösterir."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Вимкнено показує картку без таймера, тож титри догравають до кінця перед наступним епізодом."
+            "value" : "Скільки триває відлік до початку наступного епізоду. «Вимкнено» показує картку без таймера."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "关闭后仅显示卡片而不计时，片尾播完后才开始下一集。"
+            "value" : "下一集开始前倒计时的时长。关闭时只显示卡片，不显示计时。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "關閉後只顯示卡片而不倒數，片尾播完後才開始下一集。"
+            "value" : "下一集開始前倒數的時長。關閉時只顯示卡片，不顯示計時。"
+          }
+        }
+      }
+    },
+    "settings.playback.countdownAnchor" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpočet začíná"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nedtælling starter"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown startet"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Έναρξη αντίστροφης μέτρησης"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown Starts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El contador empieza"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laskuri alkaa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Départ du compte à rebours"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odbrojavanje počinje"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A visszaszámlálás kezdete"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvio del conto alla rovescia"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カウントダウンの開始"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "카운트다운 시작"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nedtellingen starter"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aftellen begint"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odliczanie zaczyna się"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A contagem começa"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A contagem começa"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numărătoarea începe"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начало отсчёта"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odpočet začína"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nedräkningen startar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geri sayım başlangıcı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Початок відліку"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "倒计时开始于"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "倒數開始於"
+          }
+        }
+      }
+    },
+    "settings.playback.countdownAnchor.end" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na konci"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ved slutningen"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am Ende"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Στο τέλος"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At the End"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al final"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lopussa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À la fin"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na kraju"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A végén"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alla fine"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エピソードの最後"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "에피소드 끝"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ved slutten"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aan het einde"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na końcu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No final"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fim"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La final"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В конце"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na konci"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vid slutet"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sonda"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У кінці"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "结尾"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "結尾"
+          }
+        }
+      }
+    },
+    "settings.playback.countdownAnchor.outro" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "U titulků"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ved rulleteksterne"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am Abspann"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Στους τίτλους τέλους"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At the Credits"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En los créditos"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lopputeksteissä"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Au générique"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na odjavnoj špici"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A stáblistánál"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sui titoli di coda"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エンドクレジット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "엔딩 크레딧"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ved rulleteksten"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij de aftiteling"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przy napisach"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nos créditos"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nos créditos"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La generic"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На титрах"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pri titulkoch"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vid eftertexterna"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jenerikte"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На титрах"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "片尾"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "片尾"
+          }
+        }
+      }
+    },
+    "settings.playback.countdownAnchor.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "U titulků začne další epizoda, jakmile odpočet skončí. Na konci se epizoda vždy dohraje."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ved rulleteksterne starter næste afsnit, så snart nedtællingen er slut. Ved slutningen spilles afsnittet altid færdigt."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am Abspann startet die nächste Folge, sobald der Countdown abgelaufen ist. Am Ende läuft die Folge immer ganz durch."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Στους τίτλους τέλους το επόμενο επεισόδιο ξεκινά μόλις τελειώσει η αντίστροφη μέτρηση. Στο τέλος το επεισόδιο παίζει πάντα ως το τέλος."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At the credits the next episode starts as soon as the countdown ends. At the end the episode always plays out."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En los créditos, el siguiente episodio empieza en cuanto termina el contador. Al final, el episodio siempre se reproduce entero."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lopputeksteissä seuraava jakso alkaa heti laskurin päätyttyä. Lopussa jakso toistetaan aina loppuun asti."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Au générique, l'épisode suivant démarre dès la fin du compte à rebours. À la fin, l'épisode est toujours lu jusqu'au bout."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na odjavnoj špici sljedeća epizoda počinje čim odbrojavanje istekne. Na kraju se epizoda uvijek reproducira do kraja."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A stáblistánál a következő rész a visszaszámlálás végén indul. A végén az epizód mindig végigjátszódik."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sui titoli di coda il prossimo episodio parte appena finisce il conto alla rovescia. Alla fine l'episodio viene sempre riprodotto per intero."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エンドクレジットでは、カウントダウンの終了と同時に次のエピソードが始まります。最後では常にエピソードを最後まで再生します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "엔딩 크레딧에서는 카운트다운이 끝나면 바로 다음 에피소드가 시작됩니다. 끝에서는 에피소드가 항상 끝까지 재생됩니다."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ved rulleteksten starter neste episode så snart nedtellingen er ferdig. Ved slutten spilles episoden alltid ferdig."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bij de aftiteling start de volgende aflevering zodra het aftellen klaar is. Aan het einde speelt de aflevering altijd helemaal af."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przy napisach końcowych następny odcinek zaczyna się zaraz po zakończeniu odliczania. Na końcu odcinek zawsze odtwarza się do końca."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nos créditos, o próximo episódio começa assim que a contagem termina. No final, o episódio sempre é reproduzido por inteiro."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nos créditos, o episódio seguinte começa assim que a contagem termina. No fim, o episódio é sempre reproduzido por inteiro."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La generic, episodul următor începe imediat ce se termină numărătoarea. La final, episodul rulează întotdeauna până la capăt."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На титрах следующий эпизод начинается сразу после отсчёта. В конце эпизод всегда проигрывается полностью."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pri titulkoch sa ďalšia epizóda spustí hneď po skončení odpočtu. Na konci sa epizóda vždy dohrá do konca."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vid eftertexterna startar nästa avsnitt så snart nedräkningen är klar. Vid slutet spelas avsnittet alltid färdigt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jenerikte, geri sayım biter bitmez sonraki bölüm başlar. Sonda, bölüm her zaman sonuna kadar oynatılır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На титрах наступний епізод починається одразу після відліку. У кінці епізод завжди відтворюється повністю."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择片尾时，倒计时结束后立即播放下一集。选择结尾时，本集始终完整播完。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇片尾時，倒數結束後立即播放下一集。選擇結尾時，本集一律完整播完。"
           }
         }
       }
