@@ -130,6 +130,12 @@ enum Changelog {
                 ),
                 ChangelogHighlight(
                     .improve,
+                    "changelog.1_0_0.requestFlow.title",
+                    "changelog.1_0_0.requestFlow.body",
+                    icon: "tray.and.arrow.down.fill"
+                ),
+                ChangelogHighlight(
+                    .improve,
                     "changelog.1_0_0.everyScreen.title",
                     "changelog.1_0_0.everyScreen.body",
                     icon: "apps.iphone"

@@ -25,10 +25,23 @@ struct SeerrRequestSheet: View {
 
     @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
+    @Environment(\.verticalSizeClass) private var vSizeClass
     @FocusState private var focusedField: Field?
 
     private enum Field: Hashable { case submit }
     private var isCompact: Bool { hSizeClass == .compact }
+
+    /// The phone in portrait is the one tier that cannot fit the two footer buttons on a line. Measured
+    /// on a 402pt iPhone: side by side they want about 390pt, which is more than the 362pt left inside
+    /// the panel's padding, so the whole stack overflowed and its 20pt gutter collapsed to 4pt on both
+    /// sides. Same split the detail pages use for their action rows.
+    private var isPhonePortrait: Bool {
+        #if os(iOS)
+        hSizeClass == .compact && vSizeClass != .compact
+        #else
+        false
+        #endif
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: isCompact ? 18 : 24) {
@@ -118,28 +131,44 @@ struct SeerrRequestSheet: View {
         }
     }
 
+    @ViewBuilder
     private var footer: some View {
-        HStack(spacing: isCompact ? 12 : 24) {
-            GlassActionButton(
-                title: "common.cancel",
-                systemImage: "xmark",
-                action: onCancel
-            )
-            .disabled(draft.isSubmitting)
-            .frame(maxWidth: isCompact ? .infinity : nil)
-
-            GlassActionButton(
-                title: submitTitle,
-                systemImage: "tray.and.arrow.down",
-                isProminent: true,
-                isLoading: draft.isSubmitting,
-                action: submit
-            )
-            .focused($focusedField, equals: .submit)
-            .disabled(draft.isSubmitting || !draft.canSubmit)
-            .frame(maxWidth: isCompact ? .infinity : nil)
+        if isPhonePortrait {
+            // Primary on top, the way the detail pages stack their action rows.
+            VStack(spacing: 12) {
+                submitButton
+                cancelButton
+            }
+        } else {
+            HStack(spacing: 24) {
+                cancelButton
+                submitButton
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: isCompact ? .center : .leading)
+    }
+
+    private var cancelButton: some View {
+        GlassActionButton(
+            title: "common.cancel",
+            systemImage: "xmark",
+            action: onCancel
+        )
+        .disabled(draft.isSubmitting)
+        .frame(maxWidth: isPhonePortrait ? .infinity : nil)
+    }
+
+    private var submitButton: some View {
+        GlassActionButton(
+            title: submitTitle,
+            systemImage: "tray.and.arrow.down",
+            isProminent: true,
+            isLoading: draft.isSubmitting,
+            action: submit
+        )
+        .focused($focusedField, equals: .submit)
+        .disabled(draft.isSubmitting || !draft.canSubmit)
+        .frame(maxWidth: isPhonePortrait ? .infinity : nil)
     }
 
     private var allSeasonsTitle: String {

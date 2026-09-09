@@ -58504,6 +58504,328 @@
         }
       }
     },
+    "changelog.1_0_0.requestFlow.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Žádosti na jednom místě"
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anmodninger på ét sted"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anfragen an einem Ort"
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αιτήματα σε ένα σημείο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Requests in one place"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitudes en un solo lugar"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pyynnöt yhdessä paikassa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les demandes au même endroit"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zahtjevi na jednom mjestu"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kérések egy helyen"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richieste in un unico posto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リクエストは一か所に"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청은 한곳에서"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forespørsler på ett sted"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aanvragen op één plek"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prośby w jednym miejscu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitações em um só lugar"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pedidos num só lugar"
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitări într-un singur loc"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запросы в одном месте"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Žiadosti na jednom mieste"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Förfrågningar på ett ställe"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İstekler tek yerde"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запити в одному місці"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请求集中在一处"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請求集中一處"
+          }
+        }
+      }
+    },
+    "changelog.1_0_0.requestFlow.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyžádání seriálu se teď celé odehrává v jednom panelu: zaškrtnout sezóny, nastavit profil kvality, kořenovou složku a štítky, potvrdit. Chybějící sezóny jsou zaškrtnuté předem a tlačítko říká, kolik jich vyžádá."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "At anmode om en serie sker nu i ét panel: sæt hak ved sæsonerne, vælg kvalitetsprofil, rodmappe og tags, og bekræft. De sæsoner, biblioteket mangler, er valgt på forhånd, og knappen siger hvor mange den anmoder om."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Serie anfordern passiert jetzt in einem Panel: Staffeln anhaken, Qualitätsprofil, Stammverzeichnis und Tags setzen, bestätigen. Die fehlenden Staffeln sind vorausgewählt, und der Button nennt die Anzahl."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το αίτημα για μια σειρά γίνεται τώρα σε ένα πάνελ: επιλέξτε σεζόν, ορίστε προφίλ ποιότητας, ριζικό φάκελο και ετικέτες, επιβεβαιώστε. Οι σεζόν που λείπουν είναι προεπιλεγμένες και το κουμπί λέει πόσες θα ζητήσει."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Requesting a series happens in one panel now: tick the seasons, set quality profile, root folder and tags, confirm. The seasons your library is missing come ticked, and the button says how many it will request."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitar una serie ocurre ahora en un solo panel: marca las temporadas, elige perfil de calidad, carpeta raíz y etiquetas, y confirma. Las temporadas que faltan vienen marcadas, y el botón indica cuántas va a solicitar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sarjan pyytäminen tapahtuu nyt yhdessä paneelissa: valitse kaudet, aseta laatuprofiili, juurikansio ja tagit, vahvista. Kirjastosta puuttuvat kaudet on valittu valmiiksi, ja painike kertoo, montako se pyytää."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demander une série se fait maintenant dans un seul panneau : cochez les saisons, réglez le profil de qualité, le dossier racine et les tags, puis confirmez. Les saisons manquantes sont déjà cochées, et le bouton indique combien il va demander."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zahtjev za serijom sada se šalje iz jednog panela: označi sezone, postavi profil kvalitete, korijensku mapu i oznake, potvrdi. Sezone koje knjižnici manjkaju već su označene, a gumb kaže koliko ih traži."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy sorozat kérése most egyetlen panelen történik: jelöld ki az évadokat, állítsd be a minőségi profilt, a gyökérmappát és a címkéket, majd hagyd jóvá. A könyvtárból hiányzó évadok előre ki vannak jelölve, a gomb pedig kiírja, hányat kér."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiedere una serie avviene ora in un unico pannello: spunta le stagioni, imposta profilo qualità, cartella principale e tag, e conferma. Le stagioni che mancano sono già spuntate, e il pulsante dice quante ne richiederà."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "シリーズのリクエストは1つのパネルで完結します。シーズンを選び、品質プロファイル、ルートフォルダ、タグを設定して確定するだけです。ライブラリにないシーズンは最初から選ばれ、ボタンがリクエストする数を示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시리즈 요청이 하나의 패널에서 끝납니다. 시즌을 선택하고 품질 프로파일, 루트 폴더, 태그를 설정한 뒤 확인하면 됩니다. 라이브러리에 없는 시즌은 미리 선택되며, 버튼이 요청할 개수를 알려줍니다."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Å be om en serie skjer nå i ett panel: kryss av sesongene, velg kvalitetsprofil, rotmappe og merkelapper, og bekreft. Sesongene biblioteket mangler er krysset av på forhånd, og knappen sier hvor mange den ber om."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een serie aanvragen gebeurt nu in één paneel: vink de seizoenen aan, stel kwaliteitsprofiel, hoofdmap en tags in, en bevestig. De seizoenen die je bibliotheek mist staan al aangevinkt, en de knop noemt het aantal."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prośba o serial odbywa się teraz w jednym panelu: zaznacz sezony, ustaw profil jakości, folder główny i tagi, zatwierdź. Brakujące sezony są zaznaczone z góry, a przycisk podaje, o ile ich poprosi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitar uma série acontece agora em um único painel: marque as temporadas, defina perfil de qualidade, pasta raiz e tags, e confirme. As temporadas que faltam vêm marcadas, e o botão diz quantas vai solicitar."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pedir uma série acontece agora num único painel: marque as temporadas, defina perfil de qualidade, pasta raiz e etiquetas, e confirme. As temporadas que faltam vêm marcadas, e o botão diz quantas vai pedir."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitarea unui serial se face acum într-un singur panou: bifează sezoanele, setează profilul de calitate, folderul rădăcină și etichetele, apoi confirmă. Sezoanele care lipsesc sunt deja bifate, iar butonul spune câte va solicita."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запрос сериала теперь целиком в одной панели: отметьте сезоны, задайте профиль качества, корневую папку и теги, подтвердите. Отсутствующие сезоны отмечены заранее, а кнопка называет их количество."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Žiadosť o seriál sa teraz vybaví v jednom paneli: označ sezóny, nastav profil kvality, korenovú složku a štítky, potvrď. Chýbajúce sezóny sú označené vopred a tlačidlo hovorí, koľko ich vyžiada."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Att begära en serie sker nu i en enda panel: kryssa i säsongerna, ställ in kvalitetsprofil, rotmapp och taggar, och bekräfta. Säsongerna som biblioteket saknar är redan ikryssade, och knappen säger hur många den begär."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir diziyi istemek artık tek bir panelde: sezonları işaretle, kalite profilini, kök klasörü ve etiketleri ayarla, onayla. Kitaplıkta olmayan sezonlar önceden işaretli gelir ve düğme kaç sezon isteyeceğini söyler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запит серіалу тепер повністю в одній панелі: позначте сезони, задайте профіль якості, кореневу теку й теги, підтвердьте. Відсутні сезони позначені заздалегідь, а кнопка називає їхню кількість."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请求剧集现在都在同一个面板里完成：勾选剧季，设置质量配置文件、根文件夹和标签，然后确认。媒体库中缺少的剧季会预先勾选，按钮也会写明将请求几季。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請求劇集現在都在同一個面板完成：勾選季集，設定品質設定檔、根資料夾與標籤，然後確認。媒體庫中缺少的季集會預先勾選，按鈕也會寫明將請求幾季。"
+          }
+        }
+      }
+    },
     "changelog.1_0_0.forcedSubtitles.body" : {
       "comment" : "Changelog highlight for the 1.0.0 release",
       "extractionState" : "manual",
