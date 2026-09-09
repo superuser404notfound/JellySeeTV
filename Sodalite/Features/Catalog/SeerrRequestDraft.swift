@@ -1,0 +1,179 @@
+import Foundation
+
+/// The Radarr / Sonarr side of a request: which instance takes it, at which quality, into which folder,
+/// with which tags. Shared by the single-title request sheet and the collection bulk request, which
+/// used to keep the same four fields as separate view state each (Sodalite#132).
+@MainActor
+@Observable
+final class SeerrRequestOptions {
+    var details: SeerrServiceDetails?
+    var profileID: Int?
+    var rootFolder: String?
+    var tagIDs: Set<Int> = []
+    /// Distinguishes "still resolving" from "this server offers no options", which an empty section cannot.
+    private(set) var isLoading = false
+
+    /// Seeded from the page that pushed this one, where it already resolved them.
+    init(details: SeerrServiceDetails? = nil, profileID: Int? = nil, rootFolder: String? = nil) {
+        self.details = details
+        self.profileID = profileID
+        self.rootFolder = rootFolder
+    }
+
+    /// The instance and its language profile ride along with the resolved server, they are never picked by hand.
+    var serverID: Int? { details?.server.id }
+    var languageProfileID: Int? { details?.server.activeLanguageProfileId }
+
+    /// Send nil, not [], for "no tags": older Jellyseerr lacks the field entirely.
+    var tagsPayload: [Int]? {
+        tagIDs.isEmpty ? nil : tagIDs.sorted()
+    }
+
+    var availableTags: [SeerrTag] {
+        details?.tags ?? []
+    }
+
+    /// Best-effort: a Seerr with no Radarr/Sonarr configured, or a lookup that fails, leaves the fields
+    /// empty and the request goes out on the server's own defaults.
+    func load(service: SeerrServiceConfigServiceProtocol, mediaType: SeerrMediaType) async {
+        guard details == nil else { return }
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            guard let resolved = try await SeerrRequestDefaults.resolve(
+                service: service,
+                mediaType: mediaType
+            ) else { return }
+            details = resolved.details
+            profileID = resolved.profileID
+            rootFolder = resolved.rootFolder
+        } catch {
+            // Swallow: the option rows simply stay absent.
+        }
+    }
+}
+
+/// One request in the making: the seasons it covers, the options it carries, and the one call that
+/// posts it. Lives outside the view so the rules that used to be spread over CatalogDetailView's
+/// `@State` (what may be submitted, what goes in the payload, what opens preselected) are one place
+/// and can be tested without a screen.
+@MainActor
+@Observable
+final class SeerrRequestDraft {
+    let mediaType: SeerrMediaType
+    let tmdbID: Int
+
+    /// The seasons on offer, specials already filtered out by the page.
+    var seasons: [SeerrSeason] = []
+    private(set) var selectedSeasons: Set<Int> = []
+    let options: SeerrRequestOptions
+
+    private(set) var isSubmitting = false
+    private(set) var didSubmit = false
+    var error: String?
+
+    /// One-shot, so reopening the sheet does not wipe a selection the user has since adjusted.
+    private var didSeed = false
+
+    init(mediaType: SeerrMediaType, tmdbID: Int, options: SeerrRequestOptions = SeerrRequestOptions()) {
+        self.mediaType = mediaType
+        self.tmdbID = tmdbID
+        self.options = options
+    }
+
+    // MARK: - Selection
+
+    /// A series request without a season is the one payload Jellyseerr cannot place, so it gates the
+    /// primary action; a movie is always ready.
+    var canSubmit: Bool {
+        switch mediaType {
+        case .movie: true
+        case .tv: !selectedSeasons.isEmpty
+        case .person, .unknown: false
+        }
+    }
+
+    var seasonsPayload: [Int]? {
+        guard mediaType == .tv, !selectedSeasons.isEmpty else { return nil }
+        return selectedSeasons.sorted()
+    }
+
+    var allSeasonsSelected: Bool {
+        guard !seasons.isEmpty else { return false }
+        return seasons.allSatisfy { selectedSeasons.contains($0.seasonNumber) }
+    }
+
+    func isSelected(_ seasonNumber: Int) -> Bool {
+        selectedSeasons.contains(seasonNumber)
+    }
+
+    func toggle(_ seasonNumber: Int) {
+        if selectedSeasons.contains(seasonNumber) {
+            selectedSeasons.remove(seasonNumber)
+        } else {
+            selectedSeasons.insert(seasonNumber)
+        }
+    }
+
+    func selectAll() {
+        selectedSeasons = Set(seasons.map(\.seasonNumber))
+    }
+
+    func clearSelection() {
+        selectedSeasons.removeAll()
+    }
+
+    /// Fills the draft the first time the sheet opens: everything the server does not already have,
+    /// and is not already fetching, starts ticked. That makes the sheet actionable on open (the old
+    /// flow left the user hunting for a way to say which seasons they meant) while the primary action
+    /// still names the count, so a wide selection is never silent.
+    func seed(seasons: [SeerrSeason], status: (Int) -> SeerrMediaStatus?) {
+        self.seasons = seasons
+        guard !didSeed else { return }
+        didSeed = true
+        selectedSeasons = Set(
+            seasons
+                .map(\.seasonNumber)
+                .filter { Self.isWorthRequesting(status($0)) }
+        )
+    }
+
+    /// Availability and pipeline states say "not this one": present, half present, approved and on its
+    /// way, or waiting for an admin. A deleted season is explicitly worth asking for again, which is
+    /// the whole point of the Jellyfin ground-truth reconcile that produces it.
+    static func isWorthRequesting(_ status: SeerrMediaStatus?) -> Bool {
+        switch status {
+        case .none, .unknown, .deleted: true
+        case .available, .partiallyAvailable, .processing, .pending: false
+        }
+    }
+
+    // MARK: - Submitting
+
+    /// Posts the request. Returns whether it landed, so the caller can close the sheet on success and
+    /// leave it standing (with its message) on failure.
+    @discardableResult
+    func submit(service: SeerrRequestServiceProtocol) async -> Bool {
+        guard canSubmit, !isSubmitting else { return false }
+        isSubmitting = true
+        error = nil
+        defer { isSubmitting = false }
+        do {
+            _ = try await service.createRequest(
+                mediaType: mediaType,
+                tmdbID: tmdbID,
+                seasons: seasonsPayload,
+                serverID: options.serverID,
+                profileID: options.profileID,
+                rootFolder: options.rootFolder,
+                languageProfileID: options.languageProfileID,
+                tags: options.tagsPayload
+            )
+            didSubmit = true
+            return true
+        } catch {
+            self.error = ErrorText.user(for: error)
+            return false
+        }
+    }
+}
