@@ -13,12 +13,13 @@ struct CatalogDetailView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
 
-    @State private var selectedSeasons: Set<Int> = []
-    @State private var isSubmitting = false
-    @State private var didRequest = false
-    @State private var requestError: String?
+    /// The request in the making: seasons, options, submit. Owned here so it survives the sheet being
+    /// opened and closed again, and so the page can read `didSubmit` for its post-request CTA.
+    @State private var draft: SeerrRequestDraft
+    /// Withdrawing an existing request is the page's own action, not the draft's, and so is its error.
     @State private var showCancelRequestConfirm = false
     @State private var isCancellingRequest = false
+    @State private var cancelError: String?
 
     /// Currently-viewed season; independent of the request set so the user can browse episodes without requesting.
     @State private var viewedSeasonNumber: Int?
@@ -41,25 +42,20 @@ struct CatalogDetailView: View {
     /// TMDB collection this movie belongs to; nil for standalone movies and for every series (Sodalite#52).
     @State private var navigateToCollection: SeerrCollectionRef?
 
-    // Advanced request options from /service/radarr|sonarr; nil = omit field, falls back to Seerr's server default.
-    @State private var serviceDetails: SeerrServiceDetails?
-    @State private var selectedProfileID: Int?
-    @State private var selectedRootFolder: String?
-    /// Sonarr/Radarr tag ids; sent as nil when empty so older Jellyseerr builds that don't know the field still accept the body.
-    @State private var selectedTagIDs: Set<Int> = []
+    /// The request sheet: seasons, options and the confirm, all in one panel (Sodalite#132).
+    @State private var showRequestSheet = false
 
-    /// Mandatory request-options sheet (quality profile, root folder, tags + final confirm).
-    @State private var showRequestOptions = false
-
-    /// First-screen focus. Seeded to `.request` once loaded so no focus lands below the fold and triggers an on-open auto-scroll (old tab-bar-stuck-hidden bug). Request with no seasons picked moves focus to `.seasons` to scroll the picker into view.
+    /// First-screen focus. Seeded to `.request` once loaded so no focus lands below the fold and triggers an on-open auto-scroll (old tab-bar-stuck-hidden bug).
     @FocusState private var focusedField: DetailFocus?
-    /// Whole-page scroll proxy, iOS only (see PageScrollProxyCapture); nil on tvOS, where the focus engine scrolls.
-    @State private var pageScrollProxy: ScrollViewProxy?
-    private static let seasonSectionAnchor = "catalogSeasonSection"
     /// Overview box below the fold holds focus: Withdraw request leaves the focus engine for that
     /// time so an up-move can only land on the request button (Sodalite#53 follow-up).
     @State private var overviewHasFocus = false
-    private enum DetailFocus: Hashable { case request, seasons }
+    private enum DetailFocus: Hashable { case request }
+
+    init(media: SeerrMedia) {
+        self.media = media
+        _draft = State(initialValue: SeerrRequestDraft(mediaType: media.mediaType, tmdbID: media.id))
+    }
 
     /// Result of the Jellyfin library cross-check. .unknown degrades to trusting Seerr; never a false .absent.
     private enum JellyfinPresence: Equatable { case unknown, present, absent }
@@ -101,14 +97,27 @@ struct CatalogDetailView: View {
             // sheet regularly opened before they landed and silently offered no options at all.
             CatalogCollectionView(
                 collection: collection,
-                serviceDetails: serviceDetails,
-                profileID: selectedProfileID,
-                rootFolder: selectedRootFolder
+                serviceDetails: draft.options.details,
+                profileID: draft.options.profileID,
+                rootFolder: draft.options.rootFolder
             )
                 .detailCoverPush()
         }
-        .menuPresentation(isPresented: $showRequestOptions) {
-            requestOptionsSheet
+        .menuPresentation(isPresented: $showRequestSheet, panel: .plain) {
+            SeerrRequestSheet(
+                draft: draft,
+                title: displayTitle,
+                subtitle: displayYear,
+                status: { seasonStatus(number: $0) },
+                onSubmitted: {
+                    showRequestSheet = false
+                    // My Requests / the admin queue hold their rows until told; without this the new request
+                    // sits invisible in those lists until an app restart.
+                    NotificationCenter.default.post(name: .seerrRequestsDidChange, object: nil)
+                    Task { await refreshDetailAfterRequest() }
+                },
+                onCancel: { showRequestSheet = false }
+            )
         }
         .onChange(of: isLoading) { _, loading in
             // Focus the action button so nothing below the fold auto-scrolls; defer dodges the focus-commit race (as MovieDetailView).
@@ -138,7 +147,6 @@ struct CatalogDetailView: View {
             }) {
                 trailingBody
             }
-            .modifier(PageScrollProxyCapture(proxy: $pageScrollProxy))
         }
     }
 
@@ -254,7 +262,7 @@ struct CatalogDetailView: View {
     @ViewBuilder
     private var requestActionRow: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if didRequest {
+            if draft.didSubmit {
                 // Post-request CTA: nothing else focusable, so give a back-to-catalog action (else tvOS Menu exits the app).
                 GlassActionButton(
                     title: "catalog.request.sent",
@@ -271,8 +279,8 @@ struct CatalogDetailView: View {
                     HStack(spacing: 16) { requestButtons }
                 }
 
-                if let requestError {
-                    Text(requestError)
+                if let cancelError {
+                    Text(cancelError)
                         .font(.caption)
                         .foregroundStyle(.red)
                 }
@@ -299,14 +307,12 @@ struct CatalogDetailView: View {
     @ViewBuilder
     private var requestButtons: some View {
         GlassActionButton(
-            title: requestButtonTitle,
+            title: "catalog.button.request",
             systemImage: "tray.and.arrow.down",
             isProminent: true,
-            isLoading: isSubmitting,
-            action: { requestButtonTapped() }
+            action: { openRequestSheet() }
         )
         .focused($focusedField, equals: .request)
-        .disabled(isSubmitting)
         .frame(maxWidth: isPhonePortrait ? .infinity : nil)
 
         // Only offered while a request is actually open. Jellyseerr never revisits a request once it stops moving (its availability sync looks at available titles only), so a title pulled out of Sonarr elsewhere keeps reporting a pipeline state with no way to clear it from here.
@@ -334,7 +340,7 @@ struct CatalogDetailView: View {
     private func cancelOpenRequests() async {
         isCancellingRequest = true
         defer { isCancellingRequest = false }
-        requestError = nil
+        cancelError = nil
         do {
             for request in openRequests {
                 try await dependencies.seerrRequestService.deleteRequest(requestID: request.id)
@@ -343,69 +349,20 @@ struct CatalogDetailView: View {
             NotificationCenter.default.post(name: .seerrRequestsDidChange, object: nil)
             await refreshDetailAfterRequest()
         } catch {
-            requestError = ErrorText.user(for: error)
+            cancelError = ErrorText.user(for: error)
         }
     }
 
-    /// Series with no seasons picked: bring the season picker into view; else present the options sheet.
-    ///
-    /// tvOS gets there by moving focus, which makes the focus engine scroll. iOS has no focus engine,
-    /// so that write is a no-op and the tap did nothing at all: it scrolls the page itself instead.
-    private func requestButtonTapped() {
-        guard media.mediaType == .tv, selectedSeasons.isEmpty else {
-            showRequestOptions = true
-            return
+    /// One button, one meaning: the sheet owns the season selection, the options and the confirm.
+    /// It used to scroll the page to the season chips on the first press and submit on the second,
+    /// which is what Sodalite#132 reported.
+    private func openRequestSheet() {
+        if let seasons = availableSeasons, !seasons.isEmpty {
+            draft.seed(seasons: seasons, status: { seasonStatus(number: $0) })
         }
-        focusedField = .seasons
-        if let pageScrollProxy {
-            withAnimation(.easeInOut(duration: 0.4)) {
-                pageScrollProxy.scrollTo(Self.seasonSectionAnchor, anchor: .top)
-            }
-        }
-    }
-
-    // MARK: - Request options sheet
-
-    // No ScrollView wrapper: a ScrollView root under-reports its height to a tvOS sheet, so the card is sized too short and the focused confirm button's halo (SettingsTileButtonStyle scale+shadow+stroke) gets clipped at the bottom edge. The content (title + a few advanced rows + button) always fits, so the sheet hugs the real VStack height instead.
-    private var requestOptionsSheet: some View {
-        VStack(alignment: .leading, spacing: 28) {
-            Text(displayTitle)
-                .font(.title2)
-                .fontWeight(.bold)
-
-            // Empty for users without service options; confirm still submits with server defaults.
-            advancedOptionsSection
-
-            Button {
-                Task {
-                    await submitRequest()
-                    if didRequest { showRequestOptions = false }
-                }
-            } label: {
-                if isSubmitting {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                } else {
-                    Label(requestButtonTitle, systemImage: "tray.and.arrow.down")
-                        .font(.body)
-                        .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                }
-            }
-            .buttonStyle(SettingsTileButtonStyle())
-            .disabled(isSubmitting || !canSubmit)
-
-            if let requestError {
-                Text(requestError)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-            }
-        }
-        .padding(48)
-        .frame(maxWidth: 900, alignment: .leading)
-        .frame(maxWidth: .infinity)
+        // A failure from a previous attempt is history the moment the sheet is opened again.
+        draft.error = nil
+        showRequestSheet = true
     }
 
     // MARK: - Trailing (scrolls below the fold)
@@ -431,7 +388,6 @@ struct CatalogDetailView: View {
 
             if media.mediaType == .tv, let seasons = availableSeasons, !seasons.isEmpty {
                 seasonSelection(seasons: seasons)
-                    .id(Self.seasonSectionAnchor)
             }
 
             if !castMembers.isEmpty {
@@ -460,21 +416,12 @@ struct CatalogDetailView: View {
         .padding(.horizontal, metrics.rowInset)
     }
 
-    @ViewBuilder
-    private var advancedOptionsSection: some View {
-        if let details = serviceDetails, !didRequest {
-            SeerrRequestOptionsForm(
-                details: details,
-                selectedProfileID: $selectedProfileID,
-                selectedRootFolder: $selectedRootFolder,
-                selectedTagIDs: $selectedTagIDs
-            )
-        }
-    }
-
+    /// Browsing, not requesting: the chips pick which season's episodes to show, and the status badge
+    /// says where that season stands. Picking WHAT to request moved into the request sheet, which is
+    /// where the confirm button lives (Sodalite#132).
     private func seasonSelection(seasons: [SeerrSeason]) -> some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("catalog.seasons.select")
+            Text("catalog.seasons.title")
                 .font(.title3)
                 .fontWeight(.semibold)
 
@@ -485,15 +432,10 @@ struct CatalogDetailView: View {
                             CatalogSeasonTab(
                                 season: season,
                                 isViewed: viewedSeasonNumber == season.seasonNumber,
-                                isSelectedForRequest: selectedSeasons.contains(season.seasonNumber),
                                 availabilityStatus: seasonStatus(season),
                                 action: { selectSeasonForViewing(season) }
                             )
                             .id(season.seasonNumber)
-                            // Focus anchor for requestButtonTapped's no-seasons-picked path.
-                            .applyIf(season.seasonNumber == seasons.first?.seasonNumber) {
-                                $0.focused($focusedField, equals: .seasons)
-                            }
                         }
                     }
                     .padding(.horizontal, 20)
@@ -506,9 +448,6 @@ struct CatalogDetailView: View {
                 }
             }
 
-            // Per-season + select-all actions below the tab row so tabs aren't sharing a horizontal focus slice with competing targets.
-            seasonActionsRow(seasons: seasons)
-
             if let viewed = viewedSeasonNumber,
                let season = seasons.first(where: { $0.seasonNumber == viewed }) {
                 seasonDetailBlock(season: season)
@@ -517,76 +456,25 @@ struct CatalogDetailView: View {
     }
 
     @ViewBuilder
-    private func seasonActionsRow(seasons: [SeerrSeason]) -> some View {
-        let viewedSeason: SeerrSeason? = viewedSeasonNumber.flatMap { n in
-            seasons.first(where: { $0.seasonNumber == n })
-        }
-        // Wrapping row, not an HStack: on a phone in portrait the three chips exceed the line width and
-        // an HStack resolves that by wrapping each label's text internally (three ragged multi-line columns).
-        // FlowLayout keeps every chip on one text line and moves the overflow chip to a second row instead.
-        FlowLayout(alignment: .leading, spacing: 12) {
-            if let season = viewedSeason {
-                // Status is informational and never blocks: show the pipeline state (if any) as a label, then always offer add/remove so a deleted-but-stale-available season stays re-requestable.
-                if let status = seasonStatus(season) {
-                    Label(
-                        seasonStatusLabel(status),
-                        systemImage: status.systemImage
-                    )
-                    .font(.caption)
-                    .foregroundStyle(status.color)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                }
-                let isSelected = selectedSeasons.contains(season.seasonNumber)
-                Button {
-                    toggleSeason(season)
-                } label: {
-                    Label(
-                        isSelected
-                            ? "catalog.seasons.removeFromRequest"
-                            : "catalog.seasons.addToRequest",
-                        systemImage: isSelected ? "checkmark.circle.fill" : "plus.circle"
-                    )
-                    .font(.caption)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                }
-                .buttonStyle(SeasonChipButtonStyle())
-            }
-            if hasSelectableSeasons(in: seasons) {
-                Button {
-                    toggleAllSeasons(seasons)
-                } label: {
-                    Label(
-                        allSelectableSeasonsSelected(in: seasons)
-                            ? "catalog.seasons.deselectAll"
-                            : "catalog.seasons.selectAll",
-                        systemImage: allSelectableSeasonsSelected(in: seasons)
-                            ? "minus.circle"
-                            : "plus.circle"
-                    )
-                    .font(.caption)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                }
-                .buttonStyle(SeasonChipButtonStyle())
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, 4)
-    }
-
-    @ViewBuilder
     private func seasonDetailBlock(season: SeerrSeason) -> some View {
         let n = season.seasonNumber
         let episodes = seasonEpisodes[n]
 
         VStack(alignment: .leading, spacing: 12) {
-            // Heading only; the per-season Add / Already-Available action moved up by the tab row to share a focus column with Select All.
-            Text(seasonHeading(season: season))
-                .font(.title3)
-                .fontWeight(.semibold)
-                .padding(.horizontal, 4)
+            HStack(spacing: 12) {
+                Text(seasonHeading(season: season))
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                // Informational, and it never gates anything: a season deleted server-side reports stale
+                // availability, so every season stays requestable in the sheet whatever this says.
+                if let status = seasonStatus(season) {
+                    Label(status.seasonLabelKey, systemImage: status.systemImage)
+                        .font(.caption)
+                        .foregroundStyle(status.color)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 4)
 
             // Same box as the series overview above: a season synopsis is regularly longer than the
             // three lines a plain Text could show, so it gets the identical focusable / tappable
@@ -660,51 +548,6 @@ struct CatalogDetailView: View {
             seasonEpisodes[seasonNumber] = detail.episodes ?? []
         } catch {
             // Best-effort: leave the cache empty so "no episodes" renders; a banner would compete with the request-error label.
-        }
-    }
-
-    private func selectableSeasons(in seasons: [SeerrSeason]) -> [SeerrSeason] {
-        // Status never gates a request: a season deleted in Radarr/Sonarr (server reports it stale-available) must stay re-requestable, so every real season is selectable and status is display-only.
-        seasons
-    }
-
-    private func hasSelectableSeasons(in seasons: [SeerrSeason]) -> Bool {
-        !selectableSeasons(in: seasons).isEmpty
-    }
-
-    private func allSelectableSeasonsSelected(in seasons: [SeerrSeason]) -> Bool {
-        let selectable = selectableSeasons(in: seasons)
-        guard !selectable.isEmpty else { return false }
-        return selectable.allSatisfy { selectedSeasons.contains($0.seasonNumber) }
-    }
-
-    private func toggleAllSeasons(_ seasons: [SeerrSeason]) {
-        let selectable = selectableSeasons(in: seasons)
-        if allSelectableSeasonsSelected(in: seasons) {
-            for season in selectable {
-                selectedSeasons.remove(season.seasonNumber)
-            }
-        } else {
-            for season in selectable {
-                selectedSeasons.insert(season.seasonNumber)
-            }
-        }
-    }
-
-
-    private var requestButtonTitle: LocalizedStringKey {
-        switch media.mediaType {
-        case .movie: "catalog.button.request"
-        case .tv: "catalog.button.requestSeasons"
-        case .person, .unknown: "catalog.button.request"
-        }
-    }
-
-    private var canSubmit: Bool {
-        switch media.mediaType {
-        case .movie: true
-        case .tv: !selectedSeasons.isEmpty
-        case .person, .unknown: false
         }
     }
 
@@ -796,39 +639,20 @@ struct CatalogDetailView: View {
     /// Informational status for the season, or nil if untracked. Never gates requesting (status is display-only); a deleted/declined season must still be re-requestable.
     /// Layers Seerr's cached status with the Jellyfin ground-truth override: a stale "available" is downgraded to .deleted when the season's episode files are actually gone from the library.
     private func seasonStatus(_ season: SeerrSeason) -> SeerrMediaStatus? {
-        let seerr = seerrSeasonStatus(season.seasonNumber)
+        seasonStatus(number: season.seasonNumber)
+    }
+
+    /// By number, because the request sheet asks that way: it holds season numbers, not the models.
+    private func seasonStatus(number n: Int) -> SeerrMediaStatus? {
+        let seerr = SeerrSeasonStatusResolver.status(seasonNumber: n, mediaInfo: tvDetail?.mediaInfo)
         // Jellyfin ground truth: override Seerr's stale available/partially-available with .deleted when the show is gone entirely (titlePresence absent) or this specific season has no episode files, so the user sees it's gone (and can re-request).
         if seerr == .available || seerr == .partiallyAvailable {
             if titlePresence == .absent { return .deleted }
-            if let hasFiles = jellyfinSeasonHasFiles, hasFiles[season.seasonNumber] != true {
+            if let hasFiles = jellyfinSeasonHasFiles, hasFiles[n] != true {
                 return .deleted
             }
         }
         return seerr
-    }
-
-    private func seerrSeasonStatus(_ n: Int) -> SeerrMediaStatus? {
-        SeerrSeasonStatusResolver.status(seasonNumber: n, mediaInfo: tvDetail?.mediaInfo)
-    }
-
-    private func seasonStatusLabel(_ status: SeerrMediaStatus) -> LocalizedStringKey {
-        switch status {
-        case .available: return "catalog.seasons.alreadyAvailable"
-        // Same wording as the title badge: `.processing` is Jellyseerr's "in the pipeline", and the client cannot tell an active download from a request Sonarr has long stopped acting on, so it must not claim one.
-        case .processing: return "catalog.status.processing"
-        case .pending: return "catalog.seasons.pendingApproval"
-        case .partiallyAvailable: return "catalog.status.partiallyAvailable"
-        case .deleted: return "catalog.status.removed"
-        case .unknown: return "catalog.status.unknown"
-        }
-    }
-
-    private func toggleSeason(_ season: SeerrSeason) {
-        if selectedSeasons.contains(season.seasonNumber) {
-            selectedSeasons.remove(season.seasonNumber)
-        } else {
-            selectedSeasons.insert(season.seasonNumber)
-        }
     }
 
     // MARK: - Actions
@@ -839,7 +663,12 @@ struct CatalogDetailView: View {
         defer { isLoading = false }
 
         // Fire-and-forget (not async let): detail render must not block on best-effort Radarr/Sonarr config that only feeds optional dropdowns.
-        Task { await loadServiceConfig() }
+        Task {
+            await draft.options.load(
+                service: dependencies.seerrServiceConfigService,
+                mediaType: media.mediaType
+            )
+        }
         Task { await loadRecommendations() }
         Task { await loadRatings() }
 
@@ -974,50 +803,7 @@ struct CatalogDetailView: View {
         if let score = rt.criticsScore { rtCriticsScore = score }
     }
 
-    private func loadServiceConfig() async {
-        do {
-            guard let resolved = try await SeerrRequestDefaults.resolve(
-                service: dependencies.seerrServiceConfigService,
-                mediaType: media.mediaType
-            ) else { return }
-            serviceDetails = resolved.details
-            selectedProfileID = resolved.profileID
-            selectedRootFolder = resolved.rootFolder
-        } catch {
-            // Swallow, dropdowns simply won't appear and the request
-            // will use Seerr's defaults.
-        }
-    }
-
-    private func submitRequest() async {
-        isSubmitting = true
-        requestError = nil
-        defer { isSubmitting = false }
-
-        let seasons: [Int]? = media.mediaType == .tv ? Array(selectedSeasons) : nil
-
-        do {
-            _ = try await dependencies.seerrRequestService.createRequest(
-                mediaType: media.mediaType,
-                tmdbID: media.id,
-                seasons: seasons,
-                serverID: serviceDetails?.server.id,
-                profileID: selectedProfileID,
-                rootFolder: selectedRootFolder,
-                languageProfileID: serviceDetails?.server.activeLanguageProfileId,
-                tags: selectedTagIDs.isEmpty ? nil : Array(selectedTagIDs)
-            )
-            didRequest = true
-            // Nudge request lists (My Requests / admin queue) to refresh; they only reload-when-empty on section switch.
-            NotificationCenter.default.post(name: .seerrRequestsDidChange, object: nil)
-            // Refresh mediaInfo so chips/badges drop stale "not requested" state. NOT load(): that flips the full-screen loading state and re-runs config/recommendations.
-            await refreshDetailAfterRequest()
-        } catch {
-            requestError = ErrorText.user(for: error)
-        }
-    }
-
-    /// Light refresh after a successful request: replaces only the mediaInfo-carrying detail (badges/chips pick up pending state); tab selection and episode lists stay untouched.
+    /// Light refresh after a successful request: replaces only the mediaInfo-carrying detail (badges/chips pick up pending state); tab selection and episode lists stay untouched. NOT load(): that flips the full-screen loading state and re-runs config/recommendations.
     private func refreshDetailAfterRequest() async {
         do {
             switch media.mediaType {

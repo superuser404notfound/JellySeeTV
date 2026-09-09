@@ -2,11 +2,11 @@ import SwiftUI
 
 /// Sub-components extracted from CatalogDetailView; internal, used only within the catalog feature.
 
-/// Season tab in the season selector. Always selectable for viewing (preview episodes of already-available seasons); the request action is gated separately in the detail block.
+/// Season tab in the season selector: picks which season's episodes the page shows below. Requesting
+/// is the request sheet's job, so the tab carries no selection state of its own any more (Sodalite#132).
 struct CatalogSeasonTab: View {
     let season: SeerrSeason
     let isViewed: Bool
-    let isSelectedForRequest: Bool
     /// Pipeline status, `nil` when no request exists. Kept distinct (available=green check, processing=blue, pending=orange clock) so "ready to play" reads differently from "waiting for admin approval".
     let availabilityStatus: SeerrMediaStatus?
     let action: () -> Void
@@ -14,12 +14,6 @@ struct CatalogSeasonTab: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 8) {
-                // Selection and status can both apply (status never blocks a re-request), so the picked-checkmark shows alongside the pipeline icon.
-                if isSelectedForRequest {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundStyle(.tint)
-                }
                 if let status = availabilityStatus {
                     Image(systemName: status.systemImage)
                         .font(.caption)
@@ -43,7 +37,6 @@ struct CatalogSeasonTab: View {
 
     private var background: some ShapeStyle {
         if isViewed { return AnyShapeStyle(.tint.opacity(0.35)) }
-        if isSelectedForRequest { return AnyShapeStyle(.tint.opacity(0.18)) }
         if let status = availabilityStatus {
             return AnyShapeStyle(status.color.opacity(0.18))
         }

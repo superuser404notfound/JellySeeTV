@@ -177,3 +177,49 @@ final class SeerrRequestDraft {
         }
     }
 }
+
+/// Resolves the default Radarr/Sonarr server and its profile/root-folder defaults for a request.
+/// Jellyseerr's `activeProfileId` can be nil, 0 or stale, so the configured default is validated against the
+/// profiles the server actually returned before it is used; an unvalidated id shipped in the request and failed.
+enum SeerrRequestDefaults {
+    struct Resolved {
+        let details: SeerrServiceDetails
+        let profileID: Int?
+        let rootFolder: String?
+    }
+
+    static func resolve(
+        service: SeerrServiceConfigServiceProtocol,
+        mediaType: SeerrMediaType
+    ) async throws -> Resolved? {
+        let servers: [SeerrServiceServer]
+        switch mediaType {
+        case .movie: servers = try await service.radarrServers()
+        case .tv: servers = try await service.sonarrServers()
+        case .person, .unknown: return nil
+        }
+        guard let chosen = servers.first(where: { $0.isDefault == true }) ?? servers.first else {
+            return nil
+        }
+        let details: SeerrServiceDetails
+        switch mediaType {
+        case .movie: details = try await service.radarrDetails(serverID: chosen.id)
+        case .tv: details = try await service.sonarrDetails(serverID: chosen.id)
+        case .person, .unknown: return nil
+        }
+
+        let validProfileIDs = Set(details.profiles.map(\.id))
+        let profileID = [chosen.activeProfileId, details.server.activeProfileId]
+            .compactMap { $0 }
+            .first(where: validProfileIDs.contains)
+            ?? details.profiles.first?.id
+
+        let validRootFolders = Set(details.rootFolders.map(\.path))
+        let rootFolder = [chosen.activeDirectory, details.server.activeDirectory]
+            .compactMap { $0 }
+            .first(where: validRootFolders.contains)
+            ?? details.rootFolders.first?.path
+
+        return Resolved(details: details, profileID: profileID, rootFolder: rootFolder)
+    }
+}
