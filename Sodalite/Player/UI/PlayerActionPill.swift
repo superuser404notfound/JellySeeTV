@@ -160,16 +160,19 @@ struct CountdownRingIcon: View {
     var body: some View {
         ZStack {
             // Always in the tree, so the arrival has an identity to animate rather than an insertion
-            // to pop. Without an outro segment the prompt shows at 30s remaining and the countdown
-            // only starts at 10s (PlayerViewModel, no-outro branch), so this arrival is a thing the
-            // viewer sits and watches, 20 seconds after the pill itself slid in.
+            // to pop. The prompt and the ring rarely arrive together: without an outro marker the
+            // prompt shows at 30s remaining, and on the end anchor it shows at the marker and can
+            // sit ringless through minutes of credits (Sodalite#133). So this arrival is a thing the
+            // viewer sits and watches.
             Circle()
                 .trim(from: 0, to: progress ?? 1)
                 .stroke(.white, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 // It settles INWARD onto the glyph rather than sweeping the arc on from zero: the
-                // trim IS the remaining fraction, and drawing it on would show a number that is not
-                // the countdown for as long as the animation runs. Starting oversize rather than
+                // trim IS the countdown, and drawing it on would show a number that is not the
+                // countdown for as long as the animation runs. For the same reason the linear trim
+                // below runs one second AHEAD of the tick that publishes it, see `ringTarget`.
+                // Starting oversize rather than
                 // undersize is what keeps the two apart: growing from 0.55 put the ring inside the
                 // still-full-size triangle for the first third, and the glyph read as bursting out
                 // of it (filmstrip, 2026-09-04).
@@ -191,13 +194,24 @@ struct CountdownRingIcon: View {
 }
 
 enum NextEpisodeCountdown {
-    /// Remaining fraction for the ring, or nil when there is no countdown running. `total` is what
-    /// the countdown STARTED from (the user's setting, or the actual remaining seconds on the
-    /// no-outro fallback), not the fixed default: a 5s and a 30s countdown must both drain one full
-    /// turn of the ring.
-    static func ringProgress(remaining: Int, total: Int) -> Double? {
+    /// The fraction the ring must ARRIVE at during this tick, or nil when there is no countdown
+    /// running. `total` is what the countdown STARTED from (the user's setting, or the actual
+    /// remaining seconds on the no-outro fallback), not a fixed default: a 5s and a 30s countdown
+    /// must both drain one full turn of the ring.
+    ///
+    /// A target rather than a position, because the trim is animated linearly across the second that
+    /// follows and so is always on its way somewhere. Publishing the tick's OWN fraction drew the
+    /// ring a whole second behind the countdown, since every step then animated from where the
+    /// second began to where it began: the arc sat full through the arrival instead of draining from
+    /// the moment it appeared, and at the switch it still carried a second of arc rather than being
+    /// empty (device report, 2026-09-09). Ending on `remaining - 1` puts the arc where the clock is
+    /// at every instant, and the last tick lands on zero exactly as the next episode starts.
+    ///
+    /// Zero is a value, nil is not: nil means no countdown at all, and returning it for the last
+    /// second would take the ring off the glyph while the countdown is still running.
+    static func ringTarget(remaining: Int, total: Int) -> Double? {
         guard total > 0, remaining > 0 else { return nil }
-        return min(1, Double(remaining) / Double(total))
+        return min(1, Double(remaining - 1) / Double(total))
     }
 }
 

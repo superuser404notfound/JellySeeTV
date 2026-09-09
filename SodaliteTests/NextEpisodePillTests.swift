@@ -71,31 +71,48 @@ struct NextEpisodePillTests {
     /// The ring is a fraction of what the countdown STARTED from, not of a fixed ten: the length is a
     /// user setting (Sodalite#67) and the no-outro fallback passes the real remaining seconds, and
     /// both have to drain exactly one turn.
-    @Test func theRingDrainsOneTurnWhateverTheLength() throws {
+    ///
+    /// What each tick publishes is where the arc must ARRIVE, not where it stands, because the trim
+    /// is animated linearly across the second that follows. Publishing the tick's own fraction drew
+    /// the ring a whole second behind the countdown: it sat full through the arrival animation
+    /// instead of draining from the moment it appeared, and at the switch it still carried one
+    /// second of arc. Reported on device, 2026-09-09.
+    @Test func everyTickTargetsTheFractionItEndsOn() throws {
         for total in [3, 5, 10, 30, 120] {
-            #expect(NextEpisodeCountdown.ringProgress(remaining: total, total: total) == 1)
-            // Every tick is exactly its share of the turn, so the arc drains evenly at any length.
             for remaining in 1...total {
-                let share = try #require(NextEpisodeCountdown.ringProgress(remaining: remaining, total: total))
-                #expect(abs(share - Double(remaining) / Double(total)) < 1e-9)
+                let target = try #require(NextEpisodeCountdown.ringTarget(remaining: remaining, total: total))
+                #expect(abs(target - Double(remaining - 1) / Double(total)) < 1e-9)
             }
-            // The last tick before the switch still leaves a sliver, not an empty ring.
-            #expect(try #require(NextEpisodeCountdown.ringProgress(remaining: 1, total: total)) > 0)
         }
+    }
+
+    /// The arc leaves a full turn on the first tick. The trim reads 1 while there is no ring, so the
+    /// arrival animates from full down by one tick's share, which is the countdown draining rather
+    /// than a ring that pops up complete and waits.
+    @Test func theArcLeavesFullOnTheFirstTick() throws {
+        let target = try #require(NextEpisodeCountdown.ringTarget(remaining: 15, total: 15))
+        #expect(abs(target - 14.0 / 15.0) < 1e-9)
+    }
+
+    /// The last tick lands on empty, which is the frame the viewer sees at the switch. Zero, not nil:
+    /// nil means there is no countdown at all and takes the ring off the glyph a second early.
+    @Test func theLastTickLandsOnEmpty() throws {
+        #expect(NextEpisodeCountdown.ringTarget(remaining: 1, total: 30) == 0)
+        #expect(NextEpisodeCountdown.ringTarget(remaining: 1, total: 1) == 0)
     }
 
     /// nil, not zero: no countdown means no ring at all, and the glyph then takes the space the ring
     /// would have used. Autoplay off, countdown off and the PiP advance all land here.
     @Test func noCountdownDrawsNoRing() {
-        #expect(NextEpisodeCountdown.ringProgress(remaining: 0, total: 10) == nil)
-        #expect(NextEpisodeCountdown.ringProgress(remaining: 10, total: 0) == nil)
-        #expect(NextEpisodeCountdown.ringProgress(remaining: -1, total: 10) == nil)
+        #expect(NextEpisodeCountdown.ringTarget(remaining: 0, total: 10) == nil)
+        #expect(NextEpisodeCountdown.ringTarget(remaining: 10, total: 0) == nil)
+        #expect(NextEpisodeCountdown.ringTarget(remaining: -1, total: 10) == nil)
     }
 
     /// A total that has drifted below the remaining seconds (a countdown restarted shorter than the
     /// one it replaced) must not overdraw the ring past a full turn.
     @Test func theRingNeverExceedsAFullTurn() {
-        #expect(NextEpisodeCountdown.ringProgress(remaining: 30, total: 10) == 1)
+        #expect(NextEpisodeCountdown.ringTarget(remaining: 30, total: 10) == 1)
     }
 
     /// `play.fill` is centred on its layout box, so inside a ring it reads left of centre: a

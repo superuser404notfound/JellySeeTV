@@ -358,7 +358,7 @@ struct PlayerOverlayView: View {
         let pill = NextEpisodePill(
             title: nextEpisodeLabel(for: episode),
             metadata: nextEpisodeMetadata(for: episode),
-            countdownProgress: NextEpisodeCountdown.ringProgress(
+            countdownProgress: NextEpisodeCountdown.ringTarget(
                 remaining: viewModel.isCountdownActive ? viewModel.nextEpisodeCountdown : 0,
                 total: viewModel.nextEpisodeCountdownTotal),
             width: width,
@@ -538,7 +538,7 @@ struct PlayerOverlayView: View {
                     skipSegmentLabel: viewModel.activeSkipSegment?.kind.buttonLabel,
                     nextEpisodeLabel: viewModel.showNextEpisodeOverlay
                         ? viewModel.nextEpisode.map { nextEpisodeLabel(for: $0) } : nil,
-                    nextEpisodeCountdownProgress: NextEpisodeCountdown.ringProgress(
+                    nextEpisodeCountdownProgress: NextEpisodeCountdown.ringTarget(
                         remaining: viewModel.isCountdownActive ? viewModel.nextEpisodeCountdown : 0,
                         total: viewModel.nextEpisodeCountdownTotal),
                     seasonEpisodes: viewModel.seasonEpisodes,
