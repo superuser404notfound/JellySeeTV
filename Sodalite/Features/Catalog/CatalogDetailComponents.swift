@@ -71,11 +71,16 @@ struct CatalogPickerButtonStyle: ButtonStyle {
 /// Shared chrome for the request option panels: the exits, the title, the scrolling option list and
 /// the platform padding.
 ///
-/// Every exit is a real control on both platforms. The panels used to carry the tvOS Menu press as
-/// their only way out, and `onExitCommandCompat` is a no-op on iOS: presented as a cover, which has
-/// no interactive dismissal either, the tags panel was a dead end that needed the app force-quit
-/// (Sodalite#132). They are presented through `.menuPresentation` now, so iOS also gets a sheet it
-/// can swipe away, and Menu on tvOS cancels every one of them.
+/// The panels used to carry the tvOS Menu press as their only way out, and `onExitCommandCompat` is
+/// a no-op on iOS: presented as a cover, which has no interactive dismissal either, the tags panel
+/// was a dead end that needed the app force-quit (Sodalite#132). They are presented through
+/// `.menuPresentation` now, so iOS also gets a sheet it can swipe away, and Menu on tvOS cancels
+/// every one of them.
+///
+/// Which is why Cancel is an iOS control only: on the Apple TV the remote's own back button is the
+/// way out of a panel, so a button repeating it is one more focus stop for nothing (Vincent,
+/// 2026-09-09). Done stays on both, because a multi-select has something to confirm that Menu, now
+/// a cancel, no longer does.
 private struct CatalogOptionPanel<Rows: View>: View {
     let title: String
     let onCancel: () -> Void
@@ -85,24 +90,30 @@ private struct CatalogOptionPanel<Rows: View>: View {
 
     @Environment(\.horizontalSizeClass) private var hSizeClass
     private var isCompact: Bool { hSizeClass == .compact }
+    /// The tvOS card already insets itself off the screen edge, so the panel adds only its own
+    /// gutter. Carried by the sections, not the panel: see `SeerrRequestSheet.gutter` for why the
+    /// scrolling list has to reach the panel edge while its rows do not.
+    private var gutter: CGFloat { isCompact ? 24 : 40 }
 
     var body: some View {
         VStack(spacing: isCompact ? 18 : 28) {
             exits
+                .padding(.horizontal, gutter)
             Text(title)
                 .font(isCompact ? .title3 : .title2)
                 .fontWeight(.semibold)
+                .padding(.horizontal, gutter)
 
             ScrollView {
                 VStack(spacing: 12) {
                     rows()
                 }
                 .frame(maxWidth: 720)
+                .padding(.horizontal, gutter)
                 .padding(.vertical, 8)
             }
         }
-        // The tvOS card already insets itself off the screen edge, so the panel adds only its own gutter.
-        .padding(isCompact ? 24 : 40)
+        .padding(.vertical, gutter)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         // tvOS gets its card from the menu cover; a second material here would stack two.
         #if os(iOS)
@@ -113,7 +124,10 @@ private struct CatalogOptionPanel<Rows: View>: View {
         .onExitCommandCompat { onCancel() }
     }
 
+    @ViewBuilder
     private var exits: some View {
+        // A single-select panel on tvOS has no exit control at all, so it gets no row either.
+        #if os(iOS)
         HStack(spacing: 16) {
             GlassActionButton(
                 title: "common.cancel",
@@ -121,14 +135,27 @@ private struct CatalogOptionPanel<Rows: View>: View {
                 action: onCancel
             )
             Spacer(minLength: 12)
-            if let onCommit {
-                GlassActionButton(
-                    title: "common.done",
-                    systemImage: "checkmark",
-                    isProminent: true,
-                    action: onCommit
-                )
+            commitButton
+        }
+        #else
+        if onCommit != nil {
+            HStack(spacing: 16) {
+                Spacer(minLength: 12)
+                commitButton
             }
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var commitButton: some View {
+        if let onCommit {
+            GlassActionButton(
+                title: "common.done",
+                systemImage: "checkmark",
+                isProminent: true,
+                action: onCommit
+            )
         }
     }
 }

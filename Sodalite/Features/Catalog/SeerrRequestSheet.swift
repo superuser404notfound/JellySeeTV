@@ -43,9 +43,20 @@ struct SeerrRequestSheet: View {
         #endif
     }
 
+    /// The panel's horizontal inset, carried by each section rather than by the panel.
+    ///
+    /// The scrolling middle has to reach the panel edge even though its rows do not: a focused row
+    /// wears `FocusResponse.inline`, so it grows 1% per side, which is 7pt on the 704pt rows this
+    /// panel lays out, and a ScrollView clips whatever leaves its bounds. With the inset on the panel
+    /// the viewport was exactly as wide as the rows, so every focused row lost its stroke left and
+    /// right (seen on the Apple TV, 2026-09-09). Insetting the CONTENT instead leaves the viewport
+    /// the full width, and the gutter doubles as the headroom the lift needs.
+    private var gutter: CGFloat { isCompact ? 20 : 48 }
+
     var body: some View {
         VStack(alignment: .leading, spacing: isCompact ? 18 : 24) {
             header
+                .padding(.horizontal, gutter)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: isCompact ? 20 : 28) {
@@ -53,6 +64,7 @@ struct SeerrRequestSheet: View {
                     SeerrRequestOptionsForm(options: draft.options)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, gutter)
                 .padding(.vertical, 4)
             }
             .focusSectionCompat()
@@ -62,11 +74,13 @@ struct SeerrRequestSheet: View {
                     .font(.caption)
                     .foregroundStyle(.red)
                     .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, gutter)
             }
 
             footer
+                .padding(.horizontal, gutter)
         }
-        .padding(isCompact ? 20 : 48)
+        .padding(.vertical, gutter)
         .frame(maxWidth: 800)
         .frame(maxWidth: .infinity)
         #if os(tvOS)
