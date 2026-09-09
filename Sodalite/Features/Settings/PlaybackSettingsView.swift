@@ -32,17 +32,50 @@ struct PlaybackSettingsView: View {
                 // Off plays the episode out (credits, post-credit scenes) and switches at its real end
                 // instead of counting down over the outro (Sodalite#67). Inert without autoplay, so it
                 // greys out with it rather than offering a switch that cannot do anything.
-                boolRow(
+                // Off is a value here, never "0 s" (Sodalite#133): a zero-second countdown on the credits
+                // anchor would be an instant jump, and that is what auto-skip outro below already offers.
+                ValuePickerRow(
                     icon: "timer",
                     title: "settings.playback.autoplayCountdown",
                     subtitle: "settings.playback.autoplayCountdown.subtitle",
-                    value: Binding(
-                        get: { prefs.autoplayCountdown },
-                        set: { prefs.autoplayCountdown = $0 }
-                    )
+                    options: PlaybackPreferences.nextEpisodeCountdownChoices,
+                    selection: Binding(
+                        get: { prefs.nextEpisodeCountdownLength },
+                        set: { prefs.nextEpisodeCountdownLength = $0 }
+                    ),
+                    label: { seconds in
+                        seconds == 0
+                            ? String(localized: "settings.playback.off", defaultValue: "Off")
+                            : "\(seconds) s"
+                    }
                 )
                 .disabled(!prefs.autoplayNextEpisode)
                 .opacity(prefs.autoplayNextEpisode ? 1 : 0.4)
+
+                // Where that countdown sits (Sodalite#133). Greys out with the countdown itself: without
+                // one there is no placement to make, the switch is at the end of the episode either way.
+                ValuePickerRow(
+                    icon: "arrow.right.to.line",
+                    title: "settings.playback.countdownAnchor",
+                    subtitle: "settings.playback.countdownAnchor.subtitle",
+                    options: NextEpisodePolicy.CountdownAnchor.allCases,
+                    selection: Binding(
+                        get: { prefs.nextEpisodeCountdownAnchor },
+                        set: { prefs.nextEpisodeCountdownAnchor = $0 }
+                    ),
+                    label: { anchor in
+                        switch anchor {
+                        case .outro:
+                            String(localized: "settings.playback.countdownAnchor.outro",
+                                   defaultValue: "At the Credits")
+                        case .end:
+                            String(localized: "settings.playback.countdownAnchor.end",
+                                   defaultValue: "At the End")
+                        }
+                    }
+                )
+                .disabled(!prefs.autoplayNextEpisode || prefs.nextEpisodeCountdownLength == 0)
+                .opacity(prefs.autoplayNextEpisode && prefs.nextEpisodeCountdownLength > 0 ? 1 : 0.4)
 
                 boolRow(
                     icon: "forward.end.fill",
@@ -73,9 +106,6 @@ struct PlaybackSettingsView: View {
                         set: { prefs.autoSkipOutro = $0 }
                     )
                 )
-
-                // Countdown LENGTH stays out of settings: Netflix/Prime hardcode 8-12 s. The knobs are
-                // autoplay itself and, since Sodalite#67, the countdown on/off row above it.
 
                 sectionHeader("settings.playback.section.controls")
 

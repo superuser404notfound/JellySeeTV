@@ -217,6 +217,18 @@ struct NextEpisodePolicyTests {
         #expect(start(anchor: .end, lengthSeconds: 0, remainingSeconds: 3) == nil)
     }
 
+    /// No marker means no credits to anchor to. Honouring the credits preference there would arm at the
+    /// 30s fallback window and cut the last quarter minute out of the episode itself.
+    @Test func withoutAMarkerTheAnchorIsAlwaysTheEnd() {
+        #expect(NextEpisodePolicy.effectiveAnchor(preferred: .outro, hasOutroMarker: false) == .end)
+        #expect(NextEpisodePolicy.effectiveAnchor(preferred: .end, hasOutroMarker: false) == .end)
+    }
+
+    @Test func withAMarkerThePreferenceDecides() {
+        #expect(NextEpisodePolicy.effectiveAnchor(preferred: .outro, hasOutroMarker: true) == .outro)
+        #expect(NextEpisodePolicy.effectiveAnchor(preferred: .end, hasOutroMarker: true) == .end)
+    }
+
     @Test func nothingArmsAtOrPastTheEnd() {
         #expect(start(anchor: .outro, remainingSeconds: 0) == nil)
         #expect(start(anchor: .end, remainingSeconds: -2) == nil)

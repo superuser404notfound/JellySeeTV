@@ -1381,9 +1381,12 @@ final class PlayerViewModel {
                         }
                     case .showOverlayAndAdvance:
                         // currentTime can stall a few seconds short of duration (demux's 15-20s
-                        // look-ahead); cap the countdown at 10s so the overlay copy stays readable.
+                        // look-ahead); cap the countdown at the configured length so the overlay copy
+                        // stays readable. Reachable with the countdown off (autoplay off parks the card
+                        // for a manual pick), hence the floor of 1 rather than the length as such.
                         let remaining = self.effectiveDuration - self.playbackTime
-                        let seconds = min(10, max(1, Int(ceil(max(0, remaining)))))
+                        let length = max(1, self.preferences.nextEpisodeCountdownLength)
+                        let seconds = min(length, max(1, Int(ceil(max(0, remaining)))))
                         self.showNextEpisodeOverlay = true
                         self.startNextEpisodeCountdown(from: seconds)
                     case .dismissPlayer:
@@ -1528,17 +1531,22 @@ final class PlayerViewModel {
 
                 if self.nextEpisode != nil && !self.nextEpisodeCancelled
                     && !self.nextEpisodeOverlayDismissed && dur > 0 && remaining > 0 {
-                    // Outro available: show + fixed 10s countdown at outro.startSeconds, cutting through
-                    // the credits. No outro: show at 30s remaining, countdown at 10s synced to the clock.
+                    // The card opens at the outro marker, or 30s from the end without one. WHERE the
+                    // countdown then sits is the user's call (Sodalite#133): anchored to the credits it
+                    // arms with the card and cuts whatever is left of them, anchored to the end it stays
+                    // unarmed, so the card sits ringless until the ring can reach zero on the last frame.
                     if insideEndWindow, !self.showNextEpisodeOverlay {
                         self.showNextEpisodeOverlay = true
                     }
-                    if self.outroSegment != nil {
-                        if insideEndWindow, self.nextEpisodeTimer == nil, self.showNextEpisodeOverlay {
-                            self.startNextEpisodeCountdown()
-                        }
-                    } else if remaining <= 10, self.nextEpisodeTimer == nil, self.showNextEpisodeOverlay {
-                        self.startNextEpisodeCountdown(from: Int(ceil(remaining)))
+                    if insideEndWindow, self.nextEpisodeTimer == nil, self.showNextEpisodeOverlay,
+                       let start = NextEpisodePolicy.countdownStart(
+                        anchor: NextEpisodePolicy.effectiveAnchor(
+                            preferred: self.preferences.nextEpisodeCountdownAnchor,
+                            hasOutroMarker: self.outroSegment != nil),
+                        lengthSeconds: self.preferences.nextEpisodeCountdownLength,
+                        remainingSeconds: remaining
+                       ) {
+                        self.startNextEpisodeCountdown(from: start)
                     }
                 }
                 // Time labels track the live playhead even while scrubbing (playback keeps running); the

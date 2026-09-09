@@ -18,6 +18,13 @@ enum NextEpisodePolicy {
         var id: String { rawValue }
     }
 
+    /// The anchor actually in force. Without an outro marker there are no credits to place the countdown
+    /// on, and honouring the credits preference there would arm it at the 30s fallback window, cutting
+    /// that much out of the episode itself.
+    static func effectiveAnchor(preferred: CountdownAnchor, hasOutroMarker: Bool) -> CountdownAnchor {
+        hasOutroMarker ? preferred : .end
+    }
+
     /// What the countdown starts from, or nil while it must stay unarmed and the card sits ringless.
     ///
     /// Neither anchor lets the countdown outlive the source: `.end` waits until the remaining seconds
