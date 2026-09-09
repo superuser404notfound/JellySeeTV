@@ -3,8 +3,9 @@ import SwiftUI
 /// Radarr/Sonarr request options (quality profile, root folder, tags), shared by the single-title request sheet
 /// and the collection bulk request so both submit through the same field set.
 ///
-/// Pickers use `.fullScreenCover`, not SwiftUI `Menu`: Menu leaked the Menu-button press up the nav stack during
-/// its ~1s close animation and exited the app; the cover owns its own focus environment.
+/// Pickers go through `.menuPresentation`, not SwiftUI `Menu`: Menu leaked the Menu-button press up the nav stack
+/// during its ~1s close animation and exited the app. That gives tvOS the cover it needs (its own focus
+/// environment) and iOS a sheet it can swipe away, which a raw cover never offered (Sodalite#132).
 struct SeerrRequestOptionsForm: View {
     let details: SeerrServiceDetails
     @Binding var selectedProfileID: Int?
@@ -54,7 +55,7 @@ struct SeerrRequestOptionsForm: View {
                 .background(Color.Theme.restFill, in: RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(CatalogPickerButtonStyle())
-            .fullScreenCover(isPresented: $isProfilePickerPresented) {
+            .menuPresentation(isPresented: $isProfilePickerPresented) {
                 CatalogPickerSheet(
                     title: String(localized: "catalog.request.qualityProfile", defaultValue: "Quality profile"),
                     options: details.profiles.map { .init(id: "\($0.id)", label: $0.name) },
@@ -97,7 +98,7 @@ struct SeerrRequestOptionsForm: View {
                 .background(Color.Theme.restFill, in: RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(CatalogPickerButtonStyle())
-            .fullScreenCover(isPresented: $isRootFolderPickerPresented) {
+            .menuPresentation(isPresented: $isRootFolderPickerPresented) {
                 CatalogPickerSheet(
                     title: String(localized: "catalog.request.rootFolder", defaultValue: "Root folder"),
                     options: details.rootFolders.map { .init(id: $0.path, label: $0.path) },
@@ -146,7 +147,7 @@ struct SeerrRequestOptionsForm: View {
                 .background(Color.Theme.restFill, in: RoundedRectangle(cornerRadius: 12))
             }
             .buttonStyle(CatalogPickerButtonStyle())
-            .fullScreenCover(isPresented: $isTagPickerPresented) {
+            .menuPresentation(isPresented: $isTagPickerPresented) {
                 CatalogMultiSelectSheet(
                     title: String(localized: "catalog.request.tags", defaultValue: "Tags"),
                     options: tags.map { .init(id: "\($0.id)", label: $0.label) },
@@ -154,7 +155,8 @@ struct SeerrRequestOptionsForm: View {
                     onCommit: { ids in
                         selectedTagIDs = Set(ids.compactMap(Int.init))
                         isTagPickerPresented = false
-                    }
+                    },
+                    onCancel: { isTagPickerPresented = false }
                 )
             }
         }
