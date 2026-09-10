@@ -1,11 +1,14 @@
 import AetherEngine
 import SwiftUI
 
-/// DVR transport for live playback: scrubber over the engine's moving seekable
-/// window, live-edge marker, position/LIVE label, and a "Return to Live" pill
-/// focusable via Up (PlayerHostController routes `.returnToLiveButton` Select
-/// to returnToLiveEdge); scrubbing to the right edge also snaps to live
-/// (commitLiveScrub at >= 0.99).
+/// DVR transport for live playback: scrubber over a FIXED span of time ending at the live edge
+/// (Sodalite#104, `PlayerViewModel.liveRailGeometry`), live-edge marker, position/LIVE label, and a
+/// "Return to Live" pill focusable via Up (PlayerHostController routes `.returnToLiveButton` Select
+/// to returnToLiveEdge); scrubbing to the right stop also snaps to live.
+///
+/// The span is deliberately not the seekable range: that range starts where the channel was tuned
+/// and grows with the edge, so drawing a position across it walks the knob to the right end while
+/// the viewer holds still. What the session actually holds is drawn as the available region.
 struct LiveTransportBar: View {
     @Bindable var viewModel: PlayerViewModel
 
@@ -257,15 +260,24 @@ struct LiveTransportBar: View {
             let knobSize: CGFloat = active ? 22 : 14
             let knobX = max(0, min(width, width * liveProgress))
 
+            let availableX = max(0, min(width, width * CGFloat(railGeometry.availableFrom)))
+
             ZStack(alignment: .leading) {
-                // Unplayed track white for contrast regardless of accent color.
+                // The whole span, which is time this channel has but this session does not hold.
+                Capsule()
+                    .fill(.white.opacity(0.08))
+                    .frame(height: trackHeight)
+
+                // What the session can actually play, unplayed. White for contrast regardless of accent.
                 Capsule()
                     .fill(.white.opacity(0.2))
-                    .frame(height: trackHeight)
+                    .frame(width: max(0, width - availableX), height: trackHeight)
+                    .offset(x: availableX)
 
                 Capsule()
                     .fill(.tint)
-                    .frame(width: knobX, height: trackHeight)
+                    .frame(width: max(0, knobX - availableX), height: trackHeight)
+                    .offset(x: availableX)
 
                 // Live-edge tick pinned to the right end of the window.
                 Capsule()
@@ -286,23 +298,26 @@ struct LiveTransportBar: View {
 
     // MARK: - Derived
 
-    /// Playhead fraction of the seekable window: in-flight scrub while
-    /// scrubbing, else playhead across `liveSeekableRange`. Defaults to 1
-    /// (at-live) before the window is known.
+    /// Where the knob is drawn: the in-flight scrub while scrubbing, else the rail.
+    ///
+    /// Sodalite#104: one decision, `PlayerViewModel.liveDisplayedProgress`, which the iOS bar reads
+    /// too. This used to be the view's own copy of the arithmetic, and that is what the device round
+    /// still showed after the engine half had landed: the badge said LIVE while the knob snapped left
+    /// by a whole segment at every cut, because the two were answering different questions about the
+    /// same stepping edge.
     private var liveProgress: CGFloat {
-        if viewModel.isScrubbing { return CGFloat(viewModel.scrubProgress) }
-        guard let range = viewModel.liveSeekableRange,
-              range.upperBound > range.lowerBound else { return 1 }
-        let span = range.upperBound - range.lowerBound
-        let pos = viewModel.playbackTime - range.lowerBound
-        return CGFloat(max(0, min(1, pos / span)))
+        CGFloat(viewModel.liveDisplayedProgress)
+    }
+
+    /// Sodalite#104 round 4: the rail is a fixed span of time ending at the live edge, and the part
+    /// of it the session can actually play is drawn rather than used as the scale. Both come from
+    /// one decision in the view model, so the knob, the available region and a scrub target cannot
+    /// disagree about what the rail means.
+    private var railGeometry: (playhead: Float, availableFrom: Float) {
+        viewModel.liveRail
     }
 
     private var positionLabel: String {
-        if viewModel.isAtLiveEdge {
-            return NSLocalizedString("livetv.liveBadge", comment: "Live edge label")
-        }
-        let behind = max(0, Int(viewModel.behindLiveSeconds))
-        return String(format: "-%d:%02d", behind / 60, behind % 60)
+        viewModel.livePositionLabel
     }
 }

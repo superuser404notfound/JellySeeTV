@@ -16,9 +16,11 @@ extension PlayerViewModel {
     /// (gates the entry points).
     var scrubReferenceDuration: Double {
         if isLiveSession {
+            // Sodalite#104 round 4: the RAIL's span, not the resident range. A press has to move the
+            // knob by the seconds it names, and the knob is drawn across the rail.
             guard let range = liveSeekableRange,
                   range.upperBound > range.lowerBound else { return 0 }
-            return range.upperBound - range.lowerBound
+            return PlayerViewModel.liveDVRWindowSeconds
         }
         return effectiveDuration
     }
@@ -107,6 +109,9 @@ extension PlayerViewModel {
     }
 
     func commitScrub() {
+        // Sodalite#104: whichever path ends the scrub, the pending idle is spent.
+        skipCommitTask?.cancel()
+        skipCommitTask = nil
         // Live duration is 0, so the VOD body below would early-return without
         // seeking; commitLiveScrub maps across the moving seekable window.
         if isLiveSession { commitLiveScrub(); return }
@@ -132,6 +137,8 @@ extension PlayerViewModel {
     }
 
     func cancelScrub() {
+        skipCommitTask?.cancel()
+        skipCommitTask = nil
         isScrubbing = false
         pendingSkipBackOrigin = nil
         skipBackBurstOrigin = nil
