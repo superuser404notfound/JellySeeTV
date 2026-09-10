@@ -112,16 +112,23 @@ struct LiveTransportBar: View {
             // .bottom, as in the VOD bar: an open menu grows its own column upward, and a centred
             // row would lift every sibling off the baseline to meet it.
             HStack(alignment: .bottom, spacing: 16) {
-                if !viewModel.isPlaying {
-                    PausedGlyph()
-                        .font(.callout)
-                }
+                // Sodalite#104: the leading pair carries a chip's own vertical padding so its
+                // baseline lands on the chips' rather than 8pt under them. Every chip in this row is
+                // callout text inside `.vertical, 8`, and a bottom-aligned row lines up the padded
+                // edges, not the text inside them, which is what made the row read as two rows.
+                HStack(spacing: 16) {
+                    if !viewModel.isPlaying {
+                        PausedGlyph()
+                            .font(.callout)
+                    }
 
-                Text(positionLabel)
-                    .font(.callout)
-                    .fontWeight(.medium)
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.7))
+                    Text(positionLabel)
+                        .font(.callout)
+                        .fontWeight(.medium)
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+                .padding(.vertical, 8)
 
                 Spacer()
 
