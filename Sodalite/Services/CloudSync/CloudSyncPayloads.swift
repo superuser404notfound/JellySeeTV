@@ -130,6 +130,7 @@ struct PlaybackSettingsPayload: Codable, Equatable {
     var subtitlesOnSkipBack: Bool?
     /// Shipped after the payload, so optional for the same reason as the six above.
     var liveTeletextPage: String?
+    var liveBufferDepth: String?
     /// Sodalite#67, same reason again.
     var autoplayCountdown: Bool?
     /// AetherEngine#455, same reason again.

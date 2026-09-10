@@ -279,7 +279,7 @@ extension PlayerViewModel {
                 panelIsInHDRMode: Self.panelIsInHDRMode,
                 audioBridgeMode: preferences.audioBridgeMode,
                 isLive: true,
-                dvrWindowSeconds: Self.liveDVRWindowSeconds,
+                dvrWindowSeconds: preferences.liveBufferDepth.seconds,
                 // Zapping-first join (AetherEngine#195): TARGETDURATION tracks the channel GOP, so
                 // short-GOP channels show a picture in ~3-6s instead of 18s+; long-GOP channels
                 // quantize back to standard behavior automatically.
@@ -408,7 +408,7 @@ extension PlayerViewModel {
             panelIsInHDRMode: Self.panelIsInHDRMode,
             audioBridgeMode: preferences.audioBridgeMode,
             isLive: true,
-            dvrWindowSeconds: Self.liveDVRWindowSeconds,
+            dvrWindowSeconds: preferences.liveBufferDepth.seconds,
             // Zapping-first join (AetherEngine#195), same rationale as the direct path above. A
             // bursty Jellyfin transcode fills the startup cushion at I/O speed either way; the
             // observed-cadence floor keeps bursty ingest patient.
@@ -497,7 +497,7 @@ extension PlayerViewModel {
                     programs: self.liveProgramWindow,
                     playheadWallClock: edge.addingTimeInterval(-behind),
                     liveEdgeWallClock: edge,
-                    fallbackSpanSeconds: Self.liveDVRWindowSeconds)
+                    fallbackSpanSeconds: liveDVRWindowSeconds)
                 self.progress = Self.liveRailGeometry(
                     block: block, liveEdgeWallClock: edge, behindLiveSeconds: behind,
                     residentSeconds: range.upperBound - range.lowerBound).playhead
@@ -505,10 +505,10 @@ extension PlayerViewModel {
             .store(in: &cancellables)
     }
 
-    /// Sodalite#104 round 4: the DVR window this session asks the engine to keep, and the span the
-    /// rail is drawn across. One constant for both, because a rail whose scale is not the window it
-    /// represents is the defect this round exists for.
-    static let liveDVRWindowSeconds: Double = 600
+    /// Sodalite#104: the depth this session asks the engine to record, which is also the width of the
+    /// rail on a channel with no guide data. One number for both, because a rail whose scale is not
+    /// the window it represents is the defect this issue exists for.
+    var liveDVRWindowSeconds: Double { preferences.liveBufferDepth.seconds }
 
     /// Sodalite#104: the stretch of wall clock the rail spans.
     ///
@@ -637,7 +637,7 @@ extension PlayerViewModel {
             programs: liveProgramWindow,
             playheadWallClock: edge.addingTimeInterval(-max(0, behindLiveSeconds)),
             liveEdgeWallClock: edge,
-            fallbackSpanSeconds: Self.liveDVRWindowSeconds)
+            fallbackSpanSeconds: liveDVRWindowSeconds)
     }
 
     /// What follows the block on screen, for the next-up line. Nil while the guide says nothing about

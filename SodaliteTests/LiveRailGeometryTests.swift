@@ -25,7 +25,7 @@ import Foundation
 @Suite("The live rail is a block of wall clock (Sodalite#104)")
 struct LiveRailGeometryTests {
 
-    private let span = PlayerViewModel.liveDVRWindowSeconds
+    private let span = PlaybackPreferences.LiveBufferDepth.ninetyMinutes.seconds
 
     /// One hour of programme, with the live edge exactly half way through it.
     private let programStart = Date(timeIntervalSinceReferenceDate: 800_000_000)
@@ -216,7 +216,7 @@ struct LiveTransportLabelTests {
     func aRewindReadsAsItsOffset() {
         #expect(PlayerViewModel.liveBehindLabel(seconds: 30) == "-0:30")
         #expect(PlayerViewModel.liveBehindLabel(seconds: 95) == "-1:35")
-        #expect(PlayerViewModel.liveBehindLabel(seconds: PlayerViewModel.liveDVRWindowSeconds) == "-10:00")
+        #expect(PlayerViewModel.liveBehindLabel(seconds: 600) == "-10:00")
     }
 
     @Test("the edge itself is not drawn as a negative offset")
