@@ -490,8 +490,9 @@ extension PlayerViewModel {
                 // Sodalite#104: the verdict is read from the engine rather than from the mirrored
                 // property, because both arrive on separate sinks from the same publish and a
                 // one-tick-stale flag would put the snap back for that tick.
-                self.progress = Self.liveRailProgress(
-                    currentTime: time, range: range, isAtLiveEdge: self.player.isAtLiveEdge)
+                // Sodalite#104 round 3: the ANCHOR, not the rail's verdict. The bar pins itself at
+                // the edge; `progress` is what a scrub starts from and must stay a position.
+                self.progress = Self.liveScrubAnchor(currentTime: time, range: range)
             }
             .store(in: &cancellables)
     }
@@ -513,10 +514,30 @@ extension PlayerViewModel {
                                  range: ClosedRange<Double>,
                                  isAtLiveEdge: Bool) -> Float {
         if isAtLiveEdge { return 1 }
+        return liveScrubAnchor(currentTime: currentTime, range: range)
+    }
+
+    /// Sodalite#104 round 3: where the playhead really is across the window, as a fraction.
+    ///
+    /// The DRAWING may pin to the right end at the live edge; the ANCHOR may not. `seekJump` seeds
+    /// `scrubProgress` from this, so pinning it would start every rewind at exactly 1.0 and hand the
+    /// commit a position the viewer is not at. That is what turned a 10 s press into a return to
+    /// live: 1.0 minus 10 s of a 30 minute window is 0.994, which the old snap rule read as "already
+    /// live". A rail verdict and a seek anchor are different questions about the same number.
+    static func liveScrubAnchor(currentTime: Double, range: ClosedRange<Double>) -> Float {
         let span = range.upperBound - range.lowerBound
         guard span > 0 else { return 0 }
         return Float(max(0, min(1, (currentTime - range.lowerBound) / span)))
     }
+
+    /// Sodalite#104 round 3: has a scrub been pushed to the right STOP, which is the bar's
+    /// return-to-live affordance?
+    ///
+    /// This used to be `>= 0.99`, a fraction of the DVR window standing in for a distance from live.
+    /// A window is not a fixed length: 1% of it is 18 s at a 30 minute depth, 6 s at ten minutes and
+    /// 1.2 s at two, so the same press meant different things on the same channel depending on how
+    /// long it had been playing. The stop is a place on the rail, so it is asked about as one.
+    static func liveScrubReachedLiveEdge(scrubProgress: Float) -> Bool { scrubProgress >= 1 }
 
     /// Snap back to the live edge (return-to-live chip).
     ///
@@ -552,7 +573,7 @@ extension PlayerViewModel {
         isScrubbing = false
         scrubPreview.clear()
 
-        if p >= 0.99 {
+        if Self.liveScrubReachedLiveEdge(scrubProgress: p) {
             pendingSkipBackOrigin = nil
             skipBackBurstOrigin = nil
             returnToLiveEdge()
@@ -578,8 +599,8 @@ extension PlayerViewModel {
     func updateLiveScrubPreview() {
         guard let range = liveSeekableRange, range.upperBound > range.lowerBound else { return }
         let span = range.upperBound - range.lowerBound
-        // Mirror commitLiveScrub: >= 0.99 snaps to live edge, so the preview matches where the commit lands.
-        let p = scrubProgress >= 0.99 ? 1.0 : Double(scrubProgress)
+        // Mirror commitLiveScrub, through the same rule, so the preview matches where the commit lands.
+        let p = Self.liveScrubReachedLiveEdge(scrubProgress: scrubProgress) ? 1.0 : Double(scrubProgress)
         scrubPreview.update(targetSeconds: range.lowerBound + p * span)
     }
 
