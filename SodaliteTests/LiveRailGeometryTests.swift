@@ -226,3 +226,71 @@ struct LiveTransportLabelTests {
         #expect(PlayerViewModel.liveBehindLabel(seconds: -2) == "-0:00")
     }
 }
+
+/// Sodalite#104: a live episode carries everything a stored one does, and the player showed one line.
+///
+/// `JellyfinItem(liveChannel:program:)` hard-coded `seriesName`, `parentIndexNumber` and
+/// `indexNumber` to nil, so `PlayerTitleOverlay` took its single-line branch on every live session
+/// while a recording of the very same episode took the two-line one.
+@Suite("A live programme names its series and episode (Sodalite#104)")
+struct LiveProgramMetadataTests {
+
+    private func program(name: String, seriesName: String?, episodeTitle: String?,
+                         season: Int?, episode: Int?) -> JellyfinProgram {
+        JellyfinProgram(
+            id: "p", channelId: "c", channelName: "One", name: name, overview: nil,
+            startDate: nil, endDate: nil, genres: nil, imageTags: nil, isLive: nil, isNews: nil,
+            isMovie: nil, isSeries: true, isKids: nil, isSports: nil, seriesName: seriesName,
+            parentIndexNumber: season, indexNumber: episode, episodeTitle: episodeTitle,
+            timerId: nil, seriesTimerId: nil)
+    }
+
+    private let channel = JellyfinChannel(id: "c", name: "Comedy One", channelNumber: "1",
+                                          imageTags: nil, currentProgram: nil, userData: nil)
+
+    @Test("an episode reaches the overlay as a series and an episode")
+    func anEpisodeCarriesItsNumbers() {
+        let item = JellyfinItem(liveChannel: channel,
+                                program: program(name: "Friends", seriesName: "Friends",
+                                                 episodeTitle: "The One With the Ball",
+                                                 season: 3, episode: 15))
+        #expect(item.seriesName == "Friends")
+        #expect(item.parentIndexNumber == 3)
+        #expect(item.indexNumber == 15)
+        #expect(item.name == "The One With the Ball")
+        #expect(EpisodeMetadataFormatter.episodeLine(
+            under: item.seriesName, season: item.parentIndexNumber,
+            episode: item.indexNumber, title: item.name) == "S3, E15 · The One With the Ball")
+    }
+
+    @Test("a title that just repeats the series name is dropped from the line under it")
+    func arepeatedTitleIsNotDrawnTwice() {
+        let item = JellyfinItem(liveChannel: channel,
+                                program: program(name: "Friends", seriesName: "Friends",
+                                                 episodeTitle: nil, season: 3, episode: 15))
+        #expect(item.name == "Friends")
+        #expect(EpisodeMetadataFormatter.episodeLine(
+            under: item.seriesName, season: item.parentIndexNumber,
+            episode: item.indexNumber, title: item.name) == "S3, E15")
+    }
+
+    @Test("half a numbering is no numbering")
+    func alonelySeasonIsDropped() {
+        let item = JellyfinItem(liveChannel: channel,
+                                program: program(name: "Nature", seriesName: "Nature",
+                                                 episodeTitle: nil, season: 4, episode: nil))
+        #expect(item.parentIndexNumber == nil)
+        #expect(item.indexNumber == nil)
+    }
+
+    @Test("a programme that is not an episode still reads as itself")
+    func aplainProgrammeIsUnchanged() {
+        let item = JellyfinItem(liveChannel: channel,
+                                program: program(name: "Evening News", seriesName: nil,
+                                                 episodeTitle: nil, season: nil, episode: nil))
+        #expect(item.seriesName == nil)
+        #expect(item.name == "Evening News")
+        // And a channel with no guide entry at all keeps the channel's own name.
+        #expect(JellyfinItem(liveChannel: channel, program: nil).name == "Comedy One")
+    }
+}

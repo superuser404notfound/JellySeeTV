@@ -698,9 +698,10 @@ struct PlayerTitleOverlay: View {
     }
 
     private var episodeDescription: String {
-        EpisodeMetadataFormatter.label(season: item.parentIndexNumber,
-                                       episode: item.indexNumber,
-                                       title: item.name)
+        EpisodeMetadataFormatter.episodeLine(under: item.seriesName,
+                                             season: item.parentIndexNumber,
+                                             episode: item.indexNumber,
+                                             title: item.name)
     }
 }
 
