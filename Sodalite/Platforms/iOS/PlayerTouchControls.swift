@@ -203,7 +203,11 @@ struct PlayerTouchControls: View {
             scrubber
 
             HStack {
-                Text(viewModel.currentTime)
+                // A live session has no elapsed time worth reading and no remaining time at all,
+                // so the two slots carry the live vocabulary the tvOS bar uses: the distance from
+                // the edge on the left, the LIVE pill on the right. They used to print seconds
+                // since the tune and a permanent -00:00 (Sodalite#104).
+                Text(viewModel.isLiveSession ? viewModel.livePositionLabel : viewModel.currentTime)
                     .font(.caption).monospacedDigit().foregroundStyle(.white.opacity(0.75))
                 Spacer()
                 Button { viewModel.togglePlayPause() } label: {
@@ -215,8 +219,12 @@ struct PlayerTouchControls: View {
                 }
                 .buttonStyle(.plain)
                 Spacer()
-                Text(viewModel.remainingTime)
-                    .font(.caption).monospacedDigit().foregroundStyle(.white.opacity(0.75))
+                if viewModel.isLiveSession {
+                    liveBadge
+                } else {
+                    Text(viewModel.remainingTime)
+                        .font(.caption).monospacedDigit().foregroundStyle(.white.opacity(0.75))
+                }
             }
         }
     }
@@ -228,7 +236,11 @@ struct PlayerTouchControls: View {
     // icon under a full row. Landscape and iPad still measure to a single row.
     private var iconRow: some View {
         FlowLayout(alignment: .center, spacing: isPad ? 28 : 20, balanced: true) {
-            if !viewModel.isLiveSession {
+            if viewModel.isLiveSession {
+                if !viewModel.isAtLiveEdge {
+                    returnToLiveButton
+                }
+            } else {
                 iconButton("arrow.counterclockwise") { viewModel.restartFromBeginning() }
                     .accessibilityLabel(Text("player.restart"))
             }
@@ -270,6 +282,43 @@ struct PlayerTouchControls: View {
         .buttonStyle(.plain)
     }
 
+    /// The same pill the tvOS bar carries: tinted at the live edge, muted while behind it.
+    private var liveBadge: some View {
+        Text("livetv.liveBadge")
+            .font(.caption.bold())
+            .foregroundStyle(viewModel.isAtLiveEdge ? Color.white : .white.opacity(0.5))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(
+                Capsule().fill(viewModel.isAtLiveEdge
+                               ? AnyShapeStyle(.tint)
+                               : AnyShapeStyle(Color.Theme.restFillStrong))
+            )
+    }
+
+    /// The affordance tvOS offers as a focusable pill, with its label: a bare glyph in a row of
+    /// eight is not something anyone finds while the channel sits thirty seconds behind live.
+    private var returnToLiveButton: some View {
+        Button {
+            viewModel.returnToLiveEdge()
+            viewModel.showControlsTemporarily()
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "forward.end.alt.fill")
+                    .font(.subheadline)
+                Text("livetv.returnToLive")
+                    .font(.footnote.weight(.semibold))
+                    .lineLimit(1)
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14)
+            .frame(height: 40)
+            .background(Capsule().fill(.tint))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
     private var pictureIcon: String {
         switch viewModel.pictureMode {
         case .original: return "rectangle.ratio.16.to.9"
@@ -282,15 +331,32 @@ struct PlayerTouchControls: View {
     private var scrubber: some View {
         GeometryReader { geo in
             let width = geo.size.width
-            let frac = CGFloat(viewModel.displayedProgress)
+            // Sodalite#104: on live the rail is a FIXED span of time ending at the live edge, and
+            // what this session actually holds is drawn on it rather than used as its scale. Both
+            // numbers come from the view model, so this bar and the tvOS one cannot drift apart.
+            let live = viewModel.isLiveSession
+            let frac = CGFloat(live ? viewModel.liveDisplayedProgress : viewModel.displayedProgress)
             let knobX = max(0, min(width, width * frac))
             let bufferedX = max(0, min(width, width * CGFloat(viewModel.bufferedProgress)))
+            let availableX = max(0, min(width, width * CGFloat(viewModel.liveRail.availableFrom)))
+            let fillFrom = live ? availableX : 0
             ZStack(alignment: .leading) {
-                Capsule().fill(.white.opacity(0.25)).frame(height: 6)
-                if bufferedX > knobX {
+                Capsule().fill(.white.opacity(live ? 0.08 : 0.25)).frame(height: 6)
+                if live {
+                    // The playable region, unplayed. White for contrast whatever the accent is.
+                    Capsule().fill(.white.opacity(0.2))
+                        .frame(width: max(0, width - availableX), height: 6)
+                        .offset(x: availableX)
+                } else if bufferedX > knobX {
                     Capsule().fill(.white.opacity(0.4)).frame(width: bufferedX, height: 6)
                 }
-                Capsule().fill(tint).frame(width: knobX, height: 6)
+                Capsule().fill(tint)
+                    .frame(width: max(0, knobX - fillFrom), height: 6)
+                    .offset(x: fillFrom)
+                if live {
+                    // The live edge itself, pinned to the right end of the span.
+                    Capsule().fill(tint).frame(width: 3, height: 14).offset(x: width - 3)
+                }
                 Circle().fill(tint)
                     .frame(width: viewModel.isScrubbing ? 22 : 16, height: viewModel.isScrubbing ? 22 : 16)
                     .offset(x: knobX - (viewModel.isScrubbing ? 11 : 8))

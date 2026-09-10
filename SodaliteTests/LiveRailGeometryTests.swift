@@ -98,3 +98,24 @@ struct LiveRailGeometryTests {
         #expect(clamped == 985)
     }
 }
+
+/// Sodalite#104: the iOS bar printed `-00:00` next to a thirty second rewind, because it was
+/// reading a VOD remaining time on a session that has no duration. A live transport prints the
+/// distance from the live edge instead, and both platforms format it here.
+@Suite("A live transport prints a distance from live (Sodalite#104)")
+struct LiveTransportLabelTests {
+
+    @Test("a rewind reads as the offset it moved")
+    func aRewindReadsAsItsOffset() {
+        #expect(PlayerViewModel.liveBehindLabel(seconds: 30) == "-0:30")
+        #expect(PlayerViewModel.liveBehindLabel(seconds: 95) == "-1:35")
+        #expect(PlayerViewModel.liveBehindLabel(seconds: PlayerViewModel.liveDVRWindowSeconds) == "-10:00")
+    }
+
+    @Test("the edge itself is not drawn as a negative offset")
+    func theEdgeIsNotNegative() {
+        #expect(PlayerViewModel.liveBehindLabel(seconds: 0) == "-0:00")
+        // The engine's behind-live figure can cross zero by a fraction between two cuts.
+        #expect(PlayerViewModel.liveBehindLabel(seconds: -2) == "-0:00")
+    }
+}

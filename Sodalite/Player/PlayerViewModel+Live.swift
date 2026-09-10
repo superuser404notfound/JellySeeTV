@@ -582,6 +582,39 @@ extension PlayerViewModel {
     /// long it had been playing. The stop is a place on the rail, so it is asked about as one.
     static func liveScrubReachedLiveEdge(scrubProgress: Float) -> Bool { scrubProgress >= 1 }
 
+    /// Sodalite#104: the rail geometry for the session as it stands.
+    ///
+    /// Both transport bars read this one value. The tvOS round that shipped with the view holding
+    /// its own copy of the arithmetic is exactly why it lives here: the copy drifted, and the badge
+    /// and the knob then disagreed about the same stepping edge.
+    var liveRail: (playhead: Float, availableFrom: Float) {
+        guard let range = liveSeekableRange else { return (1, 0) }
+        return Self.liveRailGeometry(currentTime: playbackTime, seekable: range,
+                                     isAtLiveEdge: isAtLiveEdge)
+    }
+
+    /// What a live bar draws the knob at: the in-flight scrub while scrubbing, else the rail.
+    var liveDisplayedProgress: Float {
+        isScrubbing ? scrubProgress : liveRail.playhead
+    }
+
+    /// How far behind the live edge the playhead sits, as a transport label.
+    static func liveBehindLabel(seconds: Double) -> String {
+        let behind = max(0, Int(seconds))
+        return String(format: "-%d:%02d", behind / 60, behind % 60)
+    }
+
+    /// The position a live bar prints where a VOD bar prints elapsed time: the word at the edge,
+    /// the distance from it otherwise. A live session has no elapsed time worth reading (it would
+    /// be seconds since the tune) and no remaining time at all, which is what left the iOS bar
+    /// printing -00:00 next to a thirty second rewind.
+    var livePositionLabel: String {
+        if isAtLiveEdge {
+            return NSLocalizedString("livetv.liveBadge", comment: "Live edge label")
+        }
+        return Self.liveBehindLabel(seconds: behindLiveSeconds)
+    }
+
     /// Snap back to the live edge (return-to-live chip).
     ///
     /// Sodalite#104: the chip supersedes a scrub that has not committed. Without this the rail would

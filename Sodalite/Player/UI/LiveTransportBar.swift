@@ -308,8 +308,7 @@ struct LiveTransportBar: View {
     /// badge said LIVE while the knob snapped left by a whole segment at every cut, because the two
     /// were answering different questions about the same stepping edge.
     private var liveProgress: CGFloat {
-        if viewModel.isScrubbing { return CGFloat(viewModel.scrubProgress) }
-        return CGFloat(railGeometry.playhead)
+        CGFloat(viewModel.liveDisplayedProgress)
     }
 
     /// Sodalite#104 round 4: the rail is a fixed span of time ending at the live edge, and the part
@@ -317,18 +316,10 @@ struct LiveTransportBar: View {
     /// one decision in the view model, so the knob, the available region and a scrub target cannot
     /// disagree about what the rail means.
     private var railGeometry: (playhead: Float, availableFrom: Float) {
-        guard let range = viewModel.liveSeekableRange else { return (1, 0) }
-        return PlayerViewModel.liveRailGeometry(
-            currentTime: viewModel.playbackTime,
-            seekable: range,
-            isAtLiveEdge: viewModel.isAtLiveEdge)
+        viewModel.liveRail
     }
 
     private var positionLabel: String {
-        if viewModel.isAtLiveEdge {
-            return NSLocalizedString("livetv.liveBadge", comment: "Live edge label")
-        }
-        let behind = max(0, Int(viewModel.behindLiveSeconds))
-        return String(format: "-%d:%02d", behind / 60, behind % 60)
+        viewModel.livePositionLabel
     }
 }

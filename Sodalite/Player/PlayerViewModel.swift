@@ -552,6 +552,8 @@ final class PlayerViewModel {
     /// picture returned to live while the knob sat where the rewind had left it. A pending seek and
     /// an idle timer are two different things and cannot share one slot.
     var skipCommitTask: Task<Void, Never>?
+    /// Sodalite#104: the bounded ten-second probe that follows a live seek (see `logLiveRailAfterSeek`).
+    var liveRailProbe: Task<Void, Never>?
     /// In-flight continuous (hold-to-seek) scrub task; non-nil while left/right is held, advances
     /// scrubProgress with acceleration until release (see PlayerViewModel+Scrubbing).
     var continuousSeekTask: Task<Void, Never>?
