@@ -279,7 +279,7 @@ extension PlayerViewModel {
                 panelIsInHDRMode: Self.panelIsInHDRMode,
                 audioBridgeMode: preferences.audioBridgeMode,
                 isLive: true,
-                dvrWindowSeconds: 600,
+                dvrWindowSeconds: Self.liveDVRWindowSeconds,
                 // Zapping-first join (AetherEngine#195): TARGETDURATION tracks the channel GOP, so
                 // short-GOP channels show a picture in ~3-6s instead of 18s+; long-GOP channels
                 // quantize back to standard behavior automatically.
@@ -408,7 +408,7 @@ extension PlayerViewModel {
             panelIsInHDRMode: Self.panelIsInHDRMode,
             audioBridgeMode: preferences.audioBridgeMode,
             isLive: true,
-            dvrWindowSeconds: 600,
+            dvrWindowSeconds: Self.liveDVRWindowSeconds,
             // Zapping-first join (AetherEngine#195), same rationale as the direct path above. A
             // bursty Jellyfin transcode fills the startup cushion at I/O speed either way; the
             // observed-cadence floor keeps bursty ingest patient.
@@ -490,9 +490,11 @@ extension PlayerViewModel {
                 // Sodalite#104: the verdict is read from the engine rather than from the mirrored
                 // property, because both arrive on separate sinks from the same publish and a
                 // one-tick-stale flag would put the snap back for that tick.
-                // Sodalite#104 round 3: the ANCHOR, not the rail's verdict. The bar pins itself at
-                // the edge; `progress` is what a scrub starts from and must stay a position.
-                self.progress = Self.liveScrubAnchor(currentTime: time, range: range)
+                // Sodalite#104 round 4: the anchor is where the KNOB is, on the rail's own span,
+                // so a press moves from what the viewer sees. Deliberately not the edge verdict:
+                // pinning the anchor would start every rewind at the right stop.
+                self.progress = Self.liveRailGeometry(
+                    currentTime: time, seekable: range, isAtLiveEdge: false).playhead
             }
             .store(in: &cancellables)
     }
@@ -515,6 +517,47 @@ extension PlayerViewModel {
                                  isAtLiveEdge: Bool) -> Float {
         if isAtLiveEdge { return 1 }
         return liveScrubAnchor(currentTime: currentTime, range: range)
+    }
+
+    /// Sodalite#104 round 4: the DVR window this session asks the engine to keep, and the span the
+    /// rail is drawn across. One constant for both, because a rail whose scale is not the window it
+    /// represents is the defect this round exists for.
+    static let liveDVRWindowSeconds: Double = 600
+
+    /// Sodalite#104 round 4: where the playhead and the playable region sit on a live rail.
+    ///
+    /// The rail is a FIXED span of time ending at the live edge. It has to be: the seekable range's
+    /// lower bound is the moment the channel was tuned and does not move, while its upper bound
+    /// follows the edge, so a position-within-the-range fraction has a numerator and a denominator
+    /// that both grow at one second per second and therefore runs to 1 wherever the viewer is.
+    /// Measured on a device, a viewer holding thirteen seconds behind live was drawn walking from
+    /// 0.271 to 0.552 in ten seconds, and would have reached 0.97 after five minutes without ever
+    /// moving. Against a fixed span, ten seconds behind is drawn ten seconds from the right end for
+    /// as long as the viewer stays there.
+    ///
+    /// What the session actually holds is a different question and is answered separately, as the
+    /// region of the rail that can be played, so a young session shows a mostly empty rail filling
+    /// up rather than a full rail with a moving scale.
+    static func liveRailGeometry(currentTime: Double,
+                                 seekable: ClosedRange<Double>,
+                                 windowSeconds: Double = liveDVRWindowSeconds,
+                                 isAtLiveEdge: Bool) -> (playhead: Float, availableFrom: Float) {
+        guard windowSeconds > 0 else { return (1, 0) }
+        let railStart = seekable.upperBound - windowSeconds
+        let fraction = { (t: Double) -> Float in
+            Float(max(0, min(1, (t - railStart) / windowSeconds)))
+        }
+        return (isAtLiveEdge ? 1 : fraction(currentTime), fraction(seekable.lowerBound))
+    }
+
+    /// Sodalite#104 round 4: the seconds a scrub position names, on the same span the rail is drawn
+    /// across, clamped to what the session can actually play.
+    static func liveScrubTarget(scrubProgress: Float,
+                                seekable: ClosedRange<Double>,
+                                windowSeconds: Double = liveDVRWindowSeconds) -> Double {
+        let railStart = seekable.upperBound - windowSeconds
+        let target = railStart + Double(scrubProgress) * windowSeconds
+        return min(max(target, seekable.lowerBound), seekable.upperBound)
     }
 
     /// Sodalite#104 round 3: where the playhead really is across the window, as a fraction.
@@ -581,15 +624,47 @@ extension PlayerViewModel {
             return
         }
 
-        let span = range.upperBound - range.lowerBound
-        let target = min(
-            max(range.lowerBound + Double(p) * span, range.lowerBound),
-            range.upperBound
-        )
+        // Sodalite#104 round 4: across the RAIL's span, which is what the viewer aimed along.
+        let target = Self.liveScrubTarget(scrubProgress: p, seekable: range)
         openSkipBackSubtitlesIfNeeded(targetTime: target)
         Task {
             await player.seek(to: target)
             scheduleControlsHide()
+        }
+        logLiveRailAfterSeek(target: target)
+    }
+
+    /// Sodalite#104: what the rail is drawn from, once a second for ten seconds after a live seek.
+    ///
+    /// The reported shape is a bar that returns to the right a few seconds after a rewind while the
+    /// PICTURE stays where the rewind put it. Only three inputs can do that, and the engine's own
+    /// verdict line names just one of them, so this prints the reader's side: the playhead the rail
+    /// measures, the window it measures against, the verdict, and the fraction that comes out. A
+    /// playhead that climbs back to the edge while the picture does not is a clock defect; a
+    /// verdict that flips without the playhead moving is a tolerance defect; a fraction that goes to
+    /// one with neither is this view model's own arithmetic.
+    func logLiveRailAfterSeek(target: Double) {
+        liveRailProbe?.cancel()
+        liveRailProbe = Task { @MainActor [weak self] in
+            for tick in 0...10 {
+                guard let self, !Task.isCancelled else { return }
+                let range = self.liveSeekableRange
+                let drawn = range.map {
+                    Self.liveRailProgress(currentTime: self.playbackTime, range: $0,
+                                          isAtLiveEdge: self.isAtLiveEdge)
+                }
+                LogTap.shared.note(
+                    "[Live] #104 rail t+\(tick)s: playhead="
+                    + String(format: "%.2f", self.playbackTime)
+                    + "s target=" + String(format: "%.2f", target)
+                    + "s window=" + (range.map {
+                        String(format: "%.2f...%.2f", $0.lowerBound, $0.upperBound) } ?? "none")
+                    + " behind=" + String(format: "%.2f", self.behindLiveSeconds)
+                    + "s atEdge=" + (self.isAtLiveEdge ? "y" : "n")
+                    + " scrubbing=" + (self.isScrubbing ? "y" : "n")
+                    + " drawn=" + (drawn.map { String(format: "%.3f", $0) } ?? "n/a"))
+                try? await Task.sleep(for: .seconds(1))
+            }
         }
     }
 
@@ -598,10 +673,11 @@ extension PlayerViewModel {
     /// commitLiveScrub uses for the seek).
     func updateLiveScrubPreview() {
         guard let range = liveSeekableRange, range.upperBound > range.lowerBound else { return }
-        let span = range.upperBound - range.lowerBound
-        // Mirror commitLiveScrub, through the same rule, so the preview matches where the commit lands.
-        let p = Self.liveScrubReachedLiveEdge(scrubProgress: scrubProgress) ? 1.0 : Double(scrubProgress)
-        scrubPreview.update(targetSeconds: range.lowerBound + p * span)
+        // Mirror commitLiveScrub, through the same rule and the same span, so the preview matches
+        // where the commit lands.
+        let p = Self.liveScrubReachedLiveEdge(scrubProgress: scrubProgress)
+            ? Float(1) : scrubProgress
+        scrubPreview.update(targetSeconds: Self.liveScrubTarget(scrubProgress: p, seekable: range))
     }
 
     /// Engine `liveSourceReset` entry: a connection drop made the server restart its stream from byte 0 (Jellyfin transcode respawn), so the engine parked. Recovery is full re-negotiation (fresh PlaybackInfo, new PlaySessionId, transcode anchored at live edge, new engine load). Loop-guarded: one retune in flight, minimum spacing, bounded per session.

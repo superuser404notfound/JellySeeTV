@@ -16,9 +16,11 @@ extension PlayerViewModel {
     /// (gates the entry points).
     var scrubReferenceDuration: Double {
         if isLiveSession {
+            // Sodalite#104 round 4: the RAIL's span, not the resident range. A press has to move the
+            // knob by the seconds it names, and the knob is drawn across the rail.
             guard let range = liveSeekableRange,
                   range.upperBound > range.lowerBound else { return 0 }
-            return range.upperBound - range.lowerBound
+            return PlayerViewModel.liveDVRWindowSeconds
         }
         return effectiveDuration
     }
