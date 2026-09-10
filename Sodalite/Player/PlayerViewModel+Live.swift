@@ -486,13 +486,36 @@ extension PlayerViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] time in
                 guard let self, self.isLiveSession, !self.isScrubbing else { return }
-                guard let range = self.liveSeekableRange,
-                      range.upperBound > range.lowerBound else { return }
-                let span = range.upperBound - range.lowerBound
-                let pos = time - range.lowerBound
-                self.progress = Float(max(0, min(1, pos / span)))
+                guard let range = self.liveSeekableRange else { return }
+                // Sodalite#104: the verdict is read from the engine rather than from the mirrored
+                // property, because both arrive on separate sinks from the same publish and a
+                // one-tick-stale flag would put the snap back for that tick.
+                self.progress = Self.liveRailProgress(
+                    currentTime: time, range: range, isAtLiveEdge: self.player.isAtLiveEdge)
             }
             .store(in: &cancellables)
+    }
+
+    /// Sodalite#104: where the playhead sits on the DVR rail.
+    ///
+    /// The rail's right end is the live edge, and the edge is a STEP function: it moves once per
+    /// segment cut, by a whole segment. The playhead is continuous. Mapping one onto the other
+    /// directly makes the dot reach the end, snap left by segment/span at the next cut, and creep
+    /// back, over and over, which is what the device round showed while the badge already said LIVE.
+    /// Measured from the published values, 4 s segments on a 10 s window: 1.00, then 0.76, 0.86,
+    /// 0.96, 1.00, then 0.84 again.
+    ///
+    /// So the rail follows the same verdict the badge does. At the edge its right end IS the
+    /// playhead, because being within one cut of the newest segment is as close as any client can
+    /// get; behind the edge it stays the honest fraction. Both readings now come from one decision
+    /// rather than from two quantities that disagree by construction.
+    static func liveRailProgress(currentTime: Double,
+                                 range: ClosedRange<Double>,
+                                 isAtLiveEdge: Bool) -> Float {
+        if isAtLiveEdge { return 1 }
+        let span = range.upperBound - range.lowerBound
+        guard span > 0 else { return 0 }
+        return Float(max(0, min(1, (currentTime - range.lowerBound) / span)))
     }
 
     /// Snap back to the live edge (return-to-live chip).

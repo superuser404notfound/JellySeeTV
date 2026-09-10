@@ -289,13 +289,19 @@ struct LiveTransportBar: View {
     /// Playhead fraction of the seekable window: in-flight scrub while
     /// scrubbing, else playhead across `liveSeekableRange`. Defaults to 1
     /// (at-live) before the window is known.
+    ///
+    /// Sodalite#104: the mapping is `PlayerViewModel.liveRailProgress`, the same decision the badge
+    /// beneath it and the view model's own `progress` read. This used to be its own copy of the
+    /// arithmetic, and that is what the device round still showed after the engine half landed: the
+    /// badge said LIVE while the knob snapped left by a whole segment at every cut, because the two
+    /// were answering different questions about the same stepping edge.
     private var liveProgress: CGFloat {
         if viewModel.isScrubbing { return CGFloat(viewModel.scrubProgress) }
-        guard let range = viewModel.liveSeekableRange,
-              range.upperBound > range.lowerBound else { return 1 }
-        let span = range.upperBound - range.lowerBound
-        let pos = viewModel.playbackTime - range.lowerBound
-        return CGFloat(max(0, min(1, pos / span)))
+        guard let range = viewModel.liveSeekableRange else { return 1 }
+        return CGFloat(PlayerViewModel.liveRailProgress(
+            currentTime: viewModel.playbackTime,
+            range: range,
+            isAtLiveEdge: viewModel.isAtLiveEdge))
     }
 
     private var positionLabel: String {
