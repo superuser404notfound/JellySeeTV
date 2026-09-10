@@ -499,26 +499,6 @@ extension PlayerViewModel {
             .store(in: &cancellables)
     }
 
-    /// Sodalite#104: where the playhead sits on the DVR rail.
-    ///
-    /// The rail's right end is the live edge, and the edge is a STEP function: it moves once per
-    /// segment cut, by a whole segment. The playhead is continuous. Mapping one onto the other
-    /// directly makes the dot reach the end, snap left by segment/span at the next cut, and creep
-    /// back, over and over, which is what the device round showed while the badge already said LIVE.
-    /// Measured from the published values, 4 s segments on a 10 s window: 1.00, then 0.76, 0.86,
-    /// 0.96, 1.00, then 0.84 again.
-    ///
-    /// So the rail follows the same verdict the badge does. At the edge its right end IS the
-    /// playhead, because being within one cut of the newest segment is as close as any client can
-    /// get; behind the edge it stays the honest fraction. Both readings now come from one decision
-    /// rather than from two quantities that disagree by construction.
-    static func liveRailProgress(currentTime: Double,
-                                 range: ClosedRange<Double>,
-                                 isAtLiveEdge: Bool) -> Float {
-        if isAtLiveEdge { return 1 }
-        return liveScrubAnchor(currentTime: currentTime, range: range)
-    }
-
     /// Sodalite#104 round 4: the DVR window this session asks the engine to keep, and the span the
     /// rail is drawn across. One constant for both, because a rail whose scale is not the window it
     /// represents is the defect this round exists for.
@@ -558,19 +538,6 @@ extension PlayerViewModel {
         let railStart = seekable.upperBound - windowSeconds
         let target = railStart + Double(scrubProgress) * windowSeconds
         return min(max(target, seekable.lowerBound), seekable.upperBound)
-    }
-
-    /// Sodalite#104 round 3: where the playhead really is across the window, as a fraction.
-    ///
-    /// The DRAWING may pin to the right end at the live edge; the ANCHOR may not. `seekJump` seeds
-    /// `scrubProgress` from this, so pinning it would start every rewind at exactly 1.0 and hand the
-    /// commit a position the viewer is not at. That is what turned a 10 s press into a return to
-    /// live: 1.0 minus 10 s of a 30 minute window is 0.994, which the old snap rule read as "already
-    /// live". A rail verdict and a seek anchor are different questions about the same number.
-    static func liveScrubAnchor(currentTime: Double, range: ClosedRange<Double>) -> Float {
-        let span = range.upperBound - range.lowerBound
-        guard span > 0 else { return 0 }
-        return Float(max(0, min(1, (currentTime - range.lowerBound) / span)))
     }
 
     /// Sodalite#104 round 3: has a scrub been pushed to the right STOP, which is the bar's
@@ -663,41 +630,6 @@ extension PlayerViewModel {
         Task {
             await player.seek(to: target)
             scheduleControlsHide()
-        }
-        logLiveRailAfterSeek(target: target)
-    }
-
-    /// Sodalite#104: what the rail is drawn from, once a second for ten seconds after a live seek.
-    ///
-    /// The reported shape is a bar that returns to the right a few seconds after a rewind while the
-    /// PICTURE stays where the rewind put it. Only three inputs can do that, and the engine's own
-    /// verdict line names just one of them, so this prints the reader's side: the playhead the rail
-    /// measures, the window it measures against, the verdict, and the fraction that comes out. A
-    /// playhead that climbs back to the edge while the picture does not is a clock defect; a
-    /// verdict that flips without the playhead moving is a tolerance defect; a fraction that goes to
-    /// one with neither is this view model's own arithmetic.
-    func logLiveRailAfterSeek(target: Double) {
-        liveRailProbe?.cancel()
-        liveRailProbe = Task { @MainActor [weak self] in
-            for tick in 0...10 {
-                guard let self, !Task.isCancelled else { return }
-                let range = self.liveSeekableRange
-                let drawn = range.map {
-                    Self.liveRailProgress(currentTime: self.playbackTime, range: $0,
-                                          isAtLiveEdge: self.isAtLiveEdge)
-                }
-                LogTap.shared.note(
-                    "[Live] #104 rail t+\(tick)s: playhead="
-                    + String(format: "%.2f", self.playbackTime)
-                    + "s target=" + String(format: "%.2f", target)
-                    + "s window=" + (range.map {
-                        String(format: "%.2f...%.2f", $0.lowerBound, $0.upperBound) } ?? "none")
-                    + " behind=" + String(format: "%.2f", self.behindLiveSeconds)
-                    + "s atEdge=" + (self.isAtLiveEdge ? "y" : "n")
-                    + " scrubbing=" + (self.isScrubbing ? "y" : "n")
-                    + " drawn=" + (drawn.map { String(format: "%.3f", $0) } ?? "n/a"))
-                try? await Task.sleep(for: .seconds(1))
-            }
         }
     }
 

@@ -298,15 +298,13 @@ struct LiveTransportBar: View {
 
     // MARK: - Derived
 
-    /// Playhead fraction of the seekable window: in-flight scrub while
-    /// scrubbing, else playhead across `liveSeekableRange`. Defaults to 1
-    /// (at-live) before the window is known.
+    /// Where the knob is drawn: the in-flight scrub while scrubbing, else the rail.
     ///
-    /// Sodalite#104: the mapping is `PlayerViewModel.liveRailProgress`, the same decision the badge
-    /// beneath it and the view model's own `progress` read. This used to be its own copy of the
-    /// arithmetic, and that is what the device round still showed after the engine half landed: the
-    /// badge said LIVE while the knob snapped left by a whole segment at every cut, because the two
-    /// were answering different questions about the same stepping edge.
+    /// Sodalite#104: one decision, `PlayerViewModel.liveDisplayedProgress`, which the iOS bar reads
+    /// too. This used to be the view's own copy of the arithmetic, and that is what the device round
+    /// still showed after the engine half had landed: the badge said LIVE while the knob snapped left
+    /// by a whole segment at every cut, because the two were answering different questions about the
+    /// same stepping edge.
     private var liveProgress: CGFloat {
         CGFloat(viewModel.liveDisplayedProgress)
     }

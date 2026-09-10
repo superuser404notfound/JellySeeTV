@@ -99,6 +99,65 @@ struct LiveRailGeometryTests {
     }
 }
 
+/// Sodalite#104 rounds 2 and 3, the two findings that survived into the fixed-span rail.
+///
+/// Round 2: the live edge is a STEP function. It moves once per segment cut, by a whole segment,
+/// while the playhead is continuous, so a rail that measured the playhead against it reached the end,
+/// snapped left by one segment at the next cut and crept back, over and over, while the badge already
+/// said LIVE. Measured from the published values, 4 s segments on a 10 s window: 1.00, then 0.76,
+/// 0.86, 0.96, 1.00, then 0.84 again. The rail therefore follows the same verdict the badge does.
+///
+/// Round 3: pushing the knob to the right STOP is the bar's return-to-live affordance, and the rule
+/// that reads it has to be a place on the rail. It used to be `>= 0.99`, a fraction of the DVR window
+/// standing in for a distance from live, which is 18 s at a 30 minute depth, 6 s at ten minutes and
+/// 1.2 s at two: the same press meant different things on the same channel depending on how long it
+/// had been playing, and on a deep window it swallowed a ten second rewind whole.
+@Suite("The rail follows the live verdict, and the stop is a place (Sodalite#104)")
+struct LiveRailVerdictTests {
+
+    private let span = PlayerViewModel.liveDVRWindowSeconds
+
+    @Test("at the live edge the playhead sits at the end of the rail")
+    func atEdgePinsToTheEnd() {
+        // The ticks the harness printed across a whole cut while the badge said LIVE. The window's
+        // upper bound steps by a segment in the middle of them; none of that reaches the knob.
+        let ticks: [(Double, ClosedRange<Double>)] = [
+            (8.02, 1.42...7.42), (9.02, 1.42...11.42), (10.02, 1.42...11.42),
+            (11.02, 1.42...11.42), (12.12, 1.42...11.42), (13.12, 1.42...15.42),
+        ]
+        for (playhead, window) in ticks {
+            #expect(PlayerViewModel.liveRailGeometry(
+                currentTime: playhead, seekable: window,
+                windowSeconds: span, isAtLiveEdge: true).playhead == 1)
+        }
+    }
+
+    @Test("a degenerate window is safe rather than a division by zero")
+    func aDegenerateWindowIsSafe() {
+        #expect(PlayerViewModel.liveRailGeometry(
+            currentTime: 5, seekable: 5...5, windowSeconds: span, isAtLiveEdge: true).playhead == 1)
+        #expect(PlayerViewModel.liveRailGeometry(
+            currentTime: 5, seekable: 5...5, windowSeconds: 0, isAtLiveEdge: false).playhead == 1)
+    }
+
+    @Test("pushing the knob to the right stop is the return-to-live affordance")
+    func theRightStopSnaps() {
+        #expect(PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 1))
+        // scrubProgress is clamped to 0...1 at every writer, so the stop is exact.
+        #expect(PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 1.0001))
+        #expect(!PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 0.995))
+    }
+
+    @Test("a ten second rewind is a rewind, whatever the DVR depth")
+    func aShortRewindIsARewind() {
+        // What the old 1% rule swallowed: on the fixed span a press is the same distance every time,
+        // and it is nowhere near the stop.
+        let afterOnePress = Float(1 - 10.0 / span)
+        #expect(!PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: afterOnePress))
+        #expect(afterOnePress > 0.98)
+    }
+}
+
 /// Sodalite#104: the iOS bar printed `-00:00` next to a thirty second rewind, because it was
 /// reading a VOD remaining time on a session that has no duration. A live transport prints the
 /// distance from the live edge instead, and both platforms format it here.
