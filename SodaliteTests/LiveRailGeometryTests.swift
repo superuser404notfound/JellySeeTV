@@ -2,165 +2,213 @@ import Testing
 import Foundation
 @testable import Sodalite
 
-/// Sodalite#104, round 4: the DVR rail marched to the right end while the viewer stayed put.
+/// Sodalite#104: the live rail is a block of wall clock, and everything else about it follows.
 ///
-/// Captured on a device, one line per second after a rewind, with the numbers the rail was drawn
-/// from. The playhead stays 11 to 16 s behind the live edge for the whole run, so the viewer has not
-/// moved relative to live at all, and the knob still walks across half the rail in ten seconds:
+/// What it replaced, captured on a device, one line per second after a rewind. The playhead stays 11
+/// to 16 s behind the live edge for the whole run, so the viewer has not moved relative to live at
+/// all, and the knob still walks across half the rail in ten seconds:
 ///
 ///     t+1s   playhead=33235.72  window=33230.02...33251.02  drawn=0.271
 ///     t+5s   playhead=33239.82  window=33230.02...33251.02  drawn=0.467
 ///     t+6s   playhead=33240.82  window=33230.02...33257.02  drawn=0.400
 ///     t+10s  playhead=33244.92  window=33230.02...33257.02  drawn=0.552
 ///
-/// The window's LOWER bound is the moment the channel was tuned and never moves; its upper bound
-/// follows the live edge. Both the numerator and the denominator of a position-within-the-window
+/// The seekable range's LOWER bound is the moment the channel was tuned and never moves; its upper
+/// bound follows the live edge. Both the numerator and the denominator of a position-within-the-range
 /// fraction therefore grow at one second per second, so the fraction runs to 1 no matter where the
 /// viewer is. Five minutes in, a viewer ten seconds behind live is drawn at 0.97.
 ///
-/// A DVR rail is a fixed span of time ending at the live edge, the way a broadcast timeline reads:
-/// right is now, left is a constant distance before it. Then a ten second rewind is drawn ten
-/// seconds from the right end for as long as the viewer stays there. What the session actually
-/// holds is a second question, drawn as the available region rather than as the scale.
-@Suite("The DVR rail is a fixed span ending at the live edge (Sodalite#104)")
+/// A denominator that does not move is the answer, and the one a viewer can name is the programme on
+/// air: its start and end are fixed, so the knob moves when time moves and at no other moment. Where
+/// the channel has no guide data the block is a rolling window of the same width, which is the same
+/// shape under a less meaningful name.
+@Suite("The live rail is a block of wall clock (Sodalite#104)")
 struct LiveRailGeometryTests {
 
     private let span = PlayerViewModel.liveDVRWindowSeconds
 
-    /// The device capture, replayed: the edge and the playhead both advance, the resident floor
-    /// stays at the tune, and `behind` holds around thirteen seconds.
+    /// One hour of programme, with the live edge exactly half way through it.
+    private let programStart = Date(timeIntervalSinceReferenceDate: 800_000_000)
+    private var programEnd: Date { programStart.addingTimeInterval(3600) }
+    private var edge: Date { programStart.addingTimeInterval(1800) }
+
+    private func makeProgram(id: String, name: String, start: Date?, end: Date?) -> JellyfinProgram {
+        JellyfinProgram(
+            id: id, channelId: "c1", channelName: "One", name: name, overview: nil,
+            startDate: start, endDate: end, genres: nil, imageTags: nil,
+            isLive: true, isNews: nil, isMovie: nil, isSeries: nil, isKids: nil, isSports: nil,
+            seriesName: nil, parentIndexNumber: nil, indexNumber: nil, episodeTitle: nil,
+            timerId: nil, seriesTimerId: nil)
+    }
+
+    private var program: JellyfinProgram {
+        makeProgram(id: "p1", name: "NFL Football", start: programStart, end: programEnd)
+    }
+
+    private func block(_ programs: [JellyfinProgram],
+                       behind: Double = 0) -> PlayerViewModel.LiveRailBlock {
+        PlayerViewModel.liveRailBlock(
+            programs: programs,
+            playheadWallClock: edge.addingTimeInterval(-behind),
+            liveEdgeWallClock: edge,
+            fallbackSpanSeconds: span)
+    }
+
+    // MARK: The defect this exists for
+
     @Test("a viewer who does not move is not drawn moving")
     func aStationaryViewerStaysPut() {
-        let floor = 33230.02
-        let samples: [(playhead: Double, edge: Double)] = [
-            (33235.72, 33251.02), (33236.72, 33251.02), (33237.72, 33251.02),
-            (33238.82, 33251.02), (33239.82, 33251.02), (33240.82, 33257.02),
-            (33241.82, 33257.02), (33242.92, 33257.02), (33243.92, 33257.02),
-            (33244.92, 33257.02),
-        ]
-        let drawn = samples.map {
-            PlayerViewModel.liveRailGeometry(
-                currentTime: $0.playhead, seekable: floor...$0.edge,
-                windowSeconds: span, isAtLiveEdge: false).playhead
+        // Ten ticks a second apart, each holding the same distance behind an edge that advances.
+        let drawn = (0..<10).map { tick -> Float in
+            let now = edge.addingTimeInterval(Double(tick))
+            let b = PlayerViewModel.liveRailBlock(
+                programs: [program], playheadWallClock: now.addingTimeInterval(-13),
+                liveEdgeWallClock: now, fallbackSpanSeconds: span)
+            return PlayerViewModel.liveRailGeometry(
+                block: b, liveEdgeWallClock: now,
+                behindLiveSeconds: 13, residentSeconds: 600).playhead
         }
-        // Every sample sits its own distance behind the edge, and that distance is what is drawn.
-        for (sample, value) in zip(samples, drawn) {
-            let behind = sample.edge - sample.playhead
-            #expect(abs(Double(value) - (1 - behind / span)) < 0.001)
-        }
-        // The old model walked 0.271 -> 0.552 across these ten seconds. The spread is now the
-        // sawtooth of the edge itself, a couple of percent, not half the rail.
-        let spread = Double(drawn.max()! - drawn.min()!)
-        #expect(spread < 0.02)
+        // Ten seconds of a one hour block, which is what ten seconds of wall clock should look like.
+        // The old model walked 0.271 to 0.552 across exactly this run.
+        #expect(Double(drawn.max()! - drawn.min()!) < 0.004)
     }
 
     @Test("the same rewind reads the same however long the channel has been on")
     func aRewindDoesNotDriftWithSessionAge() {
-        // Ten seconds behind, twenty seconds into the session and five minutes into it.
         let young = PlayerViewModel.liveRailGeometry(
-            currentTime: 990, seekable: 985...1000, windowSeconds: span, isAtLiveEdge: false)
+            block: block([program], behind: 10), liveEdgeWallClock: edge,
+            behindLiveSeconds: 10, residentSeconds: 15)
         let old = PlayerViewModel.liveRailGeometry(
-            currentTime: 1290, seekable: 985...1300, windowSeconds: span, isAtLiveEdge: false)
-        #expect(abs(young.playhead - old.playhead) < 0.001)
-        #expect(abs(Double(young.playhead) - (1 - 10.0 / span)) < 0.001)
+            block: block([program], behind: 10), liveEdgeWallClock: edge,
+            behindLiveSeconds: 10, residentSeconds: 3600)
+        #expect(young.playhead == old.playhead)
+        // Half an hour into an hour, ten seconds back.
+        #expect(abs(Double(young.playhead) - (1790.0 / 3600.0)) < 0.001)
     }
+
+    // MARK: The four zones
 
     @Test("what the session holds is the available region, not the scale")
     func theResidentPartIsDrawnSeparately() {
-        // Twenty seconds after the tune: the rail is still ten minutes wide, and only the last
-        // fifteen seconds of it can be played.
+        // Twenty seconds after the tune, half an hour into the programme: the rail is an hour wide
+        // and only the last fifteen seconds of it can be played.
         let g = PlayerViewModel.liveRailGeometry(
-            currentTime: 1000, seekable: 985...1000, windowSeconds: span, isAtLiveEdge: true)
-        #expect(abs(Double(g.availableFrom) - (1 - 15.0 / span)) < 0.001)
-        #expect(g.playhead == 1)
-        // Once the session outlives the window, everything on the rail is available.
+            block: block([program]), liveEdgeWallClock: edge,
+            behindLiveSeconds: 0, residentSeconds: 15)
+        #expect(abs(Double(g.availableFrom) - (1785.0 / 3600.0)) < 0.001)
+        #expect(g.playhead == g.liveEdge)
+        // A session older than the programme holds all of it.
         let mature = PlayerViewModel.liveRailGeometry(
-            currentTime: 4000, seekable: 3400...4000, windowSeconds: span, isAtLiveEdge: true)
+            block: block([program]), liveEdgeWallClock: edge,
+            behindLiveSeconds: 0, residentSeconds: 7200)
         #expect(mature.availableFrom == 0)
     }
 
-    @Test("a rewind past what is held is clamped onto the rail, not off it")
-    func aPositionBelowTheWindowClamps() {
+    @Test("the live edge sits inside the block, not at the end of it")
+    func theEdgeIsAPlaceInTheBlock() {
         let g = PlayerViewModel.liveRailGeometry(
-            currentTime: 100, seekable: 985...1000, windowSeconds: span, isAtLiveEdge: false)
+            block: block([program]), liveEdgeWallClock: edge,
+            behindLiveSeconds: 0, residentSeconds: 600)
+        #expect(abs(Double(g.liveEdge) - 0.5) < 0.001)
+        // Half the rail is programme that has not aired, which is the point of drawing the block.
+        #expect(g.liveEdge < 1)
+    }
+
+    @Test("a rewind past what is held is clamped onto the rail, not off it")
+    func aPositionBelowTheBlockClamps() {
+        let g = PlayerViewModel.liveRailGeometry(
+            block: block([program]), liveEdgeWallClock: edge,
+            behindLiveSeconds: 3600, residentSeconds: 3600)
         #expect(g.playhead == 0)
     }
 
-    @Test("a scrub maps across the rail, so pressing and drawing agree")
-    func scrubTargetsUseTheSameSpan() {
-        // The rail's own arithmetic, inverted: 10 s before the edge is where a 10 s press lands.
-        let target = PlayerViewModel.liveScrubTarget(
-            scrubProgress: Float(1 - 10.0 / span), seekable: 985...1000, windowSeconds: span)
-        #expect(abs(target - 990) < 0.001)
-        // And it never lands outside what the session holds.
-        let clamped = PlayerViewModel.liveScrubTarget(
-            scrubProgress: 0, seekable: 985...1000, windowSeconds: span)
-        #expect(clamped == 985)
-    }
-}
+    // MARK: Which block
 
-/// Sodalite#104 rounds 2 and 3, the two findings that survived into the fixed-span rail.
-///
-/// Round 2: the live edge is a STEP function. It moves once per segment cut, by a whole segment,
-/// while the playhead is continuous, so a rail that measured the playhead against it reached the end,
-/// snapped left by one segment at the next cut and crept back, over and over, while the badge already
-/// said LIVE. Measured from the published values, 4 s segments on a 10 s window: 1.00, then 0.76,
-/// 0.86, 0.96, 1.00, then 0.84 again. The rail therefore follows the same verdict the badge does.
-///
-/// Round 3: pushing the knob to the right STOP is the bar's return-to-live affordance, and the rule
-/// that reads it has to be a place on the rail. It used to be `>= 0.99`, a fraction of the DVR window
-/// standing in for a distance from live, which is 18 s at a 30 minute depth, 6 s at ten minutes and
-/// 1.2 s at two: the same press meant different things on the same channel depending on how long it
-/// had been playing, and on a deep window it swallowed a ten second rewind whole.
-@Suite("The rail follows the live verdict, and the stop is a place (Sodalite#104)")
-struct LiveRailVerdictTests {
-
-    private let span = PlayerViewModel.liveDVRWindowSeconds
-
-    @Test("at the live edge the playhead sits at the end of the rail")
-    func atEdgePinsToTheEnd() {
-        // The ticks the harness printed across a whole cut while the badge said LIVE. The window's
-        // upper bound steps by a segment in the middle of them; none of that reaches the knob.
-        let ticks: [(Double, ClosedRange<Double>)] = [
-            (8.02, 1.42...7.42), (9.02, 1.42...11.42), (10.02, 1.42...11.42),
-            (11.02, 1.42...11.42), (12.12, 1.42...11.42), (13.12, 1.42...15.42),
-        ]
-        for (playhead, window) in ticks {
-            #expect(PlayerViewModel.liveRailGeometry(
-                currentTime: playhead, seekable: window,
-                windowSeconds: span, isAtLiveEdge: true).playhead == 1)
-        }
+    @Test("a timeshifted viewer is inside the programme they are watching")
+    func theBlockFollowsThePlayhead() {
+        let earlier = makeProgram(id: "p0", name: "The Pregame",
+                                  start: programStart.addingTimeInterval(-3600), end: programStart)
+        // Half an hour into the football, watching live.
+        #expect(block([earlier, program]).program?.id == "p1")
+        // The same session rewound forty minutes is inside the previous programme, and the rail
+        // frames that one instead.
+        #expect(block([earlier, program], behind: 2400).program?.id == "p0")
     }
 
-    @Test("a degenerate window is safe rather than a division by zero")
-    func aDegenerateWindowIsSafe() {
-        #expect(PlayerViewModel.liveRailGeometry(
-            currentTime: 5, seekable: 5...5, windowSeconds: span, isAtLiveEdge: true).playhead == 1)
-        #expect(PlayerViewModel.liveRailGeometry(
-            currentTime: 5, seekable: 5...5, windowSeconds: 0, isAtLiveEdge: false).playhead == 1)
+    @Test("a channel with no guide gets a rolling window ending at the edge")
+    func theFallbackIsTheRollingWindow() {
+        let b = block([])
+        #expect(b.program == nil)
+        #expect(b.end == edge)
+        #expect(abs(b.seconds - span) < 0.001)
+        // Which is the fixed-span rail: ten seconds behind is ten seconds from the right end.
+        let g = PlayerViewModel.liveRailGeometry(
+            block: b, liveEdgeWallClock: edge, behindLiveSeconds: 10, residentSeconds: span)
+        #expect(abs(Double(g.playhead) - (1 - 10.0 / span)) < 0.001)
+        #expect(g.liveEdge == 1)
     }
 
-    @Test("pushing the knob to the right stop is the return-to-live affordance")
-    func theRightStopSnaps() {
-        #expect(PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 1))
-        // scrubProgress is clamped to 0...1 at every writer, so the stop is exact.
-        #expect(PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 1.0001))
-        #expect(!PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 0.995))
+    @Test("a programme with no dates is not a block")
+    func adatelessProgrammeFallsBack() {
+        #expect(block([makeProgram(id: "p2", name: "Unknown", start: nil, end: nil)]).program == nil)
     }
 
-    @Test("a ten second rewind is a rewind, whatever the DVR depth")
+    // MARK: Aiming along the rail
+
+    @Test("a scrub maps across the block, so pressing and drawing agree")
+    func scrubTargetsUseTheSameBlock() {
+        let b = block([program])
+        let seekable: ClosedRange<Double> = 33_000...34_800
+        // The middle of this block is the live edge, which is the session's own upper bound.
+        #expect(abs(PlayerViewModel.liveScrubTarget(
+            scrubProgress: 0.5, block: b, liveEdgeWallClock: edge, seekable: seekable) - 34_800) < 0.001)
+        // A quarter in is fifteen minutes before the edge, and this session holds half an hour, so
+        // it maps to the second it names.
+        #expect(abs(PlayerViewModel.liveScrubTarget(
+            scrubProgress: 0.25, block: b, liveEdgeWallClock: edge, seekable: seekable) - 33_900) < 0.01)
+        // The same aim on a session that has only been on for five minutes clamps onto what can be
+        // played rather than off the rail.
+        #expect(PlayerViewModel.liveScrubTarget(
+            scrubProgress: 0.25, block: b, liveEdgeWallClock: edge,
+            seekable: 34_500...34_800) == 34_500)
+        // A position the session does hold maps to the second it names.
+        #expect(abs(PlayerViewModel.liveScrubTarget(
+            scrubProgress: Float(1790.0 / 3600.0), block: b, liveEdgeWallClock: edge,
+            seekable: seekable) - 34_790) < 0.01)
+    }
+
+    @Test("the return-to-live affordance is the edge, not the end of the rail")
+    func theSnapAsksAboutTheEdge() {
+        let g = PlayerViewModel.liveRailGeometry(
+            block: block([program]), liveEdgeWallClock: edge,
+            behindLiveSeconds: 0, residentSeconds: 600)
+        // Aiming into the part of the programme that has not aired is a return to live, because
+        // there is nothing else there to aim at.
+        #expect(PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 1, liveEdge: g.liveEdge))
+        #expect(PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: g.liveEdge,
+                                                         liveEdge: g.liveEdge))
+        // A rewind inside the block is not.
+        #expect(!PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 0.4, liveEdge: g.liveEdge))
+        // On a rolling-window rail the edge IS the right end, which is the old rule intact.
+        #expect(PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 1, liveEdge: 1))
+        #expect(!PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: 0.995, liveEdge: 1))
+    }
+
+    @Test("a ten second rewind is a rewind, whatever the block")
     func aShortRewindIsARewind() {
-        // What the old 1% rule swallowed: on the fixed span a press is the same distance every time,
-        // and it is nowhere near the stop.
-        let afterOnePress = Float(1 - 10.0 / span)
-        #expect(!PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: afterOnePress))
-        #expect(afterOnePress > 0.98)
+        // What the old 1%-of-the-window rule swallowed whole on a deep DVR window. Against a block a
+        // press is a distance, and it is nowhere near the edge.
+        let g = PlayerViewModel.liveRailGeometry(
+            block: block([program], behind: 10), liveEdgeWallClock: edge,
+            behindLiveSeconds: 10, residentSeconds: 600)
+        #expect(!PlayerViewModel.liveScrubReachedLiveEdge(scrubProgress: g.playhead,
+                                                          liveEdge: g.liveEdge))
     }
 }
 
-/// Sodalite#104: the iOS bar printed `-00:00` next to a thirty second rewind, because it was
-/// reading a VOD remaining time on a session that has no duration. A live transport prints the
-/// distance from the live edge instead, and both platforms format it here.
+/// Sodalite#104: the iOS bar printed `-00:00` next to a thirty second rewind, because it was reading
+/// a VOD remaining time on a session that has no duration. A live transport prints the distance from
+/// the live edge instead, and both platforms format it here.
 @Suite("A live transport prints a distance from live (Sodalite#104)")
 struct LiveTransportLabelTests {
 

@@ -16,11 +16,11 @@ extension PlayerViewModel {
     /// (gates the entry points).
     var scrubReferenceDuration: Double {
         if isLiveSession {
-            // Sodalite#104 round 4: the RAIL's span, not the resident range. A press has to move the
-            // knob by the seconds it names, and the knob is drawn across the rail.
+            // Sodalite#104: the RAIL's block, not the resident range. A press has to move the knob by
+            // the seconds it names, and the knob is drawn across the block.
             guard let range = liveSeekableRange,
                   range.upperBound > range.lowerBound else { return 0 }
-            return PlayerViewModel.liveDVRWindowSeconds
+            return liveRailBlock.seconds
         }
         return effectiveDuration
     }
@@ -61,7 +61,7 @@ extension PlayerViewModel {
         // isScrubbing guard let that timer tear the UI down mid-scrub.
         controlsTimer?.cancel()
 
-        scrubProgress = max(0, min(1, scrubStartProgress + Float(delta) * 0.3))
+        scrubProgress = clampedScrubProgress(scrubStartProgress + Float(delta) * 0.3)
         // scrubTime VOD-only (live bar draws from behindLiveSeconds); preview
         // is still fed for live via updateLiveScrubPreview.
         if !isLiveSession {
@@ -82,7 +82,7 @@ extension PlayerViewModel {
             if !isLiveSession { scrubPreview.prewarm() } else { updateLiveScrubPreview() }
         }
         controlsTimer?.cancel()
-        scrubProgress = max(0, min(1, fraction))
+        scrubProgress = clampedScrubProgress(fraction)
         if !isLiveSession {
             scrubTime = formatSeconds(Double(scrubProgress) * dur)
             scrubPreview.update(fraction: scrubProgress, durationSeconds: dur)
@@ -91,6 +91,14 @@ extension PlayerViewModel {
         }
     }
     #endif
+
+    /// Sodalite#104: a live scrub stops at the live edge, which on a programme block is not the right
+    /// end of the rail. The part of the block that has not aired is drawn, because a viewer wants to
+    /// see how much of the programme is still to come, and it cannot be aimed at.
+    func clampedScrubProgress(_ value: Float) -> Float {
+        let ceiling = isLiveSession ? liveRail.liveEdge : 1
+        return max(0, min(ceiling, value))
+    }
 
     func scrubPanEnded() {
         guard isScrubbing else { return }

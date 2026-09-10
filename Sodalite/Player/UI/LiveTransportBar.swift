@@ -195,7 +195,11 @@ struct LiveTransportBar: View {
                 txn.animation = .smooth(duration: 0.32)
             }
 
-            scrubber
+            VStack(spacing: 4) {
+                scrubber
+                railLabels
+                nextUpLine
+            }
         }
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
@@ -211,10 +215,10 @@ struct LiveTransportBar: View {
     /// "LIVE" pill: tinted at the edge, muted while behind live.
     private var liveBadge: some View {
         Text("livetv.liveBadge")
-            .font(.caption.bold())
+            .font(.callout.bold())
             .foregroundStyle(viewModel.isAtLiveEdge ? Color.white : .white.opacity(0.5))
             .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.vertical, 8)
             .background(
                 Capsule()
                     .fill(viewModel.isAtLiveEdge ? AnyShapeStyle(.tint) : AnyShapeStyle(Color.Theme.restFillStrong))
@@ -250,40 +254,69 @@ struct LiveTransportBar: View {
         .transition(.opacity)
     }
 
-    // MARK: - Scrubber
+    // MARK: - Meter
 
+    /// Sodalite#104: the programme on air as a block of wall clock, with the DVR buffer painted
+    /// inside it. Four zones, because "what has aired", "what this session recorded", "what you have
+    /// watched" and "what is still to come" are four different facts and the old single tint over a
+    /// faint track said none of them.
     private var scrubber: some View {
         GeometryReader { geo in
             let width = geo.size.width
             let active = viewModel.isScrubbing
             let trackHeight: CGFloat = active ? 10 : 6
             let knobSize: CGFloat = active ? 22 : 14
-            let knobX = max(0, min(width, width * liveProgress))
-
-            let availableX = max(0, min(width, width * CGFloat(railGeometry.availableFrom)))
+            let knobX = clamp(liveProgress, width)
+            let availableX = clamp(CGFloat(railGeometry.availableFrom), width)
+            let edgeX = clamp(CGFloat(railGeometry.liveEdge), width)
 
             ZStack(alignment: .leading) {
-                // The whole span, which is time this channel has but this session does not hold.
+                // The block itself: everything in it that has not aired yet.
                 Capsule()
-                    .fill(.white.opacity(0.08))
+                    .fill(Color.Theme.trackOnScrim)
                     .frame(height: trackHeight)
 
-                // What the session can actually play, unplayed. White for contrast regardless of accent.
-                Capsule()
-                    .fill(.white.opacity(0.2))
-                    .frame(width: max(0, width - availableX), height: trackHeight)
-                    .offset(x: availableX)
+                // Before the recording starts. DARKENED, not a lighter wash: a translucent white over
+                // the track composites BRIGHTER than the track, which says the opposite of "this is
+                // time you do not have".
+                if availableX > 0 {
+                    Capsule()
+                        .fill(.black.opacity(0.55))
+                        .frame(width: availableX, height: trackHeight)
+                }
 
-                Capsule()
-                    .fill(.tint)
-                    .frame(width: max(0, knobX - availableX), height: trackHeight)
-                    .offset(x: availableX)
+                // Recorded and not yet watched, which on a match is the answer to "can I skip this ad
+                // break". Same band the VOD bar draws for buffered-ahead.
+                if edgeX > knobX {
+                    Capsule()
+                        .fill(.white.opacity(0.4))
+                        .frame(width: edgeX - knobX, height: trackHeight)
+                        .offset(x: knobX)
+                }
 
-                // Live-edge tick pinned to the right end of the window.
+                // Quarter-hour marks, above the track and below the watched fill so they melt into the
+                // tint behind the playhead, exactly as the chapter ticks do on a stored title.
+                ForEach(quarterHourFractions, id: \.self) { fraction in
+                    Capsule()
+                        .fill(.white.opacity(0.55))
+                        .frame(width: 2, height: trackHeight + 4)
+                        .offset(x: width * CGFloat(fraction) - 1)
+                }
+
+                // Watched.
+                if knobX > availableX {
+                    Capsule()
+                        .fill(.tint)
+                        .frame(width: knobX - availableX, height: trackHeight)
+                        .offset(x: availableX)
+                }
+
+                // The live edge, where it actually is inside the block rather than pinned to the right
+                // end of it. On the programme on air it walks across the block as the hour passes.
                 Capsule()
                     .fill(.tint)
                     .frame(width: 3, height: trackHeight + 8)
-                    .offset(x: width - 3)
+                    .offset(x: min(edgeX, width - 3))
 
                 Circle()
                     .fill(.tint)
@@ -294,6 +327,53 @@ struct LiveTransportBar: View {
             .animation(.easeInOut(duration: 0.2), value: active)
         }
         .frame(height: 22)
+    }
+
+    /// The two ends of the block, and the wall clock of the frame on screen tracking the knob between
+    /// them. Same slots and same styling the VOD bar gives elapsed and remaining, which is what those
+    /// two slots mean once the denominator is a block of time.
+    private var railLabels: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            ZStack(alignment: .leading) {
+                HStack(spacing: 0) {
+                    Text(clockLabel(for: viewModel.liveRailBlock.start))
+                    Spacer(minLength: 0)
+                    Text(clockLabel(for: viewModel.liveRailBlock.end))
+                }
+                .font(.callout)
+                .fontWeight(.medium)
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.7))
+
+                // Hidden rather than pushed aside near the ends: there it would say what the end label
+                // beside it already says, and a clock sliding out from under its own knob reads worse
+                // than one that steps aside.
+                if let playheadClock, !playheadClockCollides(width: width) {
+                    Text(playheadClock)
+                        .font(.callout)
+                        .fontWeight(.medium)
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .position(x: clamp(liveProgress, width), y: Self.labelRowHeight / 2)
+                }
+            }
+        }
+        .frame(height: Self.labelRowHeight)
+    }
+
+    /// What follows the block, under the rail that marks its end, which is the thing it counts toward.
+    @ViewBuilder
+    private var nextUpLine: some View {
+        if let next = viewModel.liveNextProgram, let starts = next.startDate {
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+                Text(Self.nextUpText(name: next.name, startsIn: starts.timeIntervalSince(Date())))
+                    .font(.callout)
+                    .foregroundStyle(.white.opacity(0.5))
+                    .lineLimit(1)
+            }
+        }
     }
 
     // MARK: - Derived
@@ -309,15 +389,72 @@ struct LiveTransportBar: View {
         CGFloat(viewModel.liveDisplayedProgress)
     }
 
-    /// Sodalite#104 round 4: the rail is a fixed span of time ending at the live edge, and the part
-    /// of it the session can actually play is drawn rather than used as the scale. Both come from
-    /// one decision in the view model, so the knob, the available region and a scrub target cannot
-    /// disagree about what the rail means.
-    private var railGeometry: (playhead: Float, availableFrom: Float) {
+    /// Sodalite#104: the rail is a block of wall clock, and what the session holds inside it is drawn
+    /// rather than used as the scale. Every part of it comes from one decision in the view model, so
+    /// the knob, the zones and a scrub target cannot disagree about what the rail means.
+    private var railGeometry: PlayerViewModel.LiveRailGeometry {
         viewModel.liveRail
     }
 
     private var positionLabel: String {
         viewModel.livePositionLabel
+    }
+
+    /// The label row's height, which is the callout line height the two rail clocks sit on.
+    private static let labelRowHeight: CGFloat = 30
+
+    /// Half the width a rail clock can take, near enough: the tracking clock is hidden inside this
+    /// distance of either end, where it would collide with the label that lives there.
+    private static let clockHalfWidth: CGFloat = 90
+
+    private func clamp(_ fraction: CGFloat, _ width: CGFloat) -> CGFloat {
+        max(0, min(width, width * fraction))
+    }
+
+    private func playheadClockCollides(width: CGFloat) -> Bool {
+        let x = clamp(liveProgress, width)
+        return x < Self.clockHalfWidth || x > width - Self.clockHalfWidth
+    }
+
+    /// The wall clock of the frame on screen, or of the position a scrub is pointing at.
+    private var playheadClock: String? {
+        let block = viewModel.liveRailBlock
+        guard block.seconds > 0 else { return nil }
+        return clockLabel(for: block.wallClock(at: Float(liveProgress)))
+    }
+
+    private func clockLabel(for date: Date) -> String {
+        date.formatted(date: .omitted, time: .shortened)
+    }
+
+    /// Quarter-hour marks across the block, on the wall clock rather than on the block's own length:
+    /// a programme that starts at 20:15 has its marks at 20:30 and 20:45, which is where a viewer
+    /// reading a clock expects them.
+    private var quarterHourFractions: [Double] {
+        let block = viewModel.liveRailBlock
+        guard block.seconds > 0, block.seconds <= 12 * 3600 else { return [] }
+        let quarter: TimeInterval = 15 * 60
+        let firstMark = (block.start.timeIntervalSinceReferenceDate / quarter).rounded(.down) * quarter
+        var marks: [Double] = []
+        var t = firstMark
+        while t < block.end.timeIntervalSinceReferenceDate {
+            let fraction = (t - block.start.timeIntervalSinceReferenceDate) / block.seconds
+            if fraction > 0.001, fraction < 0.999 { marks.append(fraction) }
+            t += quarter
+        }
+        return marks
+    }
+
+    /// "In 101 minutes: The OT", or the name alone once the countdown would read as zero.
+    static func nextUpText(name: String, startsIn seconds: TimeInterval) -> String {
+        let minutes = Int((seconds / 60).rounded())
+        guard minutes >= 1 else {
+            return String(format: String(localized: "livetv.nextUp.now",
+                                         defaultValue: "Next: %@"), name)
+        }
+        let inWords = Duration.seconds(minutes * 60)
+            .formatted(.units(allowed: [.hours, .minutes], width: .wide))
+        return String(format: String(localized: "livetv.nextUp",
+                                     defaultValue: "In %1$@: %2$@"), inWords, name)
     }
 }

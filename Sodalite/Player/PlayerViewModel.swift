@@ -666,6 +666,10 @@ final class PlayerViewModel {
     /// at tune time and kept current by `startFollowingLiveProgram` (#96), because `item` is built
     /// from it and the title above the picture reads `item`.
     var liveProgram: JellyfinProgram?
+    /// Sodalite#104: the guide around the playhead, sorted by start, so the rail can frame the block
+    /// the viewer is inside and name what follows it. A live session can sit an hour behind the edge,
+    /// which is a different programme from the one on air.
+    var liveProgramWindow: [JellyfinProgram] = []
     /// Wakes at the programme's end and asks what took its place. Nil for VOD.
     var liveProgramFollow: Task<Void, Never>?
     /// Live-TV service for tuner lifecycle (PlayerViewModel+Live). Nil for VOD.

@@ -610,7 +610,7 @@ struct TransportBar: View {
             ZStack(alignment: .leading) {
                 // Unplayed track stays white for contrast regardless of the user's accent color.
                 Capsule()
-                    .fill(.white.opacity(0.2))
+                    .fill(Color.Theme.trackOnScrim)
                     .frame(height: trackHeight)
 
                 // Buffered-ahead (disk cache read-ahead) sits above the unplayed track and below the

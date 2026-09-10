@@ -108,6 +108,16 @@ struct ColorThemeTests {
         #expect(NeutralLevel.resumeTrack == 0.13)
     }
 
+    /// Sodalite#104: one role on two grounds. The scrim variant is translucent because the player's
+    /// scrim is already dark under it; the artwork variant is opaque because a bright still shows
+    /// through. A third literal in a new meter is the drift this pair exists to stop.
+    @Test("the two track grounds are one role, pinned together")
+    func trackRolesArePinnedAsAPair() {
+        expectSame(Color.Theme.trackOnScrim, Color.white.opacity(0.2), "trackOnScrim")
+        #expect(components(Color.Theme.trackOnScrim).alpha < 1)
+        #expect(components(Color.Theme.resumeTrack).alpha == 1)
+    }
+
     /// Opaque and neutral, which is the whole reason it is not `surface` or a translucent white: it
     /// sits on artwork and has to hold its contrast against a bright still.
     @Test("the resume track is an opaque neutral grey, not a wash over the artwork")

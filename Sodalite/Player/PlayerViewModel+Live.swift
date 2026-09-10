@@ -487,14 +487,20 @@ extension PlayerViewModel {
             .sink { [weak self] time in
                 guard let self, self.isLiveSession, !self.isScrubbing else { return }
                 guard let range = self.liveSeekableRange else { return }
-                // Sodalite#104: the verdict is read from the engine rather than from the mirrored
-                // property, because both arrive on separate sinks from the same publish and a
-                // one-tick-stale flag would put the snap back for that tick.
-                // Sodalite#104 round 4: the anchor is where the KNOB is, on the rail's own span,
-                // so a press moves from what the viewer sees. Deliberately not the edge verdict:
-                // pinning the anchor would start every rewind at the right stop.
+                // Sodalite#104: the anchor is where the KNOB is, so a press moves from what the
+                // viewer sees. Its distance behind the edge comes from THIS tick rather than from the
+                // mirrored property, which arrives on a separate sink from the same publish and would
+                // be one tick stale at exactly the moment a press reads it.
+                let behind = max(0, range.upperBound - time)
+                let edge = Self.liveEdgeWallClock()
+                let block = Self.liveRailBlock(
+                    programs: self.liveProgramWindow,
+                    playheadWallClock: edge.addingTimeInterval(-behind),
+                    liveEdgeWallClock: edge,
+                    fallbackSpanSeconds: Self.liveDVRWindowSeconds)
                 self.progress = Self.liveRailGeometry(
-                    currentTime: time, seekable: range, isAtLiveEdge: false).playhead
+                    block: block, liveEdgeWallClock: edge, behindLiveSeconds: behind,
+                    residentSeconds: range.upperBound - range.lowerBound).playhead
             }
             .store(in: &cancellables)
     }
@@ -504,60 +510,143 @@ extension PlayerViewModel {
     /// represents is the defect this round exists for.
     static let liveDVRWindowSeconds: Double = 600
 
-    /// Sodalite#104 round 4: where the playhead and the playable region sit on a live rail.
+    /// Sodalite#104: the stretch of wall clock the rail spans.
     ///
-    /// The rail is a FIXED span of time ending at the live edge. It has to be: the seekable range's
-    /// lower bound is the moment the channel was tuned and does not move, while its upper bound
-    /// follows the edge, so a position-within-the-range fraction has a numerator and a denominator
-    /// that both grow at one second per second and therefore runs to 1 wherever the viewer is.
-    /// Measured on a device, a viewer holding thirteen seconds behind live was drawn walking from
-    /// 0.271 to 0.552 in ten seconds, and would have reached 0.97 after five minutes without ever
-    /// moving. Against a fixed span, ten seconds behind is drawn ten seconds from the right end for
-    /// as long as the viewer stays there.
+    /// A live rail needs a denominator that does NOT move while the viewer holds still, and the only
+    /// honest one is a block of time. The programme on air is that block where the channel has guide
+    /// data: its start and end are fixed, so the knob moves when time moves and at no other moment.
+    /// Where there is no guide, the block is a rolling window ending at the live edge, which is the
+    /// same shape one programme's width wide.
     ///
-    /// What the session actually holds is a different question and is answered separately, as the
-    /// region of the rail that can be played, so a young session shows a mostly empty rail filling
-    /// up rather than a full rail with a moving scale.
-    static func liveRailGeometry(currentTime: Double,
-                                 seekable: ClosedRange<Double>,
-                                 windowSeconds: Double = liveDVRWindowSeconds,
-                                 isAtLiveEdge: Bool) -> (playhead: Float, availableFrom: Float) {
-        guard windowSeconds > 0 else { return (1, 0) }
-        let railStart = seekable.upperBound - windowSeconds
-        let fraction = { (t: Double) -> Float in
-            Float(max(0, min(1, (t - railStart) / windowSeconds)))
+    /// What this replaces, and why it cannot come back: the seekable range's lower bound is the moment
+    /// the channel was tuned and never moves, while its upper bound follows the edge, so a
+    /// position-within-the-range fraction has a numerator and a denominator that both grow at one
+    /// second per second and runs to 1 wherever the viewer is. Measured on a device, a viewer holding
+    /// thirteen seconds behind live was drawn walking from 0.271 to 0.552 in ten seconds and would
+    /// have reached 0.97 after five minutes without ever moving.
+    struct LiveRailBlock: Equatable {
+        let start: Date
+        let end: Date
+        /// The programme this block frames, nil when the rail is a rolling window instead.
+        let program: JellyfinProgram?
+
+        var seconds: Double { Swift.max(0, end.timeIntervalSince(start)) }
+
+        /// Where a wall clock sits across the block, clamped onto it.
+        func fraction(at wallClock: Date) -> Float {
+            guard seconds > 0 else { return 1 }
+            return Float(Swift.max(0, Swift.min(1, wallClock.timeIntervalSince(start) / seconds)))
         }
-        return (isAtLiveEdge ? 1 : fraction(currentTime), fraction(seekable.lowerBound))
+
+        /// The wall clock a fraction of the rail names.
+        func wallClock(at fraction: Float) -> Date {
+            start.addingTimeInterval(Double(fraction) * seconds)
+        }
     }
 
-    /// Sodalite#104 round 4: the seconds a scrub position names, on the same span the rail is drawn
-    /// across, clamped to what the session can actually play.
+    /// Sodalite#104: what the rail is drawn from.
+    struct LiveRailGeometry: Equatable {
+        let playhead: Float
+        /// Where the session's own recording starts. Everything to the left of it aired before the
+        /// tune, or has fallen out of the DVR window, and cannot be played.
+        let availableFrom: Float
+        /// Where the live edge sits inside the block, which is only the right end while the programme
+        /// on air is the one being watched.
+        let liveEdge: Float
+    }
+
+    /// The block the PLAYHEAD is inside, which on a timeshifted session is not the programme on air.
+    static func liveRailBlock(programs: [JellyfinProgram],
+                              playheadWallClock: Date,
+                              liveEdgeWallClock: Date,
+                              fallbackSpanSeconds: Double) -> LiveRailBlock {
+        if let program = programs.first(where: { $0.isAiring(at: playheadWallClock) }),
+           let start = program.startDate, let end = program.endDate, end > start {
+            return LiveRailBlock(start: start, end: end, program: program)
+        }
+        return LiveRailBlock(start: liveEdgeWallClock.addingTimeInterval(-fallbackSpanSeconds),
+                             end: liveEdgeWallClock, program: nil)
+    }
+
+    /// The live edge as a wall clock. Every DVR reads the newest media it holds as "now": the true
+    /// broadcast time of that frame is the encoder's and the segmenter's latency behind it, which
+    /// nothing in the session can measure, and which is seconds against a block that is half an hour.
+    static func liveEdgeWallClock(now: Date = Date()) -> Date { now }
+
+    /// Where the playhead, the recording and the live edge sit on the block.
+    static func liveRailGeometry(block: LiveRailBlock,
+                                 liveEdgeWallClock: Date,
+                                 behindLiveSeconds: Double,
+                                 residentSeconds: Double) -> LiveRailGeometry {
+        let playheadAt = liveEdgeWallClock.addingTimeInterval(-Swift.max(0, behindLiveSeconds))
+        let floorAt = liveEdgeWallClock.addingTimeInterval(-Swift.max(0, residentSeconds))
+        return LiveRailGeometry(playhead: block.fraction(at: playheadAt),
+                                availableFrom: block.fraction(at: floorAt),
+                                liveEdge: block.fraction(at: liveEdgeWallClock))
+    }
+
+    /// The seconds on the session axis that a scrub position names, clamped to what can be played.
+    ///
+    /// The rail speaks wall clock and the engine speaks session seconds, and the live edge is the one
+    /// place the two axes are pinned to each other.
     static func liveScrubTarget(scrubProgress: Float,
-                                seekable: ClosedRange<Double>,
-                                windowSeconds: Double = liveDVRWindowSeconds) -> Double {
-        let railStart = seekable.upperBound - windowSeconds
-        let target = railStart + Double(scrubProgress) * windowSeconds
-        return min(max(target, seekable.lowerBound), seekable.upperBound)
+                                block: LiveRailBlock,
+                                liveEdgeWallClock: Date,
+                                seekable: ClosedRange<Double>) -> Double {
+        let behind = liveEdgeWallClock.timeIntervalSince(block.wallClock(at: scrubProgress))
+        let target = seekable.upperBound - behind
+        return Swift.min(Swift.max(target, seekable.lowerBound), seekable.upperBound)
     }
 
-    /// Sodalite#104 round 3: has a scrub been pushed to the right STOP, which is the bar's
-    /// return-to-live affordance?
+    /// Sodalite#104: has a scrub arrived at the live edge, which is the bar's return-to-live
+    /// affordance?
+    ///
+    /// The edge is a PLACE on the rail, and on a programme block it is not the right end of it: the
+    /// stretch that has not aired is drawn but cannot be aimed at, and a viewer an hour behind is
+    /// inside an earlier programme whose end is itself in the past. Asking the question against the
+    /// edge rather than against the end of the rail is what keeps those two cases apart.
     ///
     /// This used to be `>= 0.99`, a fraction of the DVR window standing in for a distance from live.
     /// A window is not a fixed length: 1% of it is 18 s at a 30 minute depth, 6 s at ten minutes and
     /// 1.2 s at two, so the same press meant different things on the same channel depending on how
-    /// long it had been playing. The stop is a place on the rail, so it is asked about as one.
-    static func liveScrubReachedLiveEdge(scrubProgress: Float) -> Bool { scrubProgress >= 1 }
+    /// long it had been playing.
+    static func liveScrubReachedLiveEdge(scrubProgress: Float, liveEdge: Float) -> Bool {
+        scrubProgress >= liveEdge
+    }
 
     /// Sodalite#104: the rail geometry for the session as it stands.
     ///
     /// Both transport bars read this one value. The tvOS round that shipped with the view holding
     /// its own copy of the arithmetic is exactly why it lives here: the copy drifted, and the badge
     /// and the knob then disagreed about the same stepping edge.
-    var liveRail: (playhead: Float, availableFrom: Float) {
-        guard let range = liveSeekableRange else { return (1, 0) }
-        return Self.liveRailGeometry(currentTime: playbackTime, seekable: range,
-                                     isAtLiveEdge: isAtLiveEdge)
+    var liveRail: LiveRailGeometry {
+        guard let range = liveSeekableRange else {
+            return LiveRailGeometry(playhead: 1, availableFrom: 0, liveEdge: 1)
+        }
+        return Self.liveRailGeometry(block: liveRailBlock,
+                                     liveEdgeWallClock: Self.liveEdgeWallClock(),
+                                     behindLiveSeconds: behindLiveSeconds,
+                                     residentSeconds: range.upperBound - range.lowerBound)
+    }
+
+    /// The block the rail is drawn across right now: the programme the playhead is inside, or a
+    /// rolling window where the channel has no guide data.
+    var liveRailBlock: LiveRailBlock {
+        let edge = Self.liveEdgeWallClock()
+        return Self.liveRailBlock(
+            programs: liveProgramWindow,
+            playheadWallClock: edge.addingTimeInterval(-max(0, behindLiveSeconds)),
+            liveEdgeWallClock: edge,
+            fallbackSpanSeconds: Self.liveDVRWindowSeconds)
+    }
+
+    /// What follows the block on screen, for the next-up line. Nil while the guide says nothing about
+    /// what comes after it, which is also what a rolling-window rail reports.
+    var liveNextProgram: JellyfinProgram? {
+        let blockEnd = liveRailBlock.end
+        return liveProgramWindow
+            .filter { ($0.startDate ?? .distantPast) >= blockEnd }
+            .min { ($0.startDate ?? .distantFuture) < ($1.startDate ?? .distantFuture) }
     }
 
     /// What a live bar draws the knob at: the in-flight scrub while scrubbing, else the rail.
@@ -616,7 +705,7 @@ extension PlayerViewModel {
         isScrubbing = false
         scrubPreview.clear()
 
-        if Self.liveScrubReachedLiveEdge(scrubProgress: p) {
+        if Self.liveScrubReachedLiveEdge(scrubProgress: p, liveEdge: liveRail.liveEdge) {
             pendingSkipBackOrigin = nil
             skipBackBurstOrigin = nil
             returnToLiveEdge()
@@ -624,8 +713,10 @@ extension PlayerViewModel {
             return
         }
 
-        // Sodalite#104 round 4: across the RAIL's span, which is what the viewer aimed along.
-        let target = Self.liveScrubTarget(scrubProgress: p, seekable: range)
+        // Sodalite#104: across the RAIL's block, which is what the viewer aimed along.
+        let target = Self.liveScrubTarget(scrubProgress: p, block: liveRailBlock,
+                                          liveEdgeWallClock: Self.liveEdgeWallClock(),
+                                          seekable: range)
         openSkipBackSubtitlesIfNeeded(targetTime: target)
         Task {
             await player.seek(to: target)
@@ -640,9 +731,12 @@ extension PlayerViewModel {
         guard let range = liveSeekableRange, range.upperBound > range.lowerBound else { return }
         // Mirror commitLiveScrub, through the same rule and the same span, so the preview matches
         // where the commit lands.
-        let p = Self.liveScrubReachedLiveEdge(scrubProgress: scrubProgress)
-            ? Float(1) : scrubProgress
-        scrubPreview.update(targetSeconds: Self.liveScrubTarget(scrubProgress: p, seekable: range))
+        let edge = liveRail.liveEdge
+        let p = Self.liveScrubReachedLiveEdge(scrubProgress: scrubProgress, liveEdge: edge)
+            ? edge : scrubProgress
+        scrubPreview.update(targetSeconds: Self.liveScrubTarget(
+            scrubProgress: p, block: liveRailBlock,
+            liveEdgeWallClock: Self.liveEdgeWallClock(), seekable: range))
     }
 
     /// Engine `liveSourceReset` entry: a connection drop made the server restart its stream from byte 0 (Jellyfin transcode respawn), so the engine parked. Recovery is full re-negotiation (fresh PlaybackInfo, new PlaySessionId, transcode anchored at live edge, new engine load). Loop-guarded: one retune in flight, minimum spacing, bounded per session.
@@ -924,6 +1018,13 @@ extension PlayerViewModel {
     /// No end date to wake on: a channel without EPG, or an answer that never arrived.
     static let liveProgramBlindInterval: TimeInterval = 300
 
+    /// Sodalite#104: how far either side of now the guide is fetched. Behind covers the deepest DVR
+    /// window a session can hold plus a programme's worth of slack, so a viewer who has rewound out of
+    /// the programme on air still has the block they are actually inside. Ahead is enough for the
+    /// next-up line to survive a long programme without a refetch.
+    static let liveProgramReachBehind: TimeInterval = 4 * 3600
+    static let liveProgramReachAhead: TimeInterval = 6 * 3600
+
     /// When to look again at what is on air.
     static func nextLiveProgramCheck(after program: JellyfinProgram?, from now: Date) -> Date {
         guard let end = program?.endDate, end > now else {
@@ -954,11 +1055,16 @@ extension PlayerViewModel {
         channel: JellyfinChannel, service: JellyfinLiveTvServiceProtocol
     ) async -> JellyfinProgram? {
         let now = Date()
-        guard let programs = try? await service.getPrograms(
+        // Sodalite#104: a span rather than the airing programme alone. The rail frames the block the
+        // PLAYHEAD is inside, which on a timeshifted session is an earlier programme, and it names the
+        // one after it. The reach behind covers the deepest DVR window the session can hold.
+        let programs = (try? await service.getPrograms(
             channelIDs: [channel.id], userID: userID,
-            start: now, end: now.addingTimeInterval(PlayerViewModel.liveProgramBlindInterval)),
-            let airing = programs.first(where: { $0.isAiring(at: now) })
-        else {
+            start: now.addingTimeInterval(-PlayerViewModel.liveProgramReachBehind),
+            end: now.addingTimeInterval(PlayerViewModel.liveProgramReachAhead)))?
+            .sorted { ($0.startDate ?? .distantPast) < ($1.startDate ?? .distantPast) } ?? []
+        liveProgramWindow = programs
+        guard let airing = programs.first(where: { $0.isAiring(at: now) }) else {
             LogTap.shared.note("[LiveProgram] channel=\(channel.id) nothing on air")
             return nil
         }

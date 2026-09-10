@@ -17,8 +17,14 @@ extension Color {
         static let surface = Color(white: 0.1)
         /// Raised neutral surface (focused guide cells, elevated sheets).
         static let surfaceElevated = Color(white: 0.15)
-        /// Resume-progress track, shared with the Top Shelf renderer. See ``NeutralLevel/resumeTrack``.
+        /// Resume-progress track ON ARTWORK, shared with the Top Shelf renderer. Opaque, and that is
+        /// the whole difference from ``trackOnScrim``: over a bright still a translucent track washes
+        /// out. See ``NeutralLevel/resumeTrack``.
         static let resumeTrack = Color(white: NeutralLevel.resumeTrack)
+        /// Unplayed track of a transport meter, which always sits on the player's own scrim. Sodalite#104
+        /// named this against ``resumeTrack``: the two are one role on two grounds, and a third literal
+        /// in a new meter is the drift the pair exists to stop.
+        static let trackOnScrim = Color.white.opacity(0.2)
 
         // MARK: Row and chip fills
         //

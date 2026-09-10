@@ -338,15 +338,25 @@ struct PlayerTouchControls: View {
             let frac = CGFloat(live ? viewModel.liveDisplayedProgress : viewModel.displayedProgress)
             let knobX = max(0, min(width, width * frac))
             let bufferedX = max(0, min(width, width * CGFloat(viewModel.bufferedProgress)))
-            let availableX = max(0, min(width, width * CGFloat(viewModel.liveRail.availableFrom)))
+            let rail = viewModel.liveRail
+            let availableX = max(0, min(width, width * CGFloat(rail.availableFrom)))
+            let edgeX = max(0, min(width, width * CGFloat(rail.liveEdge)))
             let fillFrom = live ? availableX : 0
             ZStack(alignment: .leading) {
-                Capsule().fill(.white.opacity(live ? 0.08 : 0.25)).frame(height: 6)
+                Capsule().fill(live ? Color.Theme.trackOnScrim : .white.opacity(0.25))
+                    .frame(height: 6)
                 if live {
-                    // The playable region, unplayed. White for contrast whatever the accent is.
-                    Capsule().fill(.white.opacity(0.2))
-                        .frame(width: max(0, width - availableX), height: 6)
-                        .offset(x: availableX)
+                    // Before the recording starts: darkened, because a translucent white over the
+                    // track composites brighter and would say the opposite of "you do not have this".
+                    if availableX > 0 {
+                        Capsule().fill(.black.opacity(0.55)).frame(width: availableX, height: 6)
+                    }
+                    // Recorded and not yet watched.
+                    if edgeX > knobX {
+                        Capsule().fill(.white.opacity(0.4))
+                            .frame(width: edgeX - knobX, height: 6)
+                            .offset(x: knobX)
+                    }
                 } else if bufferedX > knobX {
                     Capsule().fill(.white.opacity(0.4)).frame(width: bufferedX, height: 6)
                 }
@@ -354,8 +364,9 @@ struct PlayerTouchControls: View {
                     .frame(width: max(0, knobX - fillFrom), height: 6)
                     .offset(x: fillFrom)
                 if live {
-                    // The live edge itself, pinned to the right end of the span.
-                    Capsule().fill(tint).frame(width: 3, height: 14).offset(x: width - 3)
+                    // The live edge where it actually is inside the block.
+                    Capsule().fill(tint).frame(width: 3, height: 14)
+                        .offset(x: min(edgeX, width - 3))
                 }
                 Circle().fill(tint)
                     .frame(width: viewModel.isScrubbing ? 22 : 16, height: viewModel.isScrubbing ? 22 : 16)
