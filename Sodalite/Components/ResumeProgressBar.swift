@@ -8,9 +8,18 @@ enum ResumeIndicator {
     ///
     /// A finished item, the case that changed in Sodalite#99: the gate used to be
     /// `playedPercentage > 0` alone, so an item watched to the end wore a full bar under the watched
-    /// check, one state drawn twice. Past the server's resume threshold `setResumePosition` writes
-    /// 100 percent and `played` together, so both marks appeared the moment playback stopped,
-    /// without a refetch to blame.
+    /// check, one state drawn twice. What excludes it is the POSITION, not the watched flag: past
+    /// the resume threshold Jellyfin's `UpdatePlayState` and ``JellyfinItem/setResumePosition`` both
+    /// write "watched" and position 0 together.
+    ///
+    /// The watched flag is deliberately not read here, and that is the fix for a report from
+    /// 2026-09-10. It says the viewer finished this once, which is no answer to whether they are
+    /// partway through it NOW: on a stop between `MinResumePct` and `MaxResumePct` the server writes
+    /// the new position and never touches `Played` (same branch in 10.9, 10.10 and master), so
+    /// "seen, and three minutes in again" is a state it hands out on its own, and for a re-watched
+    /// children's series it is the normal one. Reading the flag hid the capsule on exactly those
+    /// episodes while the Top Shelf cell beside them drew it, `TopShelfProgress` never having
+    /// carried the gate.
     ///
     /// A CONTAINER, the case that changed in Sodalite#135. The bar says "you are partway through
     /// this one thing", and a series, box set, album or playlist has no such point: its
@@ -20,9 +29,8 @@ enum ResumeIndicator {
     /// ``JellyfinItem/resumeRemainingTicks`` already applies to the label beside the bar. That the
     /// label was honest while the bar was not is why this survived: a series simply drew the capsule
     /// alone, which reads as deliberate.
-    static func fraction(playedPercentage: Double?, isPlayed: Bool, playbackPositionTicks: Int64?) -> Double? {
-        guard !isPlayed,
-              let playbackPositionTicks, playbackPositionTicks > 0,
+    static func fraction(playedPercentage: Double?, playbackPositionTicks: Int64?) -> Double? {
+        guard let playbackPositionTicks, playbackPositionTicks > 0,
               let playedPercentage, playedPercentage > 0
         else { return nil }
         return min(playedPercentage / 100, 1)
@@ -31,8 +39,16 @@ enum ResumeIndicator {
     /// How far through an item a viewer is, counting a container's children. This is the pre-#135
     /// rule, kept because it is the honest answer to a different question: "how much of this series
     /// have I seen" has no resume point behind it and is still a real number.
-    static func watchedShare(playedPercentage: Double?, isPlayed: Bool) -> Double? {
-        guard !isPlayed, let playedPercentage, playedPercentage > 0 else { return nil }
+    ///
+    /// The watched flag still has a job in THIS one, where the resume rule above drops it: a
+    /// CONTAINER that is watched is at 100 percent by definition, so the flag and the percentage are
+    /// one sentence and the check already says it. A watched LEAF with a position is the other case,
+    /// a re-watch, and then the position is the share: the same movie must not read 49 percent on
+    /// the episode-shaped card and blank on its poster.
+    static func watchedShare(playedPercentage: Double?, isPlayed: Bool,
+                             playbackPositionTicks: Int64?) -> Double? {
+        guard let playedPercentage, playedPercentage > 0 else { return nil }
+        guard !isPlayed || (playbackPositionTicks ?? 0) > 0 else { return nil }
         return min(playedPercentage / 100, 1)
     }
 
@@ -54,11 +70,11 @@ enum ResumeIndicator {
             return nil
         case .landscape:
             return fraction(playedPercentage: playedPercentage,
-                            isPlayed: isPlayed,
                             playbackPositionTicks: playbackPositionTicks)
         case .poster:
             guard posterProgressEnabled else { return nil }
-            return watchedShare(playedPercentage: playedPercentage, isPlayed: isPlayed)
+            return watchedShare(playedPercentage: playedPercentage, isPlayed: isPlayed,
+                                playbackPositionTicks: playbackPositionTicks)
         }
     }
 }

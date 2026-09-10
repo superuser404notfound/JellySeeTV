@@ -147,6 +147,10 @@ struct EpisodeLandscapeCard: View {
     /// Same reason as isPlayed; also the only feedback the context-menu favorite toggle has.
     var isFavorite: Bool = false
 
+    /// The viewer's own mark-watched from this session, which is a different fact from `isPlayed`
+    /// and the only one that may hide the resume indicator (`DetailViewModel.wasMarkedPlayedInSession`).
+    var justMarkedPlayed: Bool = false
+
     @Environment(\.appearanceTheme) private var appearanceTheme
     @Environment(\.dependencies) private var dependencies
     @Environment(\.horizontalSizeClass) private var hSizeClass
@@ -185,9 +189,7 @@ struct EpisodeLandscapeCard: View {
                         .animation(.easeInOut(duration: 0.2), value: isFocused)
                 )
 
-                if let fraction = ResumeIndicator.fraction(playedPercentage: episode.userData?.playedPercentage,
-                                                           isPlayed: isPlayed,
-                                                           playbackPositionTicks: episode.userData?.playbackPositionTicks) {
+                if let fraction = resumeFraction {
                     ResumeProgressBar(fraction: fraction,
                                       remaining: remainingLabel,
                                       posterWidth: LayoutMetrics.current(hSizeClass).posterSize.width)
@@ -233,11 +235,17 @@ struct EpisodeLandscapeCard: View {
         }
     }
 
-    /// Time left beside the resume capsule. Reads the live `isPlayed` override rather than the
-    /// immutable `episode.userData`, for the same reason the badge does: marking an episode watched
-    /// in the context menu has to clear the indicator without a refetch.
+    /// Capsule and label go together, and both read the session's own mark-watched rather than
+    /// `isPlayed`: marking an episode watched in the context menu has to clear the indicator without
+    /// a refetch, while a server `played` that came WITH a position is a re-watch and keeps it.
+    private var resumeFraction: Double? {
+        guard !justMarkedPlayed else { return nil }
+        return ResumeIndicator.fraction(playedPercentage: episode.userData?.playedPercentage,
+                                        playbackPositionTicks: episode.userData?.playbackPositionTicks)
+    }
+
     private var remainingLabel: String? {
-        guard !isPlayed else { return nil }
+        guard !justMarkedPlayed else { return nil }
         return episode.resumeRemainingTicks?.ticksToCompactDisplay
     }
 

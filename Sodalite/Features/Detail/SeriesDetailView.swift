@@ -1121,7 +1121,8 @@ struct SeriesDetailView: View {
                                             isPlayTarget: playTargetID == episode.id,
                                             isFocused: focusedEpisodeID == episode.id,
                                             isPlayed: vm.isPlayed(episode),
-                                            isFavorite: vm.isFavorite(episode)
+                                            isFavorite: vm.isFavorite(episode),
+                                            justMarkedPlayed: vm.wasMarkedPlayedInSession(episode)
                                         )
                                     }
                                     .buttonStyle(EpisodeCardButtonStyle())

@@ -90,13 +90,12 @@ struct ResumeCapsuleTests {
         #expect(item.userData?.played == true)
         #expect(item.userData?.playedPercentage == 100)
         #expect(ResumeIndicator.fraction(playedPercentage: item.userData?.playedPercentage,
-                                         isPlayed: item.userData?.played == true,
                                          playbackPositionTicks: item.userData?.playbackPositionTicks) == nil)
     }
 
     @Test func anUntouchedItemDrawsNothing() {
-        #expect(ResumeIndicator.fraction(playedPercentage: nil, isPlayed: false, playbackPositionTicks: 5) == nil)
-        #expect(ResumeIndicator.fraction(playedPercentage: 0, isPlayed: false, playbackPositionTicks: 5) == nil)
+        #expect(ResumeIndicator.fraction(playedPercentage: nil, playbackPositionTicks: 5) == nil)
+        #expect(ResumeIndicator.fraction(playedPercentage: 0, playbackPositionTicks: 5) == nil)
     }
 
     /// A container carries a percentage that counts its CHILDREN, never a resume position, and the
@@ -109,7 +108,6 @@ struct ResumeCapsuleTests {
         #expect(series.userData?.playedPercentage == 85)
         #expect(series.userData?.playbackPositionTicks == nil)
         #expect(ResumeIndicator.fraction(playedPercentage: series.userData?.playedPercentage,
-                                         isPlayed: series.userData?.played == true,
                                          playbackPositionTicks: series.userData?.playbackPositionTicks) == nil)
     }
 
@@ -137,9 +135,30 @@ struct ResumeCapsuleTests {
         #expect(card(.poster, posterProgress: false) == nil)
     }
 
-    @Test func aWatchedItemStillDrawsNothingOnEitherCard() {
+    @Test func aFinishedItemStillDrawsNothingOnEitherCard() {
         #expect(card(.poster, posterProgress: true, percentage: 100, played: true) == nil)
-        #expect(card(.landscape, posterProgress: true, percentage: 100, played: true, position: 999) == nil)
+        #expect(card(.landscape, posterProgress: true, percentage: 100, played: true, position: 0) == nil)
+    }
+
+    /// A watched item that is being watched AGAIN keeps its resume point. Jellyfin's
+    /// `UpdatePlayState` writes the position and never touches `Played` when the stop lands between
+    /// `MinResumePct` and `MaxResumePct`, so "seen once, three minutes in again" is a state the
+    /// server hands out on its own, and for a children's series it is the normal one. The card drew
+    /// nothing for it while the Top Shelf cell beside it drew the bar, because `TopShelfProgress`
+    /// never had the watched gate this rule carried.
+    @Test func aRewatchedEpisodeKeepsItsResumePoint() {
+        #expect(ResumeIndicator.fraction(playedPercentage: 49, playbackPositionTicks: 2_060_000_000) == 0.49)
+        #expect(card(.landscape, posterProgress: false, percentage: 49,
+                     played: true, position: 2_060_000_000) == 0.49)
+    }
+
+    /// The poster asks the other question, and for a re-watched MOVIE it has the same answer: a
+    /// watched percentage with a position behind it is a share, not a finished item. Only a
+    /// container, which is watched at 100 percent and has no position, still draws nothing.
+    @Test func theRewatchedPosterFollowsTheEpisodeCard() {
+        #expect(card(.poster, posterProgress: true, percentage: 49,
+                     played: true, position: 2_060_000_000) == 0.49)
+        #expect(card(.poster, posterProgress: true, percentage: 100, played: true) == nil)
     }
 
     /// The album card answers neither question, having no per-item progress of its own (#135).
@@ -149,8 +168,8 @@ struct ResumeCapsuleTests {
     }
 
     @Test func aStartedItemDrawsItsShare() {
-        #expect(ResumeIndicator.fraction(playedPercentage: 42, isPlayed: false, playbackPositionTicks: 420) == 0.42)
-        #expect(ResumeIndicator.fraction(playedPercentage: 140, isPlayed: false, playbackPositionTicks: 999) == 1)
+        #expect(ResumeIndicator.fraction(playedPercentage: 42, playbackPositionTicks: 420) == 0.42)
+        #expect(ResumeIndicator.fraction(playedPercentage: 140, playbackPositionTicks: 999) == 1)
     }
 
     // MARK: - The label

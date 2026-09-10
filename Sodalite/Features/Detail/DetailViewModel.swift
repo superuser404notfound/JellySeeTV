@@ -518,6 +518,15 @@ final class DetailViewModel {
         playedOverrides[item.id] ?? (item.userData?.played ?? false)
     }
 
+    /// Did the viewer mark this watched in THIS session? A narrower question than ``isPlayed(_:)``,
+    /// and the only one the resume indicator may ask. An explicit mark-watched makes the server drop
+    /// the item's resume position (`MarkPlayed` resets it), so the capsule has to go before the
+    /// refetch; a `played` that arrived FROM the server alongside a position is a re-watch and keeps
+    /// its capsule.
+    func wasMarkedPlayedInSession(_ item: JellyfinItem) -> Bool {
+        playedOverrides[item.id] == true
+    }
+
     /// Toggle the top-level item (movie or whole series).
     func togglePlayed() async {
         let oldValue = isPlayed
