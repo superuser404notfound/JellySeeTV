@@ -679,6 +679,7 @@ extension PlayerViewModel {
     func returnToLiveEdge() {
         skipCommitTask?.cancel()
         skipCommitTask = nil
+        seekReadout = nil
         isScrubbing = false
         scrubPreview.clear()
         pendingSkipBackOrigin = nil

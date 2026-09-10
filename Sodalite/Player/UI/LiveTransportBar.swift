@@ -318,6 +318,8 @@ struct LiveTransportBar: View {
                     .frame(width: 3, height: trackHeight + 8)
                     .offset(x: min(edgeX, width - 3))
 
+                seekTrail(width: width, knobX: knobX, trackHeight: trackHeight)
+
                 Circle()
                     .fill(.tint)
                     .frame(width: knobSize, height: knobSize)
@@ -350,12 +352,17 @@ struct LiveTransportBar: View {
                 // beside it already says, and a clock sliding out from under its own knob reads worse
                 // than one that steps aside.
                 if let playheadClock, !playheadClockCollides(width: width) {
-                    Text(playheadClock)
-                        .font(.callout)
-                        .fontWeight(.medium)
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .position(x: clamp(liveProgress, width), y: Self.labelRowHeight / 2)
+                    HStack(spacing: 8) {
+                        if viewModel.seekReadout?.direction == -1 { seekReadoutView }
+                        Text(playheadClock)
+                            .font(.callout)
+                            .fontWeight(.medium)
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
+                        if viewModel.seekReadout?.direction == 1 { seekReadoutView }
+                    }
+                    .fixedSize()
+                    .position(x: clamp(liveProgress, width), y: Self.labelRowHeight / 2)
                 }
             }
         }
@@ -398,6 +405,65 @@ struct LiveTransportBar: View {
 
     private var positionLabel: String {
         viewModel.livePositionLabel
+    }
+
+    /// Sodalite#104: a press and a hold, in the two languages they actually speak.
+    ///
+    /// A press names its interval, because the destination is known before it lands, and counts
+    /// itself, because a burst of four is the thing a viewer is keeping track of. A hold names its
+    /// rate and nothing else: a 15x to 240x scan has no countable step, so a fixed-interval glyph
+    /// over it would be a lie.
+    @ViewBuilder
+    private var seekReadoutView: some View {
+        switch viewModel.seekReadout {
+        case .press(let seconds, let count, let direction):
+            VStack(spacing: 2) {
+                Image(systemName: "\(direction < 0 ? "gobackward" : "goforward").\(seconds)")
+                    .font(.callout)
+                if count > 1 {
+                    Text(verbatim: "\(count)x")
+                        .font(.caption2)
+                        .monospacedDigit()
+                }
+            }
+            .foregroundStyle(.white)
+            .transition(.opacity)
+        case .hold(let rate, let direction):
+            HStack(spacing: 4) {
+                Image(systemName: direction < 0 ? "chevron.left.2" : "chevron.right.2")
+                    .font(.callout)
+                Text(verbatim: "\(rate)x")
+                    .font(.caption)
+                    .monospacedDigit()
+            }
+            .foregroundStyle(.white)
+            .transition(.opacity)
+        case nil:
+            EmptyView()
+        }
+    }
+
+    /// What the gesture has covered, drawn the way the gesture works: a countable comb of notches for
+    /// a burst of presses, one continuous sweep for a hold, whose weight ramps with the rate.
+    @ViewBuilder
+    private func seekTrail(width: CGFloat, knobX: CGFloat, trackHeight: CGFloat) -> some View {
+        let originX = clamp(CGFloat(viewModel.scrubStartProgress), width)
+        switch viewModel.seekReadout {
+        case .press(_, let count, _) where count > 1:
+            ForEach(1..<count, id: \.self) { step in
+                Capsule()
+                    .fill(.white.opacity(0.75))
+                    .frame(width: 2, height: trackHeight + 4)
+                    .offset(x: originX + (knobX - originX) * CGFloat(step) / CGFloat(count) - 1)
+            }
+        case .hold(let rate, _):
+            Capsule()
+                .fill(.white.opacity(0.15 + 0.35 * min(1, Double(rate) / 240)))
+                .frame(width: abs(knobX - originX), height: trackHeight)
+                .offset(x: min(originX, knobX))
+        default:
+            EmptyView()
+        }
     }
 
     /// The label row's height, which is the callout line height the two rail clocks sit on.

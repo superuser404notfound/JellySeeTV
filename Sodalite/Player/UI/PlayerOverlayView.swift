@@ -435,8 +435,9 @@ struct PlayerOverlayView: View {
                 // capture touches (they fall through to the gesture catcher below).
                 VStack {
                     Spacer()
-                    LinearGradient(colors: [.clear, .black.opacity(0.75)], startPoint: .top, endPoint: .bottom)
-                        .frame(height: 260)
+                    LinearGradient(stops: Self.controlScrimStops,
+                                   startPoint: .top, endPoint: .bottom)
+                        .frame(height: Self.controlScrimHeight(playerHeight: screen.height))
                 }
                 .allowsHitTesting(false)
 
@@ -480,6 +481,33 @@ struct PlayerOverlayView: View {
     }
     #endif
 
+    /// Sodalite#104: the ground the transport is read against.
+    ///
+    /// Both platforms ramped linearly from fully transparent, which puts the THINNEST part of the
+    /// scrim exactly where the thin scrubber and the 0.6-opacity chips are drawn, and on news and
+    /// sports that is where a score bug or a ticker sits. The ramp now reaches 0.45 at its midpoint
+    /// and 0.88 at the bottom, so the band is dense under the controls and still opens up above them.
+    ///
+    /// The cost, stated rather than hidden: in a dark quiet scene the band covers more picture than
+    /// the old ramp did, most noticeably the moment the controls appear. That is the trade, bought
+    /// for legibility over a bright lower third.
+    static let controlScrimStops: [Gradient.Stop] = [
+        .init(color: .clear, location: 0.00),
+        .init(color: .black.opacity(0.45), location: 0.45),
+        .init(color: .black.opacity(0.88), location: 1.00),
+    ]
+
+    /// The top scrim, re-weighted against the bottom one so the frame does not read bottom-heavy.
+    static let titleScrimStops: [Gradient.Stop] = [
+        .init(color: .black.opacity(0.75), location: 0.00),
+        .init(color: .black.opacity(0.35), location: 0.55),
+        .init(color: .clear, location: 1.00),
+    ]
+
+    /// Proportional, not literal: 300 and 260 were two guesses at one intent under two safe areas.
+    static func controlScrimHeight(playerHeight: CGFloat) -> CGFloat { playerHeight * 0.34 }
+    static func titleScrimHeight(playerHeight: CGFloat) -> CGFloat { playerHeight * 0.22 }
+
     private var tvOSControlsOverlay: some View {
         // Pin to scene-screen bounds (same fix as the next-episode card): an audio-track switch reloads AVKit and transiently collapses its container frame, so a Spacer/alignment-anchored controls block jumps up while fading. Absolute screen-sized frame + center position removes the dependency on the churning AVKit parent.
         let screen = UIApplication.shared.connectedScenes
@@ -488,20 +516,16 @@ struct PlayerOverlayView: View {
         return ZStack {
             VStack {
                 Spacer()
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.7)],
-                    startPoint: .top, endPoint: .bottom
-                )
-                .frame(height: 300)
+                LinearGradient(stops: Self.controlScrimStops,
+                               startPoint: .top, endPoint: .bottom)
+                    .frame(height: Self.controlScrimHeight(playerHeight: screen.height))
             }
             .ignoresSafeArea()
 
             VStack {
-                LinearGradient(
-                    colors: [.black.opacity(0.7), .clear],
-                    startPoint: .top, endPoint: .bottom
-                )
-                .frame(height: 200)
+                LinearGradient(stops: Self.titleScrimStops,
+                               startPoint: .top, endPoint: .bottom)
+                    .frame(height: Self.titleScrimHeight(playerHeight: screen.height))
                 Spacer()
             }
             .ignoresSafeArea()

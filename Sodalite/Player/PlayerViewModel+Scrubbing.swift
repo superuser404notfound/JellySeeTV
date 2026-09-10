@@ -1,6 +1,25 @@
 import Foundation
 import AetherEngine
 
+/// Sodalite#104: the two seek gestures, as the transport reports them.
+///
+/// A press of the d-pad is a discrete step of a known length, and its destination is known before it
+/// lands; a hold is a scan ramping 15x to 240x that you stop when the picture looks right. Nothing
+/// about the second is countable, so a fixed-interval glyph over it would be a lie, and the bar used
+/// to draw both as the same knob sliding along the same track.
+enum SeekReadout: Equatable {
+    /// A burst of presses: the interval each one moves, how many have landed, and which way.
+    case press(seconds: Int, count: Int, direction: Int)
+    /// A continuous spool, at this multiple of real time.
+    case hold(rate: Int, direction: Int)
+
+    var direction: Int {
+        switch self {
+        case .press(_, _, let direction), .hold(_, let direction): return direction
+        }
+    }
+}
+
 extension PlayerViewModel {
 
     var effectiveDuration: Double {
@@ -117,9 +136,10 @@ extension PlayerViewModel {
     }
 
     func commitScrub() {
-        // Sodalite#104: whichever path ends the scrub, the pending idle is spent.
+        // Sodalite#104: whichever path ends the scrub, the pending idle and the readout are spent.
         skipCommitTask?.cancel()
         skipCommitTask = nil
+        seekReadout = nil
         // Live duration is 0, so the VOD body below would early-return without
         // seeking; commitLiveScrub maps across the moving seekable window.
         if isLiveSession { commitLiveScrub(); return }
@@ -147,6 +167,7 @@ extension PlayerViewModel {
     func cancelScrub() {
         skipCommitTask?.cancel()
         skipCommitTask = nil
+        seekReadout = nil
         isScrubbing = false
         pendingSkipBackOrigin = nil
         skipBackBurstOrigin = nil
@@ -189,6 +210,7 @@ extension PlayerViewModel {
                 // Media-seconds per real second: ramps 15x -> 240x ceiling
                 // (~8.6s held) so long films spool quickly.
                 let rate = min(15 + held * 26, 240)
+                self.seekReadout = .hold(rate: Int(rate.rounded()), direction: direction < 0 ? -1 : 1)
                 let deltaProgress = dir * Float(rate * tick / dur)
                 self.scrubProgress = max(0, min(1, self.scrubProgress + deltaProgress))
                 if !self.isLiveSession {

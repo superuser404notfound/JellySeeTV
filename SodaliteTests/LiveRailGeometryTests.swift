@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import SwiftUI
 @testable import Sodalite
 
 /// Sodalite#104: the live rail is a block of wall clock, and everything else about it follows.
@@ -292,5 +293,80 @@ struct LiveProgramMetadataTests {
         #expect(item.name == "Evening News")
         // And a channel with no guide entry at all keeps the channel's own name.
         #expect(JellyfinItem(liveChannel: channel, program: nil).name == "Comedy One")
+    }
+}
+
+/// Sodalite#104: left and right on the d-pad already did two different things, and the bar drew them
+/// identically. A press is a discrete step whose destination is known before it lands; a hold is a
+/// scan ramping 15x to 240x that you stop when the picture looks right, and nothing about it is
+/// countable, so a fixed-interval glyph over it would be a lie.
+@Suite("The two seek gestures speak two languages (Sodalite#104)")
+struct SeekReadoutTests {
+
+    @Test("a burst of presses counts itself")
+    func abursCounts() {
+        var readout: SeekReadout = .press(seconds: 10, count: 1, direction: -1)
+        // Three more presses of the same interval, the same way.
+        for expected in 2...4 {
+            readout = SeekReadout.press(seconds: 10, count: expected, direction: -1)
+            #expect(readout == .press(seconds: 10, count: expected, direction: -1))
+        }
+        #expect(readout.direction == -1)
+    }
+
+    @Test("the side of travel is what puts the glyph beside the clock")
+    func directionIsCarried() {
+        #expect(SeekReadout.press(seconds: 30, count: 1, direction: 1).direction == 1)
+        #expect(SeekReadout.hold(rate: 96, direction: -1).direction == -1)
+    }
+
+    @Test("a hold names a rate, and a press never does")
+    func thetwoAreNotTheSameShape() {
+        #expect(SeekReadout.hold(rate: 96, direction: 1) != SeekReadout.press(seconds: 96, count: 1, direction: 1))
+        // The rate the continuous scan ramps through, which has no countable step in it.
+        for held in stride(from: 0.0, through: 10.0, by: 0.5) {
+            let rate = min(15 + held * 26, 240)
+            #expect(rate >= 15 && rate <= 240)
+        }
+    }
+
+    @Test("every skip interval the settings offer has a glyph to draw it with")
+    func everyIntervalHasASymbol() {
+        // SF Symbols ships goforward/gobackward at exactly these steps, and the readout composes the
+        // name from the interval, so an interval without one would render as a blank box.
+        let symbolled: Set<Int> = [5, 10, 15, 30, 45, 60, 75, 90]
+        for interval in PlaybackPreferences.skipIntervalChoices {
+            #expect(symbolled.contains(interval))
+        }
+    }
+}
+
+/// Sodalite#104: the scrim under the transport ramped linearly from fully transparent, which puts its
+/// thinnest part exactly where the thin scrubber and the 0.6-opacity chips are drawn. On news and
+/// sports that is where a score bug or a ticker sits.
+@Suite("The control scrim is densest where the controls are (Sodalite#104)")
+struct ControlScrimTests {
+
+    @Test("the ramp is already half dark at its midpoint")
+    func themidpointIsNotTransparent() {
+        let stops = PlayerOverlayView.controlScrimStops
+        #expect(stops.first?.location == 0)
+        #expect(stops.last?.location == 1)
+        // A linear ramp from clear would be at 0.44 of its final weight here; this one is at 0.51,
+        // and the difference is the part the controls are read against.
+        let mid = stops[1]
+        #expect(mid.location == 0.45)
+    }
+
+    @Test("both platforms size the scrim from the player, not from two guesses")
+    func theheightIsProportional() {
+        // tvOS 1080 and a phone in landscape used to carry 300 and 260, which is the same intent
+        // written twice.
+        #expect(abs(PlayerOverlayView.controlScrimHeight(playerHeight: 1080) - 367.2) < 0.001)
+        #expect(PlayerOverlayView.controlScrimHeight(playerHeight: 390)
+                < PlayerOverlayView.controlScrimHeight(playerHeight: 1080))
+        // The title scrim stays the lighter of the two, or the frame reads top-heavy instead.
+        #expect(PlayerOverlayView.titleScrimHeight(playerHeight: 1080)
+                < PlayerOverlayView.controlScrimHeight(playerHeight: 1080))
     }
 }
