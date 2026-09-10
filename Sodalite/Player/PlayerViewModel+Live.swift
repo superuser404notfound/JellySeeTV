@@ -519,7 +519,17 @@ extension PlayerViewModel {
     }
 
     /// Snap back to the live edge (return-to-live chip).
+    ///
+    /// Sodalite#104: the chip supersedes a scrub that has not committed. Without this the rail would
+    /// keep drawing a `scrubProgress` the viewer has just overruled, and any pending commit would
+    /// seek back out of live a fraction of a second after the return landed.
     func returnToLiveEdge() {
+        skipCommitTask?.cancel()
+        skipCommitTask = nil
+        isScrubbing = false
+        scrubPreview.clear()
+        pendingSkipBackOrigin = nil
+        skipBackBurstOrigin = nil
         Task { await player.seekToLiveEdge() }
     }
 

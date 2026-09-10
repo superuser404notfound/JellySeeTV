@@ -542,6 +542,16 @@ final class PlayerViewModel {
     var progressTimer: Task<Void, Never>?
     var progressReportOnDemandTask: Task<Void, Never>?
     var controlsTimer: Task<Void, Never>?
+    /// Sodalite#104: the idle a left/right press waits before it seeks, on its own field.
+    ///
+    /// It used to ride on `controlsTimer`, which is also the auto-hide, and every re-arm of the
+    /// auto-hide therefore cancelled a scrub that had not committed yet. Pressing Up to reach the
+    /// return-to-live chip does exactly that (`PlayerHostController` calls `scheduleControlsHide()`
+    /// on the way), so the scrub never committed, `isScrubbing` stayed latched for the rest of the
+    /// session, and the rail kept drawing the frozen `scrubProgress` instead of the playhead: the
+    /// picture returned to live while the knob sat where the rewind had left it. A pending seek and
+    /// an idle timer are two different things and cannot share one slot.
+    var skipCommitTask: Task<Void, Never>?
     /// In-flight continuous (hold-to-seek) scrub task; non-nil while left/right is held, advances
     /// scrubProgress with acceleration until release (see PlayerViewModel+Scrubbing).
     var continuousSeekTask: Task<Void, Never>?
@@ -1766,7 +1776,10 @@ final class PlayerViewModel {
         // feedback, the way the system player behaves. The short idle is what makes three quick presses
         // one seek rather than three restarts, and it keeps a press landing mid-seek from computing its
         // target off a stale position.
-        controlsTimer = Task {
+        //
+        // Sodalite#104: on its own task, not on `controlsTimer`. See `skipCommitTask`.
+        skipCommitTask?.cancel()
+        skipCommitTask = Task {
             try? await Task.sleep(for: .seconds(Self.skipCommitDelay))
             guard !Task.isCancelled else { return }
             commitScrub()

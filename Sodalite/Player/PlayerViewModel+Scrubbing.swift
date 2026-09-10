@@ -107,6 +107,9 @@ extension PlayerViewModel {
     }
 
     func commitScrub() {
+        // Sodalite#104: whichever path ends the scrub, the pending idle is spent.
+        skipCommitTask?.cancel()
+        skipCommitTask = nil
         // Live duration is 0, so the VOD body below would early-return without
         // seeking; commitLiveScrub maps across the moving seekable window.
         if isLiveSession { commitLiveScrub(); return }
@@ -132,6 +135,8 @@ extension PlayerViewModel {
     }
 
     func cancelScrub() {
+        skipCommitTask?.cancel()
+        skipCommitTask = nil
         isScrubbing = false
         pendingSkipBackOrigin = nil
         skipBackBurstOrigin = nil
