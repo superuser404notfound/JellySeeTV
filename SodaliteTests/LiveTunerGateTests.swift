@@ -123,10 +123,21 @@ private nonisolated final class Locked<Value>: @unchecked Sendable {
         stored = value
         lock.unlock()
     }
+
+    /// Read and write under ONE lock, for the callers that need both.
+    func mutate(_ body: (inout Value) -> Void) {
+        lock.lock()
+        defer { lock.unlock() }
+        body(&stored)
+    }
 }
 
 nonisolated extension Locked where Value == Int {
+    /// This used to be `set(value + 1)`, which takes the lock twice: three detached closes can each
+    /// read the same value and each write the same result, and the count comes out 1 or 2 instead of
+    /// 3. Seen twice in one afternoon, both times reported against `LiveTunerGate`, which was not the
+    /// thing that was broken.
     func increment() {
-        set(value + 1)
+        mutate { $0 += 1 }
     }
 }
