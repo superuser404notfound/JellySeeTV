@@ -69,6 +69,13 @@ struct SodaliteApp: App {
             LogTap.shared.note(line)
         }
 
+#if DEBUG
+        // A measurement that outlives the app: the in-memory buffer is 300 lines and is wiped on
+        // every launch, so a test that ends with the app being force-quit or terminated in the
+        // background comes back with nothing in it. Debug builds only.
+        LogTap.startFileSink()
+#endif
+
         // The engine's own fetches, and AVPlayer's behind the AE#495 relay, answer a server-trust
         // challenge from the same pin store the app's sessions read. Same fingerprint, same
         // comparison, so browsing and playback cannot disagree about one origin: without this a

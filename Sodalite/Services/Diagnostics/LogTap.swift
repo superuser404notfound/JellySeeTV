@@ -53,6 +53,9 @@ final class LogTap: ObservableObject {
         if Self.isDiagnosticBuild {
             print(line)
         }
+#if DEBUG
+        appendToFile(line)
+#endif
         DispatchQueue.main.async { [weak self] in
             MainActor.assumeIsolated {
                 guard let self else { return }
@@ -63,6 +66,55 @@ final class LogTap: ObservableObject {
             }
         }
     }
+
+#if DEBUG
+    /// A measurement that outlives the app.
+    ///
+    /// The buffer above is 300 lines in memory, wiped on every launch, which is the right shape for
+    /// "what went wrong just now" and the wrong one for a test that runs for ten minutes or that ends
+    /// with the app being terminated in the background. A twelve minute pause on a live channel is
+    /// both: measured on a device, the session that was meant to produce the evidence came back with
+    /// nothing in it but the next launch.
+    ///
+    /// Debug builds only, so it never runs for anyone but us, and capped so a long session cannot
+    /// fill the container. `Library/Caches` because tvOS forbids app writes to `Documents` and the
+    /// failure there is a swallowed throw, which reads exactly like "the app produced no logs".
+    /// Pull it with:
+    ///
+    ///     xcrun devicectl device copy from --device <uuid> \
+    ///       --domain-type appDataContainer --domain-identifier de.superuser404.Sodalite \
+    ///       --user mobile --source Library/Caches/sodalite-log.txt --destination pulled.txt
+    nonisolated(unsafe) private static let fileQueue =
+        DispatchQueue(label: "de.superuser404.sodalite.logfile")
+    private nonisolated static let fileCapBytes = 32 * 1024 * 1024
+
+    nonisolated static var fileSinkURL: URL? {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("sodalite-log.txt")
+    }
+
+    /// One marker per launch, so a file with nothing in it after it says "no lines were emitted"
+    /// rather than "the sink is broken".
+    nonisolated static func startFileSink() {
+        guard let url = fileSinkURL else { return }
+        fileQueue.async {
+            try? FileManager.default.removeItem(at: url)
+            FileManager.default.createFile(atPath: url.path, contents: nil)
+        }
+        LogTap.shared.note("[LogTap] file sink armed at \(url.path)")
+    }
+
+    nonisolated private func appendToFile(_ line: String) {
+        guard let url = Self.fileSinkURL else { return }
+        Self.fileQueue.async {
+            guard let handle = try? FileHandle(forWritingTo: url) else { return }
+            defer { try? handle.close() }
+            let end = (try? handle.seekToEnd()) ?? 0
+            guard end < UInt64(Self.fileCapBytes) else { return }
+            try? handle.write(contentsOf: Data((line + "\n").utf8))
+        }
+    }
+#endif
 
     /// Wipe the buffer (e.g. between playback sessions so the next
     /// test starts with a clean slate).
