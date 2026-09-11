@@ -441,6 +441,13 @@ struct PlayerOverlayView: View {
                 }
                 .allowsHitTesting(false)
 
+                VStack(spacing: 0) {
+                    Spacer()
+                    PlayerNoticeBanner(text: viewModel.transientNotice)
+                        .padding(.bottom, 8)
+                }
+                .allowsHitTesting(false)
+
                 PlayerTouchControls(
                     viewModel: viewModel,
                     onDismiss: onDismiss,
@@ -542,6 +549,7 @@ struct PlayerOverlayView: View {
 
             VStack {
                 Spacer()
+                PlayerNoticeBanner(text: viewModel.transientNotice)
                 if viewModel.isLiveSession {
                     LiveTransportBar(viewModel: viewModel)
                 } else {

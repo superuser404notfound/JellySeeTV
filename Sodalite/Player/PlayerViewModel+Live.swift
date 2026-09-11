@@ -790,6 +790,33 @@ extension PlayerViewModel {
             liveEdgeWallClock: Self.liveEdgeWallClock(), seekable: range))
     }
 
+    /// Sodalite#104: the engine moved the resume because the pause outlived the buffer.
+    ///
+    /// A session paused for longer than its DVR depth has had the position it was parked on evicted by
+    /// the sliding window, so there is nothing to resume from and the engine clamps into what is still
+    /// held. That is the right answer and it used to happen in silence: measured on the harness with a
+    /// 30 s window and a 70 s pause, the resume landed fourteen seconds further on without a word.
+    ///
+    /// The sentence names what the viewer LOST, not where the playhead went, because that is the part
+    /// they cannot see for themselves: the rail already shows the position, and the badge already says
+    /// whether it is live.
+    func noteLiveResumeClamped(_ clamp: LiveResumeClamp) {
+        LogTap.shared.note(String(
+            format: "[Live] #104 resume clamped: skipped %.1fs, resuming %.1fs behind live",
+            clamp.skippedSeconds, clamp.behindLiveSeconds))
+        guard clamp.skippedSeconds >= 1 else { return }
+        showTransientNotice(Self.liveResumeClampedNotice(skippedSeconds: clamp.skippedSeconds))
+    }
+
+    /// "The pause outlasted the live buffer, 2 minutes were not recorded."
+    static func liveResumeClampedNotice(skippedSeconds: Double) -> String {
+        let spelled = Duration.seconds(Int(skippedSeconds.rounded()))
+            .formatted(.units(allowed: [.hours, .minutes, .seconds], width: .wide))
+        return String(format: String(localized: "livetv.resumeClamped",
+                                     defaultValue: "The pause outlasted the live buffer, %@ were not recorded."),
+                      spelled)
+    }
+
     /// Engine `liveSourceReset` entry: a connection drop made the server restart its stream from byte 0 (Jellyfin transcode respawn), so the engine parked. Recovery is full re-negotiation (fresh PlaybackInfo, new PlaySessionId, transcode anchored at live edge, new engine load). Loop-guarded: one retune in flight, minimum spacing, bounded per session.
     func handleLiveSourceReset() {
         guard isLiveSession else {

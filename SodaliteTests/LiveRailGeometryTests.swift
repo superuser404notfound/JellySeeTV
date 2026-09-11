@@ -1,6 +1,7 @@
 import Testing
 import Foundation
 import SwiftUI
+import AetherEngine
 @testable import Sodalite
 
 /// Sodalite#104: the live rail is a block of wall clock, and everything else about it follows.
@@ -509,5 +510,43 @@ struct LiveRailProgramSourceTests {
     @Test("a channel with no guide at all still has nothing, and falls back as it should")
     func nothingIsStillNothing() {
         #expect(PlayerViewModel.railPrograms(window: [], launched: nil).isEmpty)
+    }
+}
+
+/// Sodalite#104: a pause longer than the DVR depth costs the viewer the stretch the sliding window
+/// took while they were away, and the engine's clamp moves the resume into what is still held.
+///
+/// Measured on the harness with a 30 s window and a 70 s pause: the playhead sat at 93881.2 while the
+/// window slid to 93890.0...93920.0 underneath it, and the resume landed at 93895.0. The clamp is
+/// right; it was silent, and a viewer who paused a match saw it continue somewhere else with nothing
+/// on screen to say why.
+@Suite("A pause that outlived the buffer says so (Sodalite#104)")
+struct LiveResumeClampNoticeTests {
+
+    @Test("the sentence names what the viewer lost, not where the playhead went")
+    func thesentenceNamesTheLoss() {
+        let text = PlayerViewModel.liveResumeClampedNotice(skippedSeconds: 125)
+        // Two minutes, spelled the way the locale spells a duration.
+        #expect(text.contains("2"))
+        // The position is on the rail already and the badge says whether it is live, so the sentence
+        // does not repeat either.
+        #expect(!text.localizedCaseInsensitiveContains("live edge"))
+    }
+
+    @Test("a clamp of under a second is not worth a sentence")
+    func atinyClampIsSilent() {
+        // The engine clamps with a margin, so a resume barely outside the window moves by a fraction.
+        // Saying "0 seconds were not recorded" would be worse than saying nothing.
+        let clamp = LiveResumeClamp(skippedSeconds: 0.4, behindLiveSeconds: 29)
+        #expect(clamp.skippedSeconds < 1)
+    }
+
+    @Test("the harness capture produces a sentence with the right number in it")
+    func thefieldCaptureReadsCorrectly() {
+        // playhead 93881.16, clamp target 93895.0: fourteen seconds the window took.
+        let clamp = LiveResumeClamp(skippedSeconds: 93895.0 - 93881.16, behindLiveSeconds: 24.99)
+        #expect(clamp.skippedSeconds >= 1)
+        #expect(PlayerViewModel.liveResumeClampedNotice(
+            skippedSeconds: clamp.skippedSeconds).contains("14"))
     }
 }

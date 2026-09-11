@@ -1492,6 +1492,14 @@ final class PlayerViewModel {
             .sink { [weak self] in self?.handleLiveSourceReset() }
             .store(in: &cancellables)
 
+        // Sodalite#104: a pause longer than the DVR depth costs the viewer the stretch the sliding
+        // window took while they were away, and the resume lands somewhere else. The engine's clamp
+        // is right and was silent; this is the sentence that goes with it.
+        player.liveResumeClamped
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] clamp in self?.noteLiveResumeClamped(clamp) }
+            .store(in: &cancellables)
+
         // Sodalite#65: the system turned captions on by itself (muted playback and the other two
         // automatic-caption triggers). The engine deselected its own rendition and hands the request
         // over; the app answers the mute case with its own subtitles.
@@ -3010,6 +3018,31 @@ final class PlayerViewModel {
     func showControlsTemporarily() {
         showControls = true
         scheduleControlsHide()
+    }
+
+    /// Sodalite#104: a sentence the player shows for a few seconds and then forgets.
+    ///
+    /// Not an error, and deliberately not on the error surface: nothing failed, the session simply
+    /// could not resume where it was paused. Cleared on the next tune so a notice cannot outlive the
+    /// channel it belongs to.
+    var transientNotice: String?
+
+    @ObservationIgnored var transientNoticeTask: Task<Void, Never>?
+
+    /// How long a notice stays up. Long enough to read a sentence at arm's length on a phone and
+    /// across a room on a television, short enough not to sit over the picture.
+    static let transientNoticeSeconds: Double = 6
+
+    func showTransientNotice(_ text: String) {
+        transientNotice = text
+        showControls = true
+        scheduleControlsHide()
+        transientNoticeTask?.cancel()
+        transientNoticeTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(Self.transientNoticeSeconds))
+            guard !Task.isCancelled else { return }
+            self?.transientNotice = nil
+        }
     }
 
     #if os(iOS)
