@@ -95223,6 +95223,168 @@
         }
       }
     },
+    "livetv.resumeClamped" : {
+      "comment" : "Player notice: a pause outlived the live buffer, so the resume skipped ahead",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pauza byla delší než živá vyrovnávací paměť, %@ se nenahrálo."
+          }
+        },
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausen varede længere end live-bufferen, %@ blev ikke optaget."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Pause war länger als der Live-Puffer, %@ wurden nicht aufgezeichnet."
+          }
+        },
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η παύση κράτησε περισσότερο από το buffer ζωντανής ροής, %@ δεν καταγράφηκαν."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The pause outlasted the live buffer, %@ were not recorded."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La pausa superó el búfer en directo, %@ no se grabaron."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tauko kesti pidempään kuin suoran lähetyksen puskuri, %@ jäi tallentamatta."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La pause a dépassé le tampon en direct, %@ n’ont pas été enregistrées."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pauza je trajala dulje od međuspremnika uživo, %@ nije snimljeno."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A szünet hosszabb volt az élő puffernél, %@ nem lett rögzítve."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La pausa ha superato il buffer live, %@ non sono stati registrati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一時停止がライブバッファより長く続いたため、%@は録画されませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일시정지가 라이브 버퍼보다 길어져 %@이(가) 녹화되지 않았습니다."
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausen varte lenger enn direktebufferen, %@ ble ikke tatt opp."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De pauze duurde langer dan de livebuffer, %@ is niet opgenomen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pauza trwała dłużej niż bufor na żywo, %@ nie zostało nagrane."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A pausa durou mais que o buffer ao vivo, %@ não foram gravados."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A pausa durou mais do que o buffer em direto, %@ não foram gravados."
+          }
+        },
+        "ro" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pauza a depășit bufferul live, %@ nu au fost înregistrate."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пауза оказалась длиннее буфера прямого эфира, %@ не записано."
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pauza trvala dlhšie než živá vyrovnávacia pamäť, %@ sa nenahralo."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausen varade längre än direktbufferten, %@ spelades inte in."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duraklatma canlı arabellekten uzun sürdü, %@ kaydedilmedi."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пауза була довшою за буфер прямого ефіру, %@ не записано."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂停时间超过了直播缓冲，%@未被录制。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暫停時間超過了直播緩衝，%@未被錄製。"
+          }
+        }
+      }
+    },
     "livetv.segment.guide" : {
       "extractionState" : "manual",
       "localizations" : {
