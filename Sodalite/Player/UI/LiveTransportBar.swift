@@ -204,8 +204,8 @@ struct LiveTransportBar: View {
 
             VStack(spacing: 4) {
                 scrubber
-                railLabels
-                nextUpLine
+                LiveRailLabels(viewModel: viewModel)
+                LiveNextUpLine(viewModel: viewModel)
             }
         }
         .padding(.horizontal, 80)
@@ -303,7 +303,7 @@ struct LiveTransportBar: View {
 
                 // Quarter-hour marks, above the track and below the watched fill so they melt into the
                 // tint behind the playhead, exactly as the chapter ticks do on a stored title.
-                ForEach(quarterHourFractions, id: \.self) { fraction in
+                ForEach(viewModel.liveRailBlock.quarterHourFractions, id: \.self) { fraction in
                     Capsule()
                         .fill(.white.opacity(0.55))
                         .frame(width: 2, height: trackHeight + 4)
@@ -338,58 +338,6 @@ struct LiveTransportBar: View {
         .frame(height: 22)
     }
 
-    /// The two ends of the block, and the wall clock of the frame on screen tracking the knob between
-    /// them. Same slots and same styling the VOD bar gives elapsed and remaining, which is what those
-    /// two slots mean once the denominator is a block of time.
-    private var railLabels: some View {
-        GeometryReader { geo in
-            let width = geo.size.width
-            ZStack(alignment: .leading) {
-                HStack(spacing: 0) {
-                    Text(clockLabel(for: viewModel.liveRailBlock.start))
-                    Spacer(minLength: 0)
-                    Text(clockLabel(for: viewModel.liveRailBlock.end))
-                }
-                .font(.callout)
-                .fontWeight(.medium)
-                .monospacedDigit()
-                .foregroundStyle(.white.opacity(0.7))
-
-                // Hidden rather than pushed aside near the ends: there it would say what the end label
-                // beside it already says, and a clock sliding out from under its own knob reads worse
-                // than one that steps aside.
-                if let playheadClock, !playheadClockCollides(width: width) {
-                    HStack(spacing: 8) {
-                        if viewModel.seekReadout?.direction == -1 { seekReadoutView }
-                        Text(playheadClock)
-                            .font(.callout)
-                            .fontWeight(.medium)
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                        if viewModel.seekReadout?.direction == 1 { seekReadoutView }
-                    }
-                    .fixedSize()
-                    .position(x: clamp(liveProgress, width), y: Self.labelRowHeight / 2)
-                }
-            }
-        }
-        .frame(height: Self.labelRowHeight)
-    }
-
-    /// What follows the block, under the rail that marks its end, which is the thing it counts toward.
-    @ViewBuilder
-    private var nextUpLine: some View {
-        if let next = viewModel.liveNextProgram, let starts = next.startDate {
-            HStack(spacing: 0) {
-                Spacer(minLength: 0)
-                Text(Self.nextUpText(name: next.name, startsIn: starts.timeIntervalSince(Date())))
-                    .font(.callout)
-                    .foregroundStyle(.white.opacity(0.5))
-                    .lineLimit(1)
-            }
-        }
-    }
-
     // MARK: - Derived
 
     /// Where the knob is drawn: the in-flight scrub while scrubbing, else the rail.
@@ -412,42 +360,6 @@ struct LiveTransportBar: View {
 
     private var positionLabel: String {
         viewModel.livePositionLabel
-    }
-
-    /// Sodalite#104: a press and a hold, in the two languages they actually speak.
-    ///
-    /// A press names its interval, because the destination is known before it lands, and counts
-    /// itself, because a burst of four is the thing a viewer is keeping track of. A hold names its
-    /// rate and nothing else: a 15x to 240x scan has no countable step, so a fixed-interval glyph
-    /// over it would be a lie.
-    @ViewBuilder
-    private var seekReadoutView: some View {
-        switch viewModel.seekReadout {
-        case .press(let seconds, let count, let direction):
-            VStack(spacing: 2) {
-                Image(systemName: "\(direction < 0 ? "gobackward" : "goforward").\(seconds)")
-                    .font(.callout)
-                if count > 1 {
-                    Text(verbatim: "\(count)x")
-                        .font(.caption2)
-                        .monospacedDigit()
-                }
-            }
-            .foregroundStyle(.white)
-            .transition(.opacity)
-        case .hold(let rate, let direction):
-            HStack(spacing: 4) {
-                Image(systemName: direction < 0 ? "chevron.left.2" : "chevron.right.2")
-                    .font(.callout)
-                Text(verbatim: "\(rate)x")
-                    .font(.caption)
-                    .monospacedDigit()
-            }
-            .foregroundStyle(.white)
-            .transition(.opacity)
-        case nil:
-            EmptyView()
-        }
     }
 
     /// What the gesture has covered, drawn the way the gesture works: a countable comb of notches for
@@ -473,61 +385,8 @@ struct LiveTransportBar: View {
         }
     }
 
-    /// The label row's height, which is the callout line height the two rail clocks sit on.
-    private static let labelRowHeight: CGFloat = 30
-
-    /// Half the width a rail clock can take, near enough: the tracking clock is hidden inside this
-    /// distance of either end, where it would collide with the label that lives there.
-    private static let clockHalfWidth: CGFloat = 90
-
     private func clamp(_ fraction: CGFloat, _ width: CGFloat) -> CGFloat {
         max(0, min(width, width * fraction))
     }
 
-    private func playheadClockCollides(width: CGFloat) -> Bool {
-        let x = clamp(liveProgress, width)
-        return x < Self.clockHalfWidth || x > width - Self.clockHalfWidth
-    }
-
-    /// The wall clock of the frame on screen, or of the position a scrub is pointing at.
-    private var playheadClock: String? {
-        let block = viewModel.liveRailBlock
-        guard block.seconds > 0 else { return nil }
-        return clockLabel(for: block.wallClock(at: Float(liveProgress)))
-    }
-
-    private func clockLabel(for date: Date) -> String {
-        date.formatted(date: .omitted, time: .shortened)
-    }
-
-    /// Quarter-hour marks across the block, on the wall clock rather than on the block's own length:
-    /// a programme that starts at 20:15 has its marks at 20:30 and 20:45, which is where a viewer
-    /// reading a clock expects them.
-    private var quarterHourFractions: [Double] {
-        let block = viewModel.liveRailBlock
-        guard block.seconds > 0, block.seconds <= 12 * 3600 else { return [] }
-        let quarter: TimeInterval = 15 * 60
-        let firstMark = (block.start.timeIntervalSinceReferenceDate / quarter).rounded(.down) * quarter
-        var marks: [Double] = []
-        var t = firstMark
-        while t < block.end.timeIntervalSinceReferenceDate {
-            let fraction = (t - block.start.timeIntervalSinceReferenceDate) / block.seconds
-            if fraction > 0.001, fraction < 0.999 { marks.append(fraction) }
-            t += quarter
-        }
-        return marks
-    }
-
-    /// "In 101 minutes: The OT", or the name alone once the countdown would read as zero.
-    static func nextUpText(name: String, startsIn seconds: TimeInterval) -> String {
-        let minutes = Int((seconds / 60).rounded())
-        guard minutes >= 1 else {
-            return String(format: String(localized: "livetv.nextUp.now",
-                                         defaultValue: "Next: %@"), name)
-        }
-        let inWords = Duration.seconds(minutes * 60)
-            .formatted(.units(allowed: [.hours, .minutes], width: .wide))
-        return String(format: String(localized: "livetv.nextUp",
-                                     defaultValue: "In %1$@: %2$@"), inWords, name)
-    }
 }

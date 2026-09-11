@@ -542,6 +542,23 @@ extension PlayerViewModel {
         func wallClock(at fraction: Float) -> Date {
             start.addingTimeInterval(Double(fraction) * seconds)
         }
+
+        /// Quarter-hour marks across the block, on the WALL clock rather than on the block's own
+        /// length: a programme that starts at 20:15 has its marks at 20:30 and 20:45, which is where
+        /// a viewer reading a clock expects them. Empty for a block too long to mark usefully.
+        var quarterHourFractions: [Double] {
+            guard seconds > 0, seconds <= 12 * 3600 else { return [] }
+            let quarter: TimeInterval = 15 * 60
+            let startRef = start.timeIntervalSinceReferenceDate
+            var marks: [Double] = []
+            var t = (startRef / quarter).rounded(.down) * quarter
+            while t < end.timeIntervalSinceReferenceDate {
+                let fraction = (t - startRef) / seconds
+                if fraction > 0.001, fraction < 0.999 { marks.append(fraction) }
+                t += quarter
+            }
+            return marks
+        }
     }
 
     /// Sodalite#104: what the rail is drawn from.

@@ -202,6 +202,13 @@ struct PlayerTouchControls: View {
 
             scrubber
 
+            // Sodalite#104: the same programme framing the ten-foot bar carries, in the type scale
+            // this one already gives its two time slots. Both read one implementation.
+            if viewModel.isLiveSession {
+                LiveRailLabels(viewModel: viewModel, font: .caption, rowHeight: 20)
+                LiveNextUpLine(viewModel: viewModel, font: .caption)
+            }
+
             HStack {
                 // A live session has no elapsed time worth reading and no remaining time at all,
                 // so the two slots carry the live vocabulary the tvOS bar uses: the distance from
@@ -359,6 +366,15 @@ struct PlayerTouchControls: View {
                     }
                 } else if bufferedX > knobX {
                     Capsule().fill(.white.opacity(0.4)).frame(width: bufferedX, height: 6)
+                }
+                if live {
+                    // Quarter-hour marks, above the track and below the watched fill so they melt
+                    // into the tint behind the playhead, as the chapter ticks do on a stored title.
+                    ForEach(viewModel.liveRailBlock.quarterHourFractions, id: \.self) { fraction in
+                        Capsule().fill(.white.opacity(0.55))
+                            .frame(width: 2, height: 10)
+                            .offset(x: width * CGFloat(fraction) - 1)
+                    }
                 }
                 Capsule().fill(tint)
                     .frame(width: max(0, knobX - fillFrom), height: 6)
