@@ -221,16 +221,23 @@ struct JellyfinItem: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// Live-channel item so PlayerViewModel works unchanged for live playback; display name prefers the current program's title.
     init(liveChannel channel: JellyfinChannel, program: JellyfinProgram?) {
         self.id = channel.id
-        self.name = program?.name ?? channel.name
+        // Sodalite#104: an EPG entry for an episode carries everything a stored one does, and these
+        // three were hard-coded to nil, which is the only reason the player's title overlay showed
+        // one line on live where a recording of the same episode shows two. `name` becomes the
+        // EPISODE title when the guide names one, so the overlay's existing series branch renders a
+        // live episode identically to a stored one.
+        self.name = program?.episodeTitle ?? program?.name ?? channel.name
         self.sortName = nil
         self.originalTitle = nil
         self.overview = program?.overview
         self.type = .tvChannel
-        self.seriesName = nil
+        self.seriesName = program?.seriesName
         self.seriesId = nil
         self.seasonId = nil
-        self.parentIndexNumber = nil
-        self.indexNumber = nil
+        // Both halves or neither: a lone "S4" beside a programme name identifies nothing, and the
+        // guide already refuses to draw one (`EpisodeMetadataFormatter.programLabel`).
+        self.parentIndexNumber = program?.indexNumber == nil ? nil : program?.parentIndexNumber
+        self.indexNumber = program?.parentIndexNumber == nil ? nil : program?.indexNumber
         self.productionYear = nil
         self.communityRating = nil
         self.criticRating = nil

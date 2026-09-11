@@ -315,6 +315,7 @@ extension DependencyContainer {
                 autoSkipRecap: p.autoSkipRecap,
                 subtitlesOnSkipBack: p.subtitlesOnSkipBack,
                 liveTeletextPage: p.liveTeletextPage.rawValue,
+                liveBufferDepth: p.liveBufferDepth.rawValue,
                 autoplayCountdown: p.autoplayCountdown,
                 forceDolbyVisionOnNonDVDisplay: p.forceDolbyVisionOnNonDVDisplay,
                 touchpadScrubbing: p.touchpadScrubbing,
@@ -420,6 +421,9 @@ extension DependencyContainer {
             if let forced = p.autoForcedSubtitles { store.autoForcedSubtitles = forced }
             if let autoSkipRecap = p.autoSkipRecap { store.autoSkipRecap = autoSkipRecap }
             if let skipBackSubs = p.subtitlesOnSkipBack { store.subtitlesOnSkipBack = skipBackSubs }
+            if let bufferDepth = p.liveBufferDepth {
+                store.liveBufferDepth = PlaybackPreferences.LiveBufferDepth(rawValue: bufferDepth) ?? store.liveBufferDepth
+            }
             if let teletextPage = p.liveTeletextPage {
                 store.liveTeletextPage = PlaybackPreferences.LiveTeletextPage(rawValue: teletextPage) ?? store.liveTeletextPage
             }

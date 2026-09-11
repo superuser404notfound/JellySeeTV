@@ -43,6 +43,7 @@ final class PlaybackPreferences {
         static let preferServerTrickplay = "playback.preferServerTrickplay"
         static let playerRotationLocked = "playback.playerRotationLocked"
         static let networkBufferDepth = "playback.networkBufferDepth"
+        static let liveBufferDepth = "playback.liveBufferDepth"
         static let liveTeletextPage = "playback.liveTeletextPage"
         static let rememberTrackSelections = "playback.rememberTrackSelections"
         static let touchpadScrubbing = "playback.touchpadScrubbing"
@@ -228,6 +229,29 @@ final class PlaybackPreferences {
         }
     }
 
+    /// Sodalite#104: how much of a live channel the session records behind the live edge, which is
+    /// how far back the transport can be scrubbed.
+    ///
+    /// This used to be ten minutes, hard-coded in both live load paths, and ten minutes is under a
+    /// third of an ordinary programme: the rail could frame a football match and let a viewer reach
+    /// almost none of it. The depth is bounded by the engine whatever is asked for here
+    /// (`sessionRetentionBudgetBytes` caps the session at 2 GiB or a quarter of free space, and the
+    /// resident floor stops the seekable range advertising history the cache no longer holds), so a
+    /// deep default costs a viewer nothing on a small disk.
+    enum LiveBufferDepth: String, CaseIterable, Sendable, Identifiable {
+        case tenMinutes, thirtyMinutes, ninetyMinutes, threeHours
+        var id: String { rawValue }
+        var titleKey: String { "settings.playback.liveBuffer.\(rawValue)" }
+        var seconds: Double {
+            switch self {
+            case .tenMinutes:    return 10 * 60
+            case .thirtyMinutes: return 30 * 60
+            case .ninetyMinutes: return 90 * 60
+            case .threeHours:    return 3 * 3600
+            }
+        }
+    }
+
     // MARK: - Properties
 
     var autoplayNextEpisode: Bool {
@@ -379,6 +403,10 @@ final class PlaybackPreferences {
         didSet { store.set(networkBufferDepth.rawValue, forKey: Keys.networkBufferDepth) }
     }
 
+    var liveBufferDepth: LiveBufferDepth {
+        didSet { store.set(liveBufferDepth.rawValue, forKey: Keys.liveBufferDepth) }
+    }
+
     var liveTeletextPage: LiveTeletextPage {
         didSet { store.set(liveTeletextPage.rawValue, forKey: Keys.liveTeletextPage) }
     }
@@ -476,6 +504,8 @@ final class PlaybackPreferences {
         self.playerRotationLocked = store.object(forKey: Keys.playerRotationLocked) as? Bool ?? true
         self.networkBufferDepth = (store.string(forKey: Keys.networkBufferDepth))
             .flatMap(NetworkBufferDepth.init(rawValue:)) ?? .system
+        self.liveBufferDepth = (store.string(forKey: Keys.liveBufferDepth))
+            .flatMap(LiveBufferDepth.init(rawValue:)) ?? .ninetyMinutes
         self.liveTeletextPage = (store.string(forKey: Keys.liveTeletextPage))
             .flatMap(LiveTeletextPage.init(rawValue:)) ?? .auto
         self.rememberTrackSelections = store.object(forKey: Keys.rememberTrackSelections) as? Bool ?? true

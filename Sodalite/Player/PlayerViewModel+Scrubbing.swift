@@ -1,6 +1,25 @@
 import Foundation
 import AetherEngine
 
+/// Sodalite#104: the two seek gestures, as the transport reports them.
+///
+/// A press of the d-pad is a discrete step of a known length, and its destination is known before it
+/// lands; a hold is a scan ramping 15x to 240x that you stop when the picture looks right. Nothing
+/// about the second is countable, so a fixed-interval glyph over it would be a lie, and the bar used
+/// to draw both as the same knob sliding along the same track.
+enum SeekReadout: Equatable {
+    /// A burst of presses: the interval each one moves, how many have landed, and which way.
+    case press(seconds: Int, count: Int, direction: Int)
+    /// A continuous spool, at this multiple of real time.
+    case hold(rate: Int, direction: Int)
+
+    var direction: Int {
+        switch self {
+        case .press(_, _, let direction), .hold(_, let direction): return direction
+        }
+    }
+}
+
 extension PlayerViewModel {
 
     var effectiveDuration: Double {
@@ -16,11 +35,11 @@ extension PlayerViewModel {
     /// (gates the entry points).
     var scrubReferenceDuration: Double {
         if isLiveSession {
-            // Sodalite#104 round 4: the RAIL's span, not the resident range. A press has to move the
-            // knob by the seconds it names, and the knob is drawn across the rail.
+            // Sodalite#104: the RAIL's block, not the resident range. A press has to move the knob by
+            // the seconds it names, and the knob is drawn across the block.
             guard let range = liveSeekableRange,
                   range.upperBound > range.lowerBound else { return 0 }
-            return PlayerViewModel.liveDVRWindowSeconds
+            return liveRailBlock.seconds
         }
         return effectiveDuration
     }
@@ -61,7 +80,7 @@ extension PlayerViewModel {
         // isScrubbing guard let that timer tear the UI down mid-scrub.
         controlsTimer?.cancel()
 
-        scrubProgress = max(0, min(1, scrubStartProgress + Float(delta) * 0.3))
+        scrubProgress = clampedScrubProgress(scrubStartProgress + Float(delta) * 0.3)
         // scrubTime VOD-only (live bar draws from behindLiveSeconds); preview
         // is still fed for live via updateLiveScrubPreview.
         if !isLiveSession {
@@ -82,7 +101,7 @@ extension PlayerViewModel {
             if !isLiveSession { scrubPreview.prewarm() } else { updateLiveScrubPreview() }
         }
         controlsTimer?.cancel()
-        scrubProgress = max(0, min(1, fraction))
+        scrubProgress = clampedScrubProgress(fraction)
         if !isLiveSession {
             scrubTime = formatSeconds(Double(scrubProgress) * dur)
             scrubPreview.update(fraction: scrubProgress, durationSeconds: dur)
@@ -91,6 +110,14 @@ extension PlayerViewModel {
         }
     }
     #endif
+
+    /// Sodalite#104: a live scrub stops at the live edge, which on a programme block is not the right
+    /// end of the rail. The part of the block that has not aired is drawn, because a viewer wants to
+    /// see how much of the programme is still to come, and it cannot be aimed at.
+    func clampedScrubProgress(_ value: Float) -> Float {
+        let ceiling = isLiveSession ? liveRail.liveEdge : 1
+        return max(0, min(ceiling, value))
+    }
 
     func scrubPanEnded() {
         guard isScrubbing else { return }
@@ -109,9 +136,10 @@ extension PlayerViewModel {
     }
 
     func commitScrub() {
-        // Sodalite#104: whichever path ends the scrub, the pending idle is spent.
+        // Sodalite#104: whichever path ends the scrub, the pending idle and the readout are spent.
         skipCommitTask?.cancel()
         skipCommitTask = nil
+        seekReadout = nil
         // Live duration is 0, so the VOD body below would early-return without
         // seeking; commitLiveScrub maps across the moving seekable window.
         if isLiveSession { commitLiveScrub(); return }
@@ -139,6 +167,7 @@ extension PlayerViewModel {
     func cancelScrub() {
         skipCommitTask?.cancel()
         skipCommitTask = nil
+        seekReadout = nil
         isScrubbing = false
         pendingSkipBackOrigin = nil
         skipBackBurstOrigin = nil
@@ -181,6 +210,7 @@ extension PlayerViewModel {
                 // Media-seconds per real second: ramps 15x -> 240x ceiling
                 // (~8.6s held) so long films spool quickly.
                 let rate = min(15 + held * 26, 240)
+                self.seekReadout = .hold(rate: Int(rate.rounded()), direction: direction < 0 ? -1 : 1)
                 let deltaProgress = dir * Float(rate * tick / dur)
                 self.scrubProgress = max(0, min(1, self.scrubProgress + deltaProgress))
                 if !self.isLiveSession {

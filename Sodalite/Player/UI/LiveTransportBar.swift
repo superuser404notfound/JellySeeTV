@@ -112,16 +112,23 @@ struct LiveTransportBar: View {
             // .bottom, as in the VOD bar: an open menu grows its own column upward, and a centred
             // row would lift every sibling off the baseline to meet it.
             HStack(alignment: .bottom, spacing: 16) {
-                if !viewModel.isPlaying {
-                    PausedGlyph()
-                        .font(.callout)
-                }
+                // Sodalite#104: the leading pair carries a chip's own vertical padding so its
+                // baseline lands on the chips' rather than 8pt under them. Every chip in this row is
+                // callout text inside `.vertical, 8`, and a bottom-aligned row lines up the padded
+                // edges, not the text inside them, which is what made the row read as two rows.
+                HStack(spacing: 16) {
+                    if !viewModel.isPlaying {
+                        PausedGlyph()
+                            .font(.callout)
+                    }
 
-                Text(positionLabel)
-                    .font(.callout)
-                    .fontWeight(.medium)
-                    .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.7))
+                    Text(positionLabel)
+                        .font(.callout)
+                        .fontWeight(.medium)
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+                .padding(.vertical, 8)
 
                 Spacer()
 
@@ -195,7 +202,11 @@ struct LiveTransportBar: View {
                 txn.animation = .smooth(duration: 0.32)
             }
 
-            scrubber
+            VStack(spacing: 4) {
+                scrubber
+                LiveRailLabels(viewModel: viewModel)
+                LiveNextUpLine(viewModel: viewModel)
+            }
         }
         .padding(.horizontal, 80)
         .padding(.bottom, 60)
@@ -211,10 +222,10 @@ struct LiveTransportBar: View {
     /// "LIVE" pill: tinted at the edge, muted while behind live.
     private var liveBadge: some View {
         Text("livetv.liveBadge")
-            .font(.caption.bold())
+            .font(.callout.bold())
             .foregroundStyle(viewModel.isAtLiveEdge ? Color.white : .white.opacity(0.5))
             .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.vertical, 8)
             .background(
                 Capsule()
                     .fill(viewModel.isAtLiveEdge ? AnyShapeStyle(.tint) : AnyShapeStyle(Color.Theme.restFillStrong))
@@ -250,40 +261,71 @@ struct LiveTransportBar: View {
         .transition(.opacity)
     }
 
-    // MARK: - Scrubber
+    // MARK: - Meter
 
+    /// Sodalite#104: the programme on air as a block of wall clock, with the DVR buffer painted
+    /// inside it. Four zones, because "what has aired", "what this session recorded", "what you have
+    /// watched" and "what is still to come" are four different facts and the old single tint over a
+    /// faint track said none of them.
     private var scrubber: some View {
         GeometryReader { geo in
             let width = geo.size.width
             let active = viewModel.isScrubbing
             let trackHeight: CGFloat = active ? 10 : 6
             let knobSize: CGFloat = active ? 22 : 14
-            let knobX = max(0, min(width, width * liveProgress))
-
-            let availableX = max(0, min(width, width * CGFloat(railGeometry.availableFrom)))
+            let knobX = clamp(liveProgress, width)
+            let availableX = clamp(CGFloat(railGeometry.availableFrom), width)
+            let edgeX = clamp(CGFloat(railGeometry.liveEdge), width)
 
             ZStack(alignment: .leading) {
-                // The whole span, which is time this channel has but this session does not hold.
+                // The block itself: everything in it that has not aired yet.
                 Capsule()
-                    .fill(.white.opacity(0.08))
+                    .fill(Color.Theme.trackOnScrim)
                     .frame(height: trackHeight)
 
-                // What the session can actually play, unplayed. White for contrast regardless of accent.
-                Capsule()
-                    .fill(.white.opacity(0.2))
-                    .frame(width: max(0, width - availableX), height: trackHeight)
-                    .offset(x: availableX)
+                // Before the recording starts. DARKENED, not a lighter wash: a translucent white over
+                // the track composites BRIGHTER than the track, which says the opposite of "this is
+                // time you do not have".
+                if availableX > 0 {
+                    Capsule()
+                        .fill(.black.opacity(0.55))
+                        .frame(width: availableX, height: trackHeight)
+                }
 
-                Capsule()
-                    .fill(.tint)
-                    .frame(width: max(0, knobX - availableX), height: trackHeight)
-                    .offset(x: availableX)
+                // Recorded and not yet watched, which on a match is the answer to "can I skip this ad
+                // break". Same band the VOD bar draws for buffered-ahead.
+                if edgeX > knobX {
+                    Capsule()
+                        .fill(.white.opacity(0.4))
+                        .frame(width: edgeX - knobX, height: trackHeight)
+                        .offset(x: knobX)
+                }
 
-                // Live-edge tick pinned to the right end of the window.
+                // Quarter-hour marks, above the track and below the watched fill so they melt into the
+                // tint behind the playhead, exactly as the chapter ticks do on a stored title.
+                ForEach(viewModel.liveRailBlock.quarterHourFractions, id: \.self) { fraction in
+                    Capsule()
+                        .fill(.white.opacity(0.55))
+                        .frame(width: 2, height: trackHeight + 4)
+                        .offset(x: width * CGFloat(fraction) - 1)
+                }
+
+                // Watched.
+                if knobX > availableX {
+                    Capsule()
+                        .fill(.tint)
+                        .frame(width: knobX - availableX, height: trackHeight)
+                        .offset(x: availableX)
+                }
+
+                // The live edge, where it actually is inside the block rather than pinned to the right
+                // end of it. On the programme on air it walks across the block as the hour passes.
                 Capsule()
                     .fill(.tint)
                     .frame(width: 3, height: trackHeight + 8)
-                    .offset(x: width - 3)
+                    .offset(x: min(edgeX, width - 3))
+
+                seekTrail(width: width, knobX: knobX, trackHeight: trackHeight)
 
                 Circle()
                     .fill(.tint)
@@ -309,15 +351,42 @@ struct LiveTransportBar: View {
         CGFloat(viewModel.liveDisplayedProgress)
     }
 
-    /// Sodalite#104 round 4: the rail is a fixed span of time ending at the live edge, and the part
-    /// of it the session can actually play is drawn rather than used as the scale. Both come from
-    /// one decision in the view model, so the knob, the available region and a scrub target cannot
-    /// disagree about what the rail means.
-    private var railGeometry: (playhead: Float, availableFrom: Float) {
+    /// Sodalite#104: the rail is a block of wall clock, and what the session holds inside it is drawn
+    /// rather than used as the scale. Every part of it comes from one decision in the view model, so
+    /// the knob, the zones and a scrub target cannot disagree about what the rail means.
+    private var railGeometry: PlayerViewModel.LiveRailGeometry {
         viewModel.liveRail
     }
 
     private var positionLabel: String {
         viewModel.livePositionLabel
     }
+
+    /// What the gesture has covered, drawn the way the gesture works: a countable comb of notches for
+    /// a burst of presses, one continuous sweep for a hold, whose weight ramps with the rate.
+    @ViewBuilder
+    private func seekTrail(width: CGFloat, knobX: CGFloat, trackHeight: CGFloat) -> some View {
+        let originX = clamp(CGFloat(viewModel.scrubStartProgress), width)
+        switch viewModel.seekReadout {
+        case .press(_, let count, _) where count > 1:
+            ForEach(1..<count, id: \.self) { step in
+                Capsule()
+                    .fill(.white.opacity(0.75))
+                    .frame(width: 2, height: trackHeight + 4)
+                    .offset(x: originX + (knobX - originX) * CGFloat(step) / CGFloat(count) - 1)
+            }
+        case .hold(let rate, _):
+            Capsule()
+                .fill(.white.opacity(0.15 + 0.35 * min(1, Double(rate) / 240)))
+                .frame(width: abs(knobX - originX), height: trackHeight)
+                .offset(x: min(originX, knobX))
+        default:
+            EmptyView()
+        }
+    }
+
+    private func clamp(_ fraction: CGFloat, _ width: CGFloat) -> CGFloat {
+        max(0, min(width, width * fraction))
+    }
+
 }

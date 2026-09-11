@@ -270,6 +270,18 @@ struct PlaybackSettingsView: View {
                 )
 
                 ValuePickerRow(
+                    icon: "backward.circle",
+                    title: "settings.playback.liveBuffer",
+                    subtitle: "settings.playback.liveBuffer.subtitle",
+                    options: PlaybackPreferences.LiveBufferDepth.allCases,
+                    selection: Binding(
+                        get: { prefs.liveBufferDepth },
+                        set: { prefs.liveBufferDepth = $0 }
+                    ),
+                    label: { String(localized: String.LocalizationValue($0.titleKey)) }
+                )
+
+                ValuePickerRow(
                     icon: "number.square",
                     title: "settings.playback.teletext.title",
                     subtitle: "settings.playback.teletext.subtitle",

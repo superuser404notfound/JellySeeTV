@@ -36,6 +36,17 @@ enum EpisodeMetadataFormatter {
             .joined(separator: separator)
     }
 
+    /// The line UNDER a series title, where the series name is already on screen above it: the
+    /// token plus the episode's own title, with a title that merely repeats the series name dropped.
+    /// Some EPG sources set both to the show, and the two lines would then read "Friends" over
+    /// "S3, E15 · Friends" (Sodalite#104).
+    nonisolated static func episodeLine(under seriesName: String?,
+                                        season: Int?,
+                                        episode: Int?,
+                                        title: String?) -> String {
+        label(season: season, episode: episode, title: title == seriesName ? nil : title)
+    }
+
     /// The Live-TV cascade: episode title, then series name, then the bare token, dropping any
     /// value equal to `header` (the program name) because some EPG providers set them equal and
     /// the guide would render the same string twice.

@@ -623,6 +623,10 @@ final class PlayerViewModel {
     /// Sodalite#63: playhead before the current burst of backward jumps, recorded on press and consumed
     /// by the commit. Nil means the next commit is not a skip back (a pan, a hold-seek, a forward jump).
     /// Internal, not private: the scrub commits live in extensions in other files.
+    /// Sodalite#104: what the transport says about the seek in flight. Left and right already do two
+    /// different things, a discrete step and an accelerating scan, and the bar drew them identically.
+    var seekReadout: SeekReadout?
+
     @ObservationIgnored var pendingSkipBackOrigin: Double?
     /// The open skip-back window: the track it switched on and the position that ends it.
     @ObservationIgnored var skipBackSubtitleWindow: SkipBackSubtitleWindow.State?
@@ -666,6 +670,10 @@ final class PlayerViewModel {
     /// at tune time and kept current by `startFollowingLiveProgram` (#96), because `item` is built
     /// from it and the title above the picture reads `item`.
     var liveProgram: JellyfinProgram?
+    /// Sodalite#104: the guide around the playhead, sorted by start, so the rail can frame the block
+    /// the viewer is inside and name what follows it. A live session can sit an hour behind the edge,
+    /// which is a different programme from the one on air.
+    var liveProgramWindow: [JellyfinProgram] = []
     /// Wakes at the programme's end and asks what took its place. Nil for VOD.
     var liveProgramFollow: Task<Void, Never>?
     /// Live-TV service for tuner lifecycle (PlayerViewModel+Live). Nil for VOD.
@@ -1758,6 +1766,16 @@ final class PlayerViewModel {
             isScrubbing = true
             scrubStartProgress = progress
             scrubProgress = progress
+        }
+
+        // Sodalite#104: a press is exact and countable, so the readout says the interval and how many
+        // of them this burst has landed. A burst that changes direction starts counting again.
+        let direction = seconds < 0 ? -1 : 1
+        if case .press(let interval, let count, let previous) = seekReadout,
+           previous == direction, interval == abs(Int(seconds.rounded())) {
+            seekReadout = .press(seconds: interval, count: count + 1, direction: direction)
+        } else {
+            seekReadout = .press(seconds: abs(Int(seconds.rounded())), count: 1, direction: direction)
         }
 
         showControls = true

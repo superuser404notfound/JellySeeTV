@@ -113,7 +113,8 @@ struct CloudSyncForwardCompatTests {
                 playerRotationLocked: false, networkBufferDepth: "balanced",
                 rememberTrackSelections: true, autoForcedSubtitles: true,
                 autoSkipRecap: true,
-                subtitlesOnSkipBack: true, liveTeletextPage: "auto", autoplayCountdown: true,
+                subtitlesOnSkipBack: true, liveTeletextPage: "auto",
+                liveBufferDepth: "ninetyMinutes", autoplayCountdown: true,
                 forceDolbyVisionOnNonDVDisplay: true, touchpadScrubbing: true,
                 nextEpisodeCountdownAnchor: "end"
             ))
