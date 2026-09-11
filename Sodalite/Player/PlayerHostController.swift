@@ -856,6 +856,28 @@ final class PlayerHostController: AVPlayerViewController {
         // tvOS deactivates the AVAudioSession on background; without re-arming it the post-reload resume drives a synchronizer with no live session (state .playing but no audio, no frames advance).
         try? AVAudioSession.sharedInstance().setActive(true)
 
+        // A live session cannot be reloaded at a position, and this is where that used to end in a
+        // spinner that never stopped. The direct-ingest path is a custom, forward-only source: the
+        // engine's rebuild reopens the retained reader where the playhead was, which such an origin
+        // cannot serve, so `reloadAtCurrentPosition` refuses. Measured on a device: a channel paused
+        // for four minutes, the app backgrounded, the pipeline torn down by the engine's grace window
+        // (#127), and on the way back the reload did nothing at all, silently, for twenty minutes.
+        //
+        // The answer for live is not a rebuild, it is a tune: the DVR window died with the producer,
+        // so there is no position to come back to and the live edge is where the viewer is going.
+        if viewModel.isLiveSession {
+            LogTap.shared.note(
+                "[Live] foreground return on a torn-down live session; tuning again"
+                + (viewModel.player.sessionReloadRefusal.map { " (engine refuses a rebuild: \($0))" }
+                   ?? ""))
+            viewModel.beginBackgroundReload()
+            Task { @MainActor in
+                await viewModel.retuneLiveStream()
+                viewModel.finishBackgroundReload()
+            }
+            return
+        }
+
         // Real background return: VT + AVIO are dead, reload from current position then hold paused on the resumed frame (auto-resume after a sleep gap is startling). load() returns once the panel handshake settles, NOT once audio flows, so the trailing pause can land while AVPlayer is still waitingToPlayAtSpecifiedRate re-buffering the AVIO reconnect. If the user presses Play during the slow reload that intent must win or it clobbers the resume ("play does nothing, press again"); beginBackgroundReload/finishBackgroundReload arbitrate.
         viewModel.beginBackgroundReload()
         Task { @MainActor in
