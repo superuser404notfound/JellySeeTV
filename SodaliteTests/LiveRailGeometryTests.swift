@@ -447,3 +447,42 @@ struct LiveNextUpTests {
         #expect(!text.contains("0 "))
     }
 }
+
+/// Sodalite#104: the rail spent the first minutes of every session on its no-guide fallback while the
+/// title overlay above it already named the programme.
+///
+/// Reported from a device: a rail labelled 3:27 to 4:57 under a title reading "Loudenvielle,
+/// Highlights". Those two clocks are not a programme, they are the rolling window wearing one's
+/// clothes: ninety minutes of buffer depth ending at "now", to the minute. The session is launched
+/// with the programme on air, and only the guide FETCH filled the window the rail read, and that
+/// fetch waited behind the follower's first sleep.
+@Suite("The rail reads the programme the session was launched with (Sodalite#104)")
+struct LiveRailProgramSourceTests {
+
+    private func program(_ id: String) -> JellyfinProgram {
+        JellyfinProgram(
+            id: id, channelId: "c", channelName: "One", name: "Loudenvielle, Highlights",
+            overview: nil, startDate: Date(timeIntervalSinceReferenceDate: 800_000_000),
+            endDate: Date(timeIntervalSinceReferenceDate: 800_005_400), genres: nil, imageTags: nil,
+            isLive: true, isNews: nil, isMovie: nil, isSeries: nil, isKids: nil, isSports: nil,
+            seriesName: nil, parentIndexNumber: nil, indexNumber: nil, episodeTitle: nil,
+            timerId: nil, seriesTimerId: nil)
+    }
+
+    @Test("the launch programme carries the rail until the guide fetch lands")
+    func thelaunchProgrammeIsUsed() {
+        let launched = program("on-air")
+        #expect(PlayerViewModel.railPrograms(window: [], launched: launched).map(\.id) == ["on-air"])
+    }
+
+    @Test("the fetched window supersedes it, because it knows what comes before and after")
+    func thefetchedWindowWins() {
+        let fetched = [program("previous"), program("on-air"), program("next")]
+        #expect(PlayerViewModel.railPrograms(window: fetched, launched: program("on-air")).count == 3)
+    }
+
+    @Test("a channel with no guide at all still has nothing, and falls back as it should")
+    func nothingIsStillNothing() {
+        #expect(PlayerViewModel.railPrograms(window: [], launched: nil).isEmpty)
+    }
+}

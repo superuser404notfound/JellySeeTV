@@ -494,7 +494,8 @@ extension PlayerViewModel {
                 let behind = max(0, range.upperBound - time)
                 let edge = Self.liveEdgeWallClock()
                 let block = Self.liveRailBlock(
-                    programs: self.liveProgramWindow,
+                    programs: Self.railPrograms(window: self.liveProgramWindow,
+                                                launched: self.liveProgram),
                     playheadWallClock: edge.addingTimeInterval(-behind),
                     liveEdgeWallClock: edge,
                     fallbackSpanSeconds: liveDVRWindowSeconds)
@@ -651,10 +652,23 @@ extension PlayerViewModel {
     var liveRailBlock: LiveRailBlock {
         let edge = Self.liveEdgeWallClock()
         return Self.liveRailBlock(
-            programs: liveProgramWindow,
+            programs: Self.railPrograms(window: liveProgramWindow, launched: liveProgram),
             playheadWallClock: edge.addingTimeInterval(-max(0, behindLiveSeconds)),
             liveEdgeWallClock: edge,
             fallbackSpanSeconds: liveDVRWindowSeconds)
+    }
+
+    /// Sodalite#104: the guide the rail reads.
+    ///
+    /// The fetched window, or the programme the session was LAUNCHED with until that window arrives.
+    /// Without the second half the rail spends the first minutes of every session on its no-guide
+    /// fallback while the title overlay above it already names the programme: reported from a device
+    /// as a rail labelled 3:27 to 4:57 under a title that read "Loudenvielle, Highlights", which is
+    /// the rolling window (ninety minutes of buffer depth, ending at "now") wearing a programme's
+    /// clothes.
+    static func railPrograms(window: [JellyfinProgram],
+                             launched: JellyfinProgram?) -> [JellyfinProgram] {
+        window.isEmpty ? [launched].compactMap { $0 } : window
     }
 
     /// What follows the block on screen, for the next-up line. Nil while the guide says nothing about
@@ -1055,9 +1069,15 @@ extension PlayerViewModel {
         liveProgramFollow?.cancel()
         guard isLiveSession, let channel = liveChannel, let service = liveTvService else { return }
         liveProgramFollow = Task { [weak self] in
-            var checkAt = PlayerViewModel.nextLiveProgramCheck(after: self?.liveProgram, from: Date())
+            // Sodalite#104: the first look happens straight away rather than after a wait. The
+            // launch context carries the programme on air and nothing else, and the rail wants the
+            // span around it: which programme the playhead is inside once it timeshifts, and which
+            // one follows. Waiting five minutes for that leaves the next-up line blank on a session
+            // whose title bar already names the programme.
+            var checkAt = Date()
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(max(checkAt.timeIntervalSinceNow, 1)))
+                let wait = checkAt.timeIntervalSinceNow
+                if wait > 0 { try? await Task.sleep(for: .seconds(wait)) }
                 guard !Task.isCancelled else { return }
                 guard let self else { return }
                 let adopted = await self.adoptCurrentLiveProgram(channel: channel, service: service)
