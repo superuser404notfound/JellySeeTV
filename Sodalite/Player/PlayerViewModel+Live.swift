@@ -691,15 +691,34 @@ extension PlayerViewModel {
         return String(format: "-%d:%02d", behind / 60, behind % 60)
     }
 
-    /// The position a live bar prints where a VOD bar prints elapsed time: the word at the edge,
-    /// the distance from it otherwise. A live session has no elapsed time worth reading (it would
-    /// be seconds since the tune) and no remaining time at all, which is what left the iOS bar
-    /// printing -00:00 next to a thirty second rewind.
+    /// The position a live bar prints where a VOD bar prints elapsed time: how far the playhead is
+    /// from the live edge, or the wall clock of the picture once it is AT the edge.
+    ///
+    /// A live session has no elapsed time worth reading (it would be seconds since the tune) and no
+    /// remaining time at all, which is what left the iOS bar printing -00:00 next to a thirty second
+    /// rewind. It used to print the word LIVE at the edge, which the badge at the other end of the
+    /// same row was already saying: on the phone the two sit close enough together to read as a
+    /// stutter. The badge keeps that word, this slot keeps a number in both states, and the slot
+    /// never goes empty, which would walk the play button off centre every time the edge is crossed.
     var livePositionLabel: String {
-        if isAtLiveEdge {
-            return NSLocalizedString("livetv.liveBadge", comment: "Live edge label")
-        }
-        return Self.liveBehindLabel(seconds: behindLiveSeconds)
+        Self.livePositionLabel(
+            isAtLiveEdge: isAtLiveEdge,
+            behindLiveSeconds: behindLiveSeconds,
+            playheadWallClock: Self.liveEdgeWallClock()
+                .addingTimeInterval(-max(0, behindLiveSeconds)))
+    }
+
+    static func livePositionLabel(isAtLiveEdge: Bool,
+                                  behindLiveSeconds: Double,
+                                  playheadWallClock: Date) -> String {
+        isAtLiveEdge ? clockLabel(for: playheadWallClock)
+                     : liveBehindLabel(seconds: behindLiveSeconds)
+    }
+
+    /// A wall clock as every live label prints it, so the rail's two ends, the clock tracking the
+    /// knob and the position slot cannot disagree about the format.
+    static func clockLabel(for date: Date) -> String {
+        date.formatted(date: .omitted, time: .shortened)
     }
 
     /// Snap back to the live edge (return-to-live chip).

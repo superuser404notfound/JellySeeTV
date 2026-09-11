@@ -226,6 +226,31 @@ struct LiveTransportLabelTests {
         // The engine's behind-live figure can cross zero by a fraction between two cuts.
         #expect(PlayerViewModel.liveBehindLabel(seconds: -2) == "-0:00")
     }
+
+    /// At the edge this slot used to print the word LIVE, which the badge at the other end of the
+    /// same row was already saying. On the phone the two sit close enough together to read as a
+    /// stutter. The badge keeps the word; this slot keeps a number in both states, because an empty
+    /// one would walk the play button off centre every time the edge is crossed.
+    @Test("the slot says something in both states, and never the badge's word")
+    func theslotNeverRepeatsTheBadge() {
+        let at = Date(timeIntervalSinceReferenceDate: 800_000_000)
+        let live = PlayerViewModel.livePositionLabel(
+            isAtLiveEdge: true, behindLiveSeconds: 0, playheadWallClock: at)
+        #expect(live == PlayerViewModel.clockLabel(for: at))
+        #expect(!live.isEmpty)
+        #expect(!live.localizedCaseInsensitiveContains("live"))
+        // Behind it, the distance, which is the thing a viewer actually wants there.
+        #expect(PlayerViewModel.livePositionLabel(
+            isAtLiveEdge: false, behindLiveSeconds: 30, playheadWallClock: at) == "-0:30")
+    }
+
+    @Test("both bars format a wall clock the same way")
+    func oneClockFormat() {
+        let at = Date(timeIntervalSinceReferenceDate: 800_000_000)
+        // The rail's ends, the clock tracking the knob and the position slot all read this one
+        // function, so a rail cannot print 17:43 beside a slot printing 5:43 PM.
+        #expect(PlayerViewModel.clockLabel(for: at) == at.formatted(date: .omitted, time: .shortened))
+    }
 }
 
 /// Sodalite#104: a live episode carries everything a stored one does, and the player showed one line.

@@ -19,9 +19,9 @@ struct LiveRailLabels: View {
             let width = geo.size.width
             ZStack(alignment: .leading) {
                 HStack(spacing: 0) {
-                    Text(Self.clockLabel(for: viewModel.liveRailBlock.start))
+                    Text(PlayerViewModel.clockLabel(for: viewModel.liveRailBlock.start))
                     Spacer(minLength: 0)
-                    Text(Self.clockLabel(for: viewModel.liveRailBlock.end))
+                    Text(PlayerViewModel.clockLabel(for: viewModel.liveRailBlock.end))
                 }
                 .font(font)
                 .fontWeight(.medium)
@@ -64,12 +64,9 @@ struct LiveRailLabels: View {
     private var playheadClock: String? {
         let block = viewModel.liveRailBlock
         guard block.seconds > 0 else { return nil }
-        return Self.clockLabel(for: block.wallClock(at: viewModel.liveDisplayedProgress))
+        return PlayerViewModel.clockLabel(for: block.wallClock(at: viewModel.liveDisplayedProgress))
     }
 
-    static func clockLabel(for date: Date) -> String {
-        date.formatted(date: .omitted, time: .shortened)
-    }
 }
 
 /// Sodalite#104: what follows the block, under the rail that marks its end, which is the thing it
